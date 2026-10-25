@@ -593,6 +593,8 @@ const panelTitle = $('panel-title');
 const panelDesc = $('panel-desc');
 const panelTabs = $('panel-tabs');
 const panelBody = $('panel-body');
+const guide = $('guide');
+const guideFrame = $('guide-frame');
 
 const state = {
     scene: 'portada',
@@ -795,6 +797,7 @@ window.addEventListener('keydown', (e) => {
     }
     if (e.key === 'Escape' && document.activeElement !== searchInput) {
         if (!filtersMenu.hidden) filtersMenu.hidden = true;
+        else if (!guide.hidden) closeGuide();
         else if (state.selected) closePanel();
     }
 });
@@ -881,6 +884,11 @@ function renderBlock(block) {
             return `<ul class="kb-sources">${block.items.map(item => `<li>${renderRich(item)}</li>`).join('')}</ul>`;
         case 'calculator':
             return `<div class="kb-calc" data-calc="${block.id}"></div>`;
+        case 'guide':
+            return `<div class="kb-guide">
+                <p class="kb-p">${renderRich(block.text)}</p>
+                <button type="button" class="control kb-guide-open">Abrir la guía</button>
+            </div>`;
         case 'html':
             return block.html;
         case 'code': {
@@ -952,9 +960,24 @@ function openPanel(topic) {
     panelBody.scrollTop = 0;
     panel.hidden = false;
     app.classList.add('has-panel');
+    // Los temas con guía de estudio la abren a pantalla completa al entrar
+    const src = topic.knowledge && KNOWLEDGE[topic.knowledge] ? KNOWLEDGE[topic.knowledge].guide : null;
+    panel.dataset.guide = src || '';
+    if (src) openGuide(src);
+    else closeGuide();
+}
+
+function openGuide(src) {
+    if (guideFrame.getAttribute('src') !== src) guideFrame.setAttribute('src', src);
+    guide.hidden = false;
+}
+
+function closeGuide() {
+    guide.hidden = true;
 }
 
 function closePanel() {
+    closeGuide();
     panel.hidden = true;
     app.classList.remove('has-panel');
     state.selected = null;
@@ -985,9 +1008,11 @@ panelBody.addEventListener('click', (e) => {
     }
     const row = e.target.closest('.related-row');
     if (row) selectTopic(row.dataset.id);
+    if (e.target.closest('.kb-guide-open') && panel.dataset.guide) openGuide(panel.dataset.guide);
 });
 
 $('panel-close').addEventListener('click', closePanel);
+$('guide-close').addEventListener('click', closeGuide);
 
 function mountCalculator(el) {
     const calc = CALCULATORS[el.dataset.calc];

@@ -2,7 +2,8 @@
  * Gendanken Palast - Base de conocimientos desplegable
  * Cada entrada se asocia a un concepto de main.js mediante su campo `knowledge`.
  * Texto con matemáticas en línea entre $...$ (KaTeX). Bloques disponibles:
- *   p, list, callout, formula, steps, table, calculator, sources
+ *   p, list, callout, formula, steps, table, calculator, sources, guide
+ * Una entrada con `guide` abre esa guía de estudio a pantalla completa al entrar en el tema.
  */
 
 // --- FUNCIONES FINANCIERO-ACTUARIALES (Tema 1 y Tema 2, Previsión social complementaria) ---
@@ -108,11 +109,13 @@ const CALCULATORS = {
 
 const KNOWLEDGE = {
     prevision_pensiones: {
+        guide: 'guias/prevision_social.html',
         sections: [
             {
                 id: 'idea',
                 title: 'Idea clave',
                 blocks: [
+                    { type: 'guide', text: 'Guía de estudio completa: líneas temporales de cada apartado, preguntas posibles resueltas, calculadora y tarjetas de repaso.' },
                     { type: 'p', text: 'La previsión social busca que una persona mantenga, cuando deja de cobrar su salario, un nivel de vida parecido al de su etapa activa. El fundamento económico es la hipótesis del ciclo vital de Modigliani: se ahorra durante la vida laboral para consumir de forma estable durante toda la vida.' },
                     { type: 'list', title: 'Contingencias que cubre', items: [
                         'Jubilación, invalidez y fallecimiento: impiden o terminan la obtención de rentas del trabajo, por lo que el sistema debe dar rentas sustitutivas al trabajador o a sus beneficiarios.'
@@ -224,7 +227,7 @@ const KNOWLEDGE = {
                     ] },
                     { type: 'p', text: 'Entre 65 y 75 años el efecto mutualidad es pequeño y puede compensarse con rentabilidad; a edades avanzadas crece rápido, y la renta vitalicia se convierte en la herramienta más eficaz frente al riesgo de longevidad.' },
                     { type: 'p', text: '<b>Rentabilidad de un plan de pensiones.</b> 6.000 € cada 20 de julio de 2017 a 2025 compran 593,877 participaciones; al jubilarse el 15/12/2025 con la participación a 150 € el fondo vale 89.081,55 €. La rentabilidad media anual $R_m$ resuelve $89.081{,}55=6.000\\sum_{k=0}^{8}(1+R_m)^{k+148/365}$, de donde $R_m\\approx11{,}10\\%$. El rendimiento absoluto es $89.081{,}55-54.000=35.081{,}55$ €.' },
-                    { type: 'callout', text: 'Los apuntes dan $R_m=11{,}01\\%$, pero con ese tipo el fondo saldría 88.697,84 €; el valor que cuadra es $11{,}10\\%$ (probable errata).' },
+                    { type: 'callout', text: 'La solución de clase da $R_m=11{,}01\\%$, pero con ese tipo el fondo saldría 88.697,84 €; el valor que cuadra es $11{,}10\\%$ (probable errata).' },
                     { type: 'list', title: 'Para practicar (Tema 2, colectivo de 25 a 64 años, jubilación a los 65)', items: [
                         'Caso 1: tasa de cotización en reparto simple anual con pensión del 80 % del último salario o del salario medio.',
                         'Caso 2: igual, con inflación del 2 % y pensiones que crecen un punto menos, igual o un punto más que la inflación.',
