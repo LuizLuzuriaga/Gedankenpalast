@@ -1,51 +1,309 @@
 /**
- * Gedankenpalast - Atlas Topológico Actuarial & Singularidad Cognitiva
- * Integración Dual de Modelos 3D GLB (Skybox Nebula & Point Cloud)
- * con Red Filamentaria Cósmica (Estilo Laniakea / CF4 / Illustris) y KaTeX
+ * Gendanken Palast - Experiencia 3D Interactiva
+ * Escena 1: Portada (Fondo blanco, texto único, bola negra explorable y zoom)
+ * Escena 2: Grafo de Conocimiento Cosmológico (4 caminos, El Gran Atractor, puntos brillantes)
  */
+
+// --- DATOS DE LOS 4 CAMINOS Y CONCEPTOS ---
+const CONCEPTS = [
+    // CENTRO: EL GRAN ATRACTOR
+    {
+        id: "gran_atractor",
+        name: "El Gran Atractor",
+        category: "Centro Unificador",
+        color: "#ffffff",
+        haloColor: "#fde047",
+        size: 18,
+        pathId: "center",
+        pos: [0, 0, 0],
+        desc: "El núcleo gravitacional y conceptual donde convergen las 4 disciplinas. Representa la síntesis unificadora de las matemáticas, la econometría, la modelización actuarial y la ciencia de datos para cuantificar la incertidumbre y tomar decisiones óptimas.",
+        connections: ["Estadística", "Macroeconomía", "Gestión de riesgos", "Cálculo", "Optimización"]
+    },
+
+    // CAMINO 1: DATA SCIENCE
+    {
+        id: "ds_estadistica",
+        name: "Estadística",
+        category: "Data Science",
+        color: "#38bdf8",
+        haloColor: "#0284c7",
+        size: 13,
+        pathId: "ds",
+        pos: [95, 55, 75],
+        desc: "Fundamento del análisis empírico y diseño experimental: estimación puntual, intervalos de confianza, contrastes de hipótesis y teoría asintótica para inferir propiedades poblacionales a partir de muestras.",
+        connections: ["Probabilidad", "Econometría", "Machine Learning supervisado"]
+    },
+    {
+        id: "ds_econometria",
+        name: "Econometría (Modelos Econométricos)",
+        category: "Data Science",
+        color: "#38bdf8",
+        haloColor: "#0284c7",
+        size: 12,
+        pathId: "ds",
+        pos: [165, 95, 130],
+        desc: "Modelos econométricos aplicados a la ciencia de datos: especificación, estimación por MCO/MCG, contraste de endogeneidad, series temporales, modelos autorregresivos y evaluación de causalidad.",
+        connections: ["Econometría (Economía)", "Estadística", "Machine Learning supervisado"]
+    },
+    {
+        id: "ds_ml_supervisado",
+        name: "Machine Learning supervisado",
+        category: "Data Science",
+        color: "#38bdf8",
+        haloColor: "#0284c7",
+        size: 13,
+        pathId: "ds",
+        pos: [240, 135, 185],
+        desc: "Algoritmos entrenados con datos etiquetados para predecir variables continuas o discretas: modelos lineales generalizados (GLM), árboles de decisión, Random Forest, XGBoost y Support Vector Machines (SVM).",
+        connections: ["Álgebra lineal", "Optimización", "Machine Learning no supervisado", "Deep Learning"]
+    },
+    {
+        id: "ds_ml_no_supervisado",
+        name: "Machine Learning no supervisado",
+        category: "Data Science",
+        color: "#38bdf8",
+        haloColor: "#0284c7",
+        size: 12,
+        pathId: "ds",
+        pos: [310, 175, 235],
+        desc: "Descubrimiento de patrones latentes y agrupaciones intrínsecas en datos no etiquetados: algoritmos de clustering (K-means, jerárquico, DBSCAN) y técnicas de reducción de dimensionalidad (PCA, t-SNE, UMAP).",
+        connections: ["Álgebra lineal", "Data Mining", "Machine Learning supervisado"]
+    },
+    {
+        id: "ds_deep_learning",
+        name: "Deep Learning",
+        category: "Data Science",
+        color: "#38bdf8",
+        haloColor: "#0284c7",
+        size: 13,
+        pathId: "ds",
+        pos: [380, 215, 285],
+        desc: "Redes neuronales profundas con representaciones jerárquicas multinivel: perceptrón multicapa, redes convolucionales (CNN), recurrentes (LSTM) y arquitecturas Transformer para aprendizaje no lineal extremo.",
+        connections: ["Cálculo", "Optimización", "Machine Learning supervisado"]
+    },
+    {
+        id: "ds_data_mining",
+        name: "Data Mining",
+        category: "Data Science",
+        color: "#38bdf8",
+        haloColor: "#0284c7",
+        size: 11,
+        pathId: "ds",
+        pos: [450, 255, 335],
+        desc: "Prospección y extracción automática de información procesable y reglas de asociación en almacenes masivos de datos estructurados y no estructurados.",
+        connections: ["Machine Learning no supervisado", "Estadística"]
+    },
+
+    // CAMINO 2: ECONOMÍA
+    {
+        id: "eco_macro",
+        name: "Macroeconomía",
+        category: "Economía",
+        color: "#34d399",
+        haloColor: "#059669",
+        size: 13,
+        pathId: "eco",
+        pos: [-110, 65, 80],
+        desc: "Análisis del comportamiento global del sistema económico: producto interior bruto (PIB), dinámicas de inflación, curvas de tipos de interés, política monetaria, ciclos y modelos de equilibrio dinámico estocástico (DSGE).",
+        connections: ["Microeconomía", "Econometría", "Gestión de riesgos"]
+    },
+    {
+        id: "eco_micro",
+        name: "Microeconomía",
+        category: "Economía",
+        color: "#34d399",
+        haloColor: "#059669",
+        size: 13,
+        pathId: "eco",
+        pos: [-200, 120, 145],
+        desc: "Modelización del comportamiento de agentes individuales (consumidores y empresas): maximización de utilidad con restricciones, teoría de producción, fijación de precios, estructuras de mercado y teoría de juegos.",
+        connections: ["Optimización", "Macroeconomía", "Seguros No Vida"]
+    },
+    {
+        id: "eco_econometria",
+        name: "Econometría",
+        category: "Economía",
+        color: "#34d399",
+        haloColor: "#059669",
+        size: 12,
+        pathId: "eco",
+        pos: [-285, 175, 210],
+        desc: "Herramienta cuantitativa esencial para contrastar empíricamente teorías económicas mediante datos observacionales y paneles de datos, conectando directamente con los métodos de Data Science.",
+        connections: ["Econometría (Modelos Econométricos)", "Macroeconomía", "Estadística"]
+    },
+
+    // CAMINO 3: CIENCIAS ACTUARIALES
+    {
+        id: "act_gestion_riesgos",
+        name: "Gestión de riesgos",
+        category: "Ciencias Actuariales",
+        color: "#fbbf24",
+        haloColor: "#d97706",
+        size: 13,
+        pathId: "act",
+        pos: [-100, -65, -80],
+        desc: "Marco integral de identificación, medición y control de exposiciones financieras y biométricas: métricas de cola como Valor en Riesgo (VaR) y Expected Shortfall (TVaR), junto con pruebas de estrés y escenarios extremos.",
+        connections: ["Solvencia (Solvencia II)", "Macroeconomía", "Probabilidad"]
+    },
+    {
+        id: "act_solvencia",
+        name: "Solvencia (Solvencia II)",
+        category: "Ciencias Actuariales",
+        color: "#fbbf24",
+        haloColor: "#d97706",
+        size: 14,
+        pathId: "act",
+        pos: [-175, -115, -145],
+        desc: "Régimen regulatorio europeo de solvencia prudencial para aseguradoras: cálculo del Capital de Solvencia Obligatorio (SCR) mediante fórmula estándar o modelos internos, Pillar II (ORSA) y disciplina de mercado.",
+        connections: ["Gestión de riesgos", "IFRS 17", "Seguros de Vida", "Seguros No Vida"]
+    },
+    {
+        id: "act_ifrs17",
+        name: "IFRS 17",
+        category: "Ciencias Actuariales",
+        color: "#fbbf24",
+        haloColor: "#d97706",
+        size: 13,
+        pathId: "act",
+        pos: [-245, -165, -205],
+        desc: "Estándar contable internacional de contratos de seguro: valoración económica de pasivos mediante flujos de efectivo descontados insesgados (BEL), Ajuste por Riesgo (RA) y Margen de Servicio Contractual (CSM).",
+        connections: ["Contabilidad", "Solvencia (Solvencia II)"]
+    },
+    {
+        id: "act_contabilidad",
+        name: "Contabilidad",
+        category: "Ciencias Actuariales",
+        color: "#fbbf24",
+        haloColor: "#d97706",
+        size: 11,
+        pathId: "act",
+        pos: [-305, -210, -255],
+        desc: "Registro sistemático y divulgación del balance y cuenta técnica: devengo del margen de servicio, liberación de reservas técnicas y reconciliación contable-actuarial.",
+        connections: ["IFRS 17"]
+    },
+    {
+        id: "act_vida",
+        name: "Seguros de Vida",
+        category: "Ciencias Actuariales",
+        color: "#fbbf24",
+        haloColor: "#d97706",
+        size: 13,
+        pathId: "act",
+        pos: [-365, -250, -305],
+        desc: "Modelización estocástica y determinista de riesgos biométricos: tablas de mortalidad dinámicas, riesgo de longevidad, rentas vitalicias, conmutación actuarial y proyecciones de supervivencia.",
+        connections: ["Probabilidad", "Solvencia (Solvencia II)"]
+    },
+    {
+        id: "act_no_vida",
+        name: "Seguros No Vida",
+        category: "Ciencias Actuariales",
+        color: "#fbbf24",
+        haloColor: "#d97706",
+        size: 13,
+        pathId: "act",
+        pos: [-430, -295, -360],
+        desc: "Tarificación y reservas en seguros generales: procesos de Poisson y binomial negativa para frecuencia, distribuciones de cola pesada para severidad, credibilidad y triángulos IBNR (Chain Ladder).",
+        connections: ["Microeconomía", "Solvencia (Solvencia II)", "Estadística"]
+    },
+
+    // CAMINO 4: MATEMÁTICAS Y PROBABILIDAD
+    {
+        id: "mat_calculo",
+        name: "Cálculo",
+        category: "Matemáticas y Probabilidad",
+        color: "#c084fc",
+        haloColor: "#7e22ce",
+        size: 13,
+        pathId: "mat",
+        pos: [105, -60, -70],
+        desc: "Cálculo diferencial e integral multivariable, cálculo vectorial y cálculo estocástico (Lema de Itô): análisis de tasas instantáneas de cambio, integrales de contorno y ecuaciones diferenciales ordinarias y parciales.",
+        connections: ["Optimización", "Probabilidad", "Deep Learning"]
+    },
+    {
+        id: "mat_algebra",
+        name: "Álgebra lineal",
+        category: "Matemáticas y Probabilidad",
+        color: "#c084fc",
+        haloColor: "#7e22ce",
+        size: 13,
+        pathId: "mat",
+        pos: [185, -110, -130],
+        desc: "Teoría de espacios vectoriales y transformaciones lineales: cálculo matricial, descomposiciones ortogonales, autovalores/autovectores, descomposición en valores singulares (SVD) y tensores.",
+        connections: ["Machine Learning supervisado", "Machine Learning no supervisado", "Optimización"]
+    },
+    {
+        id: "mat_optimizacion",
+        "name": "Optimización",
+        "category": "Matemáticas y Probabilidad",
+        "color": "#c084fc",
+        "haloColor": "#7e22ce",
+        "size": 13,
+        "pathId": "mat",
+        "pos": [265, -160, -190],
+        "desc": "Optimización estática y dinámica: programación lineal, cuadrática, convexa, condiciones de Karush-Kuhn-Tucker (KKT), métodos de gradiente descendente y multiplicadores de Lagrange.",
+        "connections": ["Cálculo", "Machine Learning supervisado", "Microeconomía"]
+    },
+    {
+        id: "mat_probabilidad",
+        "name": "Probabilidad",
+        "category": "Matemáticas y Probabilidad",
+        "color": "#c084fc",
+        "haloColor": "#7e22ce",
+        "size": 14,
+        "pathId": "mat",
+        "pos": [345, -210, -250],
+        "desc": "Formalización matemática del azar mediante teoría de la medida: espacios de probabilidad, variables aleatorias, esperanza condicional, martingalas, ley fuerte de los grandes números y teorema central del límite.",
+        "connections": ["Estadística", "Seguros de Vida", "Gestión de riesgos"]
+    }
+];
 
 // --- 1. SETUP DE ESCENA, CÁMARA Y RENDERER ---
 const container = document.getElementById('webgl-container');
 const scene = new THREE.Scene();
 
-const COLOR_BG_OUTSIDE = new THREE.Color(0xf6f8fb);
-const COLOR_BG_INSIDE = new THREE.Color(0x020409);
+const COLOR_WHITE = new THREE.Color(0xffffff);
+const COLOR_SPACE = new THREE.Color(0x03050b);
 
-scene.background = COLOR_BG_OUTSIDE.clone();
-scene.fog = new THREE.FogExp2(0xf6f8fb, 0.00045);
+scene.background = COLOR_WHITE.clone();
 
-const camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 1, 15000);
-const DEFAULT_OUTSIDE_CAM = { x: 0, y: 15, z: 920 };
-camera.position.set(DEFAULT_OUTSIDE_CAM.x, DEFAULT_OUTSIDE_CAM.y, DEFAULT_OUTSIDE_CAM.z);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 8000);
+const CAM_PORTADA = { x: 0, y: 0, z: 750 };
+camera.position.set(CAM_PORTADA.x, CAM_PORTADA.y, CAM_PORTADA.z);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0xf6f8fb, 1);
+renderer.setClearColor(0xffffff, 1);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.6;
+renderer.toneMappingExposure = 1.35;
 container.appendChild(renderer.domElement);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.055;
-controls.minDistance = 25;
-controls.maxDistance = 4500;
+controls.dampingFactor = 0.05;
+controls.minDistance = 35;
+controls.maxDistance = 3200;
 controls.rotateSpeed = 0.65;
 controls.zoomSpeed = 0.85;
 
-// --- 2. GENERADORES DE TEXTURAS PROCEDURALES (GLOW SPRITES) ---
-function createGlowTexture(size = 128, colorStop = 'rgba(255, 255, 255, 1)') {
+// Soporte táctil explícito para móvil
+controls.touches = {
+    ONE: THREE.TOUCH.ROTATE,
+    TWO: THREE.TOUCH.DOLLY_PAN
+};
+
+// Generador de textura procedural para brillo de los puntos (Canvas Glow Sprite)
+function createGlowTexture(size = 128) {
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
     const center = size / 2;
     const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
-    gradient.addColorStop(0, colorStop);
-    gradient.addColorStop(0.18, 'rgba(235, 245, 255, 0.95)');
-    gradient.addColorStop(0.42, 'rgba(60, 170, 255, 0.45)');
-    gradient.addColorStop(0.75, 'rgba(20, 80, 255, 0.12)');
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.9)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.35)');
+    gradient.addColorStop(0.85, 'rgba(255, 255, 255, 0.06)');
     gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, size, size);
@@ -53,46 +311,28 @@ function createGlowTexture(size = 128, colorStop = 'rgba(255, 255, 255, 1)') {
     texture.needsUpdate = true;
     return texture;
 }
-const particleTexture = createGlowTexture(128);
+const glowTexture = createGlowTexture(128);
 
-function createAmberGlowTexture(size = 128) {
-    const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext('2d');
-    const center = size / 2;
-    const gradient = ctx.createRadialGradient(center, center, 0, center, center, center);
-    gradient.addColorStop(0, 'rgba(255, 255, 240, 1)');
-    gradient.addColorStop(0.20, 'rgba(255, 215, 90, 0.98)');
-    gradient.addColorStop(0.50, 'rgba(255, 140, 25, 0.50)');
-    gradient.addColorStop(0.80, 'rgba(220, 70, 0, 0.12)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-    return texture;
-}
-const amberTexture = createAmberGlowTexture(128);
+// ==========================================================================
+// ESCENA 1: PORTADA (FONDO BLANCO, BOLA NEGRA EN EL CENTRO)
+// ==========================================================================
+const scenePortada = new THREE.Group();
+scene.add(scenePortada);
 
-// --- 3. ESCENA EXTERIOR: VACÍO BLANCO & ESFERA OBSIDIANA ---
-const outsideGroup = new THREE.Group();
-scene.add(outsideGroup);
-
-const sphereRadius = 230;
-const blackSphereGeo = new THREE.SphereGeometry(sphereRadius, 64, 64);
-const blackSphereMat = new THREE.MeshBasicMaterial({
-    color: 0x05070d,
+const sphereRadius = 140;
+const sphereGeo = new THREE.SphereGeometry(sphereRadius, 64, 64);
+const sphereMat = new THREE.MeshBasicMaterial({
+    color: 0x05070c,
     transparent: true,
-    opacity: 0.99
+    opacity: 1.0
 });
-const blackSphere = new THREE.Mesh(blackSphereGeo, blackSphereMat);
-outsideGroup.add(blackSphere);
+const blackSphere = new THREE.Mesh(sphereGeo, sphereMat);
+scenePortada.add(blackSphere);
 
-// Sombra de contacto suave en el vacío blanco
-const shadowGeo = new THREE.RingGeometry(12, sphereRadius * 1.35, 64);
+// Sombra de contacto suave en el fondo blanco
+const shadowGeo = new THREE.RingGeometry(10, sphereRadius * 1.35, 64);
 const shadowMat = new THREE.MeshBasicMaterial({
-    color: 0xd6dfea,
+    color: 0xd8e0ea,
     transparent: true,
     opacity: 0.75,
     side: THREE.DoubleSide
@@ -100,1126 +340,490 @@ const shadowMat = new THREE.MeshBasicMaterial({
 const contactShadow = new THREE.Mesh(shadowGeo, shadowMat);
 contactShadow.rotation.x = Math.PI / 2;
 contactShadow.position.y = -sphereRadius - 5;
-outsideGroup.add(contactShadow);
+scenePortada.add(contactShadow);
 
-// Polvo exterior sutil
-const outerDustCount = 750;
-const outerDustGeo = new THREE.BufferGeometry();
-const outerDustPos = new Float32Array(outerDustCount * 3);
-for (let i = 0; i < outerDustCount; i++) {
-    const dist = 280 + Math.random() * 560;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos((Math.random() * 2) - 1);
-    outerDustPos[i * 3] = dist * Math.sin(phi) * Math.cos(theta);
-    outerDustPos[i * 3 + 1] = dist * Math.sin(phi) * Math.sin(theta);
-    outerDustPos[i * 3 + 2] = dist * Math.cos(phi);
-}
-outerDustGeo.setAttribute('position', new THREE.BufferAttribute(outerDustPos, 3));
-const outerDustMat = new THREE.PointsMaterial({
-    size: 2.2,
-    color: 0x8898af,
-    transparent: true,
-    opacity: 0.45,
-    depthWrite: false
-});
-const outerDust = new THREE.Points(outerDustGeo, outerDustMat);
-outsideGroup.add(outerDust);
+// ==========================================================================
+// ESCENA 2: GRAFO DE CONOCIMIENTO EN 3D (RENDERIZADO DESDE EL PRINCIPIO)
+// ==========================================================================
+const sceneCosmos = new THREE.Group();
+sceneCosmos.visible = false; // Se activa al cruzar la portada
+scene.add(sceneCosmos);
 
-// --- 4. ESCENA INTERIOR: COSMOS OSCURO & MODELOS 3D GLB (AUTOSCALED) ---
-const interiorGroup = new THREE.Group();
-interiorGroup.visible = false;
-scene.add(interiorGroup);
-
-// Grupo para los dos modelos 3D GLB conjuntos
-const gltfModelsGroup = new THREE.Group();
-interiorGroup.add(gltfModelsGroup);
-
-let skyboxMesh = null;
-let cosmicPointCloud = null;
-
-const gltfLoader = new THREE.GLTFLoader();
-
-// A) MODELO 1: alien_space_nebula_2_skybox.glb (Nebulosa Cósmica 3D Envolvente)
-gltfLoader.load('alien_space_nebula_2_skybox.glb', (gltf) => {
-    skyboxMesh = gltf.scene;
-    
-    // Auto-escalado preciso para envolver todo el cosmos (Diámetro 9000)
-    const box = new THREE.Box3().setFromObject(skyboxMesh);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z) || 118;
-    const scaleFactor = 9000 / maxDim;
-    skyboxMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
-    skyboxMesh.position.set(0, 0, 0);
-
-    skyboxMesh.traverse((child) => {
-        if (child.isMesh) {
-            const mat = child.material;
-            const tex = (mat && mat.emissiveMap) ? mat.emissiveMap : (mat ? mat.map : null);
-            child.material = new THREE.MeshBasicMaterial({
-                map: tex,
-                side: THREE.BackSide,
-                depthWrite: false,
-                transparent: true,
-                opacity: 0.95,
-                fog: false
-            });
-        }
-    });
-    gltfModelsGroup.add(skyboxMesh);
-    console.log(" alien_space_nebula_2_skybox.glb auto-escalado x" + Math.round(scaleFactor) + " (Diámetro: 9000)");
-}, undefined, (err) => {
-    console.warn("alien_space_nebula_2_skybox.glb error:", err);
-});
-
-// B) MODELO 2: need_some_space.glb (50.000 Puntos Astronómicos Reales)
-gltfLoader.load('need_some_space.glb', (gltf) => {
-    cosmicPointCloud = gltf.scene;
-    cosmicPointCloud.traverse((child) => {
-        if (child.isPoints) {
-            child.geometry.center();
-            child.material = new THREE.PointsMaterial({
-                size: 4.8,
-                vertexColors: true,
-                map: particleTexture,
-                transparent: true,
-                opacity: 1.0,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                fog: false
-            });
-        }
-    });
-
-    // Auto-escalado para abarcar toda la cuenca de Laniakea (Envergadura 780 unidades)
-    const box = new THREE.Box3().setFromObject(cosmicPointCloud);
-    const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z) || 4;
-    const scaleFactor = 780 / maxDim;
-    cosmicPointCloud.scale.set(scaleFactor, scaleFactor, scaleFactor);
-    cosmicPointCloud.position.set(0, 0, 0);
-
-    gltfModelsGroup.add(cosmicPointCloud);
-    console.log(" need_some_space.glb auto-escalado x" + Math.round(scaleFactor) + " (Envergadura: 780, 50.000 puntos reales)");
-}, undefined, (err) => {
-    console.warn("need_some_space.glb error:", err);
-});
-
-// Cuenca de Laniakea (Envolvente de marea gravitacional)
-const basinHullGeo = new THREE.DodecahedronGeometry(450, 2);
-const hullPosAttr = basinHullGeo.attributes.position;
-for (let i = 0; i < hullPosAttr.count; i++) {
-    let x = hullPosAttr.getX(i);
-    let y = hullPosAttr.getY(i);
-    let z = hullPosAttr.getZ(i);
-    x = x * 1.45 + (y > 0 ? 30 : -20);
-    y = y * 0.95 + (x > 0 ? -25 : 15);
-    z = z * 0.85;
-    hullPosAttr.setXYZ(i, x, y, z);
-}
-basinHullGeo.computeVertexNormals();
-const basinHullMat = new THREE.MeshBasicMaterial({
-    color: 0x051532,
-    transparent: true,
-    opacity: 0.08,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending,
-    fog: false
-});
-const basinHull = new THREE.Mesh(basinHullGeo, basinHullMat);
-interiorGroup.add(basinHull);
-
-// --- 5. RED FILAMENTARIA CÓSMICA ORGANIZADA (V-WEB / LANIAKEA TOPOLOGY) ---
-const streamLinesGroup = new THREE.Group();
-interiorGroup.add(streamLinesGroup);
-
-// Diccionario de posiciones de nodos
-const nodeMap = {};
-KNOWLEDGE_GRAPH.forEach(n => {
-    nodeMap[n.id] = new THREE.Vector3(n.position.x, n.position.y, n.position.z);
-});
-
-// Grafo de conexiones topológicas (Autopistas macrodisciplinares)
-const graphEdges = [
-    // Núcleo hacia ramas principales
-    ['gran_atractor', 'lee_carter'],
-    ['gran_atractor', 'lundberg'],
-    ['gran_atractor', 'chain_ladder'],
-    ['gran_atractor', 'tarificacion_poisson_gamma'],
-    ['gran_atractor', 'xgboost_tweedie'],
-    ['gran_atractor', 'mcmc_bayesian'],
-    ['gran_atractor', 'vasicek'],
-    ['gran_atractor', 'black_scholes'],
-    ['gran_atractor', 'alm_redington'],
-    ['gran_atractor', 'calculo_ito'],
-    ['gran_atractor', 'copulas'],
-    // Rama Actuarial interna
-    ['lundberg', 'tarificacion_poisson_gamma'],
-    ['chain_ladder', 'lee_carter'],
-    ['lee_carter', 'tarificacion_poisson_gamma'],
-    ['lundberg', 'chain_ladder'],
-    // Rama Data Science interna
-    ['xgboost_tweedie', 'mcmc_bayesian'],
-    ['mcmc_bayesian', 'bootstrap_resampling'],
-    ['bootstrap_resampling', 'xgboost_tweedie'],
-    // Rama Finanzas Cuantitativas interna
-    ['vasicek', 'black_scholes'],
-    ['black_scholes', 'alm_redington'],
-    ['vasicek', 'kalman_filter'],
-    ['kalman_filter', 'alm_redington'],
-    // Puentes Transversales interdisciplinares
-    ['calculo_ito', 'black_scholes'],
-    ['calculo_ito', 'vasicek'],
-    ['calculo_ito', 'lundberg'],
-    ['copulas', 'chain_ladder'],
-    ['copulas', 'black_scholes'],
-    ['copulas', 'tarificacion_poisson_gamma'],
-    ['copulas', 'xgboost_tweedie'],
-    ['kalman_filter', 'mcmc_bayesian'],
-    ['tarificacion_poisson_gamma', 'xgboost_tweedie']
-];
-
-const allCurves = [];
-const linePositions = [];
-const lineColors = [];
-
-// Función para generar filamentos trenzados y ondulantes (Sinuous Braided Bundles)
-function createFilamentBundle(startVec, endVec, strands = 14, maxOffset = 24) {
-    const dir = new THREE.Vector3().subVectors(endVec, startVec);
-    const length = dir.length();
-
-    let up = new THREE.Vector3(0, 1, 0);
-    if (Math.abs(dir.clone().normalize().dot(up)) > 0.9) {
-        up.set(1, 0, 0);
-    }
-    const right = new THREE.Vector3().crossVectors(dir, up).normalize();
-    const normal = new THREE.Vector3().crossVectors(dir, right).normalize();
-
-    for (let s = 0; s < strands; s++) {
-        const phi = (s / strands) * Math.PI * 2 + Math.random() * 0.4;
-        const waveFreq = 2.4 + Math.random() * 1.8;
-        const strandSpread = (Math.random() * 0.75 + 0.25) * maxOffset;
-
-        // Control point 1 (1/3 camino)
-        const p1 = startVec.clone().lerp(endVec, 0.33);
-        const factor1 = Math.sin(Math.PI * 0.33);
-        p1.addScaledVector(right, Math.cos(phi) * strandSpread * factor1);
-        p1.addScaledVector(normal, Math.sin(phi * waveFreq) * strandSpread * factor1);
-
-        // Control point 2 (2/3 camino)
-        const p2 = startVec.clone().lerp(endVec, 0.67);
-        const factor2 = Math.sin(Math.PI * 0.67);
-        p2.addScaledVector(right, Math.cos(phi + 1.3) * strandSpread * factor2);
-        p2.addScaledVector(normal, Math.sin((phi + 1.3) * waveFreq) * strandSpread * factor2);
-
-        const curve = new THREE.CubicBezierCurve3(
-            startVec.clone(),
-            p1,
-            p2,
-            endVec.clone()
-        );
-        allCurves.push(curve);
-
-        const segments = 36;
-        const pts = curve.getPoints(segments);
-
-        for (let j = 0; j < pts.length - 1; j++) {
-            linePositions.push(pts[j].x, pts[j].y, pts[j].z);
-            linePositions.push(pts[j + 1].x, pts[j + 1].y, pts[j + 1].z);
-
-            const tA = j / segments;
-            const tB = (j + 1) / segments;
-
-            // Gradiente idéntico a la referencia:
-            // Azul eléctrico / cian central con destellos ambarinos hacia los nodos
-            const getCol = (t) => {
-                const c = new THREE.Color();
-                if (t < 0.18) {
-                    c.lerpColors(new THREE.Color(0xffd555), new THREE.Color(0x00d8ff), t / 0.18);
-                } else if (t < 0.82) {
-                    const midT = (t - 0.18) / 0.64;
-                    c.lerpColors(new THREE.Color(0x00c4ff), new THREE.Color(0x1a58d8), Math.sin(midT * Math.PI));
-                } else {
-                    c.lerpColors(new THREE.Color(0x00d8ff), new THREE.Color(0xffd555), (t - 0.82) / 0.18);
-                }
-                return c;
-            };
-
-            const colA = getCol(tA);
-            const colB = getCol(tB);
-            lineColors.push(colA.r, colA.g, colA.b);
-            lineColors.push(colB.r, colB.g, colB.b);
-        }
-    }
-}
-
-// Generar haces para cada arista del grafo
-graphEdges.forEach(([srcId, dstId]) => {
-    if (nodeMap[srcId] && nodeMap[dstId]) {
-        const isCoreEdge = (srcId === 'gran_atractor' || dstId === 'gran_atractor');
-        createFilamentBundle(nodeMap[srcId], nodeMap[dstId], isCoreEdge ? 18 : 10, isCoreEdge ? 28 : 18);
-    }
-});
-
-// Afluentes externos de la cuenca (Corrientes cósmicas hacia los nodos)
-const NUM_FEEDERS = 220;
-for (let i = 0; i < NUM_FEEDERS; i++) {
-    const targetNode = KNOWLEDGE_GRAPH[Math.floor(Math.random() * KNOWLEDGE_GRAPH.length)];
-    const targetPos = nodeMap[targetNode.id];
-
-    const u = Math.random();
-    const angle = u * Math.PI * 2;
-    const elevation = (Math.random() - 0.5) * Math.PI * 0.88;
-    const dist = 380 + Math.random() * 280;
-
-    const p0 = new THREE.Vector3(
-        Math.cos(angle) * Math.cos(elevation) * dist * 1.35,
-        Math.sin(elevation) * dist * 0.95 + (u > 0.5 ? 45 : -45),
-        Math.sin(angle) * Math.cos(elevation) * dist * 0.9
-    );
-
-    const p1 = new THREE.Vector3(
-        p0.x * 0.65 + (Math.random() - 0.5) * 55,
-        p0.y * 0.65 + (p0.y > 0 ? 38 : -28),
-        p0.z * 0.65 + (Math.random() - 0.5) * 55
-    );
-
-    const p2 = new THREE.Vector3(
-        targetPos.x * 0.65 + p1.x * 0.35 + (Math.random() - 0.5) * 35,
-        targetPos.y * 0.65 + p1.y * 0.35 + (Math.random() - 0.5) * 25,
-        targetPos.z * 0.65 + p1.z * 0.35 + (Math.random() - 0.5) * 35
-    );
-
-    const curve = new THREE.CubicBezierCurve3(p0, p1, p2, targetPos.clone());
-    allCurves.push(curve);
-
-    const segments = 30;
-    const pts = curve.getPoints(segments);
-    for (let j = 0; j < pts.length - 1; j++) {
-        linePositions.push(pts[j].x, pts[j].y, pts[j].z);
-        linePositions.push(pts[j + 1].x, pts[j + 1].y, pts[j + 1].z);
-
-        const progA = j / segments;
-        const progB = (j + 1) / segments;
-        const colA = new THREE.Color().lerpColors(new THREE.Color(0x0e306e), new THREE.Color(0x00d8ff), Math.pow(progA, 1.5));
-        const colB = new THREE.Color().lerpColors(new THREE.Color(0x0e306e), new THREE.Color(0x00d8ff), Math.pow(progB, 1.5));
-        lineColors.push(colA.r, colA.g, colA.b);
-        lineColors.push(colB.r, colB.g, colB.b);
-    }
-}
-
-// Geometría y material de líneas de flujo
-const streamlineGeo = new THREE.BufferGeometry();
-streamlineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-streamlineGeo.setAttribute('color', new THREE.Float32BufferAttribute(lineColors, 3));
-
-const streamlineMat = new THREE.LineBasicMaterial({
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.68,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-});
-const streamlinesMesh = new THREE.LineSegments(streamlineGeo, streamlineMat);
-streamLinesGroup.add(streamlinesMesh);
-
-// --- 6. NUBE VOLUMÉTRICA DE GAS Y ESTRELLAS (220.000 partículas - Idéntica a la Referencia) ---
-const galaxyCount = 220000;
-const galaxyGeo = new THREE.BufferGeometry();
-const galaxyPos = new Float32Array(galaxyCount * 3);
-const galaxyCols = new Float32Array(galaxyCount * 3);
-
-const palette = [
-    new THREE.Color(0xffffff), // 0: Blanco estelar
-    new THREE.Color(0xa6ecff), // 1: Cian hielo luminoso
-    new THREE.Color(0x00b4ff), // 2: Azul eléctrico brillante
-    new THREE.Color(0x194ee0), // 3: Azul real profundo
-    new THREE.Color(0xff9d00), // 4: Ámbar brillante
-    new THREE.Color(0xffd54f)  // 5: Dorado estelar
-];
-
-for (let i = 0; i < galaxyCount; i++) {
-    let px, py, pz;
-    let colIndex = 2;
-    const dice = Math.random();
-
-    if (dice < 0.74) {
-        // 74% Partículas que forman la red densa de filamentos
-        const curve = allCurves[Math.floor(Math.random() * allCurves.length)];
-        const t = Math.random();
-        const pt = curve.getPoint(t);
-
-        const spread = (1 - t * 0.45) * 12 * (Math.random() + 0.12);
-        px = pt.x + (Math.random() - 0.5) * spread;
-        py = pt.y + (Math.random() - 0.5) * spread;
-        pz = pt.z + (Math.random() - 0.5) * spread;
-
-        if (t > 0.84 || t < 0.16) {
-            colIndex = Math.random() > 0.4 ? 4 : 5;
-        } else if (Math.random() > 0.55) {
-            colIndex = 1;
-        } else {
-            colIndex = Math.random() > 0.35 ? 2 : 3;
-        }
-    } else if (dice < 0.92) {
-        // 18% Cúmulos densos alrededor de los 14 nodos (Knots estelares)
-        const node = KNOWLEDGE_GRAPH[Math.floor(Math.random() * KNOWLEDGE_GRAPH.length)];
-        const rad = Math.pow(Math.random(), 2.2) * (node.size * 4.2);
-        const th = Math.random() * Math.PI * 2;
-        const ph = Math.acos((Math.random() * 2) - 1);
-
-        px = node.position.x + rad * Math.sin(ph) * Math.cos(th);
-        py = node.position.y + rad * Math.sin(ph) * Math.sin(th) * 0.8;
-        pz = node.position.z + rad * Math.cos(ph);
-
-        colIndex = (node.id === "gran_atractor" || Math.random() > 0.25) ? (Math.random() > 0.45 ? 4 : 5) : 0;
-    } else {
-        // 8% Partículas de halo en la cuenca cósmica
-        const rad = Math.random() * 420;
-        const th = Math.random() * Math.PI * 2;
-        const ph = Math.acos((Math.random() * 2) - 1);
-        px = rad * Math.sin(ph) * Math.cos(th) * 1.35;
-        py = rad * Math.sin(ph) * Math.sin(th) * 0.9;
-        pz = rad * Math.cos(ph) * 0.85;
-        colIndex = Math.random() > 0.65 ? 1 : 3;
-    }
-
-    galaxyPos[i * 3] = px;
-    galaxyPos[i * 3 + 1] = py;
-    galaxyPos[i * 3 + 2] = pz;
-
-    const col = palette[colIndex];
-    galaxyCols[i * 3] = col.r;
-    galaxyCols[i * 3 + 1] = col.g;
-    galaxyCols[i * 3 + 2] = col.b;
-}
-
-galaxyGeo.setAttribute('position', new THREE.BufferAttribute(galaxyPos, 3));
-galaxyGeo.setAttribute('color', new THREE.BufferAttribute(galaxyCols, 3));
-
-const galaxyMat = new THREE.PointsMaterial({
-    size: 2.8,
-    vertexColors: true,
-    map: particleTexture,
-    transparent: true,
-    opacity: 0.95,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-});
-const galaxyPoints = new THREE.Points(galaxyGeo, galaxyMat);
-interiorGroup.add(galaxyPoints);
-
-// Pulsos cinéticos de flujo de riesgo/información (Traveling energy photons)
-const pulseCount = 950;
-const pulseGeo = new THREE.BufferGeometry();
-const pulsePos = new Float32Array(pulseCount * 3);
-const pulseData = [];
-
-for (let i = 0; i < pulseCount; i++) {
-    const curve = allCurves[Math.floor(Math.random() * allCurves.length)];
-    const speed = 0.0018 + Math.random() * 0.0035;
-    const t = Math.random();
-    pulseData.push({ curve, t, speed });
-    const pt = curve.getPoint(t);
-    pulsePos[i * 3] = pt.x;
-    pulsePos[i * 3 + 1] = pt.y;
-    pulsePos[i * 3 + 2] = pt.z;
-}
-pulseGeo.setAttribute('position', new THREE.BufferAttribute(pulsePos, 3));
-const pulseMat = new THREE.PointsMaterial({
-    size: 5.2,
-    color: 0xffffff,
-    map: particleTexture,
-    transparent: true,
-    opacity: 0.92,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-});
-const pulses = new THREE.Points(pulseGeo, pulseMat);
-interiorGroup.add(pulses);
-
-// --- 7. NODOS TOPOLÓGICOS DEL GRAFO DE CONOCIMIENTO ---
-const nodesGroup = new THREE.Group();
-interiorGroup.add(nodesGroup);
-
-const nodeMeshes = [];
+const conceptMeshes = [];
 const labelsContainer = document.getElementById('labels-container');
-if (labelsContainer) {
-    labelsContainer.style.display = 'none';
-}
 
-KNOWLEDGE_GRAPH.forEach((node) => {
-    const nodeObj = new THREE.Group();
-    nodeObj.position.set(node.position.x, node.position.y, node.position.z);
+// Map de coordenadas
+const conceptMap = {};
+CONCEPTS.forEach(c => {
+    conceptMap[c.id] = new THREE.Vector3(c.pos[0], c.pos[1], c.pos[2]);
+    conceptMap[c.name] = new THREE.Vector3(c.pos[0], c.pos[1], c.pos[2]);
+});
 
-    const isGranAtractor = node.id === "gran_atractor";
-    const geo = new THREE.SphereGeometry(node.size * 0.45, 32, 32);
-    const mat = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(node.color),
+// A) PUNTOS BRILLANTES (Cada punto es un concepto de conocimiento)
+CONCEPTS.forEach(concept => {
+    const nodeGroup = new THREE.Group();
+    nodeGroup.position.set(concept.pos[0], concept.pos[1], concept.pos[2]);
+
+    const isCenter = concept.id === "gran_atractor";
+
+    // 1. Núcleo esférico brillante
+    const coreGeo = new THREE.SphereGeometry(concept.size * 0.45, 32, 32);
+    const coreMat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(concept.color),
         transparent: true,
-        opacity: 0.96
+        opacity: 0.98
     });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.userData = { nodeData: node };
-    nodeObj.add(mesh);
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    coreMesh.userData = { concept: concept };
+    nodeGroup.add(coreMesh);
 
-    const haloGeo = new THREE.RingGeometry(node.size * 0.6, node.size * 0.98, 32);
-    const haloMat = new THREE.MeshBasicMaterial({
-        color: new THREE.Color(node.beaconColor || node.color),
-        side: THREE.DoubleSide,
+    // Hit area invisible para fácil interacción táctil y con ratón
+    const hitGeo = new THREE.SphereGeometry(Math.max(20, concept.size * 1.8), 16, 16);
+    const hitMat = new THREE.MeshBasicMaterial({
         transparent: true,
-        opacity: 0.85,
-        blending: THREE.AdditiveBlending
+        opacity: 0,
+        depthWrite: false
     });
-    const haloMesh = new THREE.Mesh(haloGeo, haloMat);
-    nodeObj.add(haloMesh);
+    const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+    hitMesh.userData = { concept: concept };
+    nodeGroup.add(hitMesh);
 
+    // 2. Halo/Corona luminosa
     const spriteMat = new THREE.SpriteMaterial({
-        map: isGranAtractor ? amberTexture : particleTexture,
-        color: new THREE.Color(node.beaconColor || node.color),
+        map: glowTexture,
+        color: new THREE.Color(concept.haloColor || concept.color),
         transparent: true,
-        opacity: 0.90,
+        opacity: isCenter ? 0.95 : 0.80,
         blending: THREE.AdditiveBlending
     });
     const sprite = new THREE.Sprite(spriteMat);
-    sprite.scale.set(node.size * 4.0, node.size * 4.0, 1);
-    nodeObj.add(sprite);
+    const spriteScale = isCenter ? concept.size * 5.2 : concept.size * 3.6;
+    sprite.scale.set(spriteScale, spriteScale, 1);
+    nodeGroup.add(sprite);
 
-    nodesGroup.add(nodeObj);
+    // 3. Anillo de energía en el Gran Atractor
+    if (isCenter) {
+        const ringGeo = new THREE.RingGeometry(concept.size * 0.7, concept.size * 1.15, 48);
+        const ringMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+        });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        nodeGroup.add(ringMesh);
+    }
 
-    // Etiqueta 3D en el DOM
+    sceneCosmos.add(nodeGroup);
+
+    // 4. Etiqueta HTML 3D en pantalla
     const labelEl = document.createElement('div');
-    labelEl.className = 'node-space-label hidden';
-    labelEl.id = `label-${node.id}`;
+    labelEl.className = 'concept-label' + (isCenter ? ' center-atractor' : '');
     labelEl.innerHTML = `
-        <div class="node-beacon" style="background:${node.beaconColor || node.color}; box-shadow: 0 0 14px ${node.beaconColor || node.color};"></div>
-        <div class="node-label-box">
-            <span class="node-label-title">${node.shortName}</span>
-            <span class="node-label-sub">${node.category}</span>
-        </div>
+        <span class="dot" style="background:${concept.color}; color:${concept.haloColor || concept.color};"></span>
+        <span class="text">${concept.name}</span>
     `;
     labelEl.addEventListener('click', (e) => {
         e.stopPropagation();
-        focusOnNode(node);
+        openConceptModal(concept);
     });
-    if (labelsContainer) labelsContainer.appendChild(labelEl);
+    labelEl.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+        openConceptModal(concept);
+    });
+    labelsContainer.appendChild(labelEl);
 
-    nodeMeshes.push({
-        nodeData: node,
-        group: nodeObj,
-        mesh: mesh,
-        halo: haloMesh,
+    conceptMeshes.push({
+        concept: concept,
+        group: nodeGroup,
+        mesh: coreMesh,
+        hitMesh: hitMesh,
         sprite: sprite,
         labelEl: labelEl
     });
 });
 
-// --- 8. PROYECCIÓN 3D DE ETIQUETAS A COORDENADAS DE PANTALLA ---
-const tempVec = new THREE.Vector3();
-function update3DLabels() {
-    if (!interiorGroup.visible || !isInside) return;
+// B) GRANDES CAMINOS / FILAMENTOS QUE CONVERGEN AL GRAN ATRACTOR
+// Los puntos de un mismo tema se agrupan a lo largo del mismo camino, como cúmulos en un tubo
+const pathsConfig = [
+    { id: 'ds', color: 0x38bdf8, concepts: ['ds_estadistica', 'ds_econometria', 'ds_ml_supervisado', 'ds_ml_no_supervisado', 'ds_deep_learning', 'ds_data_mining'] },
+    { id: 'eco', color: 0x34d399, concepts: ['eco_macro', 'eco_micro', 'eco_econometria'] },
+    { id: 'act', color: 0xfbbf24, concepts: ['act_gestion_riesgos', 'act_solvencia', 'act_ifrs17', 'act_contabilidad', 'act_vida', 'act_no_vida'] },
+    { id: 'mat', color: 0xc084fc, concepts: ['mat_calculo', 'mat_algebra', 'mat_optimizacion', 'mat_probabilidad'] }
+];
 
-    nodeMeshes.forEach(item => {
+const filamentGroup = new THREE.Group();
+sceneCosmos.add(filamentGroup);
+
+pathsConfig.forEach(p => {
+    // Puntos del camino ordenados desde el centro (Gran Atractor) hacia el exterior
+    const spinePoints = [ new THREE.Vector3(0, 0, 0) ];
+    p.concepts.forEach(cId => {
+        spinePoints.push(conceptMap[cId]);
+    });
+
+    const spineCurve = new THREE.CatmullRomCurve3(spinePoints, false, 'centripetal');
+
+    // Generar un haz de 6 filamentos tenues que forman el "tubo" del camino
+    const strandsCount = 6;
+    for (let s = 0; s < strandsCount; s++) {
+        const angleOffset = (s / strandsCount) * Math.PI * 2;
+        const radiusTube = 4.5;
+        const linePts = [];
+        const samples = 48;
+
+        for (let i = 0; i <= samples; i++) {
+            const t = i / samples;
+            const pt = spineCurve.getPoint(t);
+            const tangent = spineCurve.getTangent(t);
+
+            // Vector normal
+            let up = new THREE.Vector3(0, 1, 0);
+            if (Math.abs(tangent.dot(up)) > 0.9) up.set(1, 0, 0);
+            const normal = new THREE.Vector3().crossVectors(tangent, up).normalize();
+            const binormal = new THREE.Vector3().crossVectors(tangent, normal).normalize();
+
+            // Ondulación sutil que ensancha ligeramente con la distancia
+            const currentR = radiusTube * (0.4 + t * 0.9);
+            const a = angleOffset + t * 4.0;
+            const displaced = pt.clone()
+                .addScaledVector(normal, Math.cos(a) * currentR)
+                .addScaledVector(binormal, Math.sin(a) * currentR);
+
+            linePts.push(displaced);
+        }
+
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(linePts);
+        const lineMat = new THREE.LineBasicMaterial({
+            color: p.color,
+            transparent: true,
+            opacity: 0.38,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const lineMesh = new THREE.Line(lineGeo, lineMat);
+        filamentGroup.add(lineMesh);
+    }
+});
+
+// C) LÍNEAS FINAS Y TENUES ENTRE CONCEPTOS RELACIONADOS
+const interConnections = [
+    // Econometría conecta Data Science y Economía
+    ['ds_econometria', 'eco_econometria'],
+    // IFRS 17 conecta con Contabilidad
+    ['act_ifrs17', 'act_contabilidad'],
+    // Matemáticas y Probabilidad se conecta con Estadística, ML y Actuariales
+    ['mat_probabilidad', 'ds_estadistica'],
+    ['mat_probabilidad', 'act_vida'],
+    ['mat_probabilidad', 'act_gestion_riesgos'],
+    ['mat_algebra', 'ds_ml_supervisado'],
+    ['mat_algebra', 'ds_ml_no_supervisado'],
+    ['mat_calculo', 'mat_optimizacion'],
+    ['mat_calculo', 'ds_deep_learning'],
+    ['mat_optimizacion', 'ds_ml_supervisado'],
+    ['mat_optimizacion', 'eco_micro'],
+    // Inter-relaciones clave adicionales
+    ['act_solvencia', 'act_ifrs17'],
+    ['act_gestion_riesgos', 'act_solvencia'],
+    ['act_gestion_riesgos', 'eco_macro'],
+    ['eco_micro', 'act_no_vida'],
+    ['eco_macro', 'eco_econometria'],
+    ['ds_estadistica', 'ds_econometria']
+];
+
+const connLinePositions = [];
+interConnections.forEach(([idA, idB]) => {
+    const vA = conceptMap[idA];
+    const vB = conceptMap[idB];
+    if (vA && vB) {
+        connLinePositions.push(vA.x, vA.y, vA.z);
+        connLinePositions.push(vB.x, vB.y, vB.z);
+    }
+});
+
+const connGeo = new THREE.BufferGeometry();
+connGeo.setAttribute('position', new THREE.Float32BufferAttribute(connLinePositions, 3));
+const connMat = new THREE.LineBasicMaterial({
+    color: 0x94a3b8,
+    transparent: true,
+    opacity: 0.22,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+const connLines = new THREE.LineSegments(connGeo, connMat);
+sceneCosmos.add(connLines);
+
+// ==========================================================================
+// NAVEGACIÓN, RAYCASTING Y EVENTOS MÓVIL / ESCRITORIO
+// ==========================================================================
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+let currentScene = 'portada'; // 'portada' | 'cosmos'
+let isTransitioning = false;
+
+const portadaHeader = document.getElementById('portada-header');
+const modalBackdrop = document.getElementById('info-modal-backdrop');
+const cardCategory = document.getElementById('card-category');
+const cardTitle = document.getElementById('card-title');
+const cardDesc = document.getElementById('card-desc');
+const cardConnections = document.getElementById('card-connections');
+const modalClose = document.getElementById('modal-close');
+
+// Proyección de etiquetas 3D a coordenadas 2D de pantalla
+const tempVec = new THREE.Vector3();
+function updateLabels() {
+    if (currentScene !== 'cosmos') return;
+
+    conceptMeshes.forEach(item => {
         if (!item.labelEl) return;
-        tempVec.set(item.nodeData.position.x, item.nodeData.position.y, item.nodeData.position.z);
-        tempVec.applyMatrix4(interiorGroup.matrixWorld);
+        tempVec.set(item.concept.pos[0], item.concept.pos[1], item.concept.pos[2]);
+        tempVec.applyMatrix4(sceneCosmos.matrixWorld);
         tempVec.project(camera);
 
-        if (tempVec.z > 1 || item.group.visible === false) {
+        // Ocultar si está detrás de la cámara
+        if (tempVec.z > 1) {
             item.labelEl.style.opacity = '0';
             return;
         }
 
         const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
         const y = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
+
         item.labelEl.style.left = `${x}px`;
         item.labelEl.style.top = `${y}px`;
         item.labelEl.style.opacity = '1';
     });
 }
 
-// --- 9. INTERACCIÓN Y EVENTOS DE RATÓN ---
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-let isInside = false;
-let isTransitioning = false;
-let autoRotate = true;
-let hoveredNode = null;
-let activeNode = null;
+// Comprobación de colisión con la bola negra para entrar
+function checkEnter(clientX, clientY) {
+    if (currentScene !== 'portada' || isTransitioning) return;
 
-const body = document.body;
-const entranceHud = document.getElementById('entrance-hud');
-const palaceHud = document.getElementById('palace-hud');
-const distortionOverlay = document.getElementById('distortion-overlay');
-const drawer = document.getElementById('node-drawer');
+    mouse.x = (clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(clientY / window.innerHeight) * 2 + 1;
 
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObject(blackSphere);
+
+    if (hits.length > 0) {
+        enterCosmos();
+    }
+}
+
+// TRANSICIÓN DE ZOOM HACIA DENTRO HASTA LLEGAR A LA ESCENA 2
+function enterCosmos() {
+    if (isTransitioning) return;
+    isTransitioning = true;
+
+    // Desvanecer título superior
+    portadaHeader.classList.add('hidden');
+
+    // Zoom hacia el interior de la bola negra
+    gsap.to(camera.position, {
+        duration: 2.2,
+        x: 0,
+        y: 0,
+        z: 15,
+        ease: "power2.in",
+        onUpdate: () => {
+            controls.target.set(0, 0, 0);
+            controls.update();
+        }
+    });
+
+    // Inversión de fondo de blanco a cosmos oscuro
+    gsap.to(scene.background, {
+        duration: 1.8,
+        r: COLOR_SPACE.r,
+        g: COLOR_SPACE.g,
+        b: COLOR_SPACE.b,
+        ease: "power2.inOut",
+        onUpdate: () => {
+            renderer.setClearColor(scene.background, 1);
+        }
+    });
+
+    // Desvanecer esfera y sombra
+    gsap.to([sphereMat, shadowMat], {
+        duration: 1.6,
+        opacity: 0,
+        onComplete: () => {
+            scenePortada.visible = false;
+
+            // Activar Escena 2
+            sceneCosmos.visible = true;
+            currentScene = 'cosmos';
+            document.body.classList.remove('scene-portada');
+            document.body.classList.add('scene-cosmos');
+            labelsContainer.classList.remove('hidden');
+
+            // Posicionar cámara para vista cosmológica panorámica
+            gsap.fromTo(camera.position, 
+                { x: 25, y: 15, z: 70 },
+                {
+                    duration: 2.2,
+                    x: 180,
+                    y: 130,
+                    z: 580,
+                    ease: "power2.out",
+                    onUpdate: () => {
+                        controls.target.set(0, 0, 0);
+                        controls.update();
+                    },
+                    onComplete: () => {
+                        isTransitioning = false;
+                    }
+                }
+            );
+        }
+    });
+}
+
+// Doble clic en escritorio
+window.addEventListener('dblclick', (e) => {
+    if (currentScene === 'portada') {
+        checkEnter(e.clientX, e.clientY);
+    }
+});
+
+// Gestión de toques en móvil (Doble toque para entrar / Tap para seleccionar punto o cerrar panel)
+let lastTouchTime = 0;
+let lastTouchPos = { x: 0, y: 0 };
+let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+
+window.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+    }
+}, { passive: true });
+
+window.addEventListener('touchend', (e) => {
+    const touch = e.changedTouches[0];
+    const now = Date.now();
+    const duration = now - touchStartTime;
+    const moveDist = Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY);
+
+    // Considerar como tap si no hubo desplazamiento significativo (< 18px)
+    if (moveDist < 18 && duration < 380) {
+        if (currentScene === 'portada') {
+            const timeDiff = now - lastTouchTime;
+            const tapDist = Math.hypot(touch.clientX - lastTouchPos.x, touch.clientY - lastTouchPos.y);
+
+            // Doble toque en la esfera negra
+            if (timeDiff < 420 && tapDist < 45) {
+                checkEnter(touch.clientX, touch.clientY);
+                lastTouchTime = 0;
+            } else {
+                lastTouchTime = now;
+                lastTouchPos = { x: touch.clientX, y: touch.clientY };
+            }
+        } else if (currentScene === 'cosmos' && !isTransitioning) {
+            // En el cosmos
+            if (!modalBackdrop.classList.contains('hidden')) {
+                if (!e.target.closest('#info-card')) {
+                    closeConceptModal();
+                }
+            } else {
+                handleSelectPoint(touch.clientX, touch.clientY);
+            }
+        }
+    }
+});
+
+// Click / Touch en puntos brillantes de la Escena 2
+function handleSelectPoint(clientX, clientY) {
+    if (currentScene !== 'cosmos' || isTransitioning) return;
+
+    mouse.x = (clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const meshes = conceptMeshes.map(m => m.hitMesh || m.mesh);
+    const hits = raycaster.intersectObjects(meshes);
+
+    if (hits.length > 0) {
+        const concept = hits[0].object.userData.concept;
+        openConceptModal(concept);
+    }
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target.closest('#info-card') || e.target.closest('.concept-label')) return;
+    
+    if (!modalBackdrop.classList.contains('hidden')) {
+        closeConceptModal();
+        return;
+    }
+
+    handleSelectPoint(e.clientX, e.clientY);
+});
+
+// Panel modal de explicación
+function openConceptModal(concept) {
+    cardCategory.textContent = concept.category;
+    cardCategory.style.color = concept.color;
+    cardCategory.style.borderColor = concept.color;
+
+    cardTitle.textContent = concept.name;
+    cardDesc.textContent = concept.desc;
+
+    cardConnections.innerHTML = '';
+    if (concept.connections && concept.connections.length > 0) {
+        concept.connections.forEach(connName => {
+            const span = document.createElement('span');
+            span.className = 'conn-tag';
+            span.textContent = `→ ${connName}`;
+            cardConnections.appendChild(span);
+        });
+    }
+
+    modalBackdrop.classList.remove('hidden');
+}
+
+function closeConceptModal() {
+    modalBackdrop.classList.add('hidden');
+}
+
+modalClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeConceptModal();
+});
+
+modalBackdrop.addEventListener('pointerdown', (e) => {
+    if (e.target === modalBackdrop) {
+        closeConceptModal();
+    }
+});
+
+modalBackdrop.addEventListener('click', (e) => {
+    if (e.target === modalBackdrop) {
+        closeConceptModal();
+    }
+});
+
+// Cursor pointer interactivo
 window.addEventListener('mousemove', (e) => {
+    if (isTransitioning) return;
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-    if (isTransitioning) return;
+    raycaster.setFromCamera(mouse, camera);
 
-    if (isInside) {
-        raycaster.setFromCamera(mouse, camera);
-        const hitMeshes = nodeMeshes.map(m => m.mesh);
-        const hits = raycaster.intersectObjects(hitMeshes);
-
-        if (hits.length > 0) {
-            const hitMesh = hits[0].object;
-            const node = hitMesh.userData.nodeData;
-            if (hoveredNode !== node) {
-                hoveredNode = node;
-                document.body.style.cursor = 'pointer';
-            }
-        } else {
-            if (hoveredNode) {
-                hoveredNode = null;
-                document.body.style.cursor = 'default';
-            }
-        }
-    } else {
-        raycaster.setFromCamera(mouse, camera);
+    if (currentScene === 'portada') {
         const hits = raycaster.intersectObject(blackSphere);
+        document.body.style.cursor = hits.length > 0 ? 'pointer' : 'default';
+    } else if (currentScene === 'cosmos') {
+        const meshes = conceptMeshes.map(m => m.mesh);
+        const hits = raycaster.intersectObjects(meshes);
         document.body.style.cursor = hits.length > 0 ? 'pointer' : 'default';
     }
 });
 
-window.addEventListener('click', (e) => {
-    if (isTransitioning) return;
-    if (e.target.closest('#node-drawer') || e.target.closest('.top-nav') || e.target.closest('.filter-strip') || e.target.closest('#prompt-enter')) {
-        return;
-    }
-
-    if (!isInside) {
-        raycaster.setFromCamera(mouse, camera);
-        const hits = raycaster.intersectObject(blackSphere);
-        if (hits.length > 0) {
-            enterPalace();
-            return;
-        }
-    } else {
-        raycaster.setFromCamera(mouse, camera);
-        const hitMeshes = nodeMeshes.map(m => m.mesh);
-        const hits = raycaster.intersectObjects(hitMeshes);
-        if (hits.length > 0) {
-            const node = hits[0].object.userData.nodeData;
-            focusOnNode(node);
-        }
-    }
-});
-
-window.addEventListener('dblclick', (e) => {
-    if (!isInside && !isTransitioning) {
-        enterPalace();
-    }
-});
-
-document.getElementById('prompt-enter').addEventListener('click', () => {
-    if (!isInside && !isTransitioning) enterPalace();
-});
-
-window.addEventListener('wheel', (e) => {
-    if (!isInside && !isTransitioning && camera.position.length() < 560 && e.deltaY < 0) {
-        enterPalace();
-    }
-});
-
-function playCosmicWarp() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 2.5);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 2.5);
-    } catch(e) {}
-}
-
-// --- 10. TRANSICIÓN GRAVITACIONAL: BLANCO -> COSMOS OSCURO ---
-function enterPalace() {
-    if (isTransitioning || isInside) return;
-    isTransitioning = true;
-    document.body.style.cursor = 'default';
-
-    distortionOverlay.classList.add('warping');
-    playCosmicWarp();
-
-    entranceHud.classList.remove('visible');
-    entranceHud.classList.add('hidden');
-
-    gsap.to(camera.position, {
-        duration: 2.8,
-        x: 40,
-        y: 45,
-        z: 420,
-        ease: "power3.inOut",
-        onUpdate: () => {
-            controls.target.set(0, 0, 0);
-            controls.update();
-        }
-    });
-
-    gsap.to(scene.background, {
-        duration: 2.2,
-        r: COLOR_BG_INSIDE.r,
-        g: COLOR_BG_INSIDE.g,
-        b: COLOR_BG_INSIDE.b,
-        ease: "power2.inOut",
-        onUpdate: () => {
-            renderer.setClearColor(scene.background, 1);
-        }
-    });
-    gsap.to(scene.fog.color, {
-        duration: 2.2,
-        r: COLOR_BG_INSIDE.r,
-        g: COLOR_BG_INSIDE.g,
-        b: COLOR_BG_INSIDE.b,
-        ease: "power2.inOut"
-    });
-
-    gsap.to(blackSphere.scale, {
-        duration: 2.4,
-        x: 2.8,
-        y: 2.8,
-        z: 2.8,
-        ease: "power2.in"
-    });
-    gsap.to(blackSphereMat, {
-        duration: 1.8,
-        delay: 0.5,
-        opacity: 0
-    });
-    gsap.to(contactShadow.material, {
-        duration: 1.4,
-        delay: 0.3,
-        opacity: 0,
-        onComplete: () => {
-            outsideGroup.visible = false;
-        }
-    });
-
-    interiorGroup.visible = true;
-    interiorGroup.scale.set(0.03, 0.03, 0.03);
-
-    gsap.to(interiorGroup.scale, {
-        duration: 2.6,
-        delay: 0.4,
-        x: 1,
-        y: 1,
-        z: 1,
-        ease: "power2.out",
-        onComplete: () => {
-            isInside = true;
-            isTransitioning = false;
-            body.classList.remove('mode-outside');
-            body.classList.add('mode-inside');
-            distortionOverlay.classList.remove('warping');
-
-            palaceHud.classList.remove('hidden');
-            palaceHud.classList.add('visible');
-
-            if (labelsContainer) {
-                labelsContainer.style.display = 'block';
-            }
-            document.querySelectorAll('.node-space-label').forEach(el => el.classList.remove('hidden'));
-        }
-    });
-}
-
-function exitToOutside() {
-    if (!isInside || isTransitioning) return;
-    isTransitioning = true;
-    closeDrawer();
-
-    distortionOverlay.classList.add('warping');
-
-    palaceHud.classList.remove('visible');
-    palaceHud.classList.add('hidden');
-
-    if (labelsContainer) {
-        labelsContainer.style.display = 'none';
-    }
-    document.querySelectorAll('.node-space-label').forEach(el => el.classList.add('hidden'));
-
-    outsideGroup.visible = true;
-    blackSphere.scale.set(1, 1, 1);
-    blackSphereMat.opacity = 0;
-    contactShadow.material.opacity = 0;
-
-    gsap.to(camera.position, {
-        duration: 2.5,
-        x: DEFAULT_OUTSIDE_CAM.x,
-        y: DEFAULT_OUTSIDE_CAM.y,
-        z: DEFAULT_OUTSIDE_CAM.z,
-        ease: "power3.inOut",
-        onUpdate: () => {
-            controls.target.set(0, 0, 0);
-            controls.update();
-        }
-    });
-
-    gsap.to(scene.background, {
-        duration: 2.0,
-        r: COLOR_BG_OUTSIDE.r,
-        g: COLOR_BG_OUTSIDE.g,
-        b: COLOR_BG_OUTSIDE.b,
-        ease: "power2.inOut",
-        onUpdate: () => {
-            renderer.setClearColor(scene.background, 1);
-        }
-    });
-    gsap.to(scene.fog.color, {
-        duration: 2.0,
-        r: COLOR_BG_OUTSIDE.r,
-        g: COLOR_BG_OUTSIDE.g,
-        b: COLOR_BG_OUTSIDE.b,
-        ease: "power2.inOut"
-    });
-
-    gsap.to(interiorGroup.scale, {
-        duration: 1.8,
-        x: 0.02,
-        y: 0.02,
-        z: 0.02,
-        ease: "power2.in",
-        onComplete: () => {
-            interiorGroup.visible = false;
-        }
-    });
-
-    gsap.to(blackSphereMat, {
-        duration: 1.6,
-        delay: 0.5,
-        opacity: 0.99
-    });
-    gsap.to(contactShadow.material, {
-        duration: 1.6,
-        delay: 0.5,
-        opacity: 0.75,
-        onComplete: () => {
-            isInside = false;
-            isTransitioning = false;
-            body.classList.remove('mode-inside');
-            body.classList.add('mode-outside');
-            distortionOverlay.classList.remove('warping');
-
-            entranceHud.classList.remove('hidden');
-            entranceHud.classList.add('visible');
-        }
-    });
-}
-
-document.getElementById('btn-exit').addEventListener('click', exitToOutside);
-
-// --- 11. ENFOQUE CINEMATOGRÁFICO EN UN NODO ---
-function focusOnNode(node) {
-    activeNode = node;
-    const targetPos = new THREE.Vector3(node.position.x, node.position.y, node.position.z);
-    targetPos.applyMatrix4(interiorGroup.matrixWorld);
-
-    const camOffset = targetPos.clone().normalize().multiplyScalar(110);
-    if (targetPos.length() < 10) camOffset.set(0, 30, 95);
-
-    const destCam = targetPos.clone().add(camOffset);
-
-    gsap.to(camera.position, {
-        duration: 1.8,
-        x: destCam.x,
-        y: destCam.y,
-        z: destCam.z,
-        ease: "power2.inOut",
-        onUpdate: () => {
-            controls.target.copy(targetPos);
-            controls.update();
-        }
-    });
-
-    const activeInfo = document.getElementById('active-node-info');
-    if (activeInfo) {
-        activeInfo.innerHTML = `<strong>Inspeccionando:</strong> ${node.name} (${node.category}) | <em>${node.frameworks ? node.frameworks.join(', ') : ''}</em>`;
-    }
-
-    openDrawer(node);
-}
-
-// --- 12. DRAWER DE MICRO-INSPECCIÓN CON KaTeX & CÓDIGO REPRODUCIBLE ---
-const drawerTitle = document.getElementById('drawer-node-title');
-const drawerCat = document.getElementById('drawer-node-cat');
-const drawerDesc = document.getElementById('drawer-node-desc');
-const mathBox = document.getElementById('math-box');
-const codeSnippet = document.getElementById('code-snippet');
-const btnCopyCode = document.getElementById('btn-copy-code');
-const upstreamList = document.getElementById('upstream-list');
-const downstreamList = document.getElementById('downstream-list');
-let currentCodeLang = 'python';
-
-function openDrawer(node) {
-    drawerTitle.innerText = node.name;
-    drawerCat.innerText = node.category.toUpperCase();
-    drawerCat.style.background = node.beaconColor || node.color;
-    drawerDesc.innerText = node.description;
-
-    mathBox.innerHTML = '';
-    if (node.math && window.katex) {
-        try {
-            window.katex.render(node.math, mathBox, {
-                displayMode: true,
-                throwOnError: false
-            });
-        } catch (e) {
-            mathBox.innerText = node.math;
-        }
-    } else {
-        mathBox.innerText = node.math || "Fórmula en formulación...";
-    }
-
-    updateCodeView(node);
-
-    upstreamList.innerHTML = '';
-    if (node.dependencies && node.dependencies.upstream) {
-        node.dependencies.upstream.forEach(upId => {
-            const upNode = KNOWLEDGE_GRAPH.find(n => n.id === upId);
-            const li = document.createElement('li');
-            li.className = 'deps-item-link';
-            li.innerHTML = `
-                <span>${upNode ? upNode.name : upId}</span>
-                <span class="deps-jump-btn">Ir al nodo </span>
-            `;
-            li.addEventListener('click', () => {
-                if (upNode) focusOnNode(upNode);
-            });
-            upstreamList.appendChild(li);
-        });
-    }
-
-    downstreamList.innerHTML = '';
-    if (node.dependencies && node.dependencies.downstream) {
-        node.dependencies.downstream.forEach(downId => {
-            const downNode = KNOWLEDGE_GRAPH.find(n => n.id === downId);
-            const li = document.createElement('li');
-            li.className = 'deps-item-link';
-            li.innerHTML = `
-                <span>${downNode ? downNode.name : downId}</span>
-                <span class="deps-jump-btn">Ir al nodo </span>
-            `;
-            li.addEventListener('click', () => {
-                if (downNode) focusOnNode(downNode);
-            });
-            downstreamList.appendChild(li);
-        });
-    }
-
-    drawer.classList.remove('hidden');
-    drawer.classList.add('visible');
-}
-
-function updateCodeView(node) {
-    if (!node.code) return;
-    const raw = node.code[currentCodeLang] || `# Código no disponible en ${currentCodeLang}`;
-    codeSnippet.textContent = raw;
-}
-
-function closeDrawer() {
-    drawer.classList.remove('visible');
-    drawer.classList.add('hidden');
-    activeNode = null;
-    const activeInfo = document.getElementById('active-node-info');
-    if (activeInfo) {
-        activeInfo.innerHTML = `<strong>Nodo:</strong> Evaluación y Mitigación del Riesgo Financiero y Vital (Núcleo) | <em>Laniakea Cosmic Web</em>`;
-    }
-}
-
-document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
-
-document.querySelectorAll('.drawer-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.drawer-tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        const tabId = btn.dataset.tab;
-        const targetPane = document.getElementById(tabId);
-        if (targetPane) targetPane.classList.add('active');
-    });
-});
-
-document.querySelectorAll('.code-lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.code-lang-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentCodeLang = btn.dataset.lang;
-        if (activeNode) updateCodeView(activeNode);
-    });
-});
-
-btnCopyCode.addEventListener('click', () => {
-    if (codeSnippet.textContent) {
-        navigator.clipboard.writeText(codeSnippet.textContent).then(() => {
-            const originalText = btnCopyCode.innerHTML;
-            btnCopyCode.innerHTML = '¡Copiado!';
-            setTimeout(() => {
-                btnCopyCode.innerHTML = originalText;
-            }, 1800);
-        });
-    }
-});
-
-// --- 13. FILTROS POR LENGUAJE Y MARCO REGULATORIO ---
-let currentFilterType = 'all';
-let currentFilterVal = 'all';
-
-document.querySelectorAll('.filter-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-        const type = pill.dataset.filter;
-        const val = pill.dataset.val;
-
-        document.querySelectorAll(`.filter-pill[data-filter="${type}"]`).forEach(p => p.classList.remove('active'));
-        pill.classList.add('active');
-
-        applyFilters(type, val);
-    });
-});
-
-function applyFilters(type, val) {
-    currentFilterType = type;
-    currentFilterVal = val;
-
-    nodeMeshes.forEach(item => {
-        const node = item.nodeData;
-        let match = true;
-
-        if (val !== 'all') {
-            if (type === 'lang') {
-                match = node.languages && node.languages.includes(val);
-            } else if (type === 'framework') {
-                match = node.frameworks && node.frameworks.includes(val);
-            }
-        }
-
-        if (match) {
-            item.group.visible = true;
-            if (item.labelEl) item.labelEl.classList.remove('dimmed');
-            item.mesh.material.opacity = 0.95;
-            item.halo.material.opacity = 0.85;
-        } else {
-            item.group.visible = true;
-            if (item.labelEl) item.labelEl.classList.add('dimmed');
-            item.mesh.material.opacity = 0.15;
-            item.halo.material.opacity = 0.08;
-        }
-    });
-}
-
-// --- 14. BÚSQUEDA FUZZY CON DESPLEGABLE Y SALTO DE CÁMARA ---
-const searchInput = document.getElementById('node-search');
-const searchDropdown = document.getElementById('search-results');
-const searchClear = document.getElementById('search-clear');
-
-searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    if (!query) {
-        searchDropdown.classList.add('hidden');
-        searchClear.classList.add('hidden');
-        return;
-    }
-    searchClear.classList.remove('hidden');
-
-    const matches = KNOWLEDGE_GRAPH.filter(n => {
-        return n.name.toLowerCase().includes(query) ||
-               n.shortName.toLowerCase().includes(query) ||
-               n.category.toLowerCase().includes(query) ||
-               (n.description && n.description.toLowerCase().includes(query));
-    });
-
-    if (matches.length > 0) {
-        searchDropdown.innerHTML = '';
-        matches.forEach(m => {
-            const row = document.createElement('div');
-            row.className = 'search-result-item';
-            row.innerHTML = `
-                <div class="result-dot" style="background:${m.beaconColor || m.color};"></div>
-                <div class="result-text">
-                    <span class="result-name">${m.name}</span>
-                    <span class="result-cat">${m.category}</span>
-                </div>
-            `;
-            row.addEventListener('click', () => {
-                focusOnNode(m);
-                searchDropdown.classList.add('hidden');
-                searchInput.value = m.name;
-            });
-            searchDropdown.appendChild(row);
-        });
-        searchDropdown.classList.remove('hidden');
-    } else {
-        searchDropdown.innerHTML = `<div class="search-empty">No se encontraron algoritmos o fórmulas para "${query}"</div>`;
-        searchDropdown.classList.remove('hidden');
-    }
-});
-
-searchClear.addEventListener('click', () => {
-    searchInput.value = '';
-    searchDropdown.classList.add('hidden');
-    searchClear.classList.add('hidden');
-});
-
-// --- 15. BOTONES DE ACCIÓN RÁPIDA (FILAMENTOS, MODELOS 3D, ORBITAR, AUDIO) ---
-let filamentsVisible = true;
-const btnFilaments = document.getElementById('btn-toggle-filaments');
-btnFilaments.addEventListener('click', () => {
-    filamentsVisible = !filamentsVisible;
-    streamLinesGroup.visible = filamentsVisible;
-    btnFilaments.classList.toggle('active', filamentsVisible);
-});
-
-let models3DVisible = true;
-const btnModels = document.getElementById('btn-toggle-models');
-btnModels.addEventListener('click', () => {
-    models3DVisible = !models3DVisible;
-    gltfModelsGroup.visible = models3DVisible;
-    btnModels.classList.toggle('active', models3DVisible);
-});
-
-const btnRotate = document.getElementById('btn-toggle-rotate');
-btnRotate.addEventListener('click', () => {
-    autoRotate = !autoRotate;
-    btnRotate.classList.toggle('active', autoRotate);
-});
-
-// Audio sintético continuo
-let audioPlaying = false;
-let ambientOsc = null;
-let ambientGain = null;
-const btnSound = document.getElementById('btn-toggle-sound');
-btnSound.addEventListener('click', () => {
-    if (!audioPlaying) {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            ambientOsc = ctx.createOscillator();
-            ambientGain = ctx.createGain();
-            ambientOsc.type = 'sine';
-            ambientOsc.frequency.setValueAtTime(55, ctx.currentTime);
-            ambientGain.gain.setValueAtTime(0.04, ctx.currentTime);
-            ambientOsc.connect(ambientGain);
-            ambientGain.connect(ctx.destination);
-            ambientOsc.start();
-            audioPlaying = true;
-            btnSound.classList.add('active');
-        } catch(e) {}
-    } else {
-        if (ambientOsc) {
-            ambientOsc.stop();
-            audioPlaying = false;
-            btnSound.classList.remove('active');
-        }
-    }
-});
-
-// --- 16. BUCLE PRINCIPAL DE ANIMACIÓN Y RENDERIZADO ---
+// --- BUCLE PRINCIPAL DE ANIMACIÓN ---
 const clock = new THREE.Clock();
 
 function animate() {
@@ -1227,51 +831,29 @@ function animate() {
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
 
-    // Animación exterior
-    if (outsideGroup.visible) {
-        const breath = 1 + Math.sin(time * 1.5) * 0.012;
-        blackSphere.scale.set(breath, breath, breath);
-        contactShadow.scale.set(breath, breath, 1);
-
-        outerDust.rotation.y = time * 0.012;
-        outerDust.rotation.x = time * 0.006;
+    // Animación Portada: rotación lenta de la bola negra
+    if (scenePortada.visible) {
+        blackSphere.rotation.y = time * 0.12;
+        blackSphere.rotation.x = time * 0.06;
     }
 
-    // Animación interior
-    if (interiorGroup.visible) {
-        if (autoRotate && !isTransitioning && !activeNode) {
-            interiorGroup.rotation.y += delta * 0.028;
-        }
-
-        // Rotación de los dos modelos 3D conjuntos
-        if (skyboxMesh) {
-            skyboxMesh.rotation.y += delta * 0.003;
-            skyboxMesh.rotation.x += delta * 0.0008;
-        }
-
-        if (cosmicPointCloud) {
-            cosmicPointCloud.rotation.y -= delta * 0.004;
-        }
-
-        // Halos de nodos
-        nodeMeshes.forEach((item, idx) => {
-            const s = 1 + Math.sin(time * 3 + idx) * 0.16;
-            item.halo.scale.set(s, s, 1);
-            item.halo.lookAt(camera.position);
+    // Animación Cosmos: pulsación sutil de los halos de los conceptos
+    if (sceneCosmos.visible) {
+        conceptMeshes.forEach((item, idx) => {
+            const pulse = 1 + Math.sin(time * 2.8 + idx) * 0.12;
+            item.sprite.scale.set(
+                (item.concept.id === 'gran_atractor' ? item.concept.size * 5.2 : item.concept.size * 3.6) * pulse,
+                (item.concept.id === 'gran_atractor' ? item.concept.size * 5.2 : item.concept.size * 3.6) * pulse,
+                1
+            );
         });
 
-        // Pulsos de energía
-        const posAttr = pulses.geometry.attributes.position;
-        for (let i = 0; i < pulseCount; i++) {
-            const p = pulseData[i];
-            p.t += p.speed;
-            if (p.t > 1) p.t = 0;
-            const pt = p.curve.getPoint(p.t);
-            posAttr.setXYZ(i, pt.x, pt.y, pt.z);
+        // Rotación orbital muy lenta y majestuosa del supercúmulo
+        if (!controls.state || controls.state === -1) {
+            sceneCosmos.rotation.y += delta * 0.015;
         }
-        posAttr.needsUpdate = true;
 
-        update3DLabels();
+        updateLabels();
     }
 
     controls.update();
@@ -1280,10 +862,11 @@ function animate() {
 
 animate();
 
-// --- 17. RESPONSIVE RESIZE ---
+// --- RESPONSIVE RESIZE ---
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    updateLabels();
 });
