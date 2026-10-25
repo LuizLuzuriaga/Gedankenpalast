@@ -3,111 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gedankenpalast - El Palacio de la Memoria · Laniakea</title>
-    <meta name="description" content="Gedankenpalast: Una experiencia 3D inmersiva del supercúmulo cósmico Laniakea y el Palacio de la Memoria.">
+    <title>Gedankenpalast - Singularidad Cognitiva & Atlas Actuarial 3D</title>
+    <meta name="description" content="Gedankenpalast: Atlas topológico 3D del conocimiento actuarial y cuantitativo modelado sobre la macroestructura cósmica de Laniakea.">
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for pristine LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <link rel="stylesheet" href="style.css?v=2.0">
 </head>
-<body>
-    <!-- Canvas WebGL Container -->
+<body class="mode-outside">
+    <!-- WebGL Canvas Container -->
     <div id="webgl-container"></div>
 
-    <!-- Vignette & Glow Overlay -->
-    <div id="cinematic-overlay"></div>
+    <!-- Spacetime Distortion Canvas Overlay -->
+    <div id="distortion-overlay"></div>
 
-    <!-- Entrance HUD (Outside Sphere View) -->
+    <!-- ENTRANCE HUD (White Void with Black Singularity) -->
     <div id="entrance-hud" class="hud-layer visible">
-        <div class="hud-content">
-            <span class="sub-badge">REINO COGNITIVO · COSMOS</span>
-            <h1 class="main-title">Gedankenpalast</h1>
-            <p class="tagline">El Palacio de la Memoria</p>
-            <div class="interaction-prompt">
-                <div class="pulse-ring"></div>
+        <div class="hud-center">
+            <span class="singularity-badge">SINGULARIDAD COGNITIVA · GRAFO DE CONOCIMIENTO</span>
+            <h1 class="singularity-title">Gedankenpalast</h1>
+            <p class="singularity-tagline">El Palacio de la Memoria · Atlas Actuarial & Cuantitativo</p>
+            
+            <div class="singularity-prompt" id="prompt-enter">
+                <div class="pulse-black-ring"></div>
                 <div class="mouse-icon">
                     <span class="mouse-wheel"></span>
                 </div>
-                <span>Haz doble clic en la esfera blanca para adentrarte</span>
+                <span>Haz doble clic en la esfera negra o haz zoom para atravesar el espaciotiempo</span>
             </div>
+        </div>
+        <div class="entrance-footer">
+            <span>Fondo Blanco & Esfera Negra</span>
+            <span class="dot-sep">•</span>
+            <span>Distorsión Gravitacional de Lente</span>
+            <span class="dot-sep">•</span>
+            <span>Modelos 3D Skybox & Point Cloud</span>
         </div>
     </div>
 
-    <!-- Interior HUD (Laniakea Exploration View) -->
+    <!-- INTERIOR HUD (Dark Cosmic Web & Knowledge Graph) -->
     <div id="palace-hud" class="hud-layer hidden">
-        <!-- Header Info -->
+        <!-- Top Navigation Bar -->
         <header class="top-nav">
-            <div class="brand">
+            <div class="brand-group">
                 <span class="brand-title">GEDANKENPALAST</span>
-                <span class="brand-sub">/ Supercúmulo Laniakea</span>
+                <span class="brand-sub">/ Atlas Topológico Actuarial</span>
             </div>
+
+            <!-- Fuzzy Search Bar -->
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="node-search" placeholder="Buscar algoritmo, teorema o fórmula (ej. Lundberg, Vasicek, Lee-Carter)..." autocomplete="off">
+                    <button id="search-clear" class="btn-clear hidden">✕</button>
+                </div>
+                <div id="search-results" class="search-dropdown hidden"></div>
+            </div>
+
             <!-- Quick Action Controls -->
             <div class="control-panel">
-                <button id="btn-focus-mw" class="hud-btn" title="Enfocar la Vía Láctea">
-                    <span class="btn-dot pink-dot"></span> Vía Láctea
-                </button>
-                <button id="btn-focus-attractor" class="hud-btn" title="Enfocar el Gran Atractor">
-                    <span class="btn-dot cyan-dot"></span> Gran Atractor
-                </button>
-                <button id="btn-toggle-filaments" class="hud-btn active" title="Alternar filamentos de flujo">
+                <button id="btn-toggle-filaments" class="hud-btn active" title="Alternar filamentos de flujo cósmico">
                     <span class="btn-icon">⚡</span> Filamentos
                 </button>
-                <button id="btn-toggle-rotate" class="hud-btn active" title="Alternar auto-rotación">
-                    <span class="btn-icon">🔄</span> Rotar
+                <button id="btn-toggle-models" class="hud-btn active" title="Alternar modelos 3D (Skybox & Point Cloud)">
+                    <span class="btn-icon">🌌</span> Modelos 3D
+                </button>
+                <button id="btn-toggle-rotate" class="hud-btn active" title="Alternar rotación orbital">
+                    <span class="btn-icon">🔄</span> Orbitar
                 </button>
                 <button id="btn-toggle-sound" class="hud-btn" title="Ambiente sonoro cósmico">
                     <span class="btn-icon">🔈</span> Audio
                 </button>
-                <button id="btn-exit" class="hud-btn highlight-btn" title="Volver al exterior">
-                    <span class="btn-icon">↩</span> Salir
+                <button id="btn-exit" class="hud-btn highlight-btn" title="Regresar al exterior">
+                    <span class="btn-icon">↩</span> Salir al Exterior
                 </button>
             </div>
         </header>
 
-        <!-- Dynamic Info Bar -->
+        <!-- Filters Bar (Languages & Frameworks) -->
+        <nav class="filter-strip">
+            <div class="filter-group">
+                <span class="filter-label">Lenguaje:</span>
+                <button class="filter-pill active" data-filter="lang" data-val="all">Todos</button>
+                <button class="filter-pill" data-filter="lang" data-val="Python">Python</button>
+                <button class="filter-pill" data-filter="lang" data-val="R">R</button>
+                <button class="filter-pill" data-filter="lang" data-val="LaTeX">LaTeX</button>
+                <button class="filter-pill" data-filter="lang" data-val="Excel/VBA">Excel/VBA</button>
+            </div>
+            <div class="filter-divider"></div>
+            <div class="filter-group">
+                <span class="filter-label">Marco:</span>
+                <button class="filter-pill active" data-filter="framework" data-val="all">Todos</button>
+                <button class="filter-pill" data-filter="framework" data-val="Solvencia II">Solvencia II</button>
+                <button class="filter-pill" data-filter="framework" data-val="IFRS 17">IFRS 17</button>
+                <button class="filter-pill" data-filter="framework" data-val="Tarificación">Tarificación</button>
+                <button class="filter-pill" data-filter="framework" data-val="Reservas">Reservas</button>
+                <button class="filter-pill" data-filter="framework" data-val="ALM">ALM</button>
+            </div>
+        </nav>
+
+        <!-- Bottom Telemetry Card -->
         <footer class="bottom-bar">
-            <div class="info-card glass-panel">
+            <div class="telemetry-panel">
                 <div class="status-indicator">
                     <span class="status-dot"></span>
-                    <span id="scene-status">Flujo gravitacional activo</span>
+                    <span id="telemetry-status">Cuenca de atracción activa · Haz clic en cualquier nodo para inspeccionar</span>
                 </div>
-                <div class="telemetry">
-                    <span class="telemetry-item"><strong>Escala:</strong> ~520 millones de a.l.</span>
+                <div class="telemetry-stats">
+                    <span><strong>Centro:</strong> Gran Atractor (Riesgo y Solvencia)</span>
                     <span class="telemetry-separator">|</span>
-                    <span class="telemetry-item"><strong>Galaxias:</strong> ~100.000 condensadas</span>
+                    <span><strong>Modelos 3D:</strong> Nebula Skybox & Cosmic Points</span>
                     <span class="telemetry-separator">|</span>
-                    <span class="telemetry-item"><strong>Cuenca:</strong> Laniakea ("Cielos inconmensurables")</span>
+                    <span><strong>Nodos:</strong> 12 Metodologías Clave</span>
                 </div>
             </div>
         </footer>
     </div>
 
-    <!-- 3D HTML Labels Overlay -->
-    <div id="labels-container">
-        <div id="label-milkyway" class="space-label label-milkyway hidden">
-            <div class="label-beacon"></div>
-            <div class="label-text">
-                <span class="label-name">Vía Láctea</span>
-                <span class="label-desc">Nuestro hogar</span>
-            </div>
-        </div>
-        <div id="label-attractor" class="space-label label-attractor hidden">
-            <div class="label-beacon cyan-beacon"></div>
-            <div class="label-text">
-                <span class="label-name">Gran Atractor</span>
-                <span class="label-desc">Punto focal gravitatorio</span>
-            </div>
-        </div>
-        <div id="label-laniakea" class="space-label label-watermark hidden">
-            Laniakea
-        </div>
-    </div>
+    <!-- 3D FLOATING LABELS OVERLAY -->
+    <div id="labels-container"></div>
 
-    <!-- Three.js and Dependencies -->
+    <!-- NODE INSPECTOR DRAWER (Panel Lateral Micro con LaTeX & Código) -->
+    <aside id="node-drawer" class="drawer hidden">
+        <div class="drawer-header">
+            <div class="drawer-title-group">
+                <div class="badge-row">
+                    <span id="drawer-category" class="category-badge">Macrodisciplina</span>
+                    <span id="drawer-frameworks" class="framework-badges"></span>
+                </div>
+                <h2 id="drawer-title">Nombre del Nodo</h2>
+                <p id="drawer-subtitle" class="drawer-subtitle">Subárea metodológica</p>
+            </div>
+            <button id="drawer-close" class="btn-close" title="Cerrar panel">✕</button>
+        </div>
+
+        <div class="drawer-tabs">
+            <button class="tab-btn active" data-tab="math">📐 Fundamento Matemático</button>
+            <button class="tab-btn" data-tab="code">💻 Implementación</button>
+            <button class="tab-btn" data-tab="deps">🔗 Dependencias</button>
+        </div>
+
+        <div class="drawer-body">
+            <!-- TAB 1: FUNDAMENTO MATEMÁTICO (LaTeX) -->
+            <div id="tab-math" class="tab-pane active">
+                <div class="math-intro" id="drawer-description"></div>
+                <div class="math-render-box" id="drawer-math-content"></div>
+            </div>
+
+            <!-- TAB 2: IMPLEMENTACIÓN (Código R / Python / VBA) -->
+            <div id="tab-code" class="tab-pane">
+                <div class="code-header">
+                    <div class="code-lang-selector" id="code-lang-selector">
+                        <button class="code-lang-btn active" data-lang="python">Python</button>
+                        <button class="code-lang-btn" data-lang="r">R</button>
+                        <button class="code-lang-btn" data-lang="vba">VBA</button>
+                    </div>
+                    <button id="btn-copy-code" class="btn-copy">📋 Copiar Código</button>
+                </div>
+                <pre class="code-display"><code id="code-snippet"></code></pre>
+            </div>
+
+            <!-- TAB 3: DEPENDENCIAS TOPOLÓGICAS (Upstream & Downstream) -->
+            <div id="tab-deps" class="tab-pane">
+                <div class="deps-section">
+                    <h4 class="deps-heading">⬆ Supuestos Matemáticos & Upstream</h4>
+                    <p class="deps-sub">Modelos y fundamentos requeridos para sostener este nodo:</p>
+                    <ul id="upstream-list" class="deps-list"></ul>
+                </div>
+
+                <div class="deps-section">
+                    <h4 class="deps-heading">⬇ Aplicaciones de Negocio & Downstream</h4>
+                    <p class="deps-sub">Impacto directo en toma de decisiones y órganos regulatorios:</p>
+                    <ul id="downstream-list" class="deps-list"></ul>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="main.js"></script>
+    
+    <!-- Knowledge Graph Dataset & Engine -->
+    <script src="knowledgeData.js"></script>
+    <script src="main.js?v=2.0"></script>
 </body>
 </html>
