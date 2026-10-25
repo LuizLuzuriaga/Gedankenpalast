@@ -12,9 +12,9 @@ const COLOR_BG_OUTSIDE = new THREE.Color(0xf6f8fb);
 const COLOR_BG_INSIDE = new THREE.Color(0x020409);
 
 scene.background = COLOR_BG_OUTSIDE.clone();
-scene.fog = new THREE.FogExp2(0xf6f8fb, 0.0005);
+scene.fog = new THREE.FogExp2(0xf6f8fb, 0.00045);
 
-const camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 1, 10000);
+const camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 1, 15000);
 const DEFAULT_OUTSIDE_CAM = { x: 0, y: 15, z: 920 };
 camera.position.set(DEFAULT_OUTSIDE_CAM.x, DEFAULT_OUTSIDE_CAM.y, DEFAULT_OUTSIDE_CAM.z);
 
@@ -23,14 +23,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setClearColor(0xf6f8fb, 1);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.45;
+renderer.toneMappingExposure = 1.6;
 container.appendChild(renderer.domElement);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.055;
 controls.minDistance = 25;
-controls.maxDistance = 3500;
+controls.maxDistance = 4500;
 controls.rotateSpeed = 0.65;
 controls.zoomSpeed = 0.85;
 
@@ -89,7 +89,7 @@ const blackSphereMat = new THREE.MeshBasicMaterial({
 const blackSphere = new THREE.Mesh(blackSphereGeo, blackSphereMat);
 outsideGroup.add(blackSphere);
 
-// Sombra de contacto suave en el suelo del vacío
+// Sombra de contacto suave en el vacío blanco
 const shadowGeo = new THREE.RingGeometry(12, sphereRadius * 1.35, 64);
 const shadowMat = new THREE.MeshBasicMaterial({
     color: 0xd6dfea,
@@ -125,7 +125,7 @@ const outerDustMat = new THREE.PointsMaterial({
 const outerDust = new THREE.Points(outerDustGeo, outerDustMat);
 outsideGroup.add(outerDust);
 
-// --- 4. ESCENA INTERIOR: COSMOS OSCURO & MODELOS 3D GLB CONJUNTOS ---
+// --- 4. ESCENA INTERIOR: COSMOS OSCURO & MODELOS 3D GLB (AUTOSCALED) ---
 const interiorGroup = new THREE.Group();
 interiorGroup.visible = false;
 scene.add(interiorGroup);
@@ -137,67 +137,69 @@ interiorGroup.add(gltfModelsGroup);
 let skyboxMesh = null;
 let cosmicPointCloud = null;
 
-// Fondo Cósmico de Nebulosa (Cúpula esférica de 4000 unidades con la textura extraída)
-const skyDomeGeo = new THREE.SphereGeometry(3800, 64, 48);
-const skyDomeTex = new THREE.TextureLoader().load('skybox_texture.png');
-const skyDomeMat = new THREE.MeshBasicMaterial({
-    map: skyDomeTex,
-    side: THREE.BackSide,
-    depthWrite: false,
-    transparent: true,
-    opacity: 0.85,
-    fog: false
-});
-const skyDome = new THREE.Mesh(skyDomeGeo, skyDomeMat);
-gltfModelsGroup.add(skyDome);
-
 const gltfLoader = new THREE.GLTFLoader();
 
-// A) MODELO 1: alien_space_nebula_2_skybox.glb (Skybox de nebulosa cósmica)
+// A) MODELO 1: alien_space_nebula_2_skybox.glb (Nebulosa Cósmica 3D Envolvente)
 gltfLoader.load('alien_space_nebula_2_skybox.glb', (gltf) => {
     skyboxMesh = gltf.scene;
-    skyboxMesh.scale.set(0.70, 0.70, 0.70);
+    
+    // Auto-escalado preciso para envolver todo el cosmos (Diámetro 9000)
+    const box = new THREE.Box3().setFromObject(skyboxMesh);
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 118;
+    const scaleFactor = 9000 / maxDim;
+    skyboxMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
+    skyboxMesh.position.set(0, 0, 0);
+
     skyboxMesh.traverse((child) => {
         if (child.isMesh) {
             const mat = child.material;
-            const tex = (mat && mat.emissiveMap) ? mat.emissiveMap : (mat ? mat.map : skyDomeTex);
+            const tex = (mat && mat.emissiveMap) ? mat.emissiveMap : (mat ? mat.map : null);
             child.material = new THREE.MeshBasicMaterial({
                 map: tex,
                 side: THREE.BackSide,
                 depthWrite: false,
                 transparent: true,
-                opacity: 0.90,
+                opacity: 0.95,
                 fog: false
             });
         }
     });
     gltfModelsGroup.add(skyboxMesh);
-    console.log(" alien_space_nebula_2_skybox.glb integrado");
+    console.log(" alien_space_nebula_2_skybox.glb auto-escalado x" + Math.round(scaleFactor) + " (Diámetro: 9000)");
 }, undefined, (err) => {
     console.warn("alien_space_nebula_2_skybox.glb error:", err);
 });
 
-// B) MODELO 2: need_some_space.glb (50,000 puntos astronómicos reales con colores de vértice)
+// B) MODELO 2: need_some_space.glb (50.000 Puntos Astronómicos Reales)
 gltfLoader.load('need_some_space.glb', (gltf) => {
     cosmicPointCloud = gltf.scene;
     cosmicPointCloud.traverse((child) => {
         if (child.isPoints) {
             child.geometry.center();
             child.material = new THREE.PointsMaterial({
-                size: 4.2,
+                size: 4.8,
                 vertexColors: true,
                 map: particleTexture,
                 transparent: true,
-                opacity: 0.98,
+                opacity: 1.0,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false,
                 fog: false
             });
         }
     });
-    cosmicPointCloud.scale.set(3.0, 3.0, 3.0);
+
+    // Auto-escalado para abarcar toda la cuenca de Laniakea (Envergadura 780 unidades)
+    const box = new THREE.Box3().setFromObject(cosmicPointCloud);
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 4;
+    const scaleFactor = 780 / maxDim;
+    cosmicPointCloud.scale.set(scaleFactor, scaleFactor, scaleFactor);
+    cosmicPointCloud.position.set(0, 0, 0);
+
     gltfModelsGroup.add(cosmicPointCloud);
-    console.log(" need_some_space.glb integrado (50.000 puntos reales)");
+    console.log(" need_some_space.glb auto-escalado x" + Math.round(scaleFactor) + " (Envergadura: 780, 50.000 puntos reales)");
 }, undefined, (err) => {
     console.warn("need_some_space.glb error:", err);
 });
@@ -446,21 +448,20 @@ for (let i = 0; i < galaxyCount; i++) {
         const t = Math.random();
         const pt = curve.getPoint(t);
 
-        // Dispersión concéntrica alrededor de la espina del filamento
         const spread = (1 - t * 0.45) * 12 * (Math.random() + 0.12);
         px = pt.x + (Math.random() - 0.5) * spread;
         py = pt.y + (Math.random() - 0.5) * spread;
         pz = pt.z + (Math.random() - 0.5) * spread;
 
         if (t > 0.84 || t < 0.16) {
-            colIndex = Math.random() > 0.4 ? 4 : 5; // Extremos en nodos: Ámbar / Dorado
+            colIndex = Math.random() > 0.4 ? 4 : 5;
         } else if (Math.random() > 0.55) {
-            colIndex = 1; // Cian luminoso
+            colIndex = 1;
         } else {
-            colIndex = Math.random() > 0.35 ? 2 : 3; // Azul eléctrico a real
+            colIndex = Math.random() > 0.35 ? 2 : 3;
         }
     } else if (dice < 0.92) {
-        // 18% Cúmulos densos alrededor de los 14 nodos (Knots estelares de la referencia)
+        // 18% Cúmulos densos alrededor de los 14 nodos (Knots estelares)
         const node = KNOWLEDGE_GRAPH[Math.floor(Math.random() * KNOWLEDGE_GRAPH.length)];
         const rad = Math.pow(Math.random(), 2.2) * (node.size * 4.2);
         const th = Math.random() * Math.PI * 2;
@@ -470,7 +471,6 @@ for (let i = 0; i < galaxyCount; i++) {
         py = node.position.y + rad * Math.sin(ph) * Math.sin(th) * 0.8;
         pz = node.position.z + rad * Math.cos(ph);
 
-        // Nodos son centros de energía dorada/amarilla
         colIndex = (node.id === "gran_atractor" || Math.random() > 0.25) ? (Math.random() > 0.45 ? 4 : 5) : 0;
     } else {
         // 8% Partículas de halo en la cuenca cósmica
@@ -543,7 +543,6 @@ interiorGroup.add(nodesGroup);
 
 const nodeMeshes = [];
 const labelsContainer = document.getElementById('labels-container');
-// Garantizar que las etiquetas inicien rigurosamente ocultas
 if (labelsContainer) {
     labelsContainer.style.display = 'none';
 }
@@ -724,7 +723,6 @@ window.addEventListener('wheel', (e) => {
     }
 });
 
-// Sonido sintético sutil de curvatura espacio-tiempo
 function playCosmicWarp() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -825,7 +823,6 @@ function enterPalace() {
             palaceHud.classList.remove('hidden');
             palaceHud.classList.add('visible');
 
-            // Revelar etiquetas 3D en el cosmos
             if (labelsContainer) {
                 labelsContainer.style.display = 'block';
             }
@@ -844,7 +841,6 @@ function exitToOutside() {
     palaceHud.classList.remove('visible');
     palaceHud.classList.add('hidden');
 
-    // Ocultar etiquetas inmediatamente
     if (labelsContainer) {
         labelsContainer.style.display = 'none';
     }
@@ -918,16 +914,14 @@ function exitToOutside() {
     });
 }
 
-// Botón Salir al Exterior
 document.getElementById('btn-exit').addEventListener('click', exitToOutside);
 
-// --- 11. ENFOQUE CINEMATOGRÁFICO EN UN NODO (Glide & Inspect) ---
+// --- 11. ENFOQUE CINEMATOGRÁFICO EN UN NODO ---
 function focusOnNode(node) {
     activeNode = node;
     const targetPos = new THREE.Vector3(node.position.x, node.position.y, node.position.z);
     targetPos.applyMatrix4(interiorGroup.matrixWorld);
 
-    // Calcular offset de cámara suave
     const camOffset = targetPos.clone().normalize().multiplyScalar(110);
     if (targetPos.length() < 10) camOffset.set(0, 30, 95);
 
@@ -945,7 +939,6 @@ function focusOnNode(node) {
         }
     });
 
-    // Actualizar barra de estado inferior
     const activeInfo = document.getElementById('active-node-info');
     if (activeInfo) {
         activeInfo.innerHTML = `<strong>Inspeccionando:</strong> ${node.name} (${node.category}) | <em>${node.frameworks ? node.frameworks.join(', ') : ''}</em>`;
@@ -971,7 +964,6 @@ function openDrawer(node) {
     drawerCat.style.background = node.beaconColor || node.color;
     drawerDesc.innerText = node.description;
 
-    // Renderizado de LaTeX con KaTeX
     mathBox.innerHTML = '';
     if (node.math && window.katex) {
         try {
@@ -986,10 +978,8 @@ function openDrawer(node) {
         mathBox.innerText = node.math || "Fórmula en formulación...";
     }
 
-    // Código ejecutable
     updateCodeView(node);
 
-    // Dependencias Topológicas Upstream & Downstream
     upstreamList.innerHTML = '';
     if (node.dependencies && node.dependencies.upstream) {
         node.dependencies.upstream.forEach(upId => {
@@ -1046,7 +1036,6 @@ function closeDrawer() {
 
 document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
 
-// Cambio de pestañas del Drawer
 document.querySelectorAll('.drawer-tab').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.drawer-tab').forEach(b => b.classList.remove('active'));
@@ -1058,7 +1047,6 @@ document.querySelectorAll('.drawer-tab').forEach(btn => {
     });
 });
 
-// Selector de lenguaje de código en el Drawer
 document.querySelectorAll('.code-lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.code-lang-btn').forEach(b => b.classList.remove('active'));
@@ -1068,7 +1056,6 @@ document.querySelectorAll('.code-lang-btn').forEach(btn => {
     });
 });
 
-// Botón de copiar código
 btnCopyCode.addEventListener('click', () => {
     if (codeSnippet.textContent) {
         navigator.clipboard.writeText(codeSnippet.textContent).then(() => {
@@ -1090,7 +1077,6 @@ document.querySelectorAll('.filter-pill').forEach(pill => {
         const type = pill.dataset.filter;
         const val = pill.dataset.val;
 
-        // Limpiar botones activos del mismo grupo
         document.querySelectorAll(`.filter-pill[data-filter="${type}"]`).forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
 
@@ -1241,7 +1227,7 @@ function animate() {
     const delta = clock.getDelta();
     const time = clock.getElapsedTime();
 
-    // Animación exterior (Respiración suave del agujero negro)
+    // Animación exterior
     if (outsideGroup.visible) {
         const breath = 1 + Math.sin(time * 1.5) * 0.012;
         blackSphere.scale.set(breath, breath, breath);
@@ -1254,30 +1240,27 @@ function animate() {
     // Animación interior
     if (interiorGroup.visible) {
         if (autoRotate && !isTransitioning && !activeNode) {
-            interiorGroup.rotation.y += delta * 0.030;
+            interiorGroup.rotation.y += delta * 0.028;
         }
 
-        // Rotación cósmica de los dos modelos 3D conjuntos
+        // Rotación de los dos modelos 3D conjuntos
         if (skyboxMesh) {
-            skyboxMesh.rotation.y += delta * 0.004;
-            skyboxMesh.rotation.x += delta * 0.001;
-        }
-        if (skyDome) {
-            skyDome.rotation.y += delta * 0.002;
+            skyboxMesh.rotation.y += delta * 0.003;
+            skyboxMesh.rotation.x += delta * 0.0008;
         }
 
         if (cosmicPointCloud) {
-            cosmicPointCloud.rotation.y -= delta * 0.006;
+            cosmicPointCloud.rotation.y -= delta * 0.004;
         }
 
-        // Pulsación de halos de nodos
+        // Halos de nodos
         nodeMeshes.forEach((item, idx) => {
             const s = 1 + Math.sin(time * 3 + idx) * 0.16;
             item.halo.scale.set(s, s, 1);
             item.halo.lookAt(camera.position);
         });
 
-        // Avance de pulsos de energía por los filamentos
+        // Pulsos de energía
         const posAttr = pulses.geometry.attributes.position;
         for (let i = 0; i < pulseCount; i++) {
             const p = pulseData[i];
