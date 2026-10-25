@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Gendanken Palast</title>
+    <meta name="description" content="Atlas 3D de estudio actuarial y cuantitativo: cuatro cúmulos de conocimiento alrededor del Gran Atractor.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <link rel="stylesheet" href="style.css?v=8.0">
+</head>
+<body class="scene-portada">
+    <div id="webgl-container"></div>
+
+    <!-- INTERIOR -->
+    <div id="app" hidden>
+        <header class="topbar">
+            <h1 class="brand-title">
+                <a class="brand" href="#" id="brand" title="Vista general">
+                    <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true">
+                        <ellipse cx="14" cy="14" rx="12.5" ry="5" transform="rotate(-24 14 14)" fill="none" stroke="currentColor" stroke-width="1.3"/>
+                        <circle cx="14" cy="14" r="6" fill="currentColor"/>
+                        <circle cx="24.4" cy="9.6" r="2" fill="var(--accent)"/>
+                    </svg>
+                    <span class="brand-name">Gendanken Palast</span>
+                </a>
+            </h1>
+
+            <div class="search" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+                <svg class="search-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <input id="search-input" type="search" autocomplete="off" spellcheck="false"
+                       placeholder="Buscar tema, modelo o fórmula" aria-label="Buscar en el atlas" aria-controls="search-results">
+                <ul id="search-results" class="menu search-results" role="listbox" hidden></ul>
+            </div>
+
+            <div class="actions" id="actions">
+                <div class="filters">
+                    <button type="button" class="control" id="filters-button" aria-expanded="false" aria-controls="filters-menu">
+                        Filtros <span class="count num" id="filters-count" hidden></span>
+                    </button>
+                    <div id="filters-menu" class="menu filters-menu" hidden></div>
+                </div>
+                <button type="button" class="control toggle" id="toggle-filaments" aria-pressed="true">Filamentos</button>
+                <button type="button" class="control toggle" id="toggle-orbits" aria-pressed="true">Órbitas</button>
+                <button type="button" class="control control-quiet" id="exit-button">Salir</button>
+            </div>
+            <button type="button" class="control menu-button" id="menu-button" aria-expanded="false" aria-controls="actions">Opciones</button>
+        </header>
+
+        <div id="labels" aria-label="Temas del atlas"></div>
+
+        <nav class="cluster-nav" id="cluster-nav" aria-label="Cúmulos de conocimiento"></nav>
+
+        <aside id="panel" class="panel" aria-labelledby="panel-title" hidden>
+            <header class="panel-head">
+                <p class="panel-scope"><span class="dot"></span><span id="panel-scope"></span></p>
+                <h2 class="panel-title" id="panel-title"></h2>
+                <button type="button" class="icon-button" id="panel-close" aria-label="Cerrar tema">
+                    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </button>
+            </header>
+            <p class="panel-desc" id="panel-desc" hidden></p>
+            <nav class="tabs" id="panel-tabs" role="tablist" aria-label="Secciones del tema"></nav>
+            <div class="panel-body" id="panel-body"></div>
+        </aside>
+    </div>
+
+    <!-- PORTADA: solo el título -->
+    <header id="portada-header">
+        <h1 class="palast-title">Gendanken Palast</h1>
+    </header>
+
+    <!-- Dependencias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+    <!-- Datos y escena -->
+    <script src="knowledgeData.js?v=8.0"></script>
+    <script src="atlas.js?v=8.0"></script>
+    <script src="conocimientos.js?v=8.0"></script>
+    <script src="main.js?v=8.0"></script>
+</body>
+</html>

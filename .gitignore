@@ -1,0 +1,8 @@
+# Apuntes del curso (material de terceros): solo en local, la web no los necesita
+Conocimientos/
+
+# Archivos de trabajo de taste-skill (capturas e informes del inspector)
+.taste-skill/
+
+# Caché de Python de tools/
+__pycache__/
