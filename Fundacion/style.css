@@ -129,6 +129,14 @@ button {
     color: #0b0b0c;
 }
 
+.palast-byline {
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: #5f6368;
+}
+
 #portada-header.is-hidden {
     opacity: 0;
     visibility: hidden;
@@ -563,7 +571,7 @@ button {
     top: calc(var(--topbar) + var(--gap));
     right: var(--gap);
     bottom: var(--gap);
-    width: min(520px, 44vw);
+    width: var(--panel-width, min(520px, 44vw)); /* el borde arrastrable fija --panel-width */
     padding: var(--pad) var(--pad) 0;
     border-radius: var(--radius-card);
     background: var(--surface);
@@ -1043,6 +1051,572 @@ button {
 }
 
 /* ==========================================================================
+   AGENDA: eventos en el cosmos y en el panel
+   ========================================================================== */
+.topic-label .countdown:not(:empty) {
+    margin-left: 8px;
+    color: var(--faint);
+    font-weight: 400;
+}
+
+.topic-label.has-event:not(.is-selected) {
+    background: var(--raised);
+}
+
+.topic-label.is-selected .countdown {
+    color: #5f6368;
+}
+
+.topic-label.is-moon {
+    height: 22px;
+    font-size: 11px;
+}
+
+.panel-event {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-inner);
+    background: var(--step);
+    font-weight: 500;
+}
+
+/* Borde arrastrable del panel */
+.panel-resize {
+    position: absolute;
+    left: -7px;
+    top: var(--radius-card);
+    bottom: var(--radius-card);
+    width: 14px;
+    cursor: ew-resize;
+    touch-action: none;
+    z-index: 2;
+}
+
+.panel-resize::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    width: 2px;
+    height: 48px;
+    border-radius: 2px;
+    background: var(--text);
+    opacity: 0;
+    transform: translateY(-50%);
+    transition: opacity 0.15s ease, height 0.15s ease;
+}
+
+.panel-resize:hover::after,
+.panel-resize:focus-visible::after,
+.panel.is-resizing .panel-resize::after {
+    opacity: 0.6;
+    height: 72px;
+}
+
+.panel-resize:focus-visible {
+    outline: none;
+}
+
+.panel.is-resizing {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.panel.is-closing {
+    opacity: 0.45;
+}
+
+/* --- Pestaña y columna de la agenda (claro en la portada, negro plano en el cosmos) --- */
+.agenda {
+    --ag-surface: var(--surface);
+    --ag-raised: var(--raised);
+    --ag-step: var(--step);
+    --ag-text: var(--text);
+    --ag-muted: var(--muted);
+    --ag-faint: var(--faint);
+    --ag-border: var(--border);
+    --ag-control: var(--control);
+    --ag-inverse-bg: var(--text);
+    --ag-inverse-text: var(--ground);
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 25;
+    margin-left: calc(var(--panel-occupied, 0px) / -2); /* se centra en el espacio que deja libre el panel */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    color: var(--ag-text);
+}
+
+body.scene-portada .agenda {
+    --ag-surface: #ffffff;
+    --ag-raised: #e8e8e8;
+    --ag-step: #f4f4f4;
+    --ag-text: #111111;
+    --ag-muted: #4a4d52;
+    --ag-faint: #5f6368;
+    --ag-border: #e2e2e2;
+    --ag-control: #c9cccf;
+    --ag-inverse-bg: #111111;
+    --ag-inverse-text: #ffffff;
+}
+
+/* La guía de estudio ocupa toda la pantalla: la pestaña no se le superpone */
+body:has(#guide:not([hidden])) .agenda {
+    display: none;
+}
+
+.agenda-tab {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--ag-surface);
+    color: var(--ag-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+}
+
+body.scene-portada .agenda-tab {
+    border: 1px solid var(--ag-border);
+}
+
+.agenda-tab:hover,
+.agenda.is-open .agenda-tab {
+    background: var(--ag-raised);
+}
+
+.agenda-tab svg {
+    width: 20px;
+    height: 20px;
+}
+
+.agenda-panel {
+    width: 360px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 16px;
+    border-radius: var(--radius-card);
+    background: var(--ag-surface);
+    border: 1px solid var(--ag-border); /* flota sobre la escena */
+    user-select: text;
+    -webkit-user-select: text;
+}
+
+.ag-head {
+    display: grid;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.ag-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.ag-arrow {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ag-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ag-step-year .ag-arrow {
+    width: 26px;
+    height: 26px;
+}
+
+.ag-arrow svg {
+    width: 16px;
+    height: 16px;
+}
+
+.ag-step-year .ag-arrow svg {
+    width: 13px;
+    height: 13px;
+}
+
+.ag-arrow:hover,
+.ag-label:hover {
+    background: var(--ag-step);
+    color: var(--ag-text);
+}
+
+.ag-label {
+    min-width: 120px;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: var(--ag-text);
+    font-weight: 600;
+}
+
+.ag-label-year {
+    min-width: 70px;
+    height: 26px;
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+    font-weight: 500;
+}
+
+.ag-label-month {
+    font-size: var(--fs-section);
+}
+
+.ag-label[aria-expanded="true"] {
+    background: var(--ag-raised);
+}
+
+.ag-weekdays,
+.ag-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.ag-weekdays span {
+    text-align: center;
+    color: var(--ag-faint);
+    font-size: var(--fs-small);
+    padding-bottom: 4px;
+}
+
+.ag-day {
+    position: relative;
+    height: 42px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ag-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.ag-day:hover {
+    background: var(--ag-step);
+}
+
+.ag-day.is-out {
+    color: var(--ag-faint);
+}
+
+.ag-day.is-today {
+    outline: 1px solid var(--ag-text);
+    outline-offset: -1px;
+}
+
+.ag-day.is-selected {
+    background: var(--ag-inverse-bg);
+    color: var(--ag-inverse-text);
+}
+
+.ag-dots {
+    display: flex;
+    gap: 3px;
+    height: 5px;
+}
+
+.ag-dots i,
+.ag-topic i,
+.ag-upcoming-row i {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex: none;
+}
+
+.ag-picker {
+    display: grid;
+    gap: 6px;
+}
+
+.ag-picker-months {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.ag-picker-years {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.ag-picker-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    color: var(--ag-muted);
+}
+
+.ag-pick {
+    height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--ag-step);
+    color: var(--ag-text);
+    font-weight: 500;
+}
+
+.ag-pick:hover {
+    background: var(--ag-raised);
+}
+
+.ag-pick.is-on {
+    background: var(--ag-inverse-bg);
+    color: var(--ag-inverse-text);
+}
+
+.ag-h {
+    font-size: var(--fs-body);
+    font-weight: 600;
+}
+
+.ag-day-panel,
+.ag-upcoming {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ag-border);
+}
+
+.ag-day-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.ag-events,
+.ag-upcoming ul {
+    list-style: none;
+    margin-top: 10px;
+}
+
+.ag-event {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    gap: 2px 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ag-step);
+}
+
+.ag-event-time {
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+    padding-top: 2px;
+}
+
+.ag-event-title {
+    font-weight: 500;
+}
+
+.ag-event > :not(.ag-event-time):not(.ag-event-title) {
+    grid-column: 2;
+}
+
+.ag-event-notes {
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+}
+
+.ag-event-source {
+    color: var(--ag-faint);
+    font-size: var(--fs-small);
+}
+
+.ag-event-tools {
+    display: flex;
+    gap: 14px;
+}
+
+.ag-topic {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+}
+
+.ag-topic:hover {
+    color: var(--ag-text);
+}
+
+.ag-topic i {
+    width: 7px;
+    height: 7px;
+}
+
+.ag-empty {
+    padding: 10px 0;
+    color: var(--ag-muted);
+}
+
+.ag-upcoming-row {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ag-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+}
+
+.ag-upcoming-row:hover {
+    background: var(--ag-step);
+}
+
+.ag-upcoming-when {
+    width: 64px;
+    flex: none;
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+}
+
+.ag-upcoming-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ag-form {
+    display: grid;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.ag-field {
+    display: grid;
+    gap: 6px;
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+}
+
+.ag-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ag-field input,
+.ag-field select,
+.ag-field textarea {
+    width: 100%;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 1px solid var(--ag-control);
+    border-radius: 10px;
+    background: var(--ag-surface);
+    color: var(--ag-text);
+    font: inherit;
+    font-size: var(--fs-body);
+    color-scheme: dark;
+}
+
+body.scene-portada .ag-field input,
+body.scene-portada .ag-field select,
+body.scene-portada .ag-field textarea {
+    color-scheme: light;
+}
+
+.ag-field textarea {
+    resize: vertical;
+}
+
+.ag-field input:focus,
+.ag-field select:focus,
+.ag-field textarea:focus {
+    outline: none;
+    border-color: var(--ag-text);
+}
+
+.ag-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.ag-btn {
+    height: 36px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--ag-step);
+    color: var(--ag-text);
+    font-weight: 500;
+}
+
+.ag-btn:hover {
+    background: var(--ag-raised);
+}
+
+.ag-btn-primary,
+.ag-btn-primary:hover {
+    background: var(--ag-inverse-bg);
+    color: var(--ag-inverse-text);
+}
+
+.ag-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ag-muted);
+    font-size: var(--fs-small);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.ag-link:hover {
+    color: var(--ag-text);
+}
+
+.ag-link-danger {
+    color: var(--negative, #c4242a);
+}
+
+.ag-error {
+    color: var(--negative, #c4242a);
+    font-size: var(--fs-small);
+}
+
+body.scene-portada .ag-link-danger,
+body.scene-portada .ag-error {
+    color: #b3261e;
+}
+
+.ag-foot {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 14px;
+}
+
+/* ==========================================================================
    MOVIMIENTO REDUCIDO
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -1142,6 +1716,32 @@ button {
     }
 
     .has-panel .cluster-nav {
+        display: none;
+    }
+
+    .panel-resize {
+        display: none;
+    }
+
+    /* En el móvil la agenda queda abajo a la derecha, sobre la tira de cúmulos */
+    .agenda {
+        left: auto;
+        right: var(--gutter);
+        bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+        transform: none;
+        align-items: flex-end;
+    }
+
+    body.scene-portada .agenda {
+        bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .agenda-panel {
+        width: calc(100vw - 2 * var(--gutter));
+        max-height: calc(100vh - var(--topbar) - 150px);
+    }
+
+    #app.has-panel ~ .agenda {
         display: none;
     }
 

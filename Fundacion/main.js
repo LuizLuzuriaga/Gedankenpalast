@@ -405,7 +405,7 @@ const orbitLines = new THREE.Group();
 cosmos.add(orbitLines);
 
 CLUSTERS.forEach(c => {
-    const members = ALL_TOPICS.filter(t => t.cluster === c.id);
+    const members = ALL_TOPICS.filter(t => t.cluster === c.id && !TOPIC_PARENTS[t.id]);
     members.forEach((topic, k) => {
         const r = c.radius * (0.75 + 0.75 * (k + 0.5) / members.length);
         const tilt = 0.25 + rand() * 0.9;
@@ -432,39 +432,74 @@ CLUSTERS.forEach(c => {
         orbitLines.add(line);
     });
 });
+// Lunas: orbitan la posición actual de su tema padre (su `center` es el mismo vector que el `pos`
+// del padre). Van después de los padres en la lista, así que cada fotograma se calculan con el padre ya movido.
+Object.entries(TOPIC_PARENTS).forEach(([moonId, parentId], k) => {
+    const parent = topicNodes.find(n => n.topic.id === parentId);
+    if (!parent || !TOPIC_BY_ID[moonId]) return;
+    const tilt = 0.4 + rand() * 0.8;
+    const node = rand() * Math.PI * 2;
+    topicNodes.push({
+        topic: TOPIC_BY_ID[moonId], moon: true, center: parent.pos, r: 16,
+        axisU: new THREE.Vector3(Math.cos(node), 0, Math.sin(node)),
+        axisV: new THREE.Vector3(-Math.sin(node) * Math.cos(tilt), Math.sin(tilt), Math.cos(node) * Math.cos(tilt)),
+        theta: k * 2.1, omega: 0.9, pos: new THREE.Vector3()
+    });
+});
 topicNodes.push({ topic: TOPIC_BY_ID.gran_atractor, center: GA_POS, r: 0, axisU: new THREE.Vector3(), axisV: new THREE.Vector3(), theta: 0, omega: 0, pos: new THREE.Vector3() });
 
 // Los nodos son discos de tamaño fijo en pantalla: nítidos y nunca gigantes al acercarse
-const NODE_SIZE = { topic: 7, core: 12, selected: 12 };
+const NODE_SIZE = { topic: 7, moon: 5, core: 12, selected: 12 };
+const baseNodeSize = (n) => !n.topic.cluster ? NODE_SIZE.core : n.moon ? NODE_SIZE.moon : NODE_SIZE.topic;
 const nodeGeo = new THREE.BufferGeometry();
 nodeGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(topicNodes.length * 3), 3));
 nodeGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(topicNodes.length * 3), 3));
 nodeGeo.setAttribute('size', new THREE.BufferAttribute(new Float32Array(topicNodes.length), 1));
 nodeGeo.setAttribute('alpha', new THREE.BufferAttribute(new Float32Array(topicNodes.length).fill(1), 1));
+// pulse = 1 en los temas con un evento en los próximos 30 días: laten como un quásar tenue
+nodeGeo.setAttribute('pulse', new THREE.BufferAttribute(new Float32Array(topicNodes.length), 1));
+const PULSE_SPREAD = 4.0; // el sprite de un tema que late es 4 veces mayor para que quepa su anillo
+const nodeUniforms = { uPixelRatio: pointUniforms.uPixelRatio, uTime: { value: 0 } };
 const nodePoints = new THREE.Points(nodeGeo, new THREE.ShaderMaterial({
-    uniforms: { uPixelRatio: pointUniforms.uPixelRatio },
+    uniforms: nodeUniforms,
     vertexShader: `
         attribute float size;
         attribute float alpha;
+        attribute float pulse;
         attribute vec3 color;
         uniform float uPixelRatio;
         varying vec3 vColor;
         varying float vAlpha;
         varying float vSize;
+        varying float vPulse;
         void main() {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             vSize = size * uPixelRatio;
-            gl_PointSize = vSize;
+            vPulse = pulse;
+            gl_PointSize = vSize * mix(1.0, ${PULSE_SPREAD.toFixed(1)}, pulse);
             vColor = color;
             vAlpha = alpha;
         }`,
     fragmentShader: `
+        uniform float uTime;
         varying vec3 vColor;
         varying float vAlpha;
         varying float vSize;
+        varying float vPulse;
         void main() {
-            float d = length(gl_PointCoord - 0.5) * 2.0;
-            float a = vAlpha * (1.0 - smoothstep(1.0 - 3.0 / vSize, 1.0, d));
+            // d = 1 en el borde del disco del nodo, también en los sprites ampliados
+            float d = length(gl_PointCoord - 0.5) * 2.0 * mix(1.0, ${PULSE_SPREAD.toFixed(1)}, vPulse);
+            float beat = 0.5 + 0.5 * sin(uTime * 2.6);
+            float coreR = 1.0 + 0.3 * beat * vPulse;
+            float a = 1.0 - smoothstep(coreR - 3.0 / vSize, coreR, d);
+            if (vPulse > 0.5) {
+                // Anillo que nace en el nodo, se expande y se apaga cada 2,4 s, y un halo que respira
+                float t = fract(uTime / 2.4);
+                float ring = (1.0 - smoothstep(0.0, 0.32, abs(d - (1.1 + t * 2.6)))) * (1.0 - t) * 0.45;
+                float halo = exp(-d * d * 0.45) * 0.16 * beat;
+                a = max(a, ring + halo);
+            }
+            a *= vAlpha;
             if (a < 0.01) discard;
             gl_FragColor = vec4(vColor, a);
         }`,
@@ -478,7 +513,7 @@ topicNodes.forEach((n, i) => {
     n.index = i;
     const hue = new THREE.Color(n.topic.cluster ? CLUSTER_BY_ID[n.topic.cluster].hue : '#fff1d6');
     nodeGeo.attributes.color.setXYZ(i, hue.r, hue.g, hue.b);
-    nodeGeo.attributes.size.setX(i, n.topic.cluster ? NODE_SIZE.topic : NODE_SIZE.core);
+    nodeGeo.attributes.size.setX(i, baseNodeSize(n));
     n.hit = new THREE.Mesh(hitGeo, hitMat);
     n.hit.userData.topicId = n.topic.id;
     cosmos.add(n.hit);
@@ -593,6 +628,8 @@ const panelTitle = $('panel-title');
 const panelDesc = $('panel-desc');
 const panelTabs = $('panel-tabs');
 const panelBody = $('panel-body');
+const panelEvent = $('panel-event');
+const panelResize = $('panel-resize');
 const guide = $('guide');
 const guideFrame = $('guide-frame');
 
@@ -628,15 +665,52 @@ CLUSTERS.forEach(c => {
 topicNodes.forEach(n => {
     const el = document.createElement('button');
     el.type = 'button';
-    el.className = 'topic-label' + (n.topic.cluster ? '' : ' is-core');
+    el.className = 'topic-label' + (n.topic.cluster ? '' : ' is-core') + (n.moon ? ' is-moon' : '');
     el.style.setProperty('--hue', hueOf(n.topic));
-    el.innerHTML = `<span class="dot"></span>${esc(n.topic.name)}`;
+    el.innerHTML = `<span class="dot"></span>${esc(n.topic.name)}<span class="countdown"></span>`;
     el.addEventListener('click', () => selectTopic(n.topic.id));
     el.addEventListener('pointerenter', () => { state.hoverLabel = true; });
     el.addEventListener('pointerleave', () => { state.hoverLabel = false; });
     labelsLayer.appendChild(el);
     n.labelEl = el;
+    n.countdownEl = el.querySelector('.countdown');
 });
+
+// --- Agenda: temas con un evento en los próximos 30 días laten y muestran la cuenta atrás ---
+let agendaDay = Agenda.today();
+
+function refreshPulses() {
+    topicNodes.forEach(n => {
+        n.nextEvent = Agenda.upcomingFor(n.topic.id)[0] || null;
+        nodeGeo.attributes.pulse.setX(n.index, n.nextEvent ? 1 : 0);
+        n.labelEl.classList.toggle('has-event', !!n.nextEvent);
+        n.countdownEl.textContent = n.nextEvent ? Agenda.relative(n.nextEvent.date) : '';
+    });
+    nodeGeo.attributes.pulse.needsUpdate = true;
+}
+
+Agenda.init({
+    topics: ALL_TOPICS,
+    groups: [{ label: 'Núcleo del atlas', topics: [TOPIC_BY_ID.gran_atractor] }].concat(CLUSTERS.map(c => ({
+        label: c.name,
+        topics: ALL_TOPICS.filter(t => t.cluster === c.id).sort((a, b) => a.name.localeCompare(b.name, 'es'))
+    }))),
+    hueOf: (id) => TOPIC_BY_ID[id] ? hueOf(TOPIC_BY_ID[id]) : '#ffffff',
+    onTopic: (id) => { if (state.scene === 'cosmos' && !state.transitioning) selectTopic(id); }
+});
+Agenda.onChange(() => {
+    refreshPulses();
+    if (state.selected) renderPanelEvent(TOPIC_BY_ID[state.selected]);
+});
+refreshPulses();
+
+// A medianoche cambian las cuentas atrás y los eventos pasados dejan de latir
+setInterval(() => {
+    if (Agenda.today() === agendaDay) return;
+    agendaDay = Agenda.today();
+    refreshPulses();
+    Agenda.refresh();
+}, 60000);
 
 // --- Navegación por cúmulos ---
 function renderClusterNav() {
@@ -791,7 +865,8 @@ document.addEventListener('click', (e) => {
 
 window.addEventListener('keydown', (e) => {
     if (state.scene !== 'cosmos') return;
-    if (e.key === '/' && document.activeElement !== searchInput) {
+    // "/" abre el buscador salvo si se está escribiendo en otro campo (p. ej. un evento de la agenda)
+    if (e.key === '/' && !e.target.closest('input, textarea, select')) {
         e.preventDefault();
         searchInput.focus();
     }
@@ -952,6 +1027,7 @@ function openPanel(topic) {
     panelTitle.textContent = topic.method && topic.method.name ? topic.method.name : topic.name;
     panelDesc.textContent = topic.knowledge || !topic.method ? topic.desc : '';
     panelDesc.hidden = !panelDesc.textContent || !topic.knowledge;
+    renderPanelEvent(topic);
     panelTabs.innerHTML = sections.map((s, i) =>
         `<button type="button" role="tab" class="tab${i ? '' : ' is-on'}" data-section="${s.id}" aria-selected="${!i}">${s.title}</button>`).join('');
     panelBody.innerHTML = sections.map((s, i) =>
@@ -966,6 +1042,81 @@ function openPanel(topic) {
     if (src) openGuide(src);
     else closeGuide();
 }
+
+// Próximo evento del tema en la agenda, sobre las pestañas del panel
+function renderPanelEvent(topic) {
+    const next = topic ? Agenda.upcomingFor(topic.id)[0] : null;
+    panelEvent.hidden = !next;
+    if (!next) return;
+    const d = new Date(`${next.date}T00:00`);
+    const date = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    const when = Agenda.relative(next.date);
+    panelEvent.textContent = `${next.title} · ${when === date ? date : `${when}, ${date}`}${next.start ? `, ${next.start}` : ''}`;
+}
+
+// --- Borde del panel: arrastrar para cambiar el ancho; por debajo de PANEL_CLOSE_AT se cierra ---
+const PANEL_MIN = 340;
+const PANEL_CLOSE_AT = 280;
+const panelMax = () => Math.min(900, window.innerWidth * 0.7);
+const clampPanel = (w) => Math.round(Math.min(panelMax(), Math.max(PANEL_MIN, w)));
+let panelWidth = null;
+try {
+    const saved = Number(localStorage.getItem('gedankenpalast.panelWidth'));
+    if (saved) panelWidth = saved;
+} catch { /* sin localStorage: ancho por defecto */ }
+
+function applyPanelWidth(w) {
+    panel.style.setProperty('--panel-width', `${w}px`);
+}
+if (panelWidth) applyPanelWidth(clampPanel(panelWidth));
+
+function storePanelWidth(w) {
+    panelWidth = w;
+    applyPanelWidth(w);
+    try { localStorage.setItem('gedankenpalast.panelWidth', String(w)); } catch { /* opcional */ }
+}
+
+// La agenda se centra en el espacio que el panel deja libre (ver .agenda en style.css)
+new ResizeObserver(() => {
+    const occupied = panel.hidden || window.innerWidth <= 760 ? 0 : panel.getBoundingClientRect().width + 14;
+    document.documentElement.style.setProperty('--panel-occupied', `${occupied}px`);
+}).observe(panel);
+
+let resizing = null;
+panelResize.addEventListener('pointerdown', (e) => {
+    resizing = { closing: false };
+    panelResize.setPointerCapture(e.pointerId);
+    panel.classList.add('is-resizing');
+    e.preventDefault();
+});
+panelResize.addEventListener('pointermove', (e) => {
+    if (!resizing) return;
+    const w = window.innerWidth - e.clientX - 14;
+    resizing.closing = w < PANEL_CLOSE_AT;
+    panel.classList.toggle('is-closing', resizing.closing);
+    applyPanelWidth(Math.round(Math.min(panelMax(), Math.max(PANEL_CLOSE_AT - 40, w))));
+    resizing.width = w;
+});
+function endResize() {
+    if (!resizing) return;
+    const { closing, width } = resizing;
+    resizing = null;
+    panel.classList.remove('is-resizing', 'is-closing');
+    if (closing) {
+        applyPanelWidth(panelWidth ? clampPanel(panelWidth) : PANEL_MIN);
+        closePanel();
+    } else if (width) {
+        storePanelWidth(clampPanel(width));
+    }
+}
+panelResize.addEventListener('pointerup', endResize);
+panelResize.addEventListener('pointercancel', endResize);
+panelResize.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const current = panel.getBoundingClientRect().width;
+    storePanelWidth(clampPanel(current + (e.key === 'ArrowLeft' ? 24 : -24)));
+});
 
 function openGuide(src) {
     if (guideFrame.getAttribute('src') !== src) guideFrame.setAttribute('src', src);
@@ -1156,7 +1307,7 @@ function syncLabelStates() {
         const related = state.selected && NEIGHBOURS[state.selected].has(n.topic.id);
         n.labelEl.classList.toggle('is-selected', selected);
         n.labelEl.classList.toggle('is-related', !!related);
-        nodeGeo.attributes.size.setX(n.index, selected ? NODE_SIZE.selected : (n.topic.cluster ? NODE_SIZE.topic : NODE_SIZE.core));
+        nodeGeo.attributes.size.setX(n.index, selected ? NODE_SIZE.selected : baseNodeSize(n));
     });
     nodeGeo.attributes.size.needsUpdate = true;
     orbitLines.children.forEach(l => { l.visible = l.userData.cluster === state.focusCluster; });
@@ -1172,7 +1323,7 @@ function showCosmos() {
     state.scene = 'cosmos';
     document.body.classList.replace('scene-portada', 'scene-cosmos');
     // La interfaz aparece cuando la membrana termina de abrirse (finishTransition)
-    app.classList.add('is-arriving');
+    if (state.transitioning) app.classList.add('is-arriving');
     app.hidden = false;
     controls.enablePan = true;
     controls.target.copy(GA_POS);
@@ -1353,7 +1504,8 @@ function placeLabel(el, worldPos, visible) {
 
 // Una etiqueta que choca con otra ya colocada no se dibuja: seleccionado, núcleo, cúmulos, el resto
 const placedLabels = [];
-const labelPriority = (n) => state.selected === n.topic.id ? 0 : !n.topic.cluster ? 1 : 2;
+// Seleccionado, después el núcleo y los temas con evento próximo, luego cúmulos y el resto
+const labelPriority = (n) => state.selected === n.topic.id ? 0 : (!n.topic.cluster || n.nextEvent) ? 1 : 2;
 
 function updateCosmos(dt) {
     const paused = state.hoverLabel || state.hoverNode;
@@ -1402,6 +1554,7 @@ function updateCosmos(dt) {
         c.near = state.focusCluster === c.id || camera.position.distanceTo(clusterCenters[c.id]) < c.radius * 5.2;
     });
     const topicVisible = (n) => !n.topic.cluster
+        || n.nextEvent
         || CLUSTER_BY_ID[n.topic.cluster].near
         || state.selected === n.topic.id
         || (state.selected && NEIGHBOURS[state.selected].has(n.topic.id));
@@ -1422,6 +1575,7 @@ function animate() {
     if (state.scene === 'portada') {
         obsidianMat.uniforms.uPointer.value.lerp(pointer, 0.06);
     } else {
+        nodeUniforms.uTime.value = t;
         updateCosmos(dt);
     }
     controls.update();

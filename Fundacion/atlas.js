@@ -14,6 +14,11 @@ const CLUSTERS = [
     { id: 'mat', name: 'Matemáticas y Probabilidad', hue: '#e6e6e6', center: [170, -150, 175], radius: 80 }
 ];
 
+// Lunas: temas que orbitan a otro tema en vez de al centro de su cúmulo
+const TOPIC_PARENTS = {
+    chain_ladder: 'act_reserving'
+};
+
 // Categoría de knowledgeData.js -> cúmulo
 const METHOD_CLUSTER = {
     'Actuarial': 'act',
@@ -53,6 +58,11 @@ const TOPICS = [
         id: 'act_no_vida', cluster: 'act', name: 'Seguros No Vida',
         desc: 'Tarificación y reservas en seguros generales: Poisson y binomial negativa para la frecuencia, colas pesadas para la severidad, credibilidad y triángulos IBNR.',
         related: ['eco_micro', 'act_solvencia', 'ds_estadistica']
+    },
+    {
+        id: 'act_reserving', cluster: 'act', name: 'Reserving',
+        desc: 'Cálculo de las provisiones técnicas de siniestros: siniestros pendientes y ocurridos no declarados (IBNR) a partir de triángulos de desarrollo, con métodos deterministas (Chain Ladder, Bornhuetter-Ferguson) y estocásticos (Mack, bootstrap) para medir su incertidumbre.',
+        related: ['act_no_vida', 'act_solvencia', 'act_ifrs17', 'chain_ladder']
     },
     {
         id: 'act_pensiones', cluster: 'act', name: 'Previsión social y pensiones',
