@@ -300,6 +300,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
       <tr><td><a href="#t3-lasso">3.3 LASSO</a></td><td>Penalización \(\ell_1\), umbralización suave, esparsidad</td><td>Tema 3. Lasso_*.R · LASSO_glmnet.R</td><td>14</td></tr>
       <tr><td><a href="#t3-enet">3.4 Elastic Net</a></td><td>Mezcla \(\alpha\), efecto de grupo</td><td>Tema 3. ElasticNet_*.R</td><td>14</td></tr>
       <tr><td><a href="#t3-sel">3.5 Selección</a></td><td><code>lambda.min</code> frente a <code>lambda.1se</code>, qué modelo elegir</td><td>Tema 3. *_glmnet.R</td><td>15</td></tr>
+      <tr><td><a href="#t3-mano">3.6 A mano con optim</a></td><td>Ridge, LASSO y Elastic Net con varias variables: coste penalizado, MAPE dentro y fuera de muestra</td><td>Tema 3. *_VariasVariable.R · *_1variable.R</td><td>14</td></tr>
     </tbody>
   </table></div>
   <div class="callout key" id="examen">
@@ -1812,6 +1813,78 @@ alpha_opt <- alphas[which.min(cv_por_alpha["cv_error", ])]
       <div class="callout tip"><h4>Usar Elastic Net si…</h4><p>Hay grupos de predictores fuertemente correlacionados que deben entrar o salir juntos, o \(p\gg n\).</p></div>
       <div class="callout key"><h4>Otros métodos de contracción</h4><p><b>Fused LASSO</b> (penaliza \(|\beta_j-\beta_{j-1}|\), series/espacial), <b>Group LASSO</b> (selecciona bloques enteros, p. ej. todos los niveles de un factor), <b>Adaptive LASSO</b> (pesos \(w_j|\beta_j|\) que corrigen el sesgo), <b>Bridge</b> (norma \(\ell_q\), \(q\le1\) da esparsidad).</p></div>
     </div>
+  </div>
+
+  <!-- ---------- 3.6 -->
+  <div class="sub" id="t3-mano">
+    <h3>3.6 Ridge, LASSO y Elastic Net «a mano» con varias variables</h3>
+    <p>Los scripts <code>*_VariasVariable.R</code> no usan <code>glmnet</code>: minimizan directamente la función de coste penalizada con <code>optim()</code> para cada \(\lambda\) de una rejilla de 100 valores, guardan los coeficientes y miden el error <b>dentro</b> (MAPE-in) y <b>fuera</b> de muestra (MAPE-out). Sirve para ver con las manos qué hace el algoritmo antes de delegarlo en <code>glmnet</code>.</p>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>Método</th><th>Función de coste en el script</th><th>Optimizador recomendado</th></tr></thead>
+      <tbody>
+        <tr><td>Ridge</td><td><code>sse + lambda * sum(betas^2)</code></td><td><code>BFGS</code> (función derivable)</td></tr>
+        <tr><td>LASSO</td><td><code>sse + lambda * sum(abs(betas))</code></td><td><code>Nelder-Mead</code> (no derivable en 0)</td></tr>
+        <tr><td>Elastic Net</td><td><code>sse + lambda * (alpha*sum(abs(betas)) + (1-alpha)*sum(betas^2))</code></td><td>rejilla de \(\alpha\in\{0;0{,}25;0{,}5;0{,}75;1\}\) × 100 valores de \(\lambda\)</td></tr>
+      </tbody>
+    </table></div>
+    <script type="text/x-r" data-file="Tema 3. Ridge_VariasVariable.R (núcleo)" data-src="curso">
+load(file = "datos_Ridge.Rdata"); Datos <- datos_Ridge
+# 7 dummies de marca (la octava es la referencia) y quitamos la variable original
+for (m in c("Tesla","Seat","BMW","Volkswagen","Toyota","Volvo","Hyundai"))
+  Datos[[m]] <- ifelse(Datos$MarcaVehiculo == m, 1, 0)
+X <- Datos[, names(Datos) != "MarcaVehiculo"]
+
+set.seed(301026)
+library(caret)
+train_idx <- createDataPartition(Datos$CosteSiniestralidad, p = 0.80, list = FALSE)
+X_train <- X[train_idx, ]; X_test <- X[-train_idx, ]
+
+# OLS de referencia con las variables significativas
+modelo1 <- lm(CosteSiniestralidad ~ Potencia + Cilindrada + Edad + AntiguedadCarnet, data = X_train)
+mape_ols_in  <- 100 * mean(abs((X_train$CosteSiniestralidad - fitted(modelo1)) / X_train$CosteSiniestralidad))
+mape_ols_out <- 100 * mean(abs((X_test$CosteSiniestralidad - predict(modelo1, X_test)) / X_test$CosteSiniestralidad))
+
+# Coste de Ridge con varias variables: X estandarizada, y centrada, intercepto fuera de la penalización
+f_sse_ridge <- function(betas, x, y, lambda) {
+  x_c <- scale(as.matrix(x), center = TRUE, scale = TRUE)
+  y_c <- y - mean(y)
+  sum((y_c - x_c %*% betas)^2) + lambda * sum(betas^2)
+}
+grid_lambda <- 10^seq(-2, 5, length.out = 100)
+x_train <- X_train[, names(X_train) != "CosteSiniestralidad"]
+X_mat <- as.matrix(x_train); p_vars <- ncol(X_mat)
+x_mean <- colMeans(X_mat); x_sd <- apply(X_mat, 2, sd); y_train <- X_train$CosteSiniestralidad
+X_test2 <- as.matrix(X_test[, names(X_test) != "CosteSiniestralidad"])
+
+betas  <- matrix(NA, 100, p_vars + 1, dimnames = list(1:100, c("b0", colnames(X_mat))))
+errores <- matrix(NA, 100, 4, dimnames = list(1:100, c("coste-ridge", "SSE-in", "MAPE-in", "MAPE-out")))
+for (i in 1:100) {
+  opt <- optim(par = rep(0, p_vars), fn = f_sse_ridge, x = X_mat, y = y_train,
+               lambda = grid_lambda[i], method = "BFGS")
+  b_orig  <- opt$par / x_sd                       # deshacer la estandarización
+  b0_orig <- mean(y_train) - sum(b_orig * x_mean) # intercepto en la escala original
+  betas[i, ] <- c(b0_orig, b_orig)
+  yhat_in  <- b0_orig + X_mat  %*% b_orig
+  yhat_out <- b0_orig + X_test2 %*% b_orig
+  errores[i, ] <- c(opt$value, sum((y_train - yhat_in)^2),
+                    100 * mean(abs((y_train - yhat_in) / y_train)),
+                    100 * mean(abs((X_test$CosteSiniestralidad - yhat_out) / X_test$CosteSiniestralidad)))
+}
+which.min(errores[, "MAPE-out"])                  # lambda con mejor MAPE fuera de muestra
+matplot(log(grid_lambda), abs(betas[, -1]), type = "l", lty = 1, lwd = 2,
+        xlab = "Log-lambda", ylab = "|betas|")   # camino de coeficientes
+matplot(log(grid_lambda), errores[, "MAPE-out"], type = "l", lwd = 2, xlab = "log-lambda", ylab = "MAPE-out")
+c(OLS_in = mape_ols_in, OLS_out = mape_ols_out,
+  Ridge_in = errores[which.min(errores[, 4]), 3], Ridge_out = min(errores[, 4]))
+    </script>
+    <ol class="walk">
+      <li><b>Estandarizar y centrar.</b> <code>scale(x)</code> pone las variables en la misma escala (imprescindible, la penalización depende de ella) y <code>y - mean(y)</code> permite ignorar el intercepto, que no se penaliza.</li>
+      <li><b>Deshacer la estandarización.</b> \(\beta_j=\beta_j^{std}/\sigma_{x_j}\) y \(\beta_0=\bar y-\sum\beta_j\bar x_j\): así los coeficientes y las predicciones están en las unidades originales y se pueden comparar con OLS.</li>
+      <li><b>Dos errores a la vez.</b> Para cada \(\lambda\) se guarda el coste penalizado, el SSE sin penalizar, el MAPE dentro y el MAPE fuera de muestra. Al subir \(\lambda\) el ajuste dentro de muestra <i>empeora siempre</i>; el error fuera suele bajar hasta un mínimo y luego sube (la «U» del sesgo–varianza).</li>
+      <li><b>Camino de coeficientes.</b> <code>matplot</code> dibuja \(|\beta_j|\) frente a \(\log\lambda\): en Ridge todas las curvas tienden a 0 sin tocarlo; en LASSO llegan a 0 una a una. Las líneas discontinuas del script marcan los coeficientes de OLS.</li>
+      <li><b>Cautela.</b> Elegir el \(\lambda\) mirando <code>MAPE-out</code> usa el test para decidir, y el test deja de ser independiente. Es válido para ilustrar; en la práctica se calibra con validación cruzada (<code>cv.glmnet</code>) y el test solo se mira al final.</li>
+      <li><b>LASSO y Elastic Net</b> repiten el mismo bucle cambiando solo la función de coste (tabla anterior). En el de Elastic Net hay además un bucle externo sobre \(\alpha\), y se compara el mejor \((\alpha,\lambda)\) con Ridge y LASSO.</li>
+    </ol>
   </div>
 </section>
 
