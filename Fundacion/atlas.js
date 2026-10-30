@@ -16,7 +16,8 @@ const CLUSTERS = [
 
 // Lunas: temas que orbitan a otro tema en vez de al centro de su cúmulo
 const TOPIC_PARENTS = {
-    chain_ladder: 'act_reserving'
+    chain_ladder: 'act_reserving',
+    ds_bayesiana: 'ds_estadistica'
 };
 
 // Categoría de knowledgeData.js -> cúmulo
@@ -75,7 +76,19 @@ const TOPICS = [
     {
         id: 'ds_estadistica', cluster: 'ds', name: 'Estadística',
         desc: 'Fundamento del análisis empírico: estimación puntual, intervalos de confianza, contrastes de hipótesis y teoría asintótica para inferir la población a partir de muestras.',
-        related: ['mat_probabilidad', 'ds_econometria', 'ds_ml_supervisado']
+        related: ['mat_probabilidad', 'ds_econometria', 'ds_ml_supervisado', 'ds_bayesiana']
+    },
+    {
+        id: 'ds_bayesiana', cluster: 'ds', name: 'Estadística bayesiana',
+        desc: 'Inferencia con a priori, verosimilitud y posterior: conjugación Beta–Binomial, regresión logística de Berkeley, MCMC (Metropolis–Hastings, Gibbs, HMC/NUTS), JAGS, Stan y PyMC; incluye datos incompletos con el algoritmo EM y datos longitudinales con modelos mixtos.',
+        related: ['ds_estadistica', 'ds_simulacion', 'mat_probabilidad', 'eco_econometria', 'ds_ml_supervisado'],
+        knowledge: 'bayesiana'
+    },
+    {
+        id: 'ds_simulacion', cluster: 'ds', name: 'Simulación y modelos de regresión',
+        desc: 'Generación de variables aleatorias (inversión, aceptación-rechazo, Box-Müller, Marsaglia), dependencia con Cholesky y NORTA, Monte Carlo y VaR; regresión lineal, validación cruzada y regularización Ridge, LASSO y Elastic Net.',
+        related: ['ds_estadistica', 'mat_probabilidad', 'ds_ml_supervisado', 'act_gestion_riesgos', 'eco_econometria'],
+        knowledge: 'simulacion'
     },
     {
         id: 'ds_econometria', cluster: 'ds', name: 'Econometría aplicada',

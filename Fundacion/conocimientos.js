@@ -108,6 +108,191 @@ const CALCULATORS = {
 };
 
 const KNOWLEDGE = {
+    bayesiana: {
+        guide: 'guias/bayesiana.html',
+        sections: [
+            {
+                id: 'idea',
+                title: 'Idea clave',
+                blocks: [
+                    { type: 'guide', text: 'Guía de estudio de las Lecciones 1 a 3 (Francesco Ungolo, UNSW / UAH): regla de Bayes, Beta–Binomial, regresión logística de Berkeley, MCMC, JAGS, Stan y PyMC, datos incompletos con EM y datos longitudinales. Ocho laboratorios interactivos y todo el código en R y Python.' },
+                    { type: 'p', text: 'En la estadística bayesiana el parámetro $\\theta$ es una variable aleatoria: se le asigna una distribución <b>a priori</b> antes de ver los datos y la verosimilitud la actualiza hasta la <b>posterior</b>. De ella salen la estimación, la incertidumbre y la predicción. Si la cuenta no sale a mano se aproxima con muestras (MCMC).' },
+                    { type: 'list', title: 'Lección 3 · Bayes y computación', items: [
+                        '<b>Conjugación</b>: $p\\sim\\text{Beta}(a,b)$ y $Z\\mid p\\sim\\text{Bin}(n,p)$ dan $p\\mid z\\sim\\text{Beta}(a+z,b+n-z)$; la media a posteriori es un promedio ponderado de la a priori y de los datos.',
+                        '<b>Berkeley</b>: regresión logística con a prioris $N(0,2{,}5^2)$; paradoja de Simpson al comparar por sexo con y sin departamento.',
+                        '<b>MCMC</b>: Metropolis–Hastings, Gibbs y HMC/NUTS; diagnóstico con $\\hat R$, tamaño efectivo y trazas; JAGS, Stan y PyMC.',
+                        '<b>Chequeo</b>: predictiva a priori antes de ajustar y predictiva posterior después; sensibilidad a la a priori.'
+                    ] },
+                    { type: 'list', title: 'Lecciones 1 y 2 · Lo que no se observa', items: [
+                        '<b>Datos incompletos</b>: MCAR, MAR y MNAR; verosimilitud observada y algoritmo EM, cuyo paso E es la regla de Bayes.',
+                        '<b>Longitudinales</b>: modelo lineal mixto, efectos aleatorios como a priori y BLUP como media a posteriori; GLMM y modelos no lineales.'
+                    ] }
+                ]
+            },
+            {
+                id: 'formulas',
+                title: 'Fórmulas',
+                blocks: [
+                    { type: 'formula', label: 'Regla de Bayes', tex: '\\pi(\\theta\\mid y)=\\frac{f(y\\mid\\theta)\\,\\pi(\\theta)}{f(y)}\\ \\propto\\ L(\\theta\\mid y)\\,\\pi(\\theta)' },
+                    { type: 'formula', label: 'Beta–Binomial', tex: 'p\\mid z\\sim\\text{Beta}(a+z,\\;b+n-z),\\qquad E(p\\mid z)=\\frac{a+b}{a+b+n}\\frac{a}{a+b}+\\frac{n}{a+b+n}\\frac zn' },
+                    { type: 'formula', label: 'Predictiva posterior', tex: 'P(Z_{new}=j\\mid z)=\\binom mj\\frac{B(a+z+j,\\;b+n-z+m-j)}{B(a+z,\\;b+n-z)}' },
+                    { type: 'formula', label: 'Regresión logística de Berkeley', tex: '\\operatorname{logit}(p_i)=\\alpha+\\beta F_i+\\gamma_{d_i},\\quad \\alpha,\\beta,\\gamma_d\\sim N(0,2{,}5^2),\\quad OR_F=e^{\\beta}' },
+                    { type: 'formula', label: 'Metropolis–Hastings', tex: 'a=\\min\\Big\\{1,\\frac{\\tilde\\pi(\\theta^\\star)\\,q(\\theta^{(s)}\\mid\\theta^\\star)}{\\tilde\\pi(\\theta^{(s)})\\,q(\\theta^\\star\\mid\\theta^{(s)})}\\Big\\}' },
+                    { type: 'formula', label: 'Gibbs: condicionales del modelo normal', tex: '\\mu\\mid\\sigma^2,y\\sim N(M_\\mu,V_\\mu),\\quad \\sigma^2\\mid\\mu,y\\sim\\text{IG}\\Big(a_0+\\frac n2,\\ b_0+\\frac12\\sum_i(y_i-\\mu)^2\\Big)' },
+                    { type: 'formula', label: 'Hamiltoniano', tex: 'H(\\theta,r)=U(\\theta)+K(r),\\quad U=-\\log\\pi(\\theta\\mid y),\\quad K=\\tfrac12 r^\\top M^{-1}r' },
+                    { type: 'formula', label: 'Inferencia variacional (ELBO)', tex: '\\max_\\phi\\ E_{q_\\phi}[\\log p(y,\\theta)]-E_{q_\\phi}[\\log q_\\phi(\\theta)]' },
+                    { type: 'formula', label: 'Peso del paso E (EM)', tex: 'w_i=P(X_i=1\\mid y_i,z_i)=\\frac{\\xi f_\\theta(y_i\\mid1,z_i)}{\\xi f_\\theta(y_i\\mid1,z_i)+(1-\\xi)f_\\theta(y_i\\mid0,z_i)}' },
+                    { type: 'formula', label: 'Modelo lineal mixto', tex: 'Y_{i,t}=\\beta^\\top x_{i,t}+b_i^\\top z_{i,t}+\\epsilon_{i,t},\\ b_i\\sim N(0,D),\\quad \\operatorname{Var}(Y_i)=z_iDz_i^\\top+\\sigma^2I' },
+                    { type: 'formula', label: 'BLUP = media a posteriori de $b_i$', tex: '\\hat b_i=\\hat D z_i^\\top\\hat V_i^{-1}(y_i-x_i\\hat\\beta)' }
+                ]
+            },
+            {
+                id: 'codigo',
+                title: 'Código R y Python',
+                blocks: [
+                    { type: 'code', code: { r: `
+# Beta-Binomial exacta: 89 admitidas de 108, a priori Beta(1, 1)
+z <- 89; n <- 108; a <- 1; b <- 1
+pa <- a + z; pb <- b + n - z                   # posterior Beta(90, 20)
+pa / (pa + pb)                                 # media 0.818
+qbeta(c(.025, .975), pa, pb)                   # IC creible 95 %: 0.741 0.884
+1 - pbeta(0.8, pa, pb)                         # P(p > 0.8 | y) = 0.703`, python: `
+from scipy import stats
+z, n, a, b = 89, 108, 1, 1
+post = stats.beta(a + z, b + n - z)            # posterior Beta(90, 20)
+print(post.mean())                             # 0.818
+print(post.ppf([.025, .975]))                  # IC creible 95 %: 0.741 0.884
+print(post.sf(0.8))                            # P(p > 0.8 | y) = 0.703` } },
+                    { type: 'code', code: { r: `
+# Metropolis para la posterior Beta(90, 20) con propuesta normal simetrica
+set.seed(1)
+log_f <- function(p) if (p <= 0 || p >= 1) -Inf else 89 * log(p) + 19 * log(1 - p)
+S <- 10000; p <- numeric(S); p[1] <- 0.5
+for (s in 2:S) {
+  prop <- p[s - 1] + rnorm(1, 0, 0.05)
+  p[s] <- if (log(runif(1)) < log_f(prop) - log_f(p[s - 1])) prop else p[s - 1]
+}
+mean(p[-(1:1000)])                             # ~0.818 tras el calentamiento
+quantile(p[-(1:1000)], c(.025, .975))`, python: `
+import numpy as np
+rng = np.random.default_rng(1)
+def log_f(p):
+    return -np.inf if p <= 0 or p >= 1 else 89 * np.log(p) + 19 * np.log1p(-p)
+S = 10000
+p = np.empty(S); p[0] = 0.5
+for s in range(1, S):
+    prop = p[s - 1] + rng.normal(0, 0.05)
+    p[s] = prop if np.log(rng.uniform()) < log_f(prop) - log_f(p[s - 1]) else p[s - 1]
+print(p[1000:].mean(), np.percentile(p[1000:], [2.5, 97.5]))   # ~0.818` } },
+                    { type: 'code', code: { r: `
+# Modelo lineal mixto: intercepto y pendiente aleatorios por estudiante
+library(lme4)
+fit <- lmer(grade ~ time * study_hours_c + (time | id), data = long, REML = FALSE)
+summary(fit)                                   # efectos fijos y DE aleatorias
+head(ranef(fit)$id)                            # BLUP: medias a posteriori encogidas`, python: `
+import statsmodels.formula.api as smf
+fit = smf.mixedlm("grade ~ time * study_hours_c", long,
+                  groups=long["id"], re_formula="~time").fit(reml=False)
+print(fit.summary())                           # efectos fijos y DE aleatorias
+print(list(fit.random_effects.items())[:3])    # BLUP: medias a posteriori encogidas` } }
+                ]
+            },
+            {
+                id: 'fuentes',
+                title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Ungolo, F. (2026). Data Analysis with Incomplete Observations (Lección 1); Cross-sectional and Longitudinal Data Analysis with Latent Variable Models (Lección 2); Bayesian Statistics: Models, Inference, and Computation (Lección 3). School of Risk and Actuarial Studies, UNSW Sydney, para la Universidad de Alcalá de Henares.',
+                        'Gelman, Carlin, Stern, Dunson, Vehtari y Rubin (2013). Bayesian Data Analysis, 3.ª ed. CRC Press.',
+                        'Little y Rubin (2019). Statistical Analysis with Missing Data, 3.ª ed. Wiley. Dempster, Laird y Rubin (1977). JRSS B, 39(1).',
+                        'McElreath (2020). Statistical Rethinking, 2.ª ed. CRC Press. Bickel, Hammel y O’Connell (1975). Science, 187.',
+                        'Blei, Kucukelbir y McAuliffe (2017). Variational inference: a review for statisticians. JASA, 112. Bates et al. (2015). Fitting linear mixed-effects models using lme4. JSS, 67(1).'
+                    ] }
+                ]
+            }
+        ]
+    },
+    simulacion: {
+        guide: 'guias/simulacion.html',
+        sections: [
+            {
+                id: 'idea',
+                title: 'Idea clave',
+                blocks: [
+                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 3: diagramas de flujo de cada método, laboratorios interactivos, todo el código R explicado, preguntas posibles resueltas y tarjetas de repaso. Examen: 11 de noviembre de 2026.' },
+                    { type: 'p', text: 'Un ordenador solo produce uniformes $U(0,1)$ de forma determinista. Todo lo demás se obtiene <b>transformándolas</b>: invirtiendo una función de distribución, aceptando o rechazando candidatos o mezclándolas con álgebra matricial. Sobre ese motor se construye el análisis de riesgo (Monte Carlo, VaR, TVaR) y los modelos de regresión que se validan fuera de muestra.' },
+                    { type: 'list', title: 'Tema 1 · Simular', items: [
+                        '<b>Uniformes</b>: generador congruencial $z_i=(az_{i-1}+c)\\bmod m$ y condiciones de Hull–Dobell.',
+                        '<b>Variable individual</b>: inversión $X=F^{-1}(U)$, tabla de búsqueda (discretas) y aceptación–rechazo.',
+                        '<b>Normal</b>: Box–Müller (trigonométrico, sin rechazo) y Marsaglia (polar, acepta $\\pi/4$).',
+                        '<b>Dependencia</b>: Cholesky para normales correlacionadas y NORTA para marginales cualesquiera.'
+                    ] },
+                    { type: 'list', title: 'Temas 2 y 3 · Modelar', items: [
+                        'Preprocesamiento (NA, dummies, transformaciones), OLS, AIC/BIC, stepwise y validación cruzada.',
+                        'Regularización: Ridge ($\\ell_2$), LASSO ($\\ell_1$, anula coeficientes) y Elastic Net; $\\lambda$ por CV con <code>lambda.min</code> o <code>lambda.1se</code>.'
+                    ] }
+                ]
+            },
+            {
+                id: 'formulas',
+                title: 'Fórmulas',
+                blocks: [
+                    { type: 'formula', label: 'Inversión', tex: 'X=F^{-1}(U),\\quad \\text{Exp: }-\\tfrac1\\lambda\\ln(1-U),\\quad \\text{Pareto: }x_m(1-U)^{-1/\\alpha}' },
+                    { type: 'formula', label: 'Aceptación–rechazo', tex: 'U_1\\sim U(a,b),\\ U_2\\sim U(0,k):\\ \\text{acepta si }U_2\\le f(U_1);\\quad P(\\text{aceptar})=\\frac{F(b)-F(a)}{k(b-a)}' },
+                    { type: 'formula', label: 'Box–Müller', tex: 'Z_1=\\sqrt{-2\\ln U_1}\\cos(2\\pi U_2),\\quad Z_2=\\sqrt{-2\\ln U_1}\\sin(2\\pi U_2)' },
+                    { type: 'formula', label: 'Marsaglia', tex: 'V_i=2U_i-1,\\ R^2=V_1^2+V_2^2<1:\\ x=V_1\\sqrt{\\tfrac{-2\\ln R^2}{R^2}},\\ y=V_2\\sqrt{\\tfrac{-2\\ln R^2}{R^2}}' },
+                    { type: 'formula', label: 'Cholesky y NORTA', tex: 'R=LL^\\top,\\ X=LZ\\sim N(0,R);\\qquad X_i=F_i^{-1}\\big(\\Phi(Z_i)\\big)' },
+                    { type: 'formula', label: 'VaR y TVaR de una normal', tex: '\\mathrm{VaR}_\\alpha=\\mu+\\sigma z_\\alpha,\\quad \\mathrm{TVaR}_\\alpha=\\mu+\\sigma\\frac{\\varphi(z_\\alpha)}{1-\\alpha}' },
+                    { type: 'formula', label: 'OLS y criterios de información', tex: '\\hat\\beta=(X^\\top X)^{-1}X^\\top Y,\\quad \\mathrm{AIC}=-2\\ell+2p,\\quad \\mathrm{BIC}=-2\\ell+p\\ln n' },
+                    { type: 'formula', label: 'Ridge', tex: '\\min\\ \\mathrm{SSE}+\\lambda\\sum\\beta_j^2\\ \\Rightarrow\\ \\hat\\beta=(X^\\top X+\\lambda I)^{-1}X^\\top Y' },
+                    { type: 'formula', label: 'LASSO y umbralización suave', tex: '\\min\\ \\mathrm{SSE}+\\lambda\\sum|\\beta_j|,\\qquad S_\\gamma(z)=\\operatorname{sign}(z)(|z|-\\gamma)_+' },
+                    { type: 'formula', label: 'Elastic Net', tex: '\\min\\ \\mathrm{SSE}+\\lambda\\Big[(1-\\alpha)\\sum\\beta_j^2+\\alpha\\sum|\\beta_j|\\Big]' }
+                ]
+            },
+            {
+                id: 'codigo',
+                title: 'Código R',
+                blocks: [
+                    { type: 'code', code: { r: `
+# Inversión: exponencial(lambda = 2)
+set.seed(123); u <- runif(10000)
+x <- -log(1 - u) / 2
+c(mean(x), var(x))                      # ≈ 0.5 y 0.25
+
+# Box-Müller: dos N(0,1) independientes
+u1 <- runif(10000); u2 <- runif(10000)
+z1 <- sqrt(-2 * log(u1)) * cos(2 * pi * u2)
+z2 <- sqrt(-2 * log(u1)) * sin(2 * pi * u2)
+
+# Cholesky + NORTA: lognormales con correlación 0.7 en las normales
+R <- matrix(c(1, .7, .7, 1), 2); L <- t(chol(R))
+Y <- L %*% matrix(rnorm(2 * 5000), 2)
+X <- qlnorm(pnorm(Y), meanlog = 0, sdlog = 0.5)` } },
+                    { type: 'code', code: { r: `
+# Ridge / LASSO / Elastic Net con glmnet (alpha = 0 / 1 / 0.5)
+library(glmnet)
+cv <- cv.glmnet(X_train, y_train, alpha = 1, nfolds = 10)
+cv$lambda.min; cv$lambda.1se
+coef(cv, s = "lambda.1se")              # los "." son coeficientes exactamente 0
+pred <- predict(cv, newx = X_test, s = "lambda.min")
+mean((y_test - pred)^2)                 # MSE fuera de muestra` } }
+                ]
+            },
+            {
+                id: 'fuentes',
+                title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Atance del Olmo, D. (2026). Simulación y modelos para el análisis de datos actuariales y financieros, Temas 1 a 3 (diapositivas y scripts de R). Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá. CC BY-NC-SA 4.0.',
+                        'Law, Kelton y Kelton (2007). Simulation Modeling and Analysis. McGraw-Hill.',
+                        'Glasserman (2004). Monte Carlo Methods in Financial Engineering. Springer.',
+                        'James, Witten, Hastie y Tibshirani (2015). An Introduction to Statistical Learning. Springer.',
+                        'Hastie, Tibshirani y Wainwright (2015). Statistical Learning with Sparsity. CRC Press.'
+                    ] }
+                ]
+            }
+        ]
+    },
     prevision_pensiones: {
         guide: 'guias/prevision_social.html',
         sections: [

@@ -1,0 +1,1042 @@
+<title>Previsión Social Complementaria</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<style>
+/* Layout: una columna de lectura (~70ch) con índice fijo arriba; cada apartado lleva su línea temporal de flujos, las fórmulas van en fichas y las preguntas en bloques con filete lateral. */
+:root {
+  --bg: #f3f6f5;
+  --surface: #ffffff;
+  --ink: #17262b;
+  --muted: #56676c;
+  --rule: #d5dfdd;
+  --accent: #0d6b70;
+  --accent-soft: #dcecec;
+  --pres: #9a5b12;
+  --pres-soft: #f6ead8;
+  --unknown: #b3261e;
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101a1d; --surface: #172428; --ink: #e3ecea; --muted: #9db0b2; --rule: #2b3d41;
+    --accent: #5cc2c6; --accent-soft: #1d3a3d; --pres: #e3a95b; --pres-soft: #3a2c19; --unknown: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101a1d; --surface: #172428; --ink: #e3ecea; --muted: #9db0b2; --rule: #2b3d41;
+  --accent: #5cc2c6; --accent-soft: #1d3a3d; --pres: #e3a95b; --pres-soft: #3a2c19; --unknown: #ff8a80;
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 800px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
+nav.toc .in { max-width: 800px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; display: flex; gap: 6px 18px; flex-wrap: wrap; font-size: 13px; }
+nav.toc a { color: var(--muted); text-decoration: none; font-weight: 500; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(32px, 6vw, 46px); line-height: 1.08; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1.2; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--font-display); font-size: 21px; font-weight: 700; margin: 0; text-wrap: balance; }
+h4 { font-size: 16px; font-weight: 600; margin: 0; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 62ch; }
+
+section { padding-top: 48px; display: grid; gap: 18px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.sub { display: grid; gap: 14px; padding-top: 10px; scroll-margin-top: 56px; }
+.stack { display: grid; gap: 14px; }
+
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.math { overflow-x: auto; overflow-y: hidden; }
+.tag { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.note { font-size: 14px; color: var(--muted); }
+ul.tight { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.tbl { overflow-x: auto; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* Líneas temporales */
+figure.tl { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.tl-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+.tl-scroll svg { display: block; margin: 0 auto; }
+figure.tl figcaption { font-size: 14px; color: var(--muted); }
+.tl-axis { stroke: var(--ink); stroke-opacity: .55; fill: none; }
+.tl-tick { stroke: var(--ink); stroke-opacity: .55; }
+.tl-txt { font-family: var(--font-data); font-size: 12px; fill: var(--ink); }
+.tl-t { font-family: var(--font-data); font-size: 12px; fill: var(--muted); }
+.tl-age { font-family: var(--font-data); font-size: 11px; fill: var(--muted); }
+.tl-l { font-family: var(--font-data); font-size: 11px; fill: var(--muted); font-style: italic; }
+.tl-mark { stroke: var(--ink); stroke-dasharray: 3 3; stroke-opacity: .7; fill: none; }
+.tl-marktxt { font-family: var(--font-data); font-size: 12px; font-weight: 500; fill: var(--ink); }
+.tl-a { fill: var(--accent); stroke: var(--accent); }
+.tl-p { fill: var(--pres); stroke: var(--pres); }
+.tl-w { fill: var(--muted); stroke: var(--muted); }
+.tl-f { fill: var(--ink); stroke: var(--ink); }
+.tl-lbl-a { fill: var(--accent); }
+.tl-lbl-p { fill: var(--pres); }
+.tl-lbl-w { fill: var(--muted); }
+.tl-lbl-f { fill: var(--ink); font-weight: 500; }
+.tl-q { fill: var(--unknown); font-weight: 600; }
+.tl-line { fill: none; stroke-width: 1.4; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 4px; height: 14px; }
+.legend i.a { background: var(--accent); } .legend i.p { background: var(--pres); } .legend i.w { background: var(--muted); }
+.legend i.f { width: 9px; height: 9px; background: var(--ink); transform: rotate(45deg); }
+.legend b { color: var(--unknown); font-family: var(--font-data); }
+
+.q { border-left: 3px solid var(--pres); background: var(--surface); border-radius: 0 6px 6px 0; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; scroll-margin-top: 56px; }
+.q .qn { font-family: var(--font-data); font-size: 12px; color: var(--pres); font-weight: 500; letter-spacing: .04em; }
+.q .stmt { font-family: var(--font-display); font-style: italic; font-size: 17px; }
+.result { background: var(--pres-soft); border-radius: 4px; padding: 8px 12px; font-family: var(--font-data); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+details.fc { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
+details.fc summary { cursor: pointer; padding: 12px 16px; font-weight: 500; list-style: none; display: flex; gap: 10px; }
+details.fc summary::-webkit-details-marker { display: none; }
+details.fc summary::before { content: "+"; font-family: var(--font-data); color: var(--accent); }
+details.fc[open] summary::before { content: "−"; }
+details.fc .ans { padding: 0 16px 14px 34px; display: grid; gap: 8px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; }
+
+button { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 4px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+.calc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .calc { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.calc label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.calc input { font-family: var(--font-data); font-size: 15px; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.out div { background: var(--accent-soft); border-radius: 4px; padding: 8px 12px; display: grid; gap: 2px; }
+.out span { font-size: 12px; color: var(--muted); }
+.out b { font-family: var(--font-data); font-weight: 500; font-size: 18px; font-variant-numeric: tabular-nums; }
+mjx-container[display="true"] { margin: 6px 0 !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<nav class="toc" aria-label="Índice">
+  <div class="in">
+    <a href="#mapa">Mapa</a>
+    <a href="#pistas">Pistas 28/10</a>
+    <a href="#t1">Tema 1</a>
+    <a href="#t2">Tema 2</a>
+    <a href="#preguntas">Preguntas posibles</a>
+    <a href="#calc">Calculadora</a>
+    <a href="#tarjetas">Tarjetas</a>
+  </div>
+</nav>
+
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Pilar Requena</div>
+  <h1>Previsión Social Complementaria</h1>
+  <p class="lede">Guía de estudio construida con tus apuntes de los Temas 1 y 2, los casos prácticos, los exámenes que tienes (el de las fotos y el de enero de 2026) y lo que se comenta en el grupo. Cada apartado lleva su línea temporal de flujos.</p>
+  <figure class="tl" data-tl="ciclo">
+    <div class="tl-scroll"></div>
+    <figcaption>El ciclo completo: se aporta \(S\) al inicio de cada año durante \(N\) años y se cobra \(C\) al inicio de cada año durante \(D\) años desde la jubilación \(x_r=x+N\).</figcaption>
+  </figure>
+  <div class="legend" aria-label="Leyenda de las líneas temporales">
+    <span><i class="a"></i>aportación o cotización</span>
+    <span><i class="p"></i>prestación o pensión</span>
+    <span><i class="w"></i>salario o dato auxiliar</span>
+    <span><i class="f"></i>fondo o reserva</span>
+    <span><b>?</b> lo que hay que calcular</span>
+  </div>
+</header>
+
+<section id="mapa">
+  <div class="sec-head"><div class="eyebrow">Qué entra</div><h2>Mapa del temario</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Bloque</th><th>Contenido</th><th>Preguntas posibles</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#t1-ciclo">1.1–1.2 Ciclo de vida</a></td><td>Teoría de Modigliani; consumo y ahorro óptimos</td><td>1, 3</td></tr>
+      <tr><td><a href="#t1-certeza">1.3 Certeza</a></td><td>DB frente a DC, tasa de intercambio α, tasa de sustitución, reserva matemática, equilibrio</td><td>4, 5, 12</td></tr>
+      <tr><td><a href="#t1-inflacion">1.4 Inflación</a></td><td>Fisher, crecimiento g, α nominal y real</td><td>6, 13</td></tr>
+      <tr><td><a href="#t1-incert">1.5 Incertidumbre</a></td><td>Riesgos, ETTI, secuencia de rendimientos, mutualidad θ, solidaridad, tontinas</td><td>7, 8</td></tr>
+      <tr><td><a href="#t2-reparto">2.1 Reparto</a></td><td>PAYG = d·β, evolución de pasivos, cuota media escalonada</td><td>2, 9</td></tr>
+      <tr><td><a href="#t2-capital">2.2–2.3 Cobertura y capitalización</a></td><td>Capital de cobertura, AL, NC, UAL, unidad de crédito proyectada</td><td>10</td></tr>
+      <tr><td><a href="#t2-rent">Rentabilidad</a></td><td>Plan con unidades de cuenta, TIR y rendimiento absoluto</td><td>11</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="pistas">
+  <div class="sec-head"><div class="eyebrow">Lo que cuentan los compañeros</div><h2>Pistas para el examen del 28/10</h2>
+    <p class="note">Son recuerdos del grupo de WhatsApp, no información oficial. Pilar es profesora nueva este año, así que los exámenes antiguos orientan pero no garantizan nada.</p></div>
+  <div class="card"><span class="tag">Parcial del año pasado · 7 preguntas: 2 de teoría y 5 prácticas</span>
+    <ul class="tight">
+      <li><b>Teoría:</b> qué significa la fórmula de \(V_{x_r+t}\) y desarrollarla entera, sin datos. Es la <a href="#q7">pregunta 7</a>.</li>
+      <li><b>Equilibrio:</b> \(VA(S,\dots)\) frente a \(VA(C,\dots)\), y otra con \(VA=VF\). Es la <a href="#q12">pregunta 12</a>.</li>
+      <li><b>Inflación:</b> un ejercicio con \(S_0(1+\pi)\). Es la <a href="#q13">pregunta 13</a>.</li>
+      <li>Hay quien cree que pondrá el examen de las fotos casi entero (preguntas 1 a 6), quizá cambiando el último ejercicio, y algo de PAYG como la <a href="#q2">pregunta 2</a> o una versión reducida.</li>
+    </ul>
+    <p class="note">En cada pregunta se indica de dónde sale: examen de las fotos (EC), examen de enero de 2026 o pistas del grupo.</p>
+  </div>
+</section>
+
+
+<section id="t1">
+  <div class="sec-head"><div class="eyebrow">Tema 1</div><h2>Ciclo de vida de ahorro y consumo</h2></div>
+  <p class="note">Notación: \(x\) edad actual, \(N\) años activos, \(x_r=x+N\), \(D\) años de jubilación, \(W\) salario, \(C\) consumo, \(S=W-C\) ahorro, \(R\) rentabilidad. Los flujos son prepagables (al inicio de cada año) salvo que se diga lo contrario.</p>
+
+  <div class="sub" id="t1-ciclo">
+    <h3>1.1–1.2 Consumo y ahorro óptimos</h3>
+    <p>El individuo quiere un consumo constante \(C\) durante toda su vida, \(N+D\) años, pero solo cobra salario \(W\) los \(N\) años activos. El capital humano (VA de los salarios) tiene que financiar el VA del consumo de toda la vida.</p>
+    <figure class="tl" data-tl="consumo">
+      <div class="tl-scroll"></div>
+      <figcaption>Todo se valora en 0: los salarios de la etapa activa contra el consumo de toda la vida.</figcaption>
+    </figure>
+    <div class="card"><span class="tag">Fórmulas</span>
+      <div class="math">\[ H_x=W\cdot VA(1,R,N)=C\cdot VA(1,R,N+D),\qquad VA(1,R,n)=\sum_{i=0}^{n-1}(1+R)^{-i}=\ddot a_{\overline{n}|R} \]</div>
+      <div class="math">\[ C=W\cdot\underbrace{\frac{VA(1,R,N)}{VA(1,R,N+D)}}_{f(R,N,D)},\qquad S=W\,(1-f) \]</div>
+      <p class="note">El consumo óptimo es un porcentaje del salario que depende de \(R\), \(N\) y \(D\). Supuestos: certeza, sin impuestos, cuantías constantes.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="t1-certeza">
+    <h3>1.3 Sistema de previsión en certeza</h3>
+    <h4>Acumulación: las aportaciones se capitalizan hasta la jubilación</h4>
+    <figure class="tl" data-tl="acumulacion">
+      <div class="tl-scroll"></div>
+      <figcaption>La aportación del año \(i\) se capitaliza \(N-i\) años.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ F_N=VF(S,R,N)=\sum_{i=0}^{N-1}S(1+R)^{N-i}=S\,\frac{(1+R)^{N+1}-(1+R)}{R}=S\cdot\ddot s_{\overline{N}|} \]</div>
+      <p class="note">El valor acumulado es lineal en \(S\) y no lineal en \(R\). Con \(R=0\), \(VF=S\,N\). Con 40 años: 1 um al año acumula 40 al 0 %, 61,61 al 2 %, 98,83 al 4 % y 164,05 al 6 %.</p>
+    </div>
+
+    <h4>Desacumulación: el fondo se consume en la jubilación</h4>
+    <figure class="tl" data-tl="pasiva">
+      <div class="tl-scroll"></div>
+      <figcaption>Al inicio de cada año se retira \(C\) y el resto rinde \(R\). El plan es óptimo si el fondo se agota justo en \(N+D\).</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ F_{N+t}=(F_{N+t-1}-C)(1+R),\qquad F_{N+t}-F_{N+t-1}=I_{N+t}-C,\quad I_{N+t}=(F_{N+t-1}-C)R \]</div>
+      <div class="math">\[ F_{N+D}=F_N(1+R)^D-C\sum_{j=0}^{D-1}(1+R)^{D-j}=0\ \Rightarrow\ F_N=C\cdot VA(1,R,D) \]</div>
+    </div>
+
+    <h4>Equivalencia en la jubilación y tasa de intercambio</h4>
+    <figure class="tl" data-tl="equivalencia">
+      <div class="tl-scroll"></div>
+      <figcaption>En \(N\) se igualan el valor final de las aportaciones y el valor actual de las prestaciones.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ S\cdot VF(1,R,N)=C\cdot VA(1,R,D)\quad\Rightarrow\quad \alpha=\frac{C}{S}=\frac{VF(1,R,N)}{VA(1,R,D)},\qquad \frac1\alpha=\frac SC \]</div>
+      <div class="math">\[ TS=\frac{C}{W}=\frac{\alpha}{1+\alpha}\qquad(\text{de }C=S\alpha=(W-C)\alpha) \]</div>
+      <p class="note">α son las unidades de prestación anual por cada unidad aportada. Con R = 4,09 %, N = 40 y D = 30, α = 5,67: 15 um de ahorro dan 85 um de pensión y TS ≈ 85 %. Con R = 2 %, α = 2,70.</p>
+    </div>
+
+    <h4>Prestación definida frente a aportación definida</h4>
+    <div class="stack">
+      <div class="stack">
+        <figure class="tl" data-tl="pd"><div class="tl-scroll"></div>
+          <figcaption><b>Prestación definida.</b> Se fija \(C\) y se calcula \(S=C\cdot VA(1,R,D)/VF(1,R,N)\). El promotor asume el riesgo financiero y el de longevidad.</figcaption></figure>
+      </div>
+      <div class="stack">
+        <figure class="tl" data-tl="ad"><div class="tl-scroll"></div>
+          <figcaption><b>Aportación definida.</b> Se fija \(S\) y resulta \(C=S\cdot\alpha\). Los dos riesgos los asume el partícipe.</figcaption></figure>
+      </div>
+    </div>
+
+    <h4>Reserva matemática en un momento t</h4>
+    <figure class="tl" data-tl="reserva">
+      <div class="tl-scroll"></div>
+      <figcaption>Se puede calcular mirando hacia atrás o hacia delante desde \(t\), y las dos formas dan lo mismo.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ \text{Retrospectiva } (t\le N):\ V_t=S\sum_{i=0}^{t-1}(1+R)^{t-i}=S\cdot VF(1,R,t) \]</div>
+      <div class="math">\[ \text{Prospectiva}:\ V_t=C\cdot VA(1,R,D)\,(1+R)^{-(N-t)}-S\cdot VA(1,R,N-t) \]</div>
+      <p class="note">Es la riqueza del individuo a esa edad. Con incertidumbre pasa a llamarse provisión matemática.</p>
+    </div>
+
+    <h4>Valor descontado del ciclo de vida</h4>
+    <figure class="tl" data-tl="vd">
+      <div class="tl-scroll"></div>
+      <figcaption>La misma equivalencia, valorada en 0 en lugar de en \(N\).</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ VD=\sum_{i=N}^{N+D-1}\frac{C}{(1+R)^i}-\sum_{i=0}^{N-1}\frac{S}{(1+R)^i}=0\iff VA_0(S;R,N)=VA_0(C;R,N,D) \]</div>
+    </div>
+  </div>
+
+  <div class="sub" id="t1-inflacion">
+    <h3>1.4 Efecto de la inflación</h3>
+    <figure class="tl" data-tl="inflacion">
+      <div class="tl-scroll"></div>
+      <figcaption>Salario, ahorro y consumo crecen a \(g\). La primera pensión es \(C_N=C_0(1+g)^N\).</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ (1+R)=(1+R_\pi)(1+\pi)\ \Rightarrow\ R=R_\pi+\pi+R_\pi\pi\approx R_\pi+\pi,\qquad R_\pi=\frac{R-\pi}{1+\pi} \]</div>
+      <div class="math">\[ VA(1,g,R,n)=\sum_{i=0}^{n-1}\Big(\tfrac{1+g}{1+R}\Big)^i,\qquad VF(1,g,R,N)=\sum_{i=0}^{N-1}(1+g)^i(1+R)^{N-i} \]</div>
+      <div class="math">\[ C_0=W_0\,\frac{VA(1,g,R,N)}{VA(1,g,R,N+D)},\qquad S_0=W_0-C_0,\qquad \alpha=\frac{C_N}{S_0}=\frac{VF(1,g,R,N)}{VA(1,g,R,D)} \]</div>
+    </div>
+    <h4>Nominal frente a real</h4>
+    <figure class="tl" data-tl="real">
+      <div class="tl-scroll"></div>
+      <figcaption>Arriba, la aportación nominal cuando \(g=\pi\). Abajo, la misma aportación deflactada, dividida entre \((1+\pi)^t\): en términos reales es siempre \(S_0\).</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ \text{si } g=\pi:\quad \alpha_\pi=\frac{\alpha}{(1+\pi)^N},\qquad TS_\pi=\frac{C_0}{W_0}=\frac{\alpha_\pi}{1+\alpha_\pi} \]</div>
+      <p class="note">Ejemplo de clase: R = 6,168 %, g = π = 2 %, N = 40, D = 30. Resulta C₀ = 0,85, S₀ = 0,15, α = 12,512, α<sub>π</sub> = 5,667 (equivale a R<sub>π</sub> = 4,086 %), TS = 0,867 y TS<sub>π</sub> = 0,85. Con R = 3 %: α = 4,154 y α<sub>π</sub> = 1,881.</p>
+    </div>
+    <h4>Tasa de sustitución</h4>
+    <figure class="tl" data-tl="sustitucion">
+      <div class="tl-scroll"></div>
+      <figcaption>Compara la primera pensión con el último salario.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ TS=\frac{C_N}{W_{N-1}}=\frac{C_0(1+g)^N}{W_0(1+g)^{N-1}}=\frac{C_0}{W_0}(1+g)=TS_\pi(1+\pi)\ \ (g=\pi) \]</div>
+      <p class="note">Hay que analizar el sistema en nominal y en real para evitar la ilusión monetaria. La inflación, el crecimiento salarial y la rentabilidad solo se conocen a posteriori, de ahí las revisiones periódicas.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="t1-incert">
+    <h3>1.5 Previsión con incertidumbre</h3>
+    <div class="card"><span class="tag">Riesgos</span>
+      <div class="tbl"><table>
+        <thead><tr><th>Riesgo</th><th>Fase</th><th>Tipo</th></tr></thead>
+        <tbody>
+          <tr><td>Mortalidad (se paga el derecho consolidado)</td><td>Acumulación</td><td>Actuarial, diversificable por la ley de los grandes números</td></tr>
+          <tr><td>Financiero (tipos y rendimiento de la cartera)</td><td>Ambas</td><td>Sistemático</td></tr>
+          <tr><td>Longevidad (vivir más de lo esperado)</td><td>Desacumulación</td><td>Sistemático</td></tr>
+        </tbody>
+      </table></div>
+      <ul class="tight">
+        <li><b>DB:</b> los riesgos los soporta el promotor, que los gestiona con LDI/ALM, reaseguro o derivados de longevidad.</li>
+        <li><b>DC:</b> en la fase de consumo, los riesgos financiero y de longevidad recaen en el partícipe, que decide cómo consumir el capital.</li>
+      </ul>
+    </div>
+
+    <h4>Secuencia de rendimientos</h4>
+    <figure class="tl" data-tl="secuencia">
+      <div class="tl-scroll"></div>
+      <figcaption>Con las mismas rentabilidades en distinto orden, el fondo final cambia mucho: lo que pasa en los últimos años pesa sobre más dinero acumulado.</figcaption>
+    </figure>
+
+    <h4>ETTI y cuantía de la renta</h4>
+    <figure class="tl" data-tl="etti">
+      <div class="tl-scroll"></div>
+      <figcaption>Renta cierta pospagable de 30 años comprada con el fondo. Cada pago se descuenta con el tipo de contado de su plazo.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ F_N=C\sum_{k=1}^{w-x_r}(1+R)^{-k}\ \Rightarrow\ C=\frac{F_N}{\sum_{k=1}^{w-x_r}(1+R)^{-k}},\qquad\text{con ETTI: } C=\frac{F_N}{\sum_{t=1}^{30}(1+r_{t})^{-t}} \]</div>
+      <div class="tbl"><table>
+        <thead><tr><th>ETTI (contado de 1 a 30 años)</th><th>Forma</th><th>VA renta unitaria</th><th>Pensión por 100 um</th></tr></thead>
+        <tbody>
+          <tr><td>A: del 4 % al 2 %</td><td>Decreciente</td><td class="num">20,1448</td><td class="num">4,96</td></tr>
+          <tr><td>B: 3 % plano</td><td>Plana</td><td class="num">19,6004</td><td class="num">5,10</td></tr>
+          <tr><td>C: del 2 % al 4 %</td><td>Creciente</td><td class="num">19,2137</td><td class="num">5,20</td></tr>
+        </tbody>
+      </table></div>
+      <p>Con la curva <b>creciente</b> el VA es <b>menor</b> y la pensión <b>mayor</b>; con la decreciente, al revés. A y C son simétricas alrededor del 3 % en el año 15 y aun así no dan resultados simétricos: el tipo de plazo \(t\) entra elevado a \(t\) en \((1+r_t)^{-t}\), así que los plazos largos dominan el VA.</p>
+    </div>
+
+    <h4>Renta vitalicia y provisión matemática</h4>
+    <figure class="tl" data-tl="vitalicia">
+      <div class="tl-scroll"></div>
+      <figcaption>\(l_{x_r}\) jubilados aportan su fondo y cobran \(C\) al final de cada año mientras vivan. Solo cobran los supervivientes \(l_{x_r+t}\).</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ l_{x_r}F_{x_r}=C\sum_{t=1}^{w-x_r}l_{x_r+t}(1+i)^{-t}\quad\Rightarrow\quad F_{x_r}=C\sum_{t=1}^{w-x_r}{}_tp_{x_r}(1+i)^{-t} \]</div>
+    </div>
+    <figure class="tl" data-tl="reservavit">
+      <div class="tl-scroll"></div>
+      <figcaption>Un año de la provisión: el fondo de los vivos en \(t-1\) se capitaliza, paga las pensiones de los vivos en \(t\) y deja la provisión para el futuro. El fondo de los que fallecen se queda en el colectivo.</figcaption>
+    </figure>
+    <div class="card"><span class="tag">Mutualidad</span>
+      <div class="math">\[ V_{x_r+t}\,l_{x_r+t}=V_{x_r+t-1}\,l_{x_r+t-1}(1+i)-l_{x_r+t}\,C \]</div>
+      <div class="math">\[ V_{x_r+t}-V_{x_r+t-1}=\underbrace{V_{x_r+t-1}\,i}_{\text{intereses}}+\underbrace{\frac{l_{x_r+t-1}-l_{x_r+t}}{l_{x_r+t}}V_{x_r+t-1}(1+i)}_{\text{efecto mutualidad}}-\underbrace{C}_{\text{pago}} \]</div>
+      <div class="math">\[ \theta_{x_r+t}=\frac{l_{x_r+t-1}-l_{x_r+t}}{l_{x_r+t}}\ \Rightarrow\ V_{x_r+t}=V_{x_r+t-1}(1+i)(1+\theta_{x_r+t})-C \]</div>
+      <ul class="tight">
+        <li><b>θ</b> es un rendimiento extra que depende de la edad (base del índice ILY de CANNEX). Es mayor en hombres y por debajo del 2,5 % entre los 65 y los 75 años. Con PER2020: 0,64 % a los 65, 3,02 % a los 80 y 10,53 % a los 90 en hombres. A edades avanzadas es difícil igualarlo invirtiendo, y por eso la renta vitalicia es la mejor herramienta frente a la longevidad.</li>
+        <li><b>Riesgo de longevidad:</b> que fallezcan menos de los esperados y el efecto mutualidad sea menor de lo previsto.</li>
+        <li><b>Solidaridad:</b> varias clases de riesgo pagan la misma prima (por ejemplo, hombres y mujeres). Genera selección adversa, así que solo funciona si el seguro es obligatorio. Se conoce ex ante, en la fase de primas; la mutualidad solo se conoce ex post.</li>
+        <li><b>Tontina:</b> el fondo se reparte solo entre los supervivientes y la cuantía no se conoce de antemano. El proveedor solo asume la longevidad del último superviviente.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="t2">
+  <div class="sec-head"><div class="eyebrow">Tema 2</div><h2>Sistemas de financiación</h2></div>
+  <p class="note">Hipótesis: colectivo abierto con estructura de edades constante. \(x\) edad de entrada, \(x+r\) edad de jubilación, \(k=0,\dots,r-1\) años hasta jubilarse, \(l^s_{x+k}\) y \(W^s_{x+k}\) personas y salario medio de edad \(x+k\) en el año \(s\).</p>
+
+  <div class="sub" id="t2-reparto">
+    <h3>2.1 Reparto simple anual (PAYG)</h3>
+    <figure class="tl" data-tl="payg">
+      <div class="tl-scroll"></div>
+      <figcaption>Cada año las cotizaciones de los activos pagan las pensiones de ese mismo año. No se acumula fondo. El número de cohortes de pensionistas crece cada año hasta que el colectivo madura.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ PAYG_t=\frac{B(t)}{W(t)}=\underbrace{\frac{l^{pas}_t}{l^{act}_t}}_{d(t)}\cdot\underbrace{\frac{B(t)/l^{pas}_t}{W(t)/l^{act}_t}}_{\beta_t} \]</div>
+      <p class="note">La cotización es el ratio de dependencia por la tasa de sustitución media. Con una pensión de 85 y una cotización de 15 hacen falta 85/15 ≈ 5,67 activos por jubilado.</p>
+    </div>
+    <h4>Evolución de los pasivos: una cohorte</h4>
+    <figure class="tl" data-tl="cohorte">
+      <div class="tl-scroll"></div>
+      <figcaption>La cohorte que se jubila en el año 1 sigue cobrando mientras sobrevive. En el año \(s\) conviven \(s\) cohortes, cada una reducida por su probabilidad de supervivencia.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ l^1_{x+r}=l^0_{x+r-1}\,p_{x+r-1},\qquad \sum_{h=0}^{s-1}l^s_{x+r+h}=\sum_{h=1}^{s}l^{s-h}_{x+r-1}\,{}_hp_{x+r-1} \]</div>
+      <div class="math">\[ PAYG_s=\frac{\sum_{h=1}^{s}B_{s-(h-1)}\,l^{s-h}_{x+r-1}\,{}_hp_{x+r-1}}{\sum_{k=0}^{r-1}W^s_{x+k}\,l^s_{x+k}} \]</div>
+      <p class="note">La cotización sube hasta que el colectivo de pasivos madura y luego se estabiliza. Es muy sensible a la demografía y a los salarios.</p>
+    </div>
+
+    <h4>Reparto atenuado o cuota media escalonada</h4>
+    <figure class="tl" data-tl="escalonada">
+      <div class="tl-scroll"></div>
+      <figcaption>Una cotización constante \(Ctz_1\) para todo el quinquenio, con flujos a mitad de año. La reserva de nivelación se anula al final.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ Ctz_1=\frac{\sum_{j=0}^{4}B(j+1)(1+i)^{-(j+\frac12)}}{\sum_{j=0}^{4}Sal(j+1)(1+i)^{-(j+\frac12)}} \]</div>
+      <div class="math">\[ V_{\frac12}=Ctz_1\,Sal(1)-B(1),\qquad V_{t+\frac12}=V_{t-\frac12}(1+i)+Ctz_1\,Sal(t+1)-B(t+1),\qquad V_{4+\frac12}=0 \]</div>
+      <p class="note">La reserva hay que invertirla, como mínimo, al tipo técnico de valoración.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="t2-capital">
+    <h3>2.2 Reparto de capitales de cobertura</h3>
+    <figure class="tl" data-tl="cobertura">
+      <div class="tl-scroll"></div>
+      <figcaption>Los activos del año \(s\) financian de golpe el valor actuarial de todas las pensiones de quienes se jubilan ese año. Esas pensiones se pagan después con la reserva.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ CC(s)=B_s\,l^s_{x+r}\,\ddot a_{x+r},\qquad Ct_s=\frac{B_s\,l^s_{x+r}\,\ddot a_{x+r}}{\sum_{k=0}^{r-1}W^s_{x+k}\,l^s_{x+k}} \]</div>
+    </div>
+
+    <h3>2.3 Capitalización en prestación definida</h3>
+    <figure class="tl" data-tl="colectiva">
+      <div class="tl-scroll"></div>
+      <figcaption>Capitalización colectiva: cada cohorte aporta \(S\) durante su vida activa a un fondo común que paga las prestaciones \(B\) desde \(x+r\).</figcaption>
+    </figure>
+    <div class="card">
+      <ul class="tight">
+        <li><b>Coste normal (NC):</b> la aportación planificada según el método de coste actuarial. El <b>coste suplementario</b> cubre los déficits.</li>
+        <li><b>Obligación acumulada AL:</b> el valor actuarial de lo devengado, equivalente a la reserva matemática. \(UAL_t=AL_t-F_t\); si es negativa hay excedente actuarial.</li>
+        <li><b>Evolución del fondo:</b> \(F_{t+1}=F_t+I+S-P\).</li>
+        <li><b>Hipótesis:</b> demográficas (tablas), financieras (tipo de valoración y rentabilidad) y económicas (inflación y crecimiento salarial).</li>
+        <li>En España el fondo de un plan de prestación definida tiene que ser externo por ley.</li>
+      </ul>
+    </div>
+    <h4>Unidad de crédito proyectada</h4>
+    <figure class="tl" data-tl="puc">
+      <div class="tl-scroll"></div>
+      <figcaption>Partícipe de 35 años con 5 años de servicio. Cada año de servicio devenga el 1,5 % del salario final proyectado.</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ S^F_{65}=S_{hoy}(1+s)^{65-x},\quad NC=S^F_{65}\cdot 0{,}015\cdot\ddot a^{(12)}_{65}\,v^{65-x}\,{}_{65-x}p_x,\quad AL=NC\cdot(\text{años de servicio}) \]</div>
+      <p class="note">El NC es la prestación que se devenga en el año, valorada hoy. La AL es el valor actuarial de todo lo devengado hasta la fecha.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="t2-rent">
+    <h3>Rentabilidad de un plan</h3>
+    <h4>Ejemplo de clase: trabajador de 35 años en reparto</h4>
+    <figure class="tl" data-tl="tir">
+      <div class="tl-scroll"></div>
+      <figcaption>Cotiza el 30 % de un salario de 40.000 € que crece al 3,5 % (\(S_0=12.000\) €). Pensión del 75 % de la media de los últimos 15 salarios, revalorizada al 2,5 % (\(B_0=64.653{,}99\) €).</figcaption>
+    </figure>
+    <div class="card">
+      <div class="math">\[ \sum_{k=0}^{29}12.000\cdot1{,}035^k(1+TIR)^{-k}=\sum_{k=0}^{29}64.653{,}99\cdot1{,}025^k(1+TIR)^{-(30+k)}\ \Rightarrow\ TIR=5{,}336\% \]</div>
+      <p class="note">Base reguladora 86.205,32 €, primera pensión 64.653,99 € y TS = 64.653,99 / 108.475,12 = 59,6 %. En nominal cobra 4,58 € por cada euro cotizado.</p>
+    </div>
+    <h4>Plan con unidades de cuenta</h4>
+    <figure class="tl" data-tl="ucuenta">
+      <div class="tl-scroll"></div>
+      <figcaption>Cada aportación compra participaciones al valor liquidativo del día; el fondo final es el total de participaciones por el valor en la fecha de jubilación.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="preguntas">
+  <div class="sec-head"><div class="eyebrow">Para practicar</div><h2>Preguntas posibles</h2>
+    <p class="note">Los resultados numéricos están calculados con flujos prepagables, como indican los enunciados.</p></div>
+  <div class="stack">
+
+  <div class="q" id="q1"><span class="qn">PREGUNTA 1 · TEORÍA · EC, P1</span>
+    <p class="stmt">Explique en qué consiste la teoría del ciclo de vida ahorro-consumo.</p>
+    <figure class="tl" data-tl="consumo"><div class="tl-scroll"></div></figure>
+    <p>Es la hipótesis de Modigliani. El individuo quiere un <b>consumo estable</b> durante toda su vida, aunque sus rentas del trabajo solo llegan en la etapa activa. Para conseguirlo ahorra mientras trabaja (\(W&gt;C\)) y desahorra cuando se jubila, consumiendo el fondo acumulado. El nivel óptimo sale de igualar el capital humano con el VA del consumo de toda la vida, \(W\cdot VA(1,R,N)=C\cdot VA(1,R,N+D)\). Así \(C\) es un porcentaje del salario que depende de \(R\), \(N\) y \(D\). Los supuestos son certeza, ausencia de impuestos y cuantías constantes. Es el fundamento económico de la previsión social: dar rentas sustitutivas ante la jubilación, la invalidez o el fallecimiento.</p>
+  </div>
+
+  <div class="q" id="q2"><span class="qn">PREGUNTA 2 · TEORÍA · EC, P2</span>
+    <p class="stmt">Explique en qué se diferencia un sistema de financiación basado en el reparto de otro basado en la capitalización.</p>
+    <div class="stack">
+      <div class="stack"><h4>Reparto (PAYG)</h4>
+        <figure class="tl" data-tl="payg"><div class="tl-scroll"></div></figure>
+        <ul class="tight">
+        <li>Las cotizaciones de los activos pagan las pensiones actuales.</li>
+        <li>Es un pacto intergeneracional sin fondo individual, y el cotizante no queda expuesto al mercado.</li>
+        <li>\(PAYG_t=d(t)\cdot\beta_t\).</li>
+        <li>Riesgo demográfico y económico directo: hacen falta suficientes activos por pensionista.</li>
+      </ul></div>
+      <div class="stack"><h4>Capitalización</h4>
+        <figure class="tl" data-tl="acumulacion"><div class="tl-scroll"></div></figure>
+        <ul class="tight">
+        <li>Las aportaciones se invierten y forman un fondo que paga las prestaciones del propio partícipe o colectivo.</li>
+        <li>Puede ser individual o colectiva, DB o DC.</li>
+        <li>Asume riesgo financiero.</li>
+        <li>La demografía le afecta de forma indirecta: con menos activos o muchas ventas de jubilados hay menos liquidez y bajan los precios.</li>
+      </ul></div>
+    </div>
+    <p class="note">Hay sistemas intermedios: la cuota media escalonada y los capitales de cobertura.</p>
+  </div>
+
+  <div class="q" id="q3"><span class="qn">PREGUNTA 3 · PRÁCTICA · EC, P3</span>
+    <p class="stmt">Una persona que acaba de cumplir 28 años, con un salario de 100 um, quiere jubilarse a los 65 y estima que vivirá 30 años como jubilado. Calcule su ahorro óptimo anual para mantener el mismo consumo como activo y como jubilado si el rendimiento es el 2 % sin inflación. ¿Qué ocurre al 3 %?</p>
+    <figure class="tl" data-tl="q3"><div class="tl-scroll"></div></figure>
+    <p>\(N=65-28=37\), \(D=30\) y \(N+D=67\).</p>
+    <div class="math">\[ C=100\cdot\frac{\ddot a_{\overline{37}|2\%}}{\ddot a_{\overline{67}|2\%}}=100\cdot\frac{26{,}4888}{37{,}4681}=70{,}70\qquad S=100-70{,}70=29{,}30 \]</div>
+    <div class="math">\[ R=3\%:\ \ C=100\cdot\frac{22{,}8323}{29{,}5950}=77{,}15\qquad S=22{,}85 \]</div>
+    <div class="result">R = 2 %: S = 29,30 um (29,3 % del salario), C = 70,70 · R = 3 %: S = 22,85 um, C = 77,15</div>
+    <p>Con más rentabilidad, cada unidad ahorrada rinde más (α pasa de 2,41 a 3,38). Hace falta ahorrar menos y se puede consumir más en las dos etapas.</p>
+  </div>
+
+  <div class="q" id="q4"><span class="qn">PREGUNTA 4 · TEORÍA · EC, P4</span>
+    <p class="stmt">Con la planificación de la figura, indique los cálculos para obtener la prestación (aportación definida) o la aportación (prestación definida). Explique qué es la tasa de intercambio financiero, obtenga su valor y defina la tasa de sustitución.</p>
+    <figure class="tl" data-tl="equivalencia"><div class="tl-scroll"></div></figure>
+    <div class="math">\[ S\sum_{i=0}^{N-1}(1+R)^{N-i}=C\sum_{j=0}^{D-1}(1+R)^{-j}\iff S\cdot VF(1,R,N)=C\cdot VA(1,R,D) \]</div>
+    <div class="math">\[ \text{DC: } C=S\,\frac{VF(1,R,N)}{VA(1,R,D)}\qquad\text{DB: } S=C\,\frac{VA(1,R,D)}{VF(1,R,N)} \]</div>
+    <p><b>Tasa de intercambio financiero:</b> \(\alpha=C/S=VF(1,R,N)/VA(1,R,D)\), las unidades de prestación anual que se obtienen por cada unidad aportada.<br><b>Tasa de sustitución:</b> la primera prestación sobre el último salario. Como \(W=C+S\) y \(C=\alpha S\), sale \(TS=C/W=\alpha/(1+\alpha)\).</p>
+  </div>
+
+  <div class="q" id="q5"><span class="qn">PREGUNTA 5 · PRÁCTICA · EC, P5</span>
+    <p class="stmt">Con N = 38 años, C = 85 um, D = 35 años, xᵣ = 65 años y R = 2 %, calcule la riqueza del ahorrador (reserva matemática) transcurridos diez años desde el inicio.</p>
+    <figure class="tl" data-tl="q5"><div class="tl-scroll"></div></figure>
+    <p>Primero, la aportación del plan de prestación definida:</p>
+    <div class="math">\[ S=85\cdot\frac{\ddot a_{\overline{35}|}}{\ddot s_{\overline{38}|}}=85\cdot\frac{25{,}4986}{57{,}2372}=37{,}8666\quad(\alpha=2{,}2447,\ TS=69{,}2\%) \]</div>
+    <p>Reserva retrospectiva en \(t=10\), con 10 aportaciones ya hechas:</p>
+    <div class="math">\[ V_{10}=S\sum_{i=0}^{9}(1{,}02)^{10-i}=37{,}8666\cdot 11{,}1687=422{,}92 \]</div>
+    <p>Comprobación prospectiva: \(85\,\ddot a_{\overline{35}|}\,v^{28}-S\,\ddot a_{\overline{28}|}=422{,}92\).</p>
+    <div class="result">V₁₀ ≈ 422,92 um</div>
+  </div>
+
+  <div class="q" id="q6"><span class="qn">PREGUNTA 6 · PRÁCTICA · EC, P6</span>
+    <p class="stmt">La operación anterior se desarrolla con una inflación estimada del 2,5 % para todo el horizonte. a) Tipo nominal para mantener el poder adquisitivo. b) Tasa de crecimiento de aportaciones y prestación. c) Tasa de intercambio nominal y real. d) Tasa de intercambio si el crecimiento salarial es el 1 %.</p>
+    <figure class="tl" data-tl="q6"><div class="tl-scroll"></div></figure>
+    <p><b>a)</b> Por Fisher:</p>
+    <div class="math">\[ R=(1{,}02)(1{,}025)-1=4{,}55\%\quad(\approx 2\%+2{,}5\%) \]</div>
+    <p><b>b)</b> Aportaciones y prestación tienen que crecer a \(g=\pi=2{,}5\%\) anual acumulativo.</p>
+    <p><b>c)</b> Con \(g=2{,}5\%\), \(R=4{,}55\%\), \(N=38\) y \(D=35\):</p>
+    <div class="math">\[ \alpha=\frac{C_N}{S_0}=\frac{VF(1;0{,}025;0{,}0455;38)}{VA(1;0{,}025;0{,}0455;35)}=5{,}7368,\qquad \alpha_\pi=\frac{5{,}7368}{1{,}025^{38}}=2{,}2447 \]</div>
+    <p>En términos reales α coincide con la de la pregunta 5 sin inflación. Indexar a la inflación conserva el poder adquisitivo.</p>
+    <p><b>d)</b> Si el salario crece al 1 % y, con él, aportaciones y pensión:</p>
+    <div class="math">\[ \alpha=\frac{VF(1;0{,}01;0{,}0455;38)}{VA(1;0{,}01;0{,}0455;35)}=5{,}6511,\qquad \alpha/(1{,}025)^{38}=2{,}2112 \]</div>
+    <div class="result">c) α = 5,74 nominal / 2,24 real · d) α = 5,65 nominal / 2,21 real</div>
+    <p>Al crecer por debajo de la inflación (1 % &lt; 2,5 %), las aportaciones posteriores a S₀ pesan menos en términos reales, el fondo por unidad de aportación inicial es menor y la pensión pierde alrededor de un 1,5 % de poder adquisitivo cada año. La tasa de intercambio baja en nominal y en real. Lo que importa es la relación entre g y π.</p>
+    <p class="note">Supuesto: en d) la prestación también crece al 1 %, igual que el salario. Con otra interpretación cambia el denominador.</p>
+  </div>
+
+  <div class="q" id="q7"><span class="qn">PREGUNTA 7 · TEORÍA · ENERO 2026, P2 Y PISTAS DEL GRUPO</span>
+    <p class="stmt">Explique el significado de \(V_{x_r+t}\) y desarrolle analíticamente su variación entre \(t-1\) y \(t\), con su significado financiero-actuarial.</p>
+    <figure class="tl" data-tl="reservavit"><div class="tl-scroll"></div></figure>
+    <p><b>Planteamiento.</b> Hay \(l_{x_r}\) jubilados de edad \(x_r\), y cada uno aporta un fondo \(F_{x_r}\) para comprar una renta vitalicia de cuantía \(C\), pagadera al final de cada año mientras viva, hasta la edad límite \(w\):</p>
+    <div class="math">\[ l_{x_r}F_{x_r}=C\sum_{t=1}^{w-x_r}l_{x_r+t}(1+i)^{-t}\quad\Rightarrow\quad F_{x_r}=C\sum_{t=1}^{w-x_r}{}_tp_{x_r}(1+i)^{-t} \]</div>
+    <p><b>Significado.</b> \(V_{x_r+t}\) es la <b>provisión matemática</b> de cada jubilado vivo a la edad \(x_r+t\), una vez cobrada la pensión de ese año: lo que hace falta para financiar sus pensiones futuras, es decir, su riqueza a esa edad. Para todo el colectivo vale \(V_{x_r+t}\,l_{x_r+t}\), y al inicio \(V_{x_r}=F_{x_r}\).</p>
+    <p><b>Paso 1, el colectivo.</b> El fondo del periodo anterior se capitaliza un año y se pagan las pensiones de los supervivientes:</p>
+    <div class="math">\[ V_{x_r+t}\,l_{x_r+t}=V_{x_r+t-1}\,l_{x_r+t-1}(1+i)-l_{x_r+t}\,C \]</div>
+    <p><b>Paso 2, un jubilado.</b> Se divide entre \(l_{x_r+t}\):</p>
+    <div class="math">\[ V_{x_r+t}=V_{x_r+t-1}\,\frac{l_{x_r+t-1}}{l_{x_r+t}}(1+i)-C \]</div>
+    <p><b>Paso 3.</b> Se escribe \(\dfrac{l_{x_r+t-1}}{l_{x_r+t}}=1+\dfrac{l_{x_r+t-1}-l_{x_r+t}}{l_{x_r+t}}\):</p>
+    <div class="math">\[ V_{x_r+t}=V_{x_r+t-1}(1+i)+\frac{l_{x_r+t-1}-l_{x_r+t}}{l_{x_r+t}}\,V_{x_r+t-1}(1+i)-C \]</div>
+    <p><b>Paso 4.</b> Se resta \(V_{x_r+t-1}\):</p>
+    <div class="math">\[ V_{x_r+t}-V_{x_r+t-1}=\underbrace{V_{x_r+t-1}\,i}_{\text{(1) intereses}}+\underbrace{\frac{l_{x_r+t-1}-l_{x_r+t}}{l_{x_r+t}}V_{x_r+t-1}(1+i)}_{\text{(2) efecto mutualidad}}-\underbrace{C}_{\text{(3) pensión}} \]</div>
+    <p><b>Paso 5.</b> Con \(\theta_{x_r+t}=\dfrac{l_{x_r+t-1}-l_{x_r+t}}{l_{x_r+t}}\):</p>
+    <div class="math">\[ V_{x_r+t}=V_{x_r+t-1}(1+i)(1+\theta_{x_r+t})-C \]</div>
+    <ul class="tight">
+      <li>(1) es el rendimiento financiero del fondo. Si la rentabilidad real se aparta de \(i\), aparece el riesgo financiero.</li>
+      <li>(2) es el efecto mutualidad: los \(l_{x_r+t-1}-l_{x_r+t}\) jubilados que fallecen en el año liberan su parte del fondo capitalizado a favor de los \(l_{x_r+t}\) supervivientes. Si fallecen menos de los esperados, el efecto es menor y aparece el riesgo de longevidad.</li>
+      <li>(3) es el pago de la pensión.</li>
+      <li>\(\theta\) funciona como un rendimiento extra que depende de la edad y crece con ella. El fondo \(V_{x_r+t-1}\,l_{x_r+t-1}(1+i)\) pertenece a los \(l_{x_r+t}\) supervivientes y paga sus pensiones \(l_{x_r+t}C\) y el fondo futuro \(V_{x_r+t}\,l_{x_r+t}\).</li>
+    </ul>
+  </div>
+
+  <div class="q" id="q8"><span class="qn">PREGUNTA 8 · TEORÍA · ENERO 2026, P1</span>
+    <p class="stmt">Al jubilarse, una persona transforma su capital \(F_{65}\) en una renta anual cierta de 30 años. Explique cómo influye en la cuantía de la renta una estructura temporal de tipos decreciente o creciente.</p>
+    <figure class="tl" data-tl="etti"><div class="tl-scroll"></div></figure>
+    <p>La renta es el fondo dividido entre el VA de una unidad monetaria pagada cada año: \(C=F_{65}/\sum_{t=1}^{30}(1+r_t)^{-t}\). Los tipos largos pesan más en ese VA porque el tipo de cada plazo va elevado al plazo. Con una curva <b>creciente</b> (\(R_1&lt;\dots&lt;R_{30}\)) el VA es menor y la renta <b>mayor</b>; con una curva <b>decreciente</b> el VA es mayor y la renta menor. Cuanto más pendiente positiva, mejor para el jubilado. Con 100 um: 4,96 con la decreciente, 5,10 con la plana y 5,20 con la creciente.</p>
+  </div>
+
+  <div class="q" id="q9"><span class="qn">PREGUNTA 9 · PRÁCTICA · ENERO 2026, P3</span>
+    <p class="stmt">Un sistema de reparto con colectivo abierto. En s = 1, 2, 3 se jubilan \(l^1_{x_r}\), \(l^2_{x_r}\) y \(l^3_{x_r}\) personas con pensiones constantes \(B_1\), \(B_2\) y \(B_3\). Calcule el porcentaje de salario que debe aportar cada activo si aportaciones y pagos coinciden en el tiempo.</p>
+    <figure class="tl" data-tl="q9"><div class="tl-scroll"></div></figure>
+    <div class="math">\[ PAYG_1=\frac{B_1\,l^1_{x_r}}{\sum_{k=0}^{r-1}W^1_{x+k}\,l^1_{x+k}},\qquad PAYG_2=\frac{B_2\,l^2_{x_r}+B_1\,l^1_{x_r}\,p_{x_r}}{\sum_{k}W^2_{x+k}\,l^2_{x+k}} \]</div>
+    <div class="math">\[ PAYG_3=\frac{B_3\,l^3_{x_r}+B_2\,l^2_{x_r}\,p_{x_r}+B_1\,l^1_{x_r}\,{}_2p_{x_r}}{\sum_{k}W^3_{x+k}\,l^3_{x+k}}=\frac{\sum_{h=1}^{3}B_h\,l^h_{x_r}\,{}_{3-h}p_{x_r}}{\sum_k W^3_{x+k}l^3_{x+k}} \]</div>
+  </div>
+
+  <div class="q" id="q10"><span class="qn">PREGUNTA 10 · PRÁCTICA · ENERO 2026, P4</span>
+    <p class="stmt">Plan de prestación definida: 1,5 % del salario final por año de servicio, pagadero mensualmente y por anticipado desde los 65. Partícipe de 35 años a 31/12/2025, con 5 años de servicio y salario de 48.500 € en 2025. Salarios al 2,5 %, interés de valoración del 3,5 %. Ecuaciones de la obligación actuarial y del coste normal por unidad de crédito proyectada.</p>
+    <figure class="tl" data-tl="puc"><div class="tl-scroll"></div></figure>
+    <div class="math">\[ S^F_{65}=48.500\cdot1{,}025^{30},\quad NC=S^F_{65}\cdot0{,}015\cdot\ddot a^{(12)}_{65}\cdot1{,}035^{-30}\cdot{}_{30}p_{35},\quad AL=5\cdot NC \]</div>
+    <p>El coste normal es lo que hay que aportar en el periodo para alcanzar la pensión prometida; con este método coincide con el valor actual de la prestación devengada en el año. La obligación actuarial es el valor actuarial de la prestación devengada hasta hoy.</p>
+  </div>
+
+  <div class="q" id="q11"><span class="qn">PREGUNTA 11 · PRÁCTICA · ENERO 2026, P5 Y SESIÓN 3</span>
+    <p class="stmt">Cada 20 de julio desde 2017 se aportan 6.000 € a un plan. Fondo disponible al jubilarse el 15/12/2025 con la participación a 150 €, y ecuaciones de la rentabilidad relativa y absoluta.</p>
+    <figure class="tl" data-tl="ucuenta"><div class="tl-scroll"></div></figure>
+    <p>Las participaciones de cada año son \(6.000/VL_t\), con un total de 593,877. El fondo final es 593,877 × 150 = 89.081,55 €.</p>
+    <div class="math">\[ 89.081{,}55=6.000\sum_{k=0}^{8}(1+R_m)^{k+\frac{148}{365}}\ \Rightarrow\ R_m=11{,}10\%;\qquad I=89.081{,}55-54.000=35.081{,}55\ € \]</div>
+    <p class="note">El exponente añade los 148 días entre el 20/07 y el 15/12. La solución de clase da 11,01 %, pero con ese tipo el fondo saldría 88.697,84 €; el valor que cuadra es 11,10 %.</p>
+  </div>
+
+  <div class="q" id="q12"><span class="qn">PREGUNTA 12 · TEORÍA · PISTAS DEL GRUPO</span>
+    <p class="stmt">Escriba la condición de equilibrio del plan valorando en la jubilación y en el origen, y explique por qué son equivalentes.</p>
+    <figure class="tl" data-tl="vd"><div class="tl-scroll"></div></figure>
+    <p>En la jubilación (\(N\)), el valor final de las aportaciones iguala el valor actual de las prestaciones:</p>
+    <div class="math">\[ \sum_{i=0}^{N-1}S(1+R)^{N-i}=\sum_{j=0}^{D-1}C(1+R)^{-j}\iff VF(S,R,N)=VA(C,R,D) \]</div>
+    <p>En el origen (0), el VA de las aportaciones iguala el VA de las prestaciones. Es la misma ecuación multiplicada por \((1+R)^{-N}\), y el valor descontado del ciclo de vida es 0:</p>
+    <div class="math">\[ \sum_{i=0}^{N-1}\frac{S}{(1+R)^{i}}=\sum_{i=N}^{N+D-1}\frac{C}{(1+R)^{i}}\iff VA_0(S;R,N)=VA_0(C;R,N,D)\iff VD=0 \]</div>
+  </div>
+
+  <div class="q" id="q13"><span class="qn">PREGUNTA 13 · PRÁCTICA · PISTAS DEL GRUPO</span>
+    <p class="stmt">Con inflación π y aportaciones que crecen con ella, escriba la aportación nominal y real del año t y la condición de equilibrio.</p>
+    <figure class="tl" data-tl="real"><div class="tl-scroll"></div></figure>
+    <div class="math">\[ S_t=S_0(1+\pi)^t,\qquad S^\pi_t=\frac{S_t}{(1+\pi)^t}=S_0;\qquad S_0\cdot VF(1,\pi,R,N)=C_N\cdot VA(1,\pi,R,D) \]</div>
+    <p>Lo mismo con el salario y la pensión: \(W_t=W_0(1+\pi)^t\) y \(C_{N+j}=C_N(1+\pi)^j\). En términos reales todo es constante, y basta trabajar con la rentabilidad real \(R_\pi=(R-\pi)/(1+\pi)\).</p>
+  </div>
+  </div>
+</section>
+
+<section id="calc">
+  <div class="sec-head"><div class="eyebrow">Para comprobar resultados</div><h2>Calculadora del ciclo de vida</h2>
+    <p class="note">Flujos prepagables. Con g = π = 0 tienes el caso sin inflación; R es el tipo nominal.</p></div>
+  <div class="card">
+    <div class="calc">
+      <label for="cW">Salario inicial W₀<input id="cW" type="number" step="any" value="1"></label>
+      <label for="cR">R nominal (%)<input id="cR" type="number" step="any" value="6.168"></label>
+      <label for="cG">Crecimiento g (%)<input id="cG" type="number" step="any" value="2"></label>
+      <label for="cP">Inflación π (%)<input id="cP" type="number" step="any" value="2"></label>
+      <label for="cN">N años activo<input id="cN" type="number" step="1" min="1" value="40"></label>
+      <label for="cD">D años jubilado<input id="cD" type="number" step="1" min="1" value="30"></label>
+      <label for="cT">Reserva en t =<input id="cT" type="number" step="1" min="0" value="10"></label>
+    </div>
+    <div class="tools">
+      <button type="button" data-preset="clase">Ejemplo de clase (6,168 %)</button>
+      <button type="button" data-preset="p3">Pregunta 3 (2 %)</button>
+      <button type="button" data-preset="p6">Pregunta 6 c)</button>
+    </div>
+    <div class="out" aria-live="polite">
+      <div><span>Consumo óptimo C₀</span><b id="oC">–</b></div>
+      <div><span>Ahorro óptimo S₀</span><b id="oS">–</b></div>
+      <div><span>α nominal</span><b id="oA">–</b></div>
+      <div><span>α real (α/(1+π)ᴺ)</span><b id="oAr">–</b></div>
+      <div><span>Tasa sustitución C(N)/W(N−1)</span><b id="oTS">–</b></div>
+      <div><span>Reserva retrospectiva en t</span><b id="oV">–</b></div>
+    </div>
+    <p class="note">La calculadora parte del salario. En la pregunta 5 se parte de C: allí S = C/α, con α = VF/VA.</p>
+  </div>
+</section>
+
+<section id="tarjetas">
+  <div class="sec-head"><div class="eyebrow">Autoevaluación</div><h2>Tarjetas de repaso</h2>
+    <p class="note">Intenta responder antes de abrir cada una.</p></div>
+  <div class="tools"><button type="button" id="openAll">Abrir todas</button><button type="button" id="closeAll">Cerrar todas</button></div>
+  <div class="stack" id="cards">
+    <details class="fc"><summary>¿Cuáles son los tres pilares de la previsión social?</summary><div class="ans"><p>1.º sistema público obligatorio (Seguridad Social). 2.º previsión complementaria en el ámbito laboral. 3.º previsión individual voluntaria. El desarrollo del 2.º y el 3.º depende de la suficiencia del 1.º.</p></div></details>
+    <details class="fc"><summary>¿Qué contingencias cubre?</summary><div class="ans"><p>Jubilación, invalidez y fallecimiento. Todas impiden o ponen fin a las rentas del trabajo.</p></div></details>
+    <details class="fc"><summary>Fórmula del ahorro óptimo S en función de W</summary><div class="ans"><div class="math">\[ S=W\Big(1-\frac{VA(1,R,N)}{VA(1,R,N+D)}\Big) \]</div></div></details>
+    <details class="fc"><summary>Define α y deduce la tasa de sustitución</summary><div class="ans"><div class="math">\[ \alpha=\frac{VF(1,R,N)}{VA(1,R,D)},\quad C=(W-C)\alpha\Rightarrow TS=\frac{\alpha}{1+\alpha} \]</div></div></details>
+    <details class="fc"><summary>Escribe el equilibrio en N y en 0</summary><div class="ans"><div class="math">\[ S\cdot VF(1,R,N)=C\cdot VA(1,R,D)\iff VA_0(S)=VA_0(C)\iff VD=0 \]</div></div></details>
+    <details class="fc"><summary>Reserva matemática en t: retrospectiva y prospectiva</summary><div class="ans"><div class="math">\[ V_t=S\cdot VF(1,R,t)=C\cdot VA(1,R,D)(1+R)^{-(N-t)}-S\cdot VA(1,R,N-t) \]</div></div></details>
+    <details class="fc"><summary>¿Quién soporta los riesgos en DB y en DC?</summary><div class="ans"><p>En DB, el promotor (financiero y longevidad). En DC, el partícipe, sobre todo en la fase de consumo del capital. La mortalidad en la fase de acumulación se trata igual en los dos: se paga el derecho consolidado.</p></div></details>
+    <details class="fc"><summary>Relación de Fisher y su aproximación</summary><div class="ans"><div class="math">\[ 1+R=(1+R_\pi)(1+\pi),\quad R\approx R_\pi+\pi \]</div></div></details>
+    <details class="fc"><summary>¿Cuándo α<sub>π</sub> = α/(1+π)ᴺ?</summary><div class="ans"><p>Cuando el crecimiento salarial (y el de aportaciones y prestaciones) coincide con la inflación, g = π.</p></div></details>
+    <details class="fc"><summary>Escribe θ y explica qué mide</summary><div class="ans"><div class="math">\[ \theta_{x+t}=\frac{l_{x+t-1}-l_{x+t}}{l_{x+t}} \]</div><p>Es el rendimiento extra que aportan los fondos liberados por los fallecidos a los supervivientes (efecto mutualidad). Crece con la edad y es mayor en hombres.</p></div></details>
+    <details class="fc"><summary>Diferencia entre mutualidad y solidaridad</summary><div class="ans"><p>La mutualidad actúa en la fase de prestaciones, de fallecidos a supervivientes, y se conoce ex post. La solidaridad actúa en la fase de primas, con una prima común para clases de riesgo distintas; se conoce ex ante y provoca selección adversa, así que exige obligatoriedad.</p></div></details>
+    <details class="fc"><summary>PAYG en función de la demografía</summary><div class="ans"><div class="math">\[ PAYG_t=d(t)\cdot\beta_t \]</div><p>Es el ratio de dependencia por la tasa de sustitución media.</p></div></details>
+    <details class="fc"><summary>¿Qué es el capital de cobertura?</summary><div class="ans"><p>El valor actuarial de las pensiones de quienes se jubilan en el año, \(B_s\,l^s_{x+r}\,\ddot a_{x+r}\). Lo financian los activos de ese año.</p></div></details>
+    <details class="fc"><summary>¿Qué es la UAL y cuándo hay excedente?</summary><div class="ans"><p>\(UAL_t=AL_t-F_t\), la obligación no cubierta por el fondo. Si es negativa, hay excedente actuarial.</p></div></details>
+    <details class="fc"><summary>¿Por qué una ETTI creciente favorece al jubilado?</summary><div class="ans"><p>Porque en una renta larga pesan más los tipos largos. Si son más altos, el VA de la renta unitaria baja y, con el mismo capital, la renta es mayor.</p></div></details>
+  </div>
+</section>
+</div>
+
+<script>
+(function () {
+  // ---------- Líneas temporales ----------
+  // Cada tick: t (momento), a (edad), up (flujo encima del eje), dn (flujo debajo), l (dato auxiliar),
+  // ut/dt (tono: a aportación, p prestación, w salario/dato, f fondo), uq/dq (incógnita), gap (puntos suspensivos).
+  const G = { gap: true, up: '···', dn: '···' };
+  const cycle = (up, dn, extra) => Object.assign({
+    ticks: [
+      { t: '0', a: 'x', up: up.v, ut: 'a', uq: up.q },
+      { t: '1', a: 'x+1', up: up.v, ut: 'a', uq: up.q },
+      { t: '2', a: 'x+2', up: up.v, ut: 'a', uq: up.q },
+      { gap: true, up: '···' },
+      { t: 'N−1', a: 'xᵣ−1', up: up.v, ut: 'a', uq: up.q },
+      { t: 'N', a: 'xᵣ', dn: dn.v, dt: 'p', dq: dn.q },
+      { t: 'N+1', a: 'xᵣ+1', dn: dn.v, dt: 'p', dq: dn.q },
+      { gap: true, dn: '···' },
+      { t: 'N+D−1', a: 'xᵣ+D−1', dn: dn.v, dt: 'p', dq: dn.q },
+      { t: 'N+D', a: 'xᵣ+D' }
+    ]
+  }, extra);
+
+  const TL = {
+    ciclo: cycle({ v: 'S' }, { v: 'C' }, {
+      marks: [{ i: 5, label: 'jubilación' }],
+      spans: [{ from: 0, to: 4, label: 'vida activa: N años', tone: 'a' }, { from: 5, to: 8, label: 'jubilación: D años', tone: 'p' }]
+    }),
+    consumo: {
+      ticks: [
+        { t: '0', a: 'x', up: 'W', ut: 'w', dn: 'C', dt: 'p' }, { t: '1', a: 'x+1', up: 'W', ut: 'w', dn: 'C', dt: 'p' },
+        { gap: true, up: '···', dn: '···' }, { t: 'N−1', a: 'xᵣ−1', up: 'W', ut: 'w', dn: 'C', dt: 'p' },
+        { t: 'N', a: 'xᵣ', dn: 'C', dt: 'p' }, { gap: true, dn: '···' }, { t: 'N+D−1', a: 'xᵣ+D−1', dn: 'C', dt: 'p' }, { t: 'N+D', a: 'xᵣ+D' }
+      ],
+      marks: [{ i: 0, label: 'Hₓ = W·VA(1,R,N) = C·VA(1,R,N+D)' }],
+      arrows: [{ from: 3, to: 0, label: 'actualizar salarios', tone: 'w' }, { from: 6, to: 0, label: 'actualizar el consumo de toda la vida', tone: 'p' }]
+    },
+    acumulacion: {
+      ticks: [
+        { t: '0', a: 'x', up: 'S', ut: 'a' }, { t: '1', a: 'x+1', up: 'S', ut: 'a' }, { t: '2', a: 'x+2', up: 'S', ut: 'a' },
+        { gap: true, up: '···' }, { t: 'N−1', a: 'xᵣ−1', up: 'S', ut: 'a' }, { t: 'N', a: 'xᵣ', up: 'F(N)', ut: 'f' }
+      ],
+      marks: [{ i: 5, label: 'F(N) = S·VF(1,R,N)' }],
+      arrows: [{ from: 0, to: 5, label: 'cada S se capitaliza × (1+R)ᴺ⁻ⁱ', tone: 'a' }]
+    },
+    pasiva: {
+      ticks: [
+        { t: 'N', a: 'xᵣ', up: 'F(N)', ut: 'f', dn: 'C', dt: 'p' }, { t: 'N+1', a: 'xᵣ+1', up: 'F(N+1)', ut: 'f', dn: 'C', dt: 'p' },
+        { t: 'N+2', a: 'xᵣ+2', up: 'F(N+2)', ut: 'f', dn: 'C', dt: 'p' }, { gap: true, up: '···', dn: '···' },
+        { t: 'N+D−1', a: 'xᵣ+D−1', up: 'F(N+D−1)', ut: 'f', dn: 'C', dt: 'p' }, { t: 'N+D', a: 'xᵣ+D', up: 'F(N+D) = 0', ut: 'f' }
+      ],
+      arrows: [{ from: 0, to: 1, label: '(F − C)(1+R)', tone: 'f' }]
+    },
+    equivalencia: cycle({ v: 'S' }, { v: 'C' }, {
+      marks: [{ i: 5, label: 'VF(S,R,N) = VA(C,R,D)' }],
+      arrows: [{ from: 0, to: 5, label: 'capitalizar aportaciones', tone: 'a' }, { from: 8, to: 5, label: 'actualizar prestaciones', tone: 'p' }]
+    }),
+    pd: cycle({ v: 'S = ?', q: true }, { v: 'C' }, { marks: [{ i: 5, label: 'S = C·VA/VF' }], compact: true }),
+    ad: cycle({ v: 'S' }, { v: 'C = ?', q: true }, { marks: [{ i: 5, label: 'C = S·VF/VA = S·α' }], compact: true }),
+    reserva: {
+      ticks: [
+        { t: '0', a: 'x', up: 'S', ut: 'a' }, { t: '1', a: 'x+1', up: 'S', ut: 'a' }, { gap: true, up: '···' },
+        { t: 't', a: 'x+t', up: 'S', ut: 'a', dn: 'V(t) = ?', dt: 'f', dq: true }, { gap: true, up: '···' },
+        { t: 'N−1', a: 'xᵣ−1', up: 'S', ut: 'a' }, { t: 'N', a: 'xᵣ', dn: 'C', dt: 'p' }, { gap: true, dn: '···' },
+        { t: 'N+D−1', a: 'xᵣ+D−1', dn: 'C', dt: 'p' }
+      ],
+      marks: [{ i: 3, label: 'momento t' }],
+      arrows: [{ from: 0, to: 3, label: 'retrospectiva: lo aportado, capitalizado', tone: 'a' }, { from: 8, to: 3, label: 'prospectiva: VA prestaciones − VA aportaciones futuras', tone: 'p' }]
+    },
+    vd: cycle({ v: 'S' }, { v: 'C' }, {
+      marks: [{ i: 0, label: 'VD = VA₀(C) − VA₀(S) = 0' }],
+      arrows: [{ from: 4, to: 0, label: 'VA₀ de las aportaciones', tone: 'a' }, { from: 8, to: 0, label: 'VA₀ de las prestaciones', tone: 'p' }]
+    }),
+    inflacion: {
+      ticks: [
+        { t: '0', a: 'x', up: 'S₀', ut: 'a', l: 'W₀' }, { t: '1', a: 'x+1', up: 'S₀(1+g)', ut: 'a', l: 'W₀(1+g)' },
+        { gap: true, up: '···' }, { t: 'N−1', a: 'xᵣ−1', up: 'S₀(1+g)ᴺ⁻¹', ut: 'a', l: 'W₀(1+g)ᴺ⁻¹' },
+        { t: 'N', a: 'xᵣ', dn: 'C₀(1+g)ᴺ', dt: 'p' }, { t: 'N+1', a: 'xᵣ+1', dn: 'C₀(1+g)ᴺ⁺¹', dt: 'p' },
+        { gap: true, dn: '···' }, { t: 'N+D−1', a: 'xᵣ+D−1', dn: 'C₀(1+g)ᴺ⁺ᴰ⁻¹', dt: 'p' }
+      ],
+      marks: [{ i: 4, label: 'α = C(N)/S₀ = VF(1,g,R,N)/VA(1,g,R,D)' }],
+      arrows: [{ from: 0, to: 4, label: 'capitalizar al tipo nominal R', tone: 'a' }, { from: 7, to: 4, label: 'actualizar al tipo nominal R', tone: 'p' }]
+    },
+    real: {
+      ticks: [
+        { t: '0', up: 'S₀', ut: 'a', dn: 'S₀', dt: 'w' }, { t: '1', up: 'S₀(1+π)', ut: 'a', dn: 'S₀', dt: 'w' },
+        { t: '2', up: 'S₀(1+π)²', ut: 'a', dn: 'S₀', dt: 'w' }, { gap: true, up: '···', dn: '···' },
+        { t: 't', up: 'S₀(1+π)ᵗ', ut: 'a', dn: 'S₀', dt: 'w' }, { gap: true, up: '···', dn: '···' },
+        { t: 'N−1', up: 'S₀(1+π)ᴺ⁻¹', ut: 'a', dn: 'S₀', dt: 'w' }
+      ],
+      spans: [{ from: 0, to: 6, label: 'arriba nominal · abajo real = nominal ÷ (1+π)ᵗ', tone: 'w' }]
+    },
+    sustitucion: {
+      ticks: [
+        { t: 'N−2', a: 'xᵣ−2', up: 'W(N−2)', ut: 'w' }, { t: 'N−1', a: 'xᵣ−1', up: 'W(N−1)', ut: 'w' },
+        { t: 'N', a: 'xᵣ', dn: 'C(N)', dt: 'p' }, { t: 'N+1', a: 'xᵣ+1', dn: 'C(N+1)', dt: 'p' }
+      ],
+      marks: [{ i: 2, label: 'jubilación' }],
+      arrows: [{ from: 1, to: 2, label: 'TS = C(N) / W(N−1)', tone: 'p' }]
+    },
+    secuencia: {
+      ticks: [
+        { t: '0', up: '1', ut: 'a' }, { t: '1', up: '1', ut: 'a' }, { t: '2', up: '1', ut: 'a' }, { gap: true, up: '···' },
+        { t: '8', up: '1', ut: 'a' }, { t: '9', up: '1', ut: 'a' }, { t: '10', up: 'F(10)', ut: 'f' }
+      ],
+      marks: [{ i: 6, label: 'bajos al inicio: 17,05 · bajos al final: 11,58' }]
+    },
+    etti: {
+      ticks: [
+        { t: '0', a: '65', up: 'F₆₅', ut: 'f' }, { t: '1', a: '66', dn: 'C', dt: 'p', l: '(1+r₁)⁻¹' },
+        { t: '2', a: '67', dn: 'C', dt: 'p', l: '(1+r₂)⁻²' }, { t: '3', a: '68', dn: 'C', dt: 'p', l: '(1+r₃)⁻³' },
+        { gap: true, dn: '···' }, { t: '30', a: '95', dn: 'C', dt: 'p', l: '(1+r₃₀)⁻³⁰' }
+      ],
+      marks: [{ i: 0, label: 'C = F₆₅ / Σ (1+rₜ)⁻ᵗ' }],
+      arrows: [{ from: 5, to: 0, label: 'cada pago con el tipo de su plazo', tone: 'p' }]
+    },
+    vitalicia: {
+      ticks: [
+        { t: '0', a: 'xᵣ', up: 'F(xᵣ)·l(xᵣ)', ut: 'f', l: 'l(xᵣ) vivos' }, { t: '1', a: 'xᵣ+1', dn: 'C·l(xᵣ+1)', dt: 'p', l: 'l(xᵣ+1)' },
+        { t: '2', a: 'xᵣ+2', dn: 'C·l(xᵣ+2)', dt: 'p', l: 'l(xᵣ+2)' }, { gap: true, dn: '···' },
+        { t: 'w−xᵣ', a: 'w', dn: 'C·l(w)', dt: 'p', l: 'l(w) > 0' }
+      ],
+      marks: [{ i: 0, label: 'prima única' }],
+      arrows: [{ from: 4, to: 0, label: 'Σ C·l(xᵣ+t)·(1+i)⁻ᵗ', tone: 'p' }]
+    },
+    reservavit: {
+      ticks: [
+        { t: 't−1', a: 'xᵣ+t−1', up: 'V(t−1)·l(t−1)', ut: 'f', l: 'l(xᵣ+t−1) vivos' },
+        { t: 't', a: 'xᵣ+t', up: 'V(t)·l(t)', ut: 'f', dn: 'C·l(t)', dt: 'p', l: 'l(xᵣ+t) vivos' },
+        { t: 't+1', a: 'xᵣ+t+1', dn: 'C·l(t+1)', dt: 'p' }
+      ],
+      arrows: [{ from: 0, to: 1, label: '× (1+i)', tone: 'f' }],
+      spans: [{ from: 0, to: 1, label: 'fallecen l(t−1) − l(t): su fondo pasa a los vivos', tone: 'p' }]
+    },
+    payg: {
+      ticks: [
+        { t: 'año 1', up: 'PAYG₁·W(1)', ut: 'a', dn: 'B(1)', dt: 'p', l: '1 cohorte' },
+        { t: 'año 2', up: 'PAYG₂·W(2)', ut: 'a', dn: 'B(2)', dt: 'p', l: '2 cohortes' },
+        { t: 'año 3', up: 'PAYG₃·W(3)', ut: 'a', dn: 'B(3)', dt: 'p', l: '3 cohortes' },
+        { gap: true, up: '···', dn: '···' },
+        { t: 'año s', up: 'PAYGₛ·W(s)', ut: 'a', dn: 'B(s)', dt: 'p', l: 's cohortes' }
+      ],
+      spans: [{ from: 0, to: 4, label: 'cada año: cotizaciones = pensiones', tone: 'a' }]
+    },
+    cohorte: {
+      ticks: [
+        { t: 'año 1', a: 'xᵣ', dn: 'B₁·l¹(xᵣ)', dt: 'p' }, { t: 'año 2', a: 'xᵣ+1', dn: 'B₁·l¹(xᵣ)·p', dt: 'p' },
+        { t: 'año 3', a: 'xᵣ+2', dn: 'B₁·l¹(xᵣ)·₂p', dt: 'p' }, { t: 'año 4', a: 'xᵣ+3', dn: 'B₁·l¹(xᵣ)·₃p', dt: 'p' }
+      ],
+      spans: [{ from: 0, to: 3, label: 'la misma cohorte, reducida por supervivencia', tone: 'p' }]
+    },
+    escalonada: {
+      ticks: [
+        { t: '0' }, { t: '½', up: 'Ctz₁·Sal(1)', ut: 'a', dn: 'B(1)', dt: 'p', l: 'V(½)' },
+        { t: '1½', up: 'Ctz₁·Sal(2)', ut: 'a', dn: 'B(2)', dt: 'p', l: 'V(1½)' },
+        { t: '2½', up: 'Ctz₁·Sal(3)', ut: 'a', dn: 'B(3)', dt: 'p', l: 'V(2½)' },
+        { t: '3½', up: 'Ctz₁·Sal(4)', ut: 'a', dn: 'B(4)', dt: 'p', l: 'V(3½)' },
+        { t: '4½', up: 'Ctz₁·Sal(5)', ut: 'a', dn: 'B(5)', dt: 'p', l: 'V(4½) = 0' }, { t: '5' }
+      ],
+      marks: [{ i: 0, label: 'VA cotizaciones = VA pensiones' }],
+      spans: [{ from: 0, to: 6, label: 'primer quinquenio: Ctz₁ constante', tone: 'a' }]
+    },
+    cobertura: {
+      ticks: [
+        { t: 's', a: 'xᵣ', up: 'Ctₛ·ΣWˢ·lˢ', ut: 'a', dn: 'CC(s)', dt: 'f' },
+        { t: 's+1', a: 'xᵣ+1', dn: 'Bₛ·l·p', dt: 'p' }, { t: 's+2', a: 'xᵣ+2', dn: 'Bₛ·l·₂p', dt: 'p' },
+        { gap: true, dn: '···' }, { t: 'fin', a: 'w', dn: 'Bₛ·l·ₖp', dt: 'p' }
+      ],
+      marks: [{ i: 0, label: 'CC(s) = Bₛ·lˢ(xᵣ)·ä(xᵣ)' }],
+      arrows: [{ from: 4, to: 0, label: 'valor actuarial de las pensiones de la cohorte s', tone: 'p' }]
+    },
+    colectiva: {
+      ticks: [
+        { a: 'x', up: 'S', ut: 'a' }, { a: 'x+1', up: 'S', ut: 'a' }, { gap: true, up: '···' }, { a: 'x+r−1', up: 'S', ut: 'a' },
+        { a: 'x+r', dn: 'B', dt: 'p' }, { a: 'x+r+1', dn: 'B', dt: 'p' }, { gap: true, dn: '···' }, { a: 'w−1', dn: 'B', dt: 'p' }
+      ],
+      marks: [{ i: 4, label: 'fondo colectivo' }],
+      spans: [{ from: 0, to: 3, label: 'aportaciones de cada cohorte', tone: 'a' }, { from: 4, to: 7, label: 'prestaciones', tone: 'p' }]
+    },
+    puc: {
+      ticks: [
+        { t: '2020', a: '30' }, { gap: true }, { t: '2024', a: '34' }, { t: '31/12/25', a: '35' }, { t: '2026', a: '36' },
+        { gap: true }, { t: '2054', a: '64' }, { t: '2055', a: '65', dn: 'pensión', dt: 'p', l: 'ä⁽¹²⁾₆₅' }, { t: '2056', a: '66', dn: 'pensión', dt: 'p' }, { gap: true, dn: '···' }
+      ],
+      marks: [{ i: 3, label: 'valoración' }],
+      arrows: [{ from: 7, to: 3, label: '× 1,035⁻³⁰ · ₃₀p₃₅', tone: 'p' }],
+      spans: [{ from: 0, to: 3, label: '5 años de servicio → AL', tone: 'f' }, { from: 2, to: 3, label: '2025 → NC', tone: 'a' }]
+    },
+    tir: {
+      ticks: [
+        { t: '0', a: '35', up: 'S₀', ut: 'a' }, { t: '1', a: '36', up: 'S₀·1,035', ut: 'a' }, { gap: true, up: '···' },
+        { t: '29', a: '64', up: 'S₀·1,035²⁹', ut: 'a' }, { t: '30', a: '65', dn: 'B₀', dt: 'p' },
+        { t: '31', a: '66', dn: 'B₀·1,025', dt: 'p' }, { gap: true, dn: '···' }, { t: '59', a: '94', dn: 'B₀·1,025²⁹', dt: 'p' }, { t: '60', a: '95' }
+      ],
+      marks: [{ i: 0, label: 'VA cotizaciones = VA pensiones ⇒ TIR = 5,336 %' }]
+    },
+    ucuenta: {
+      ticks: [
+        { t: '20/07/17', up: '6.000', ut: 'a', l: '60,00 p.' }, { t: '20/07/18', up: '6.000', ut: 'a', l: '63,40 p.' },
+        { t: '20/07/19', up: '6.000', ut: 'a', l: '76,21 p.' }, { gap: true, up: '···' },
+        { t: '20/07/24', up: '6.000', ut: 'a', l: '50,08 p.' }, { t: '20/07/25', up: '6.000', ut: 'a', l: '44,61 p.' },
+        { t: '15/12/25', up: '89.081,55', ut: 'f', l: '593,88 p.' }
+      ],
+      arrows: [{ from: 0, to: 6, label: '× (1+Rₘ)^(k+148/365)', tone: 'a' }]
+    },
+    q3: {
+      ticks: [
+        { t: '0', a: '28', up: 'S = ?', ut: 'a', uq: true, dn: 'C = ?', dt: 'p', dq: true, l: 'W = 100' },
+        { t: '1', a: '29', up: 'S', ut: 'a', dn: 'C', dt: 'p', l: 'W = 100' }, { gap: true, up: '···', dn: '···' },
+        { t: '36', a: '64', up: 'S', ut: 'a', dn: 'C', dt: 'p', l: 'W = 100' }, { t: '37', a: '65', dn: 'C', dt: 'p' },
+        { gap: true, dn: '···' }, { t: '66', a: '94', dn: 'C', dt: 'p' }, { t: '67', a: '95' }
+      ],
+      marks: [{ i: 0, label: '100·ä(37) = C·ä(67)' }],
+      spans: [{ from: 0, to: 3, label: 'N = 37', tone: 'a' }, { from: 4, to: 6, label: 'D = 30', tone: 'p' }]
+    },
+    q5: {
+      ticks: [
+        { t: '0', a: '27', up: 'S', ut: 'a' }, { t: '1', a: '28', up: 'S', ut: 'a' }, { gap: true, up: '···' },
+        { t: '9', a: '36', up: 'S', ut: 'a' }, { t: '10', a: '37', up: 'S', ut: 'a', dn: 'V₁₀ = ?', dt: 'f', dq: true },
+        { gap: true, up: '···' }, { t: '37', a: '64', up: 'S', ut: 'a' }, { t: '38', a: '65', dn: '85', dt: 'p' },
+        { gap: true, dn: '···' }, { t: '72', a: '99', dn: '85', dt: 'p' }
+      ],
+      marks: [{ i: 4, label: 't = 10' }],
+      arrows: [{ from: 0, to: 4, label: 'retrospectiva: S·VF(1;2 %;10)', tone: 'a' }, { from: 9, to: 4, label: 'prospectiva', tone: 'p' }]
+    },
+    q6: {
+      ticks: [
+        { t: '0', a: '27', up: 'S₀', ut: 'a' }, { t: '1', a: '28', up: 'S₀·1,025', ut: 'a' }, { gap: true, up: '···' },
+        { t: '37', a: '64', up: 'S₀·1,025³⁷', ut: 'a' }, { t: '38', a: '65', dn: 'C₀·1,025³⁸', dt: 'p' },
+        { t: '39', a: '66', dn: 'C₀·1,025³⁹', dt: 'p' }, { gap: true, dn: '···' }, { t: '72', a: '99', dn: 'C₀·1,025⁷²', dt: 'p' }
+      ],
+      marks: [{ i: 4, label: 'VF = VA al 4,55 % nominal' }],
+      arrows: [{ from: 0, to: 4, label: 'g = π = 2,5 %', tone: 'a' }]
+    },
+    q9: {
+      ticks: [
+        { t: 's = 1', up: 'PAYG₁·ΣW¹l¹', ut: 'a', dn: 'B₁l¹', dt: 'p' },
+        { t: 's = 2', up: 'PAYG₂·ΣW²l²', ut: 'a', dn: 'B₂l² + B₁l¹p', dt: 'p' },
+        { t: 's = 3', up: 'PAYG₃·ΣW³l³', ut: 'a', dn: 'B₃l³ + B₂l²p + B₁l¹·₂p', dt: 'p' }
+      ],
+      spans: [{ from: 0, to: 2, label: 'aportaciones y pagos en el mismo momento', tone: 'a' }]
+    }
+  };
+
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const len = (s) => [...String(s)].length;
+
+  function drawTimeline(spec) {
+    const ticks = spec.ticks, n = ticks.length;
+    const flowTexts = [];
+    ticks.forEach(t => ['up', 'dn', 't', 'a', 'l'].forEach(k => { if (t[k] != null && !t.gap) flowTexts.push(t[k]); }));
+    const longest = Math.max(2, ...flowTexts.map(len));
+    const step = Math.max(spec.compact ? 44 : 54, Math.min(180, longest * 7.4 + 16));
+    const arrows = spec.arrows || [], marks = spec.marks || [], spans = spec.spans || [];
+    const hasUp = ticks.some(t => t.up != null), hasDn = ticks.some(t => t.dn != null);
+    const hasA = ticks.some(t => t.a != null), hasL = ticks.some(t => t.l != null), hasT = ticks.some(t => t.t != null);
+    const markChars = Math.max(0, ...marks.map(m => len(m.label)), ...arrows.map(a => len(a.label)), ...spans.map(s => len(s.label)));
+    let padX = Math.max(30, step / 2 + 4);
+    let width = padX * 2 + step * (n - 1);
+    const minWidth = markChars * 7.2 + 40;
+    if (width < minWidth) { padX += (minWidth - width) / 2; width = minWidth; }
+    width = Math.round(width);
+    const X = (i) => padX + step * i;
+
+    const out = [];
+    let y = 4;
+    const arrowY = arrows.map(() => { y += 32; return y - 6; });
+    const markY = marks.length ? (y += 18) : null;
+    const axisY = (y += hasUp ? 54 : 22);
+    const dnLabelY = axisY + 44;
+    const tY = (hasDn ? dnLabelY : axisY + 4) + 20;
+    y = hasT ? tY : tY - 16;
+    const aY = hasA ? (y += 16) : null;
+    const lY = hasL ? (y += 16) : null;
+    const spanY = spans.map(() => { y += 30; return y - 12; });
+    const height = Math.round(y + 10);
+
+    const clampX = (x, chars) => {
+      const w = chars * 7.2;
+      if (x - w / 2 < 2) return { x: 2, anchor: 'start' };
+      if (x + w / 2 > width - 2) return { x: width - 2, anchor: 'end' };
+      return { x, anchor: 'middle' };
+    };
+
+    out.push(`<line class="tl-axis" x1="${X(0) - 18}" y1="${axisY}" x2="${X(n - 1) + 18}" y2="${axisY}"/>`);
+    marks.forEach(m => {
+      const x = X(m.i);
+      const top = ticks[m.i].up != null ? axisY - 26 : markY + 6;
+      out.push(`<line class="tl-mark" x1="${x}" y1="${top}" x2="${x}" y2="${hasDn ? axisY + 30 : axisY + 10}"/>`);
+      const p = clampX(x, len(m.label));
+      out.push(`<text class="tl-marktxt" x="${p.x}" y="${markY}" text-anchor="${p.anchor}">${esc(m.label)}</text>`);
+    });
+    ticks.forEach((t, i) => {
+      const x = X(i);
+      if (t.gap) {
+        out.push(`<text class="tl-t" x="${x}" y="${axisY + 4}" text-anchor="middle">···</text>`);
+        if (t.up) out.push(`<text class="tl-txt tl-lbl-w" x="${x}" y="${axisY - 32}" text-anchor="middle">···</text>`);
+        if (t.dn) out.push(`<text class="tl-txt tl-lbl-w" x="${x}" y="${dnLabelY}" text-anchor="middle">···</text>`);
+        return;
+      }
+      out.push(`<line class="tl-tick" x1="${x}" y1="${axisY - 5}" x2="${x}" y2="${axisY + 5}"/>`);
+      if (t.up != null) {
+        const tone = t.ut || 'a';
+        if (tone === 'f') out.push(`<rect class="tl-f" x="${x - 5}" y="${axisY - 19}" width="10" height="10" transform="rotate(45 ${x} ${axisY - 14})"/>`);
+        else out.push(`<rect class="tl-${tone}" x="${x - 2}" y="${axisY - 24}" width="4" height="24"/>`);
+        out.push(`<text class="tl-txt ${t.uq ? 'tl-q' : 'tl-lbl-' + tone}" x="${x}" y="${axisY - 32}" text-anchor="middle">${esc(t.up)}</text>`);
+      }
+      if (t.dn != null) {
+        const tone = t.dt || 'p';
+        if (tone === 'f') out.push(`<rect class="tl-f" x="${x - 5}" y="${axisY + 9}" width="10" height="10" transform="rotate(45 ${x} ${axisY + 14})"/>`);
+        else out.push(`<rect class="tl-${tone}" x="${x - 2}" y="${axisY}" width="4" height="24"/>`);
+        out.push(`<text class="tl-txt ${t.dq ? 'tl-q' : 'tl-lbl-' + tone}" x="${x}" y="${dnLabelY}" text-anchor="middle">${esc(t.dn)}</text>`);
+      }
+      if (t.t != null) out.push(`<text class="tl-t" x="${x}" y="${tY}" text-anchor="middle">${esc(t.t)}</text>`);
+      if (t.a != null) out.push(`<text class="tl-age" x="${x}" y="${aY}" text-anchor="middle">${esc(t.a)}</text>`);
+      if (t.l != null) out.push(`<text class="tl-l" x="${x}" y="${lY}" text-anchor="middle">${esc(t.l)}</text>`);
+    });
+    arrows.forEach((a, k) => {
+      const yy = arrowY[k], x1 = X(a.from), x2 = X(a.to), dir = x2 > x1 ? 1 : -1, tone = a.tone || 'a';
+      out.push(`<line class="tl-line tl-${tone}" x1="${x1}" y1="${yy}" x2="${x2 - dir * 6}" y2="${yy}"/>`);
+      out.push(`<path class="tl-${tone}" d="M${x2} ${yy} l${-dir * 8} -4 l0 8 z"/>`);
+      out.push(`<circle class="tl-${tone}" cx="${x1}" cy="${yy}" r="2.5"/>`);
+      const p = clampX((x1 + x2) / 2, len(a.label));
+      out.push(`<text class="tl-txt tl-lbl-${tone}" x="${p.x}" y="${yy - 7}" text-anchor="${p.anchor}">${esc(a.label)}</text>`);
+    });
+    spans.forEach((s, k) => {
+      const yy = spanY[k], x1 = X(s.from), x2 = X(s.to), tone = s.tone || 'a';
+      out.push(`<path class="tl-line tl-${tone}" d="M${x1} ${yy - 5} V${yy} H${x2} V${yy - 5}"/>`);
+      const p = clampX((x1 + x2) / 2, len(s.label));
+      out.push(`<text class="tl-txt tl-lbl-${tone}" x="${p.x}" y="${yy + 15}" text-anchor="${p.anchor}">${esc(s.label)}</text>`);
+    });
+    return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(spec.aria || 'Línea temporal de flujos')}">${out.join('')}</svg>`;
+  }
+
+  document.querySelectorAll('figure.tl[data-tl]').forEach(fig => {
+    const spec = TL[fig.dataset.tl];
+    const box = fig.querySelector('.tl-scroll');
+    if (spec && box) box.innerHTML = drawTimeline(spec);
+  });
+
+  // ---------- Calculadora ----------
+  const $ = (id) => document.getElementById(id);
+  const VA = (R, n, g) => { let s = 0; for (let i = 0; i < n; i++) s += Math.pow((1 + g) / (1 + R), i); return s; };
+  const VF = (R, n, g) => { let s = 0; for (let i = 0; i < n; i++) s += Math.pow(1 + g, i) * Math.pow(1 + R, n - i); return s; };
+  const fmt = (v, d = 4) => Number.isFinite(v) ? v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–';
+
+  function calc() {
+    const W = +$('cW').value, R = +$('cR').value / 100, g = +$('cG').value / 100, pi = +$('cP').value / 100;
+    const N = Math.round(+$('cN').value), D = Math.round(+$('cD').value), t = Math.round(+$('cT').value);
+    if (!(N > 0 && D > 0)) return;
+    const C0 = W * VA(R, N, g) / VA(R, N + D, g);
+    const S0 = W - C0;
+    const a = VF(R, N, g) / VA(R, D, g);
+    $('oC').textContent = fmt(C0); $('oS').textContent = fmt(S0);
+    $('oA').textContent = fmt(a); $('oAr').textContent = fmt(a / Math.pow(1 + pi, N));
+    $('oTS').textContent = fmt((C0 / W) * (1 + g) * 100, 2) + ' %';
+    $('oV').textContent = t > N || t < 0 ? 'solo 0 ≤ t ≤ N' : fmt(S0 * VF(R, t, g));
+  }
+  const presets = {
+    clase: { cW: 1, cR: 6.168, cG: 2, cP: 2, cN: 40, cD: 30, cT: 10 },
+    p3: { cW: 100, cR: 2, cG: 0, cP: 0, cN: 37, cD: 30, cT: 10 },
+    p6: { cW: 100, cR: 4.55, cG: 2.5, cP: 2.5, cN: 38, cD: 35, cT: 10 }
+  };
+  document.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => {
+    const p = presets[b.dataset.preset]; Object.keys(p).forEach(k => { $(k).value = p[k]; }); calc();
+  }));
+  document.querySelectorAll('.calc input').forEach(i => i.addEventListener('input', calc));
+  calc();
+  $('openAll').addEventListener('click', () => document.querySelectorAll('#cards details').forEach(d => { d.open = true; }));
+  $('closeAll').addEventListener('click', () => document.querySelectorAll('#cards details').forEach(d => { d.open = false; }));
+})();
+</script>

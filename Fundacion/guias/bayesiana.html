@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Guía de Estadística bayesiana: regla de Bayes, Beta–Binomial, regresión logística de Berkeley, MCMC (Metropolis–Hastings, Gibbs, HMC), JAGS, Stan y PyMC, datos incompletos con EM y datos longitudinales, con laboratorios interactivos y código en R y Python.">
+<title>Estadística bayesiana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<style>
+
+/* Layout: una columna de lectura (~70ch) con índice fijo arriba; cada apartado lleva su línea temporal de flujos, las fórmulas van en fichas y las preguntas en bloques con filete lateral. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #16202b;
+  --muted: #57667a;
+  --rule: #d6dde6;
+  --accent: #1559a6;
+  --accent-soft: #dce8f5;
+  --pres: #9a5b12;
+  --pres-soft: #f6ead8;
+  --unknown: #b3261e;
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --ok: #1c7a4a; --ok-soft: #dcefe4;
+  --code-bg: #eaeff5;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1822; --surface: #162330; --ink: #e4ebf3; --muted: #9fb0c4; --rule: #2a3c4f;
+    --accent: #7bbcf3; --accent-soft: #1b3550; --pres: #e3a95b; --pres-soft: #3a2c19; --unknown: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1822; --surface: #162330; --ink: #e4ebf3; --muted: #9fb0c4; --rule: #2a3c4f;
+  --accent: #7bbcf3; --accent-soft: #1b3550; --pres: #e3a95b; --pres-soft: #3a2c19; --unknown: #ff8a80;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 800px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
+nav.toc .in { max-width: 800px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; display: flex; gap: 6px 18px; flex-wrap: wrap; font-size: 13px; }
+nav.toc a { color: var(--muted); text-decoration: none; font-weight: 500; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(32px, 6vw, 46px); line-height: 1.08; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1.2; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--font-display); font-size: 21px; font-weight: 700; margin: 0; text-wrap: balance; }
+h4 { font-size: 16px; font-weight: 600; margin: 0; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 62ch; }
+
+section { padding-top: 48px; display: grid; gap: 18px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.sub { display: grid; gap: 14px; padding-top: 10px; scroll-margin-top: 56px; }
+.stack { display: grid; gap: 14px; }
+
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.math { overflow-x: auto; overflow-y: hidden; }
+.tag { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.note { font-size: 14px; color: var(--muted); }
+ul.tight { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.tbl { overflow-x: auto; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* Líneas temporales */
+figure.tl { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.tl-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+.tl-scroll svg { display: block; margin: 0 auto; }
+figure.tl figcaption { font-size: 14px; color: var(--muted); }
+.tl-axis { stroke: var(--ink); stroke-opacity: .55; fill: none; }
+.tl-tick { stroke: var(--ink); stroke-opacity: .55; }
+.tl-txt { font-family: var(--font-data); font-size: 12px; fill: var(--ink); }
+.tl-t { font-family: var(--font-data); font-size: 12px; fill: var(--muted); }
+.tl-age { font-family: var(--font-data); font-size: 11px; fill: var(--muted); }
+.tl-l { font-family: var(--font-data); font-size: 11px; fill: var(--muted); font-style: italic; }
+.tl-mark { stroke: var(--ink); stroke-dasharray: 3 3; stroke-opacity: .7; fill: none; }
+.tl-marktxt { font-family: var(--font-data); font-size: 12px; font-weight: 500; fill: var(--ink); }
+.tl-a { fill: var(--accent); stroke: var(--accent); }
+.tl-p { fill: var(--pres); stroke: var(--pres); }
+.tl-w { fill: var(--muted); stroke: var(--muted); }
+.tl-f { fill: var(--ink); stroke: var(--ink); }
+.tl-lbl-a { fill: var(--accent); }
+.tl-lbl-p { fill: var(--pres); }
+.tl-lbl-w { fill: var(--muted); }
+.tl-lbl-f { fill: var(--ink); font-weight: 500; }
+.tl-q { fill: var(--unknown); font-weight: 600; }
+.tl-line { fill: none; stroke-width: 1.4; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 4px; height: 14px; }
+.legend i.a { background: var(--accent); } .legend i.p { background: var(--pres); } .legend i.w { background: var(--muted); }
+.legend i.f { width: 9px; height: 9px; background: var(--ink); transform: rotate(45deg); }
+.legend b { color: var(--unknown); font-family: var(--font-data); }
+
+.q { border-left: 3px solid var(--pres); background: var(--surface); border-radius: 0 6px 6px 0; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; scroll-margin-top: 56px; }
+.q .qn { font-family: var(--font-data); font-size: 12px; color: var(--pres); font-weight: 500; letter-spacing: .04em; }
+.q .stmt { font-family: var(--font-display); font-style: italic; font-size: 17px; }
+.result { background: var(--pres-soft); border-radius: 4px; padding: 8px 12px; font-family: var(--font-data); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+details.fc { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
+details.fc summary { cursor: pointer; padding: 12px 16px; font-weight: 500; list-style: none; display: flex; gap: 10px; }
+details.fc summary::-webkit-details-marker { display: none; }
+details.fc summary::before { content: "+"; font-family: var(--font-data); color: var(--accent); }
+details.fc[open] summary::before { content: "−"; }
+details.fc .ans { padding: 0 16px 14px 34px; display: grid; gap: 8px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; }
+
+button { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 4px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+.calc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .calc { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.calc label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.calc input { font-family: var(--font-data); font-size: 15px; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.out div { background: var(--accent-soft); border-radius: 4px; padding: 8px 12px; display: grid; gap: 2px; }
+.out span { font-size: 12px; color: var(--muted); }
+.out b { font-family: var(--font-data); font-weight: 500; font-size: 18px; font-variant-numeric: tabular-nums; }
+mjx-container[display="true"] { margin: 6px 0 !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* --- Simulación: extras --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ok: #6fd39b; --ok-soft: #173326; --code-bg: #0c141c; }
+}
+:root[data-theme="dark"] { --ok: #6fd39b; --ok-soft: #173326; --code-bg: #0c141c; }
+
+nav.toc .in { gap: 6px 14px; font-size: 12.5px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; background: var(--pres-soft); color: var(--pres); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 600; }
+.chip b { font-family: var(--font-data); font-weight: 500; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.src { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.src b { color: var(--accent); font-weight: 500; }
+
+.legend i.a { background: var(--accent); } .legend i.p { background: var(--pres); }
+.legend i.ok { background: var(--ok); } .legend i.bad { background: var(--unknown); }
+
+.callout { border-left: 3px solid var(--unknown); background: var(--surface); border-radius: 0 6px 6px 0; padding: 12px 16px; display: grid; gap: 6px; font-size: 15px; }
+.callout.tip { border-left-color: var(--ok); }
+.callout.key { border-left-color: var(--accent); }
+.callout h4 { font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+
+/* Código */
+.code { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; min-width: 0; overflow: hidden; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 10px 6px 14px; border-bottom: 1px solid var(--rule); font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.code-head .fname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.code-head .badge { color: var(--pres); }
+.code-head button { padding: 2px 10px; font-size: 12px; flex: none; }
+.code pre { margin: 0; padding: 12px 14px; overflow: auto; max-height: 560px; font-family: var(--font-data); font-size: 12.5px; line-height: 1.55; tab-size: 2; }
+.code pre code { font-family: inherit; white-space: pre; }
+.c-com { color: var(--muted); font-style: italic; }
+.c-str { color: var(--pres); }
+.c-num { color: var(--accent); }
+.c-kw { color: var(--accent); font-weight: 600; }
+.c-fn { color: var(--ink); font-weight: 500; }
+.c-op { color: var(--muted); }
+details.codebox > summary { cursor: pointer; font-weight: 500; padding: 4px 0; list-style: none; display: flex; gap: 10px; }
+details.codebox > summary::-webkit-details-marker { display: none; }
+details.codebox > summary::before { content: "▸"; color: var(--accent); font-family: var(--font-data); }
+details.codebox[open] > summary::before { content: "▾"; }
+.walk { margin: 0; padding-left: 22px; display: grid; gap: 5px; font-size: 14.5px; }
+.walk li::marker { color: var(--accent); font-family: var(--font-data); font-size: 12px; }
+.walk code, p code, td code, li code, .note code { font-family: var(--font-data); font-size: .88em; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; }
+
+/* Figuras */
+figure.fig { margin: 0; display: grid; gap: 6px; min-width: 0; }
+figure.fig figcaption { font-size: 14px; color: var(--muted); }
+.fig .tl-scroll > svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.ax { stroke: var(--ink); stroke-opacity: .55; fill: none; }
+.gr { stroke: var(--rule); fill: none; }
+.tx { font-family: var(--font-data); font-size: 11px; fill: var(--muted); }
+.tx-l { font-family: var(--font-data); font-size: 11.5px; fill: var(--ink); }
+.tx-b { font-family: var(--font-data); font-size: 12px; fill: var(--ink); font-weight: 500; }
+.tx-w { fill: var(--muted); } .tx-a { fill: var(--accent); } .tx-p { fill: var(--pres); } .tx-ok { fill: var(--ok); } .tx-bad { fill: var(--unknown); }
+.s-a { stroke: var(--accent); } .s-p { stroke: var(--pres); } .s-ok { stroke: var(--ok); } .s-bad { stroke: var(--unknown); } .s-ink { stroke: var(--ink); } .s-w { stroke: var(--muted); }
+.f-a { fill: var(--accent); } .f-p { fill: var(--pres); } .f-ok { fill: var(--ok); } .f-bad { fill: var(--unknown); } .f-ink { fill: var(--ink); } .f-w { fill: var(--muted); }
+.f-as { fill: var(--accent-soft); } .f-ps { fill: var(--pres-soft); } .f-oks { fill: var(--ok-soft); } .f-surf { fill: var(--surface); }
+.ln { fill: none; stroke-width: 2; }
+.ln.thin { stroke-width: 1.2; } .ln.dash { stroke-dasharray: 5 4; }
+.o50 { fill-opacity: .5; } .o25 { fill-opacity: .28; } .o70 { fill-opacity: .72; }
+.node rect { fill: var(--surface); stroke-width: 1.6; }
+.node text { font-family: var(--font-data); font-size: 12px; fill: var(--ink); }
+.node .sub { font-size: 10.5px; fill: var(--muted); }
+
+/* Laboratorios */
+.lab { border: 1px dashed var(--accent); border-radius: 6px; padding: 14px 16px; display: grid; gap: 12px; background: color-mix(in srgb, var(--accent-soft) 35%, transparent); min-width: 0; }
+.lab > .lab-title { font-family: var(--font-data); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+.ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; }
+.ctl label { display: grid; gap: 3px; font-size: 12.5px; color: var(--muted); min-width: 0; }
+.ctl input, .ctl select { font-family: var(--font-data); font-size: 14px; padding: 5px 7px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.ctl input[type=range] { padding: 0; accent-color: var(--accent); }
+.ctl .val { font-family: var(--font-data); color: var(--ink); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.stats div { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; display: grid; gap: 1px; }
+.stats span { font-size: 11.5px; color: var(--muted); }
+.stats b { font-family: var(--font-data); font-weight: 500; font-size: 15px; font-variant-numeric: tabular-nums; }
+.stats b.ok { color: var(--ok); } .stats b.bad { color: var(--unknown); }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .grid3 { grid-template-columns: 1fr; } }
+.seq { font-family: var(--font-data); font-size: 12.5px; word-break: break-word; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; }
+.mini { font-size: 13px; }
+.mini th, .mini td { padding: 4px 8px; }
+table.plain td, table.plain th { white-space: normal; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-family: var(--font-data); font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.pill.p { background: var(--pres-soft); color: var(--pres); }
+nav.toc a.exam { color: var(--pres); }
+footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 14px; font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+
+.mini td.num, .mini th { text-align: center; }
+
+
+/* --- Bayes: extras --- */
+.code-head { flex-wrap: wrap; }
+.code-tabs { display: inline-flex; gap: 4px; }
+.code-tabs button { padding: 2px 10px; font-size: 12px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); background: transparent; }
+.code-tabs button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.code pre[hidden] { display: none; }
+ol.walk { padding-left: 24px; }
+.q .result { overflow-x: auto; }
+.lab .fig { margin: 0; }
+.mini td.num, .mini th { text-align: center; }
+nav.toc .in { gap: 6px 14px; }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Índice">
+  <div class="in">
+    <a href="../" target="_top">← Gedankenpalast</a>
+    <a href="#mapa">Mapa</a>
+    <a href="#b1">1 · Bayes</a>
+    <a href="#b2">2 · Berkeley</a>
+    <a href="#b3">3 · MCMC</a>
+    <a href="#b4">4 · Software</a>
+    <a href="#b5">5 · Flujo de trabajo</a>
+    <a href="#b6">6 · Datos incompletos</a>
+    <a href="#b7">7 · Longitudinales</a>
+    <a href="#preguntas">Preguntas</a>
+    <a href="#tarjetas">Tarjetas</a>
+  </div>
+</nav>
+
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Francesco Ungolo (UNSW Sydney)</div>
+  <h1>Estadística bayesiana: modelos, inferencia y computación</h1>
+  <p class="lede">Guía de estudio de las tres lecciones del curso. Se parte de la regla de Bayes con un ejemplo exacto (Beta–Binomial), se llega a un modelo logístico que ya no tiene solución cerrada y se aprende a muestrear su posterior (Metropolis–Hastings, Gibbs, Hamiltoniano). Después se aplica la misma idea a lo que no se observa: datos faltantes (algoritmo EM) y efectos aleatorios de datos longitudinales. Cada método lleva su diagrama, un laboratorio que puedes mover y el código en <b>R</b> y en <b>Python</b>.</p>
+  <div class="hero-meta">
+    <span class="chip">Lecciones 1 a 3 · <b>8 laboratorios</b> · <b>13 bloques de código</b></span>
+    <span class="src">Diapositivas: <b>Francesco Ungolo</b>, UNSW Sydney / Universidad de Alcalá</span>
+  </div>
+  <figure class="fig" id="f_mapa">
+    <div class="tl-scroll"></div>
+    <figcaption>La idea de toda la guía: combinar lo que se sabía con lo que dicen los datos; si la cuenta no sale a mano, se aproxima con muestras.</figcaption>
+  </figure>
+  <div class="legend" aria-label="Leyenda de los diagramas">
+    <span><i class="a"></i>entrada o dato</span>
+    <span><i class="p"></i>resultado</span>
+    <span><i class="f"></i>decisión o regla</span>
+    <span><i class="ok"></i>aceptado</span>
+    <span><i class="bad"></i>rechazado</span>
+  </div>
+</header>
+
+<section id="mapa">
+  <div class="sec-head"><div class="eyebrow">Qué entra</div><h2>Mapa de la guía</h2></div>
+  <div class="tbl"><table class="plain">
+    <thead><tr><th>Bloque</th><th>Contenido</th><th>Lección</th><th>Lab</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#b1">1 · Regla de Bayes</a></td><td>A priori, verosimilitud, posterior, conjugación Beta–Binomial, predicción</td><td>3</td><td>Beta–Binomial</td></tr>
+      <tr><td><a href="#b2">2 · Berkeley</a></td><td>Regresión logística bayesiana, paradoja de Simpson, a prioris y su chequeo previo</td><td>3</td><td>A priori predictiva</td></tr>
+      <tr><td><a href="#b3">3 · MCMC</a></td><td>Metropolis–Hastings, convergencia (R̂, ESS), Gibbs, HMC y NUTS, inferencia variacional</td><td>3</td><td>Cadenas · Muestreadores · Gibbs</td></tr>
+      <tr><td><a href="#b4">4 · Software</a></td><td>JAGS, Stan y PyMC; resumen de la posterior, chequeo predictivo, predicción</td><td>3</td><td>Berkeley en vivo</td></tr>
+      <tr><td><a href="#b5">5 · Flujo de trabajo</a></td><td>Qué método elegir, flujo bayesiano en cinco pasos, ajuste frente a predicción</td><td>3</td><td>—</td></tr>
+      <tr><td><a href="#b6">6 · Datos incompletos</a></td><td>MCAR, MAR, MNAR; verosimilitud observada; algoritmo EM con la regla de Bayes dentro</td><td>1</td><td>Datos faltantes</td></tr>
+      <tr><td><a href="#b7">7 · Datos longitudinales</a></td><td>Modelo lineal mixto, efectos aleatorios como a priori, encogimiento, GLMM</td><td>2</td><td>Encogimiento</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout key">
+    <h4>El hilo común de las tres lecciones</h4>
+    <p>Siempre hay algo que no se ve y se trata con probabilidad. En la Lección 3 es el <b>parámetro</b> \(\theta\); en la Lección 1 es el <b>dato faltante</b> \(x_{mis}\), cuya distribución condicionada sale de la regla de Bayes (el peso \(w_i\) del paso E); en la Lección 2 es el <b>efecto aleatorio</b> \(b_i\), una a priori normal cuya media a posteriori es el BLUP. Por eso las tres caben en un mismo punto del atlas.</p>
+  </div>
+  <div class="callout tip">
+    <h4>Cómo leer el código</h4>
+    <p>Cada bloque tiene dos pestañas, <b>R</b> y <b>Python</b>, con el mismo orden de pasos. Una etiqueta <span class="pill">curso</span> indica que el código sigue las diapositivas; <span class="pill p">complemento</span> indica que lo añade esta guía. Los bloques de Python con <code>numpy</code>, <code>scipy</code> y <code>statsmodels</code> se han ejecutado y reproducen las cifras de las diapositivas; los de <code>PyMC</code>, <code>Stan</code>, <code>arviz</code> y <code>bambi</code> necesitan esos paquetes instalados y no se han podido ejecutar aquí. Los laboratorios de la página corren en tu navegador con su propio generador, así que sus cifras coinciden con las de R solo hasta el ruido de Monte Carlo.</p>
+  </div>
+</section>
+<!-- ===================================================== 1 -->
+<section id="b1">
+  <div class="sec-head"><div class="eyebrow">Lección 3 · Tema 1</div><h2>La regla de Bayes y el modelo Beta–Binomial</h2></div>
+  <p class="note">Idea que lo une todo: el parámetro desconocido \(\theta\) deja de ser un número fijo y pasa a ser una variable aleatoria. Se le da una distribución antes de ver los datos (la <b>a priori</b>) y los datos la actualizan (la <b>posterior</b>).</p>
+
+  <div class="sub" id="b1-fb">
+    <h3>1.1 Frecuentista frente a bayesiano</h3>
+    <div class="grid2">
+      <div class="card"><span class="tag">Frecuentista</span>
+        <p>\(Y\sim f(y\mid\theta)\) con \(\theta\) <b>fijo</b>. Con una muestra \(y=(y_1,\dots,y_n)\) se estima \(\theta\) con la verosimilitud \(L(\theta\mid y)\) y se mide la incertidumbre por muestreo repetido.</p>
+      </div>
+      <div class="card"><span class="tag">Bayesiano</span>
+        <p>\(\theta\) es <b>aleatorio</b> con distribución \(\pi(\theta)\), elegida con estudios previos, conocimiento experto y el problema. La verosimilitud la actualiza y da la posterior.</p>
+        <div class="math">\[ \pi(\theta\mid y)\;\propto\;L(\theta\mid y)\,\pi(\theta) \]</div>
+      </div>
+    </div>
+    <div class="card"><span class="tag">Regla de Bayes con datos iid</span>
+      <div class="math">\[ \pi(\theta\mid y)=\frac{f(y\mid\theta)\,\pi(\theta)}{f(y)},\qquad f(y\mid\theta)=\prod_{i=1}^n f(y_i\mid\theta),\qquad f(y)=\int_\Theta f(y\mid\theta)\,\pi(\theta)\,d\theta \]</div>
+      <p class="note">\(f(y)\) es la distribución de \(y\) marginalizada respecto del «latente» \(\theta\). Para un \(y\) observado es solo la <b>constante normalizadora</b> que hace que la posterior integre (o sume) 1. Por eso se escribe \(\propto\): lo que importa es la forma.</p>
+    </div>
+    <p>La posterior sirve para tres cosas: <b>describir</b> la incertidumbre sobre \(\theta\), <b>predecir</b> observaciones futuras y <b>chequear</b> el modelo. La respuesta incluye siempre una estimación y una medida de su incertidumbre, con supuestos que se pueden inspeccionar y revisar.</p>
+  </div>
+
+  <div class="sub" id="b1-bb">
+    <h3>1.2 Ejemplo: probabilidad de admisión (Berkeley, 1973)</h3>
+    <p>Se mira a las mujeres que solicitaron plaza en el departamento codificado como A: <b>89 admitidas de 108</b>, es decir \(\hat p=89/108=0{,}824\). Sea \(Y_i=1\) si la solicitante es admitida: \(Y_i\mid p\sim\text{Bernoulli}(p)\), y la suma \(z=\sum y_i\) es una \(\text{Binomial}(n,p)\). La pregunta es cuánta incertidumbre queda sobre \(p\) tras ver esos recuentos.</p>
+    <div class="card"><span class="tag">Derivación de la posterior (conjugación)</span>
+      <div class="math">\[ \pi(p\mid y)\propto \underbrace{p^{z}(1-p)^{n-z}}_{\text{verosimilitud}}\;\underbrace{p^{a-1}(1-p)^{b-1}}_{\text{a priori Beta}(a,b)}\propto p^{a+z-1}(1-p)^{b+n-z-1}\ \Rightarrow\ p\mid z\sim\text{Beta}(a+z,\;b+n-z) \]</div>
+      <p class="note">La posterior queda en la <b>misma familia</b> que la a priori: eso es la conjugación. Los parámetros de la posterior suman a los de la a priori los éxitos y los fracasos observados. Con \(\text{Beta}(1,1)\) (uniforme) y 89/108 sale \(\text{Beta}(90,20)\).</p>
+    </div>
+    <div class="card"><span class="tag">La media a posteriori es un promedio ponderado</span>
+      <div class="math">\[ E(p\mid z)=\frac{a+z}{a+b+n}=\underbrace{\frac{a+b}{a+b+n}}_{\text{peso de la a priori}}\;\underbrace{\frac{a}{a+b}}_{\text{media a priori}}\;+\;\underbrace{\frac{n}{a+b+n}}_{\text{peso de los datos}}\;\underbrace{\frac{z}{n}}_{\text{proporción observada}} \]</div>
+      <p class="note">Con \(a=b=1\), \(z=89\), \(n=108\) los pesos son \(2/110\) y \(108/110\): por eso la media (0,818) es cercana, pero no igual, a 89/108.</p>
+    </div>
+
+    <div class="lab" id="lab-bb">
+      <div class="lab-title">Laboratorio · Beta–Binomial</div>
+      <div class="ctl">
+        <label>a (a priori)<input id="bb_a" type="number" value="1" min="0.1" step="0.5"></label>
+        <label>b (a priori)<input id="bb_b" type="number" value="1" min="0.1" step="0.5"></label>
+        <label>admitidas z<input id="bb_z" type="number" value="89" min="0"></label>
+        <label>solicitantes n<input id="bb_n" type="number" value="108" min="0"></label>
+        <label>umbral \(p_0\)<input id="bb_t" type="number" value="0.8" min="0" max="1" step="0.05"></label>
+        <label>nuevas \(m\)<input id="bb_m" type="number" value="10" min="1" max="60"></label>
+      </div>
+      <div class="tools">
+        <button type="button" data-bb="1,1,89,108">Uniforme · Berkeley A</button>
+        <button type="button" data-bb="10,10,89,108">Beta(10,10) · mismos datos</button>
+        <button type="button" data-bb="10,10,890,1080">Beta(10,10) · 10× datos</button>
+        <button type="button" data-bb="73,29,89,108">Cohorte previa Beta(73,29)</button>
+        <button type="button" data-bb="7,3,89,108">Experto Beta(7,3)</button>
+        <button type="button" data-bb="1,1,0,0">Sin datos</button>
+      </div>
+      <figure class="fig" id="f_bb1"><div class="tl-scroll"></div>
+        <figcaption>A priori, verosimilitud reescalada y posterior. La zona sombreada es el intervalo creíble central al 95 %; la línea de puntos marca la proporción observada.</figcaption></figure>
+      <div class="legend"><span><i class="p"></i>a priori</span><span><i class="w"></i>verosimilitud (reescalada a área 1)</span><span><i class="a"></i>posterior</span></div>
+      <div class="stats" id="bb_stats"></div>
+      <figure class="fig" id="f_bb2"><div class="tl-scroll"></div>
+        <figcaption>Predictiva posterior del número de admitidas entre \(m\) solicitantes nuevas. Incluye la incertidumbre sobre \(p\) y la variación binomial de los casos nuevos; las barras azules forman el intervalo central al 95 %.</figcaption></figure>
+    </div>
+    <p class="note">Prueba esto: con Beta(10,10) y los datos de Berkeley la media baja a 0,773 (la a priori pesa un 15,6 %); con diez veces más datos pero la misma proporción, la media vuelve a 0,818 (la a priori solo pesa un 1,8 %). Con «Sin datos» la posterior es la a priori.</p>
+
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>A priori</th><th>Datos</th><th>Posterior</th><th>Peso a priori</th><th>Media</th></tr></thead>
+      <tbody>
+        <tr><td>Beta(1, 1)</td><td>89 / 108</td><td>Beta(90, 20)</td><td class="num">1,8 %</td><td class="num">0,818</td></tr>
+        <tr><td>Beta(10, 10)</td><td>89 / 108</td><td>Beta(99, 29)</td><td class="num">15,6 %</td><td class="num">0,773</td></tr>
+        <tr><td>Beta(10, 10)</td><td>890 / 1 080</td><td>Beta(900, 200)</td><td class="num">1,8 %</td><td class="num">0,818</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="card"><span class="tag">Resumen de Beta(90, 20)</span>
+      <ul class="tight">
+        <li>Proporción observada \(89/108=0{,}824\); media a posteriori \(90/110=0{,}818\).</li>
+        <li>Intervalo creíble central al 95 %: \([0{,}741,\;0{,}884]\) (cuantiles 2,5 % y 97,5 % de la posterior).</li>
+        <li>Probabilidad directa sobre el parámetro: \(P(p>0{,}80\mid z)=0{,}703\). Es un enunciado que un intervalo de confianza frecuentista no puede hacer.</li>
+        <li>Predicción para \(m=10\): \(E(Z_{new}\mid z)=10(0{,}818)=8{,}18\), intervalo predictivo \([5,10]\).</li>
+      </ul>
+    </div>
+    <div class="card"><span class="tag">Predictiva posterior</span>
+      <div class="math">\[ P(Z_{new}=j\mid z)=\int_0^1\binom{m}{j}p^j(1-p)^{m-j}\,\pi(p\mid z)\,dp=\binom{m}{j}\frac{B(a+z+j,\;b+n-z+m-j)}{B(a+z,\;b+n-z)} \]</div>
+      <p class="note">Es la distribución Beta–Binomial. Si se sustituyese \(p\) por una sola estimación, el intervalo saldría demasiado estrecho.</p>
+    </div>
+
+    <h4>Cómo elegir la a priori</h4>
+    <div class="grid3">
+      <div class="card"><span class="tag">Análisis previos</span><p>Si en una cohorte comparable 72 de 100 fueron admitidos, actualizar \(\text{Beta}(1,1)\) con ellos da \(\text{Beta}(73,29)\) como a priori para la cohorte nueva.</p></div>
+      <div class="card"><span class="tag">Opinión experta</span><p>Si un experto espera cerca de un 70 % pero con bastante duda, \(\text{Beta}(7,3)\) tiene media 0,70 y concentración moderada. \(a/(a+b)\) es la media; \(a+b\) controla cuánto se concentra.</p></div>
+      <div class="card"><span class="tag">No informativa</span><p>\(\text{Beta}(1,1)\) es uniforme en \([0,1]\). Se usa para expresar falta de información, pero conviene comprobar que expresa un conocimiento razonable.</p></div>
+    </div>
+    <div class="callout key">
+      <h4>Chequeo predictivo a priori</h4>
+      <p>Antes de ver \(y=89\): se simula \(p^{(s)}\sim\pi(p)\) y \(Z^{(s)}\mid p^{(s)}\sim\text{Binomial}(108,p^{(s)})\) y se mira si esos recuentos son plausibles. Si no lo son, se replantea la a priori <b>antes</b> de usar los datos. Después se compara cómo cambia la posterior con distintas a prioris (sensibilidad). La conjugación da comodidad de cálculo, pero no sustituye a una a priori plausible.</p>
+    </div>
+
+    <div class="codepair" data-file="Beta–Binomial exacta: Berkeley, departamento A, mujeres" data-src="curso">
+<script type="text/x-r">
+# 89 admitidas de 108 solicitantes; a priori uniforme Beta(1, 1)
+z <- 89; n <- 108; a <- 1; b <- 1
+post_a <- a + z; post_b <- b + n - z            # posterior: Beta(90, 20)
+
+post_a / (post_a + post_b)                      # media a posteriori = 0.818
+qbeta(c(0.025, 0.5, 0.975), post_a, post_b)     # 0.741 0.820 0.884
+1 - pbeta(0.8, post_a, post_b)                  # P(p > 0.8 | y) = 0.703
+
+# Predictiva exacta (Beta-Binomial) para m = 10 solicitantes nuevas
+m <- 10
+pred_pmf <- sapply(0:m, function(k)
+  choose(m, k) * beta(post_a + k, post_b + m - k) / beta(post_a, post_b))
+cdf <- cumsum(pred_pmf)
+c(media = sum(0:m * pred_pmf),                  # 8.18
+  inf = which(cdf >= 0.025)[1] - 1,             # 5
+  sup = which(cdf >= 0.975)[1] - 1)             # 10
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy import stats
+
+# 89 admitidas de 108 solicitantes; a priori uniforme Beta(1, 1)
+z, n, a, b = 89, 108, 1, 1
+post_a, post_b = a + z, b + n - z               # posterior: Beta(90, 20)
+post = stats.beta(post_a, post_b)
+
+print(post.mean())                              # 0.818
+print(post.ppf([0.025, 0.5, 0.975]))            # 0.741 0.820 0.884
+print(post.sf(0.8))                             # P(p > 0.8 | y) = 0.703
+
+# Predictiva exacta (Beta-Binomial) para m = 10 solicitantes nuevas
+m = 10
+k = np.arange(m + 1)
+pred_pmf = stats.betabinom(m, post_a, post_b).pmf(k)
+cdf = pred_pmf.cumsum()
+print((k * pred_pmf).sum(),                     # 8.18
+      k[np.argmax(cdf >= 0.025)],               # 5
+      k[np.argmax(cdf >= 0.975)])               # 10
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>post_a, post_b</code></b> suman a la a priori los éxitos y los fracasos: la actualización completa es una suma.</li>
+      <li><b><code>qbeta</code> / <code>post.ppf</code></b> devuelven cuantiles de la posterior; los de 2,5 % y 97,5 % forman el intervalo creíble central.</li>
+      <li><b><code>1 - pbeta(0.8, …)</code> / <code>post.sf(0.8)</code></b> es \(P(p>0{,}8\mid y)\). <code>sf</code> es la función de supervivencia, \(1-F\).</li>
+      <li><b><code>pred_pmf</code></b> aplica la fórmula Beta–Binomial: las funciones <code>beta</code> evitan integrar a mano.</li>
+      <li><b><code>which(cdf >= …)</code></b> busca el primer valor cuya acumulada llega al 2,5 % y al 97,5 %; el <code>- 1</code> pasa de posición a recuento porque R cuenta desde 1.</li>
+    </ul>
+    <div class="codepair" data-file="Sensibilidad a la a priori y chequeo predictivo a priori" data-src="complemento">
+<script type="text/x-r">
+z <- 89; n <- 108
+
+# Mismos datos, distintas a prioris: media y IC creíble al 95 %
+for (pr in list(c(1, 1), c(10, 10), c(73, 29), c(7, 3))) {
+  pa <- pr[1] + z; pb <- pr[2] + n - z
+  cat(sprintf("Beta(%d,%d) -> Beta(%d,%d): media %.3f  IC95 [%.3f, %.3f]\n",
+              pr[1], pr[2], pa, pb, pa / (pa + pb),
+              qbeta(.025, pa, pb), qbeta(.975, pa, pb)))
+}
+
+# Peso de la a priori Beta(10, 10): (a + b) / (a + b + n)
+c(n_108 = 20 / (20 + 108), n_1080 = 20 / (20 + 1080))   # 15.6 % y 1.8 %
+
+# Chequeo predictivo a priori: qué recuento predice Beta(1, 1) con 108 solicitantes
+set.seed(1)
+p_sim <- rbeta(10000, 1, 1)                     # p(s) ~ pi(p)
+z_sim <- rbinom(10000, 108, p_sim)              # Z(s) | p(s) ~ Binomial(108, p(s))
+hist(z_sim, breaks = 30, main = "Predictiva a priori",
+     xlab = "admitidas de 108")                 # casi plana entre 0 y 108
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy import stats
+
+z, n = 89, 108
+
+# Mismos datos, distintas a prioris: media y IC creíble al 95 %
+for a, b in [(1, 1), (10, 10), (73, 29), (7, 3)]:
+    pa, pb = a + z, b + n - z
+    lo, hi = stats.beta.ppf([0.025, 0.975], pa, pb)
+    print(f"Beta({a},{b}) -> Beta({pa},{pb}): media {pa/(pa+pb):.3f}  IC95 [{lo:.3f}, {hi:.3f}]")
+
+# Peso de la a priori Beta(10, 10): (a + b) / (a + b + n)
+print(20 / (20 + 108), 20 / (20 + 1080))        # 15.6 % y 1.8 %
+
+# Chequeo predictivo a priori: qué recuento predice Beta(1, 1) con 108 solicitantes
+rng = np.random.default_rng(1)
+p_sim = rng.beta(1, 1, 10000)                   # p(s) ~ pi(p)
+z_sim = rng.binomial(108, p_sim)                # Z(s) | p(s) ~ Binomial(108, p(s))
+print(np.histogram(z_sim, bins=6, range=(0, 108))[0])   # casi plana
+</script>
+</div>
+    <ul class="walk">
+      <li>El primer bucle repite el mismo análisis con cuatro a prioris: es una <b>sensibilidad</b>.</li>
+      <li><code>(a + b)/(a + b + n)</code> es el peso de la a priori en la media; baja de 15,6 % a 1,8 % al multiplicar la muestra por diez.</li>
+      <li>El chequeo a priori simula primero \(p\) y después los recuentos. Con \(\text{Beta}(1,1)\) el histograma sale casi plano entre 0 y 108, es decir, la a priori acepta cualquier recuento como igual de probable.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================================================== 2 -->
+<section id="b2">
+  <div class="sec-head"><div class="eyebrow">Lección 3 · Tema 2</div><h2>Un modelo con varios parámetros: admisiones en Berkeley</h2></div>
+  <p class="note">Al pasar de un departamento y un sexo a los doce grupos (6 departamentos × 2 sexos), la posterior depende de varios parámetros a la vez y deja de tener forma cerrada.</p>
+
+  <div class="sub" id="b2-datos">
+    <h3>2.1 Los datos y la paradoja de Simpson</h3>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>Dpto.</th><th>Hombres admitidos / total</th><th>Mujeres admitidas / total</th><th>% hombres</th><th>% mujeres</th></tr></thead>
+      <tbody>
+        <tr><td>A</td><td class="num">512 / 825</td><td class="num">89 / 108</td><td class="num">62,1</td><td class="num">82,4</td></tr>
+        <tr><td>B</td><td class="num">353 / 560</td><td class="num">17 / 25</td><td class="num">63,0</td><td class="num">68,0</td></tr>
+        <tr><td>C</td><td class="num">120 / 325</td><td class="num">202 / 593</td><td class="num">36,9</td><td class="num">34,1</td></tr>
+        <tr><td>D</td><td class="num">138 / 417</td><td class="num">131 / 375</td><td class="num">33,1</td><td class="num">34,9</td></tr>
+        <tr><td>E</td><td class="num">53 / 191</td><td class="num">94 / 393</td><td class="num">27,7</td><td class="num">23,9</td></tr>
+        <tr><td>F</td><td class="num">22 / 373</td><td class="num">24 / 341</td><td class="num">5,9</td><td class="num">7,0</td></tr>
+        <tr><td><b>Todos</b></td><td class="num">1 198 / 2 691</td><td class="num">557 / 1 835</td><td class="num"><b>44,5</b></td><td class="num"><b>30,4</b></td></tr>
+      </tbody>
+    </table></div>
+    <figure class="fig" id="f_simpson"><div class="tl-scroll"></div>
+      <figcaption>Las mujeres tienen mayor tasa en cuatro de seis departamentos (A, B, D, F) y, sin embargo, menor tasa global. Los 4 526 datos son recuentos agrupados.</figcaption></figure>
+    <div class="callout">
+      <h4>Por qué ocurre</h4>
+      <p>La mezcla de solicitudes es distinta: el 51,5 % de las solicitudes de los hombres (1 385 de 2 691) fue a los departamentos A y B, que admiten mucho, frente al 7,2 % de las mujeres (133 de 1 835). El porcentaje global mezcla tasa y destino; por eso al ajustar por departamento la pregunta cambia de «comparación agrupada» a «asociación dentro del departamento».</p>
+    </div>
+  </div>
+
+  <div class="sub" id="b2-modelo">
+    <h3>2.2 El modelo de regresión logística y sus a prioris</h3>
+    <p>Hasta ahora había un modelo independiente por cada una de las 12 combinaciones (el grupo B/mujeres tiene solo 25 solicitantes), sin compartir información. Un único modelo con efecto común del sexo lo hace:</p>
+    <div class="card"><span class="tag">Modelo</span>
+      <div class="math">\[ Y_i\mid p_i\sim\text{Bernoulli}(p_i),\qquad \operatorname{logit}(p_i)=\alpha+\beta F_i+\gamma_{d_i},\qquad \gamma_A=0 \]</div>
+      <ul class="tight">
+        <li>\(\alpha\): log-odds de admisión de un hombre en A (la referencia).</li>
+        <li>\(\beta\): efecto del sexo sobre el logit, <b>a igualdad de lo demás</b> (mismo departamento).</li>
+        <li>\(\gamma_d\): desplazamiento del log-odds del departamento \(d\) respecto de A.</li>
+        <li>Odds ratio mujer/hombre: \(OR_F=\dfrac{e^{\alpha+\beta}}{e^{\alpha}}=e^{\beta}\). \(OR_F<1\): menores odds para las mujeres.</li>
+      </ul>
+    </div>
+    <div class="card"><span class="tag">A prioris ilustrativas y posterior conjunta</span>
+      <div class="math">\[ \alpha,\ \beta,\ \gamma_d\ \overset{iid}{\sim}\ N(0,\,2{,}5^2),\ d=B,\dots,F \]</div>
+      <div class="math">\[ \pi(\theta\mid y)\propto L(\theta\mid y)\,\pi(\alpha)\,\pi(\beta)\prod_{d=B}^{F}\pi(\gamma_d),\qquad \theta=(\alpha,\beta,\gamma_B,\dots,\gamma_F) \]</div>
+      <p class="note">La verosimilitud multiplica \(p_i^{y_i}(1-p_i)^{1-y_i}\). El integral del denominador no tiene forma cerrada: se aproxima con MCMC (bloque 3).</p>
+    </div>
+    <div class="card"><span class="tag">Marginalizar</span>
+      <div class="math">\[ \pi(\beta\mid y)=\int \pi(\alpha,\beta,\gamma\mid y)\,d\alpha\,d\gamma \]</div>
+      <p class="note">Para cada \(\beta\) se integra sobre \(\alpha\) y \(\gamma\), ponderando por la posterior conjunta. Se conserva toda la incertidumbre de los efectos de departamento; sustituir cada \(\gamma_d\) por una sola estimación la descartaría.</p>
+    </div>
+
+    <div class="lab" id="lab-pp">
+      <div class="lab-title">Laboratorio · A priori predictiva en la escala de la probabilidad</div>
+      <div class="ctl">
+        <label>DE de cada coeficiente <span class="val" id="pp_sd_v"></span><input id="pp_sd" type="range" min="0.25" max="6" step="0.25" value="2.5"></label>
+        <label>coeficientes que se suman<select id="pp_k"><option value="1">1 (\(\alpha\): hombre en A)</option><option value="3">3 (\(\alpha+\beta+\gamma_C\): mujer en C)</option></select></label>
+      </div>
+      <figure class="fig" id="f_pp"><div class="tl-scroll"></div>
+        <figcaption>Probabilidades \(p=\operatorname{logit}^{-1}(w)\) implicadas por la a priori \(w\sim N(0,s^2)\). Una a priori «vaga» sobre el logit no es vaga sobre \(p\): con DE grande se apila junto a 0 y a 1.</figcaption></figure>
+      <div class="stats" id="pp_stats"></div>
+    </div>
+    <p class="note">Con \(s=2{,}5\) la a priori de \(p_{A,M}\) cubre en el 95 % central \([0{,}007;\,0{,}993]\); la de \(p_{C,F}\), que suma tres coeficientes y por tanto tiene DE \(2{,}5\sqrt3\), llega a \([0{,}0002;\,0{,}9998]\). Antes de ajustar se comprueba qué probabilidades y tasas implican las a prioris.</p>
+
+    <div class="codepair" data-file="Berkeley: datos agrupados y logaritmo de la posterior" data-src="curso">
+<script type="text/x-r">
+# Una fila por departamento y sexo (12 celdas)
+counts <- as.data.frame(datasets::UCBAdmissions)
+wide <- reshape(counts, idvar = c("Gender", "Dept"),
+                timevar = "Admit", direction = "wide")
+names(wide) <- sub("^Freq\\.", "", names(wide))
+names(wide)[names(wide) == "Admitted"] <- "admitted"
+names(wide)[names(wide) == "Rejected"] <- "rejected"
+wide$n <- wide$admitted + wide$rejected
+wide$female <- as.integer(wide$Gender == "Female")
+wide$dept_id <- as.integer(factor(wide$Dept, levels = LETTERS[1:6]))
+stopifnot(sum(wide$n) == 4526)
+
+# Matriz de diseño: intercepto, mujer y cinco dummies (A es la referencia)
+design <- model.matrix(~ female + Dept, data = wide)
+n_par <- ncol(design)
+
+# Log de la posterior = log-verosimilitud + log de las a prioris N(0, 2.5^2)
+log_post <- function(theta) {
+  eta <- drop(design %*% theta)
+  sum(dbinom(wide$admitted, wide$n, plogis(eta), log = TRUE)) +
+    sum(dnorm(theta, mean = 0, sd = 2.5, log = TRUE))
+}
+</script>
+<script type="text/x-py">
+import numpy as np, pandas as pd
+from scipy.special import log_expit
+
+# (admitidos, solicitantes) por departamento: hombres y mujeres
+men   = {"A": (512, 825), "B": (353, 560), "C": (120, 325),
+         "D": (138, 417), "E": (53, 191),  "F": (22, 373)}
+women = {"A": (89, 108),  "B": (17, 25),   "C": (202, 593),
+         "D": (131, 375), "E": (94, 393),  "F": (24, 341)}
+rows = [(d, s, f, *v) for s, f, tab in [("Male", 0, men), ("Female", 1, women)]
+        for d, v in tab.items()]
+wide = pd.DataFrame(rows, columns=["Dept", "Gender", "female", "admitted", "n"])
+assert wide["n"].sum() == 4526
+
+# Matriz de diseño: intercepto, mujer y cinco dummies (A es la referencia)
+dummies = pd.get_dummies(wide["Dept"], drop_first=True).astype(float)
+design = np.column_stack([np.ones(len(wide)), wide["female"], dummies])
+k = design.shape[1]
+admitted, n = wide["admitted"].to_numpy(), wide["n"].to_numpy()
+
+# Log de la posterior = log-verosimilitud + log de las a prioris N(0, 2.5^2)
+def log_post(theta):
+    eta = design @ theta
+    loglik = np.sum(admitted * log_expit(eta) + (n - admitted) * log_expit(-eta))
+    return loglik - np.sum(theta**2) / (2 * 2.5**2)
+</script>
+</div>
+    <ul class="walk">
+      <li><b>Datos agrupados:</b> doce filas con admitidos y solicitantes en lugar de 4 526 filas de 0/1; es equivalente para la verosimilitud binomial.</li>
+      <li><b>Matriz de diseño:</b> siete columnas (intercepto, mujer, B–F). Al omitir A, queda como referencia.</li>
+      <li><b><code>log_post</code></b> suma la log-verosimilitud binomial y las log-densidades de las a prioris \(N(0,2{,}5^2)\). Es el logaritmo de la posterior sin normalizar, lo único que necesita MCMC.</li>
+      <li>En Python <code>log_expit(eta)</code> es \(\log p\) y <code>log_expit(-eta)</code> es \(\log(1-p)\), calculados con estabilidad numérica.</li>
+    </ul>
+  </div>
+</section>
+<!-- ===================================================== 3 -->
+<section id="b3">
+  <div class="sec-head"><div class="eyebrow">Lección 3 · Tema 3</div><h2>Cadenas de Markov Monte Carlo (MCMC)</h2></div>
+  <p class="note">En muchos modelos se puede evaluar \(f(y\mid\theta)\pi(\theta)\) pero no normalizar la posterior ni integrarla. MCMC construye una cadena \(\theta^{(1)},\dots,\theta^{(S)}\) cuya distribución límite es la posterior y la estima con las muestras.</p>
+
+  <div class="sub" id="b3-idea">
+    <h3>3.1 Promediar muestras en lugar de integrar</h3>
+    <div class="math">\[ \frac1S\sum_{s=1}^{S}h\big(\theta^{(s)}\big)\;\approx\;\int h(\theta)\,\pi(\theta\mid y)\,d\theta \]</div>
+    <p>Para estimar \(P(\beta<0\mid y)\) basta \(h(\theta)=\mathbf 1\{\beta<0\}\): la probabilidad es la proporción de draws con \(\beta^{(s)}<0\). Cada draw depende del estado anterior, así que <b>no son independientes</b>; hay que descartar el calentamiento inicial (<i>warm-up</i>) y comprobar con varias cadenas que exploran bien la posterior.</p>
+  </div>
+
+  <div class="sub" id="b3-mh">
+    <h3>3.2 Metropolis–Hastings: proponer y aceptar o retener</h3>
+    <p>Sea \(\tilde\pi(\theta\mid y)=f(y\mid\theta)\pi(\theta)\) la posterior sin normalizar. En la iteración \(s\):</p>
+    <ol class="walk">
+      <li>Se propone \(\theta^\star\sim q(\theta^\star\mid\theta^{(s)})\).</li>
+      <li>Se acepta con probabilidad \(a=\min\!\Big\{1,\ \dfrac{\tilde\pi(\theta^\star\mid y)\,q(\theta^{(s)}\mid\theta^\star)}{\tilde\pi(\theta^{(s)}\mid y)\,q(\theta^\star\mid\theta^{(s)})}\Big\}\).</li>
+      <li>Si no, se retiene \(\theta^{(s)}\): un rechazo también cuenta como iteración y repite el valor.</li>
+    </ol>
+    <p class="note">La constante normalizadora desconocida <b>se cancela</b> en el cociente. Con una propuesta simétrica (paseo aleatorio normal) \(q\) también se cancela y \(a=\min\{1,\tilde\pi(\theta^\star)/\tilde\pi(\theta^{(s)})\}\).</p>
+    <figure class="fig" id="f_mh"><div class="tl-scroll"></div>
+      <figcaption>Un paso de Metropolis–Hastings. Por ejemplo, desde \(p=0{,}78\) la cadena puede aceptar \(0{,}82\) o rechazarlo y quedarse en \(0{,}78\).</figcaption></figure>
+    <div class="card"><span class="tag">Posterior de Berkeley</span>
+      <div class="math">\[ \ell(\theta)=\sum_{i}\big[y_i\log p_i(\theta)+(1-y_i)\log(1-p_i(\theta))\big]-\frac{1}{2(2{,}5)^2}\sum_{j=1}^{7}\theta_j^2+C \]</div>
+      <p class="note">En cada iteración se propone un movimiento <b>conjunto</b> en los siete coeficientes y se compara \(\ell(\theta^\star)\) con \(\ell(\theta)\). Para dimensionar el salto, el ajuste clásico <code>glm</code> da una covarianza \(\hat\Sigma\) y la propuesta es \(\theta+z\,\hat\Sigma^{1/2}\,2{,}38/\sqrt{d}\) con \(z\sim N(0,I_d)\): afecta a la eficiencia, no al objetivo, porque la regla de aceptación preserva la posterior.</p>
+    </div>
+
+    <div class="lab" id="lab-mcmc">
+      <div class="lab-title">Laboratorio · Cuatro cadenas de Metropolis</div>
+      <div class="ctl">
+        <label>Objetivo<select id="m_target"><option value="beta">Beta(90, 20)</option><option value="bimodal">Bimodal</option></select></label>
+        <label>Paso de la propuesta<input id="m_step" type="number" value="0.05" min="0.0005" step="0.005"></label>
+        <label>Iteraciones<input id="m_iter" type="number" value="4000" min="200" max="20000" step="200"></label>
+        <label>Calentamiento<input id="m_warm" type="number" value="1000" min="0" step="100"></label>
+        <label>Arranques<select id="m_disp"><option value="1">dispersos (0,1 · 0,4 · 0,7 · 0,95)</option><option value="0">todos en 0,8</option></select></label>
+      </div>
+      <div class="tools">
+        <button type="button" data-m="beta,0.05,4000,1000,1">Bien afinado</button>
+        <button type="button" data-m="beta,0.002,1200,0,1">Paso diminuto, sin calentar</button>
+        <button type="button" data-m="beta,0.6,4000,1000,1">Paso enorme</button>
+        <button type="button" data-m="bimodal,0.03,6000,1000,1">Bimodal, paso corto</button>
+        <button type="button" data-m="bimodal,0.25,6000,1000,1">Bimodal, paso largo</button>
+        <button type="button" id="m_seed">Otra semilla</button>
+      </div>
+      <figure class="fig" id="f_m_trace"><div class="tl-scroll"></div>
+        <figcaption>Trazas de las cuatro cadenas (una por color). La línea vertical marca el final del calentamiento. Deben solaparse, oscilar en un rango estable y no mostrar deriva.</figcaption></figure>
+      <figure class="fig" id="f_m_hist"><div class="tl-scroll"></div>
+        <figcaption>Histograma de los draws retenidos de las cuatro cadenas frente a la densidad exacta (línea).</figcaption></figure>
+      <div class="stats" id="m_stats"></div>
+      <p class="note" id="m_msg"></p>
+    </div>
+
+    <h4>Diagnósticos numéricos</h4>
+    <div class="grid2">
+      <div class="card"><span class="tag">\(\hat R\)</span><p>Compara la variación <b>entre</b> cadenas con la variación <b>dentro</b> de ellas. Cerca de 1 indica que las cadenas están de acuerdo; bastante mayor que 1 indica que no han explorado la misma distribución.</p></div>
+      <div class="card"><span class="tag">Tamaño efectivo (ESS)</span><p>Aproxima cuántos draws independientes valen los obtenidos para estimar una media. Con cuatro cadenas de 15 000 draws hay 60 000 valores guardados, pero el ESS puede ser mucho menor si hay autocorrelación.</p></div>
+    </div>
+    <div class="callout">
+      <h4>Trampas de la convergencia</h4>
+      <p>Una tasa de aceptación alta <b>no</b> prueba un buen muestreo: con paso diminuto se acepta casi todo y la cadena apenas se mueve. Solaparse en un tramo corto tampoco es una prueba. Se inspeccionan las trazas de <i>todos</i> los coeficientes, se comparan el principio y el final de cada cadena, se mira la autocorrelación y se revisan \(\hat R\) y ESS de cada parámetro. Si falla, se mejora la propuesta y se alargan las cadenas desde arranques dispersos.</p>
+    </div>
+    <div class="codepair" data-file="Metropolis conjunto con cuatro cadenas" data-src="curso">
+<script type="text/x-r">
+# El ajuste clásico solo sirve para dimensionar el salto; no es la estimación bayesiana
+fit_glm <- glm(cbind(admitted, rejected) ~ female + Dept,
+               family = binomial(), data = wide)
+step_U <- chol(vcov(fit_glm)) * 2.38 / sqrt(n_par)
+
+mh_one <- function(start, iterations = 18000, warmup = 3000) {
+  theta <- start; value <- log_post(theta); accepted <- 0
+  out <- matrix(NA_real_, iterations, n_par)
+  colnames(out) <- colnames(design)
+  for (s in seq_len(iterations)) {
+    # Propuesta conjunta: paseo aleatorio normal simétrico
+    proposal <- theta + drop(rnorm(n_par) %*% step_U)
+    trial <- log_post(proposal)
+    if (log(runif(1)) < min(0, trial - value)) {
+      theta <- proposal; value <- trial; accepted <- accepted + 1
+    }
+    out[s, ] <- theta                       # un rechazo repite el estado anterior
+  }
+  list(draws = out[(warmup + 1):iterations, , drop = FALSE],
+       acceptance = accepted / iterations)
+}
+
+set.seed(1381)
+mh <- lapply(seq_len(4), function(j) mh_one(rnorm(n_par, 0, .2)))
+vapply(mh, function(z) z$acceptance, numeric(1))   # tasas de aceptación
+</script>
+<script type="text/x-py">
+import statsmodels.api as sm
+
+# El ajuste clásico solo sirve para dimensionar el salto; no es la estimación bayesiana
+fit_glm = sm.GLM(np.column_stack([admitted, n - admitted]), design,
+                 family=sm.families.Binomial()).fit()
+step = np.linalg.cholesky(fit_glm.cov_params()) * 2.38 / np.sqrt(k)
+
+rng = np.random.default_rng(1381)
+
+def mh_one(start, iterations=18000, warmup=3000):
+    theta, value, accepted = start, log_post(start), 0
+    out = np.empty((iterations, k))
+    for s in range(iterations):
+        # Propuesta conjunta: paseo aleatorio normal simétrico
+        proposal = theta + step @ rng.standard_normal(k)
+        trial = log_post(proposal)
+        if np.log(rng.uniform()) < trial - value:
+            theta, value, accepted = proposal, trial, accepted + 1
+        out[s] = theta                      # un rechazo repite el estado anterior
+    return out[warmup:], accepted / iterations
+
+chains = [mh_one(rng.normal(0, 0.2, k)) for _ in range(4)]
+print([round(c[1], 2) for c in chains])     # tasas de aceptación
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>step_U</code> / <code>step</code></b> es la raíz de Cholesky de la covarianza del ajuste clásico, escalada por \(2{,}38/\sqrt d\). Hace que la propuesta respete la correlación entre coeficientes.</li>
+      <li><b>Regla de aceptación:</b> <code>log(runif(1)) &lt; trial - value</code> es \(u<\tilde\pi(\theta^\star)/\tilde\pi(\theta)\) en logaritmos; se trabaja en logs para no desbordar.</li>
+      <li><b><code>out[s, ] &lt;- theta</code></b> se guarda aunque se rechace: el rechazo repite el estado anterior.</li>
+      <li><b>Calentamiento:</b> se descartan las primeras 3 000 iteraciones y quedan 15 000 por cadena.</li>
+      <li><b>Cuatro arranques:</b> <code>rnorm(n_par, 0, .2)</code> son valores iniciales distintos para cada cadena, necesarios para diagnosticar.</li>
+    </ul>
+    <div class="codepair" data-file="Diagnósticos: R-hat y tamaño efectivo" data-src="curso">
+<script type="text/x-r">
+# Cuatro cadenas -> objeto mcmc.list de coda
+good_coda <- do.call(coda::mcmc.list,
+                     lapply(mh, function(z) coda::mcmc(z$draws)))
+
+coda::gelman.diag(good_coda, autoburnin = FALSE)$psrf   # R-hat: cerca de 1
+coda::effectiveSize(good_coda)                          # n.º equivalente de draws independientes
+coda::traceplot(good_coda)                              # las cuatro trazas deben solaparse
+coda::autocorr.plot(good_coda[[1]])                     # dependencia dentro de una cadena
+</script>
+<script type="text/x-py">
+import arviz as az
+
+# (cadena, iteración, parámetro) -> InferenceData
+draws = np.stack([c[0] for c in chains])
+idata = az.from_dict(posterior={"theta": draws})
+
+print(az.rhat(idata))                       # R-hat: cerca de 1
+print(az.ess(idata))                        # n.º equivalente de draws independientes
+az.plot_trace(idata)                        # las cuatro trazas deben solaparse
+az.plot_autocorr(idata)                     # dependencia dentro de una cadena
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>gelman.diag(…)$psrf</code></b> devuelve \(\hat R\) clásico por parámetro; Stan usa luego versiones divididas y por rangos.</li>
+      <li><b><code>effectiveSize</code></b> es el ESS de cada coeficiente; compáralo con los draws guardados.</li>
+      <li>Las trazas deben solaparse y la autocorrelación debe decaer rápido; si no, hay que mejorar el muestreador.</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="b3-gibbs">
+    <h3>3.3 Gibbs: muestrear de las condicionales completas</h3>
+    <p>Cuando para algún parámetro la distribución <i>condicionada</i> a los demás tiene forma estándar (conjugación condicional), se sortea cada parámetro en secuencia desde ella. Ejemplo: el log-ingreso de \(n=40\) empleados de cuello azul, \(Y_i\mid\mu,\sigma^2\sim N(\mu,\sigma^2)\), con \(\mu\sim N(m_0,s_0^2)\) y \(\sigma^2\sim\text{IG}(a_0,b_0)\). La posterior conjunta no tiene forma cerrada, pero:</p>
+    <div class="card"><span class="tag">Las dos condicionales completas</span>
+      <div class="math">\[ \mu\mid\sigma^2,y\sim N(M_\mu,V_\mu),\quad V_\mu=\Big(\frac1{s_0^2}+\frac n{\sigma^2}\Big)^{-1},\quad M_\mu=V_\mu\Big(\frac{m_0}{s_0^2}+\frac{n\bar y}{\sigma^2}\Big) \]</div>
+      <div class="math">\[ \sigma^2\mid\mu,y\sim\text{IG}\Big(a_0+\frac n2,\ \ b_0+\frac12\sum_i(y_i-\mu)^2\Big),\qquad \pi(x)\propto x^{-a-1}e^{-b/x} \]</div>
+      <p class="note">Desde \((\mu^{(0)},\sigma^{2(0)})\): \(\mu^{(s)}\sim\pi(\mu\mid\sigma^{2(s-1)},y)\) y enseguida \(\sigma^{2(s)}\sim\pi(\sigma^2\mid\mu^{(s)},y)\). Se usa la varianza vieja para sortear la media nueva y la media nueva para la varianza nueva.</p>
+    </div>
+    <div class="lab" id="lab-gibbs">
+      <div class="lab-title">Laboratorio · Gibbs para \((\mu,\sigma^2)\)</div>
+      <div class="ctl">
+        <label>Tamaño de muestra \(n\)<select id="g_n"><option>10</option><option selected>40</option><option>200</option></select></label>
+        <label>DE de la a priori de \(\mu\) (\(s_0\))<select id="g_s0"><option>0.3</option><option selected>1</option><option>5</option></select></label>
+        <label>Semilla<input id="g_seed" type="number" value="41"></label>
+      </div>
+      <figure class="fig" id="f_g_path"><div class="tl-scroll"></div>
+        <figcaption>Nube de la posterior conjunta de \((\mu,\sigma^2)\) y los primeros 25 pasos de Gibbs: cada paso es un tramo horizontal (se actualiza \(\mu\)) y otro vertical (se actualiza \(\sigma^2\)).</figcaption></figure>
+      <figure class="fig" id="f_g_inc"><div class="tl-scroll"></div>
+        <figcaption>Ingreso medio anual \(e^{\mu+\sigma^2/2}\) calculado draw a draw (no se exponencia el intervalo de \(\mu\)). La banda es el intervalo central al 95 %.</figcaption></figure>
+      <div class="stats" id="g_stats"></div>
+    </div>
+    <p class="note">Con \(n=40\), la corrida de las diapositivas dio \(\mu\approx9{,}99\) \([9{,}87;\,10{,}11]\), \(\sigma^2\approx0{,}14\) \([0{,}09;\,0{,}22]\) e ingreso medio \(\approx23\,400\) € \([20\,900;\,26\,800]\). Los datos del laboratorio son otra muestra, así que difieren un poco.</p>
+    <div class="codepair" data-file="Muestreador de Gibbs: normal con media y varianza desconocidas" data-src="curso">
+<script type="text/x-r">
+set.seed(41)
+y <- rnorm(40, mean = 10, sd = 0.4)            # 40 log-ingresos simulados
+n <- length(y)
+m0 <- 10; s0_sq <- 1; a0 <- 2; b0 <- 0.16      # a prioris: mu ~ N(m0, s0^2), sigma^2 ~ IG(a0, b0)
+mu <- mean(y); sigma2 <- var(y)
+draws <- matrix(NA_real_, nrow = 12000, ncol = 2)
+
+for (s in 1:nrow(draws)) {
+  # mu | sigma^2, y  ~  Normal(M_mu, V_mu)
+  V_mu <- 1 / (1 / s0_sq + n / sigma2)
+  M_mu <- V_mu * (m0 / s0_sq + sum(y) / sigma2)
+  mu <- rnorm(1, mean = M_mu, sd = sqrt(V_mu))
+  # sigma^2 | mu, y  ~  InvGamma(a0 + n/2, b0 + sum((y - mu)^2)/2)
+  shape <- a0 + n / 2
+  rate <- b0 + sum((y - mu)^2) / 2
+  sigma2 <- 1 / rgamma(1, shape = shape, rate = rate)
+  draws[s, ] <- c(mu, sigma2)
+}
+post <- draws[-(1:2000), ]                      # descarta el calentamiento
+apply(post, 2, quantile, c(.025, .5, .975))
+quantile(exp(post[, 1] + post[, 2] / 2), c(.025, .5, .975))   # ingreso medio anual
+</script>
+<script type="text/x-py">
+import numpy as np
+
+rng = np.random.default_rng(41)
+y = rng.normal(10, 0.4, 40)                     # 40 log-ingresos simulados
+n = len(y)
+m0, s0_sq, a0, b0 = 10, 1, 2, 0.16              # a prioris: mu ~ N(m0, s0^2), sigma^2 ~ IG(a0, b0)
+mu, sigma2 = y.mean(), y.var(ddof=1)
+draws = np.empty((12000, 2))
+
+for s in range(len(draws)):
+    # mu | sigma^2, y  ~  Normal(M_mu, V_mu)
+    V_mu = 1 / (1 / s0_sq + n / sigma2)
+    M_mu = V_mu * (m0 / s0_sq + y.sum() / sigma2)
+    mu = rng.normal(M_mu, np.sqrt(V_mu))
+    # sigma^2 | mu, y  ~  InvGamma(a0 + n/2, b0 + sum((y - mu)^2)/2)
+    shape = a0 + n / 2
+    rate = b0 + ((y - mu) ** 2).sum() / 2
+    sigma2 = 1 / rng.gamma(shape, 1 / rate)     # numpy usa escala = 1/tasa
+    draws[s] = mu, sigma2
+post = draws[2000:]                             # descarta el calentamiento
+print(np.percentile(post, [2.5, 50, 97.5], axis=0))
+print(np.percentile(np.exp(post[:, 0] + post[:, 1] / 2), [2.5, 50, 97.5]))   # ingreso medio anual
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>V_mu</code>, <code>M_mu</code></b> son varianza y media de la condicional normal de \(\mu\): combinan la a priori (\(m_0,s_0^2\)) con los datos (\(\bar y,n\)).</li>
+      <li><b><code>1 / rgamma(…)</code></b> convierte un sorteo gamma en uno inversa-gamma; en numpy la gamma usa <i>escala</i> \(=1/\text{tasa}\).</li>
+      <li>Se guarda el par \((\mu,\sigma^2)\) de cada iteración y se descartan 2 000 de calentamiento.</li>
+      <li>El ingreso medio se calcula con cada par: \(e^{\mu+\sigma^2/2}\), y después se toman los cuantiles.</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="b3-hmc">
+    <h3>3.4 Hamiltoniano (HMC), NUTS y la competencia entre muestreadores</h3>
+    <p>Metropolis y Gibbs generan muestras correlacionadas cuando hay muchos parámetros. <b>HMC</b> usa el gradiente del log de la posterior. Se introduce un momento artificial \(r\sim N(0,M)\) y una energía total:</p>
+    <div class="math">\[ H(\theta,r)=U(\theta)+K(r),\qquad U(\theta)=-\log\pi(\theta\mid y),\qquad K(r)=\tfrac12\,r^\top M^{-1}r \]</div>
+    <p>El gradiente indica la dirección; pasos numéricos <i>leapfrog</i> mueven \(\theta\) y \(r\) a la vez para proponer un valor lejano, y un paso de aceptación corrige el error numérico. Hace falta una densidad diferenciable en parámetros continuos. La constante de normalización se cancela. <b>NUTS</b> es una forma adaptativa de HMC que casi no requiere ajuste del usuario; es lo que ejecuta <b>Stan</b> por defecto. Un modelo jerárquico con efectos por escuela \(u_s=\tau z_s\) (forma <i>no centrada</i>) suele muestrearse mejor con HMC.</p>
+
+    <div class="lab" id="lab-samp">
+      <div class="lab-title">Laboratorio · Tres muestreadores en una normal correlacionada</div>
+      <div class="ctl">
+        <label>Correlación \(\rho\) <span class="val" id="s_rho_v"></span><input id="s_rho" type="range" min="0" max="0.99" step="0.01" value="0.9"></label>
+        <label>Paso de Metropolis<input id="s_step" type="number" value="0.5" min="0.05" step="0.05"></label>
+        <label>Paso de HMC \(\varepsilon\)<input id="s_eps" type="number" value="0.12" min="0.02" step="0.02"></label>
+        <label>Pasos leapfrog \(L\)<input id="s_L" type="number" value="15" min="1" max="60"></label>
+      </div>
+      <div class="tools"><button type="button" id="s_seed">Otra semilla</button></div>
+      <div class="grid3">
+        <figure class="fig" id="f_s_rwm"><div class="tl-scroll"></div><figcaption>Metropolis (paseo aleatorio)</figcaption></figure>
+        <figure class="fig" id="f_s_gibbs"><div class="tl-scroll"></div><figcaption>Gibbs</figcaption></figure>
+        <figure class="fig" id="f_s_hmc"><div class="tl-scroll"></div><figcaption>HMC (leapfrog)</figcaption></figure>
+      </div>
+      <div class="stats" id="s_stats"></div>
+      <p class="note">Cada panel muestra los primeros 150 pasos de una cadena de 3 000 sobre \(N(0,\Sigma)\) con \(\Sigma=\begin{pmatrix}1&\rho\\\rho&1\end{pmatrix}\); la elipse es la región del 95 %. Con \(\rho\) cerca de 1 la densidad es una cresta estrecha: Metropolis rechaza casi todo y Gibbs avanza a pasitos de ancho fijo; HMC sigue la cresta.</p>
+    </div>
+    <div class="codepair" data-file="Hamiltoniano (leapfrog) sobre una normal bivariada" data-src="complemento">
+<script type="text/x-r">
+# Objetivo: N(0, Sigma) con correlacion rho. U(q) = -log densidad (sin constante)
+rho <- 0.9; Sigma_inv <- solve(matrix(c(1, rho, rho, 1), 2))
+U <- function(q) 0.5 * drop(t(q) %*% Sigma_inv %*% q)
+grad_U <- function(q) drop(Sigma_inv %*% q)
+
+hmc_step <- function(q, eps = 0.12, L = 15) {
+  p <- rnorm(2); q_new <- q; p_new <- p       # momento artificial p ~ N(0, I)
+  p_new <- p_new - eps / 2 * grad_U(q_new)    # medio paso inicial del momento
+  for (l in 1:L) {
+    q_new <- q_new + eps * p_new              # paso completo de la posicion
+    if (l < L) p_new <- p_new - eps * grad_U(q_new)
+  }
+  p_new <- p_new - eps / 2 * grad_U(q_new)    # medio paso final
+  # Metropolis corrige el error numerico: H = U + K
+  dH <- (U(q) + 0.5 * sum(p^2)) - (U(q_new) + 0.5 * sum(p_new^2))
+  if (log(runif(1)) < dH) q_new else q
+}
+set.seed(1); q <- c(-2, 2); out <- matrix(NA, 3000, 2)
+for (i in 1:3000) { q <- hmc_step(q); out[i, ] <- q }
+cor(out)[1, 2]                                 # recupera rho
+</script>
+<script type="text/x-py">
+import numpy as np
+
+# Objetivo: N(0, Sigma) con correlacion rho. U(q) = -log densidad (sin constante)
+rho = 0.9
+Sigma_inv = np.linalg.inv(np.array([[1, rho], [rho, 1]]))
+U = lambda q: 0.5 * q @ Sigma_inv @ q
+grad_U = lambda q: Sigma_inv @ q
+rng = np.random.default_rng(1)
+
+def hmc_step(q, eps=0.12, L=15):
+    p = rng.standard_normal(2)                 # momento artificial p ~ N(0, I)
+    q_new, p_new = q.copy(), p - eps / 2 * grad_U(q)   # medio paso inicial del momento
+    for l in range(L):
+        q_new = q_new + eps * p_new            # paso completo de la posicion
+        if l < L - 1:
+            p_new = p_new - eps * grad_U(q_new)
+    p_new = p_new - eps / 2 * grad_U(q_new)    # medio paso final
+    # Metropolis corrige el error numerico: H = U + K
+    dH = (U(q) + 0.5 * p @ p) - (U(q_new) + 0.5 * p_new @ p_new)
+    return q_new if np.log(rng.uniform()) < dH else q
+
+q, out = np.array([-2.0, 2.0]), np.empty((3000, 2))
+for i in range(3000):
+    q = hmc_step(q)
+    out[i] = q
+print(np.corrcoef(out.T)[0, 1])                # recupera rho
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>grad_U</code></b> es el gradiente de \(U(q)=\tfrac12q^\top\Sigma^{-1}q\), que es \(\Sigma^{-1}q\).</li>
+      <li><b>Leapfrog:</b> medio paso del momento, \(L\) pasos de posición con pasos de momento intercalados y medio paso final. Es reversible y conserva casi la energía.</li>
+      <li><b><code>dH</code></b> es la diferencia de energía total: se acepta con probabilidad \(\min(1,e^{-\Delta H})\), que corrige el error del integrador.</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="b3-vi">
+    <h3>3.5 Cuando MCMC es demasiado caro: inferencia variacional</h3>
+    <p>Cada iteración puede evaluar la verosimilitud (y el gradiente en HMC) sobre un conjunto de datos grande, y la cadena es secuencial; con muchas observaciones y variables latentes el coste puede ser considerable. La alternativa es <b>aproximar por optimización</b>: elegir una familia manejable \(q_\phi(\theta)\) y acercarla a la posterior.</p>
+    <div class="math">\[ \mathrm{KL}\big(q_\phi\,\|\,\pi(\cdot\mid y)\big)=E_{q_\phi}\Big[\log\frac{q_\phi(\theta)}{\pi(\theta\mid y)}\Big]\ \Longleftrightarrow\ \max_\phi\ \underbrace{E_{q_\phi}[\log p(y,\theta)]-E_{q_\phi}[\log q_\phi(\theta)]}_{\text{ELBO}} \]</div>
+    <p class="note">Como la constante normalizadora no depende de \(\phi\), minimizar la KL equivale a maximizar el ELBO. Es más rápida, pero familias restrictivas pueden perder la dependencia entre parámetros y <b>subestimar la incertidumbre</b>; hay que comprobar la aproximación. Ejemplo clásico: modelos de temas (LDA), donde la variacional estocástica analizó corpus de millones de documentos (Hoffman et al., 2013).</p>
+  </div>
+</section>
+
+<!-- ===================================================== 4 -->
+<section id="b4">
+  <div class="sec-head"><div class="eyebrow">Lección 3 · Software y resultados</div><h2>JAGS, Stan y PyMC: del modelo a la conclusión</h2></div>
+  <p class="note">El software convierte la especificación del modelo (a prioris, verosimilitud, cantidades derivadas) en cadenas de la posterior. El juicio sobre el resultado sigue siendo del analista.</p>
+
+  <div class="sub" id="b4-flujo">
+    <h3>4.1 El flujo completo con Berkeley</h3>
+    <ol class="walk">
+      <li><b>Definir la pregunta:</b> probabilidades de admisión y asociación entre sexo y admisión dentro del departamento, con 12 celdas.</li>
+      <li><b>Especificar el modelo:</b> conteos binomiales, probabilidades logit, siete coeficientes con a prioris normales.</li>
+      <li><b>Computar:</b> cuatro cadenas, adaptación y calentamiento, y retener draws.</li>
+      <li><b>Diagnosticar:</b> trazas de cada coeficiente, \(\hat R\), ESS.</li>
+      <li><b>Inferir y chequear:</b> resumir las posteriores marginales; simular otra tabla de 12 celdas y compararla con la observada.</li>
+      <li><b>Predecir:</b> usar cada draw para predecir admitidas entre diez solicitantes futuros con un perfil dado.</li>
+    </ol>
+    <div class="card"><span class="tag">Detalles prácticos de JAGS</span>
+      <ul class="tight">
+        <li>JAGS lee el modelo en notación BUGS; <code>rjags</code> lo envía desde R; <code>coda</code> da resúmenes, trazas y diagnósticos.</li>
+        <li><code>dnorm(media, <b>precisión</b>)</code>: la precisión es \(1/\sigma^2\), así que \(N(0,2{,}5^2)\) es <code>dnorm(0, 1/2.5^2)</code>.</li>
+        <li><code>beta_dept[1] &lt;- 0</code> identifica el departamento A; los otros cinco son desplazamientos relativos en log-odds.</li>
+        <li>Para el logístico no todas las actualizaciones de JAGS son un Gibbs directo; con la normal del bloque 3.3 las condicionales completas sí son sencillas.</li>
+      </ul>
+    </div>
+    <div class="codepair" data-file="El mismo modelo en JAGS (R) y PyMC (Python)" data-src="curso">
+<script type="text/x-r">
+jags_text <- "
+model {
+  alpha ~ dnorm(0, prior_precision)            # JAGS usa la precisión = 1/varianza
+  beta_female ~ dnorm(0, prior_precision)
+  beta_dept[1] <- 0                            # departamento A: referencia
+  for (d in 2:6) { beta_dept[d] ~ dnorm(0, prior_precision) }
+  for (k in 1:K) {
+    admitted[k] ~ dbin(p[k], applicants[k])
+    logit(p[k]) <- alpha + beta_female * female[k] + beta_dept[dept[k]]
+  }
+}"
+jags_data <- list(K = nrow(wide), admitted = as.integer(wide$admitted),
+                  applicants = as.integer(wide$n), female = as.integer(wide$female),
+                  dept = as.integer(wide$dept_id), prior_precision = 1 / 2.5^2)
+inits <- lapply(1:4, function(j)
+  list(.RNG.name = "base::Wichmann-Hill", .RNG.seed = 20000L + j))
+
+jm <- rjags::jags.model(textConnection(jags_text), data = jags_data,
+                        inits = inits, n.chains = 4, n.adapt = 1000)
+update(jm, n.iter = 1000)                      # calentamiento
+jags_draws <- rjags::coda.samples(jm,
+  variable.names = c("alpha", "beta_female", "beta_dept[2:6]", "p"),
+  n.iter = 4000)
+summary(jags_draws[, c("alpha", "beta_female")])
+</script>
+<script type="text/x-py">
+import pymc as pm
+import pytensor.tensor as pt
+
+dept_id = pd.Categorical(wide["Dept"]).codes             # A = 0, ..., F = 5
+with pm.Model() as berkeley:
+    alpha = pm.Normal("alpha", 0, 2.5)                    # PyMC usa la desviación típica
+    beta_female = pm.Normal("beta_female", 0, 2.5)
+    beta_dept = pm.Normal("beta_dept", 0, 2.5, shape=5)   # B..F
+    gamma = pt.concatenate([pt.zeros(1), beta_dept])      # departamento A: referencia
+    eta = alpha + beta_female * wide["female"].to_numpy() + gamma[dept_id]
+    p = pm.Deterministic("p", pm.math.sigmoid(eta))
+    pm.Binomial("admitted", n=n, p=p, observed=admitted)
+    pm.Deterministic("OR_female", pm.math.exp(beta_female))
+    idata = pm.sample(draws=4000, tune=1000, chains=4, random_seed=20261026)
+
+import arviz as az
+az.summary(idata, var_names=["alpha", "beta_female", "beta_dept", "OR_female"])
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>n.adapt = 1000</code></b> deja que JAGS afine sus muestreadores; luego <code>update(jm, 1000)</code> es calentamiento adicional.</li>
+      <li><b><code>coda.samples(…, n.iter = 4000)</code></b> guarda 4 000 iteraciones por cadena: 16 000 draws por coeficiente, que se diagnostican <i>antes</i> de combinarse.</li>
+      <li>El departamento A vale 0 por definición, no por estimación.</li>
+      <li>En PyMC los parámetros se declaran con la desviación típica; <code>pt.concatenate([pt.zeros(1), beta_dept])</code> añade la referencia.</li>
+    </ul>
+    <div class="codepair" data-file="Stan (NUTS): un mismo programa, dos interfaces" data-src="curso">
+<script type="text/x-r">
+stan_code <- "
+data {
+  int<lower=1> K;
+  array[K] int<lower=0> admitted;
+  array[K] int<lower=0> applicants;
+  array[K] int<lower=0, upper=1> female;
+  array[K] int<lower=1, upper=6> dept;
+}
+parameters {
+  real alpha;
+  real beta_female;
+  vector[5] beta_dept;
+}
+transformed parameters {
+  vector[K] eta;
+  for (k in 1:K) {
+    eta[k] = alpha + beta_female * female[k];
+    if (dept[k] > 1) eta[k] += beta_dept[dept[k] - 1];
+  }
+}
+model {
+  alpha ~ normal(0, 2.5);
+  beta_female ~ normal(0, 2.5);
+  beta_dept ~ normal(0, 2.5);
+  admitted ~ binomial_logit(applicants, eta);
+}
+generated quantities { real OR_female = exp(beta_female); }
+"
+stan_file <- tempfile(fileext = ".stan"); writeLines(stan_code, stan_file)
+stan_model <- cmdstanr::cmdstan_model(stan_file)
+fit <- stan_model$sample(data = stan_data, seed = 20261026,
+                         chains = 4, parallel_chains = 4,
+                         iter_warmup = 1000, iter_sampling = 2000)
+fit$summary(variables = c("beta_female", "OR_female"))   # R-hat, ESS, intervalos
+fit$diagnostic_summary()                                 # divergencias
+</script>
+<script type="text/x-py">
+from cmdstanpy import CmdStanModel
+
+# stan_code es exactamente el mismo texto del programa Stan
+with open("berkeley.stan", "w") as f:
+    f.write(stan_code)
+
+stan_data = {"K": len(wide), "admitted": admitted.tolist(), "applicants": n.tolist(),
+             "female": wide["female"].tolist(),
+             "dept": (pd.Categorical(wide["Dept"]).codes + 1).tolist()}   # A = 1, ..., F = 6
+model = CmdStanModel(stan_file="berkeley.stan")
+fit = model.sample(data=stan_data, seed=20261026, chains=4, parallel_chains=4,
+                   iter_warmup=1000, iter_sampling=2000)
+print(fit.summary().loc[["beta_female", "OR_female"]])   # R-hat, ESS, intervalos
+print(fit.diagnose())                                    # divergencias
+or_draws = fit.stan_variable("OR_female")
+</script>
+</div>
+    <ul class="walk">
+      <li><b>Stan</b> traduce el modelo a un log-densidad con gradientes y ejecuta NUTS. Requiere declarar tipos y rangos en <code>data</code>.</li>
+      <li><b><code>binomial_logit(applicants, eta)</code></b> usa la parametrización logit por estabilidad numérica.</li>
+      <li><b><code>generated quantities</code></b> convierte el coeficiente en un odds ratio por cada draw.</li>
+      <li>Una <b>divergencia</b> indica que la trayectoria numérica pudo no seguir la distribución en alguna región: se mira dónde ocurren y se prueba otra parametrización o una a priori más informativa.</li>
+      <li>Requisitos: <code>cmdstanr</code> (o <code>cmdstanpy</code>), CmdStan y un compilador de C++.</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="b4-live">
+    <h3>4.2 Berkeley en vivo: la posterior completa en tu navegador</h3>
+    <p>Este laboratorio ejecuta de verdad el modelo de las diapositivas: cuatro cadenas de Metropolis conjunto (con una cadena piloto para dimensionar el salto), \(\hat R\), ESS, el chequeo predictivo posterior y la predicción para diez solicitantes. Tarda menos de un segundo.</p>
+    <div class="lab" id="lab-berk">
+      <div class="lab-title">Laboratorio · Regresión logística bayesiana de Berkeley</div>
+      <div class="ctl">
+        <label>DE de las a prioris<select id="berk_sd"><option value="2.5" selected>2,5 (curso)</option><option value="1">1 (más estrecha)</option><option value="0.5">0,5 (muy estrecha)</option><option value="10">10 (muy vaga)</option></select></label>
+        <label>Iteraciones por cadena<select id="berk_it"><option value="3000">3 000</option><option value="6000" selected>6 000</option><option value="12000">12 000</option></select></label>
+      </div>
+      <div class="tools"><button type="button" id="berk_run">Ejecutar de nuevo (otra semilla)</button></div>
+      <div class="stats" id="berk_acc"></div>
+      <div class="tbl"><table class="plain mini" id="berk_tbl"></table></div>
+      <div class="grid2">
+        <figure class="fig" id="f_berk_or"><div class="tl-scroll"></div>
+          <figcaption>Posterior del odds ratio mujer/hombre \(e^\beta\), ya ajustado por departamento. La línea vertical es \(OR=1\).</figcaption></figure>
+        <figure class="fig" id="f_berk_ppc"><div class="tl-scroll"></div>
+          <figcaption>Chequeo predictivo posterior: proporción observada (punto) frente al intervalo predictivo al 95 % de cada celda (barra). Rojo: observada fuera del intervalo.</figcaption></figure>
+      </div>
+      <div class="stats" id="berk_stats"></div>
+    </div>
+    <div class="callout key">
+      <h4>Cómo leer los resultados de las diapositivas</h4>
+      <p>Con \(N(0,2{,}5^2)\): \(\alpha\) 0,57 · \(\beta\) 0,09 \([-0{,}07;\,0{,}25]\) · \(\gamma_B\) −0,03 · \(\gamma_C\) −1,25 · \(\gamma_D\) −1,28 · \(\gamma_E\) −1,72 · \(\gamma_F\) −3,29. El odds ratio \(e^\beta\) tiene mediana 1,10 y un intervalo \([0{,}94;\,1{,}29]\) que cruza 1; \(P(\beta<0\mid y)=0{,}13\). La posterior <b>no demuestra igualdad</b>: admite diferencias modestas en ambos sentidos. \(\gamma_C=-1{,}25\) multiplica los odds por \(e^{-1{,}25}\approx0{,}29\) respecto de A. Para cada cantidad derivada (probabilidad, odds ratio) se transforma <i>cada draw</i> y luego se calcula el intervalo.</p>
+    </div>
+    <div class="callout">
+      <h4>Sensibilidad a la a priori</h4>
+      <p>Con \(s=2{,}5\): \(OR=1{,}10\) \([0{,}94;\,1{,}29]\), \(P(\beta<0)=0{,}13\). Con \(s=1\): \(OR=1{,}08\) \([0{,}93;\,1{,}27]\), \(P(\beta<0)=0{,}16\). Para esta comparación la inferencia es parecida, aunque la probabilidad de un contraste negativo cambia. Que un coeficiente sea poco sensible <b>no valida</b> el modelo de efecto común: hay que comprobar las celdas predichas.</p>
+    </div>
+    <div class="codepair" data-file="Chequeo predictivo posterior y predicción" data-src="curso">
+<script type="text/x-r">
+# jags_draws: las cuatro cadenas de JAGS, ya diagnosticadas
+mat <- do.call(rbind, lapply(jags_draws, as.matrix))
+p_names <- paste0("p[", seq_len(nrow(wide)), "]")
+p_ppc <- mat[, p_names, drop = FALSE]
+set.seed(20261026)
+
+# Réplica de cada celda con su número real de solicitantes
+y_ppc <- vapply(seq_len(nrow(wide)), function(k)
+  rbinom(nrow(p_ppc), size = wide$n[k], prob = p_ppc[, k]), numeric(nrow(p_ppc)))
+limits <- apply(y_ppc, 2, quantile, probs = c(0.025, 0.975))
+print(data.frame(wide[c("Dept", "Gender", "admitted")],
+                 low = limits[1, ], high = limits[2, ]))   # ¿cae lo observado dentro?
+
+# Predicción: 10 mujeres nuevas en el departamento A
+k <- which(wide$Dept == "A" & wide$Gender == "Female")
+y_new <- rbinom(nrow(p_ppc), size = 10, prob = p_ppc[, k])
+mean(y_new); quantile(y_new, c(.025, .5, .975))            # ≈ 6.6 y [4, 9]
+</script>
+<script type="text/x-py">
+from scipy.special import expit
+
+# theta: (draws, 7) con las cuatro cadenas juntas (ya diagnosticadas)
+theta = np.concatenate([c[0] for c in chains])
+p_ppc = expit(theta @ design.T)                 # (draws, 12): p de cada celda y draw
+rng = np.random.default_rng(20261026)
+
+# Réplica de cada celda con su número real de solicitantes
+y_ppc = rng.binomial(n, p_ppc)
+low, high = np.percentile(y_ppc, [2.5, 97.5], axis=0)
+print(pd.DataFrame({"Dept": wide["Dept"], "Gender": wide["Gender"],
+                    "admitted": admitted, "low": low, "high": high}))   # ¿cae lo observado dentro?
+
+# Predicción: 10 mujeres nuevas en el departamento A
+k = np.flatnonzero((wide["Dept"] == "A") & (wide["female"] == 1))[0]
+y_new = rng.binomial(10, p_ppc[:, k])
+print(y_new.mean(), np.percentile(y_new, [2.5, 50, 97.5]))   # ≈ 6.6 y [4, 9]
+</script>
+</div>
+    <ul class="walk">
+      <li><b>Réplicas:</b> para cada draw se calcula \(p_k^{(s)}=\operatorname{logit}^{-1}(\alpha^{(s)}+\beta^{(s)}F_k+\gamma^{(s)}_{d[k]})\) y se simula \(Y^{rep,(s)}_k\sim\text{Bin}(n_k,p_k^{(s)})\) con el mismo tamaño de celda.</li>
+      <li><b>Comparación:</b> el recuento observado frente a los percentiles 2,5 y 97,5 de las réplicas. Se buscan diferencias sistemáticas por departamento o sexo.</li>
+      <li><b>Predicción:</b> para 10 mujeres nuevas en A se usa la \(p\) de cada draw y después un binomial: se propaga tanto la incertidumbre de los coeficientes como la variación del resultado.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================================================== 5 -->
+<section id="b5">
+  <div class="sec-head"><div class="eyebrow">Lección 3 · Cierre</div><h2>Flujo de trabajo y elección del método</h2></div>
+  <div class="sub" id="b5-ppc">
+    <h3>5.1 Una discrepancia, un modelo mejorable</h3>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>Celda</th><th>Solicitantes</th><th>Admitidos</th><th>Intervalo predictivo 95 %</th></tr></thead>
+      <tbody>
+        <tr><td>A / hombres</td><td class="num">825</td><td class="num">512</td><td class="num">[490, 564]</td></tr>
+        <tr><td>A / mujeres</td><td class="num">108</td><td class="num"><b>89</b></td><td class="num">[60, 82]</td></tr>
+        <tr><td>E / mujeres</td><td class="num">393</td><td class="num">94</td><td class="num">[80, 124]</td></tr>
+      </tbody>
+    </table></div>
+    <p>Los 89 admitidos de A/mujeres exceden el límite superior. Una celda atípica entre 12 podría ser casualidad, pero invita a mirar si una interacción sexo×departamento mejora el ajuste. Esto también cambia la predicción para diez solicitantes futuras:</p>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>Modelo</th><th>Media predictiva</th><th>Intervalo 95 %</th></tr></thead>
+      <tbody>
+        <tr><td>Solo A/mujeres: Beta–Binomial</td><td class="num">8,18</td><td class="num">[5, 10]</td></tr>
+        <tr><td>12 celdas: logístico con efecto común</td><td class="num">≈ 6,6</td><td class="num">≈ [4, 9]</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Las dos respuestas difieren porque asumen cosas distintas: el primer modelo estima la tasa de A/mujeres con sus 89 de 108; el segundo impone un único coeficiente de sexo para todos los departamentos. Antes de usarlo para pronosticar una cohorte nueva hay que investigar ese desajuste.</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">Chequeo del modelo</span><p>Simular otra tabla de 12 celdas con los mismos tamaños y comparar recuentos, tasas por departamento y patrones por sexo con lo observado.</p></div>
+      <div class="card"><span class="tag">Capacidad predictiva</span><p>Usar una cohorte posterior, reservada antes de ajustar, y evaluar calibración o puntuaciones logarítmicas predictivas. Un modelo puede ajustar la historia y predecir mal el futuro.</p></div>
+    </div>
+  </div>
+
+  <div class="sub" id="b5-met">
+    <h3>5.2 Elegir el enfoque computacional</h3>
+    <div class="tbl"><table class="plain">
+      <thead><tr><th>Método</th><th>Idea principal</th><th>Qué enseña</th></tr></thead>
+      <tbody>
+        <tr><td>Actualización conjugada</td><td>Posterior algebraica en la misma familia</td><td>Beta–Binomial exacta; no hace falta muestreador</td></tr>
+        <tr><td>Metropolis–Hastings</td><td>Proponer un movimiento y aceptarlo o rechazarlo</td><td>General y transparente; la propuesta importa</td></tr>
+        <tr><td>Gibbs</td><td>Sortear cada parámetro de su condicional completa</td><td>La conjugación condicional ayuda; el mezclado puede ser lento</td></tr>
+        <tr><td>HMC / NUTS</td><td>Propuestas guiadas por el gradiente</td><td>Eficiente en modelos continuos; vigilar divergencias</td></tr>
+        <tr><td>Variacional</td><td>Optimizar una aproximación en una familia manejable</td><td>Rápida con datos grandes; puede subestimar la incertidumbre</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub" id="b5-wf">
+    <h3>5.3 Flujo bayesiano práctico</h3>
+    <ol class="walk">
+      <li><b>Pregunta y modelo:</b> definir el modelo probabilístico de los datos y la pregunta estadística.</li>
+      <li><b>Antes de ajustar:</b> simular las cantidades de interés con parámetros sorteados de la a priori y revisar los supuestos inverosímiles.</li>
+      <li><b>Cómputo:</b> ajustar la posterior; revisar trazas, \(\hat R\), ESS y error de Monte Carlo.</li>
+      <li><b>Interpretación</b> de los resultados.</li>
+      <li><b>Revisar y reportar:</b> reajustar, comprobar la sensibilidad a la a priori (sobre todo con muestras pequeñas) y evaluar la predicción en datos reservados.</li>
+    </ol>
+    <div class="callout tip">
+      <h4>Mensajes para llevarse</h4>
+      <p>La regla de Bayes combina verosimilitud y a priori en la posterior, que permite estimar, cuantificar incertidumbre y predecir. La conjugación da una posterior exacta; MCMC la aproxima cuando el cálculo directo es difícil. M–H, Gibbs y HMC usan estrategias de transición distintas; JAGS y Stan convierten una especificación en draws. Ajustar por departamento cambia la pregunta de una comparación agrupada a una asociación dentro del departamento.</p>
+    </div>
+  </div>
+</section>
+<!-- ===================================================== 6 -->
+<section id="b6">
+  <div class="sec-head"><div class="eyebrow">Lección 1</div><h2>Datos incompletos y el algoritmo EM</h2></div>
+  <p class="note">Los métodos estadísticos se desarrollaron para tablas rectangulares, pero en la práctica una encuesta de voto en España pierde la banda de ingresos, recibe «−99» como marcador de desconocido o un cero que en realidad es un blanco mal codificado. Lo que importa es <b>por qué faltan</b> los datos.</p>
+
+  <div class="sub" id="b6-mec">
+    <h3>6.1 Mecanismos de falta (Rubin, 1976)</h3>
+    <p>Sea \(M_{j,i}=1\) si \(X_{j,i}\) se observa y 0 si falta, con modelo \(f_\psi(m_i\mid y_i,x_i)\). Tres casos:</p>
+    <div class="tbl"><table class="plain">
+      <thead><tr><th>Mecanismo</th><th>La probabilidad de faltar…</th><th>Ejemplo (encuesta de voto)</th><th>Consecuencia en verosimilitud</th></tr></thead>
+      <tbody>
+        <tr><td><b>MCAR</b></td><td>no depende ni del valor ausente ni de otras variables: \(f_\psi(m_i\mid x_i,y_i)=f_\psi(m_i)\)</td><td>Un lote aleatorio de entrevistadores no rellena la banda de ingresos, que es opcional</td><td>Ignorable. Casos completos es válido si el modelo es correcto, pero descarta información</td></tr>
+        <tr><td><b>MAR</b></td><td>depende de lo ya observado, no del valor ausente: \(f_\psi(m_i\mid x_i,y_i)=f_\psi(m_i\mid x_{i,obs},y_i)\)</td><td>Se omite más el ingreso según modo de encuesta o región; condicionando en lo observado, no depende del ingreso no declarado</td><td>Ignorable con parámetros distintos: se usa la verosimilitud de lo observado, que integra sobre lo ausente</td></tr>
+        <tr><td><b>MNAR</b></td><td>depende del propio valor ausente \(x_{i,mis}\)</td><td>Los hogares de ingresos muy altos omiten el ingreso, incluso tras ajustar por edad, estudios y región</td><td>El modelo de falta queda dentro de la verosimilitud: se estima conjuntamente o se hace análisis de sensibilidad</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout">
+      <h4>Tres ejercicios de las diapositivas</h4>
+      <p>(1) El ingreso falta más en entrevistas online: <b>MAR</b> (depende del modo, observado). (2) Quienes tienen doctorado ocultan su ingreso: <b>MAR</b> si el nivel de estudios está observado; el ingreso en sí no es la causa. (3) Quienes tienen ingresos altos no lo declaran: <b>MNAR</b>, depende del propio valor ausente.</p>
+    </div>
+    <div class="grid2">
+      <div class="card"><span class="tag">Casos completos</span><p>Conservar solo quien tiene todos los datos. Menos datos, más incertidumbre; y si la falta tiene un patrón sistemático, sesgo.</p></div>
+      <div class="card"><span class="tag">Variables comunes</span><p>Conservar a todos y eliminar las variables con huecos. Se pierde información estadísticamente relevante.</p></div>
+    </div>
+  </div>
+
+  <div class="sub" id="b6-lik">
+    <h3>6.2 Verosimilitud con covariables incompletas</h3>
+    <p>Con \(x_i=(x_{i,obs},x_{i,mis})\) y parámetros \(\gamma=(\theta,\xi,\psi)\), el modelo conjunto se factoriza y la contribución del dato observado integra sobre lo que falta:</p>
+    <div class="math">\[ f_\gamma(y_i,x_i,m_i)=f_\theta(y_i\mid x_i)\,f_\psi(m_i\mid x_i)\,f_\xi(x_i),\qquad L_i(\theta,\psi,\xi)=\int_{X_{mis}} f_\theta(y_i\mid x_i)\,f_\psi(m_i\mid x_i)\,f_\xi(x_i)\,dx_{i,mis} \]</div>
+    <ul class="tight">
+      <li>El estimador de máxima verosimilitud conserva las propiedades asintóticas de los datos completos (Takai y Kano, 2013).</li>
+      <li>La verosimilitud de \(\theta\) <b>no es separable</b> de la de \(\xi\) y \(\psi\), y es difícil de optimizar si la covariable ausente es continua.</li>
+      <li><b>Si MCAR (o MAR con parámetros distintos):</b> \(f_\psi(m_i\mid\cdot)\) sale de la integral y se ignora.</li>
+      <li><b>Si la covariable ausente es discreta:</b> la integral es una suma finita, \(\log L_i=\log\sum_{x_{i,mis}}f_\theta(y_i\mid x_i)f_\xi(x_i)\) (más \(f_\psi(m_i\mid x_{i,obs})\) fuera).</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="b6-em">
+    <h3>6.3 El algoritmo EM (Dempster, Laird y Rubin, 1977)</h3>
+    <p>En lugar de maximizar \(\sum_i\log L_i\), se maximiza de forma iterativa la <b>esperanza</b> de la log-verosimilitud de los datos completos, tomada respecto de la distribución de lo ausente dado lo observado:</p>
+    <div class="math">\[ f_\gamma(x_{i,mis}\mid y_i,x_{i,obs},m_i)=\frac{f_\theta(y_i\mid x_i)\,f_\xi(x_i)\,f_\psi(m_i\mid x_i)}{\int_{X_{mis}}f_\theta(y_i\mid x_i)\,f_\xi(x_i)\,f_\psi(m_i\mid x_i)\,dx_{i,mis}}\ \ \text{(¡regla de Bayes!)} \]</div>
+    <div class="grid2">
+      <div class="card"><span class="tag">Paso E (esperanza)</span>
+        <div class="math">\[ Q(\gamma\mid\gamma^{(\ell-1)})=\sum_i\int f_{\gamma^{(\ell-1)}}(x_{i,mis}\mid y_i,x_{i,obs},m_i)\,\log f_\gamma(y_i,x_i,m_i)\,dx_{i,mis} \]</div></div>
+      <div class="card"><span class="tag">Paso M (maximización)</span>
+        <div class="math">\[ \hat\gamma=\arg\max_\gamma\,Q(\gamma\mid\gamma^{(\ell-1)}) \]</div>
+        <p class="note">Se repite hasta que los parámetros o la log-verosimilitud observada cambian menos que \(\epsilon\).</p></div>
+    </div>
+    <h4>Caso aplicado: encuesta de salarios</h4>
+    <p>Se analiza \(Y_i=\log(\text{salario}_i)\) con experiencia \(Z_i\) observada y un indicador de título universitario \(X_i\) que falta en parte de los encuestados por un fallo informático. Objetivo: estimar la prima salarial del título condicionada a la experiencia.</p>
+    <div class="card"><span class="tag">Paso 1 · modelo de datos completos</span>
+      <div class="math">\[ Y_i=\alpha+\beta X_i+\delta Z_i+\varepsilon_i,\ \ \varepsilon_i\sim N(0,\sigma^2),\qquad X_i\sim\text{Bernoulli}(\xi) \]</div></div>
+    <div class="card"><span class="tag">Paso 2 · verosimilitud observada (MAR)</span>
+      <div class="math">\[ L_i(\theta,\xi)=\begin{cases}f_\theta(y_i\mid x_i,z_i)\,\xi^{x_i}(1-\xi)^{1-x_i}, & M_i=1\\[4pt] \displaystyle\sum_{x=0}^{1}f_\theta(y_i\mid x,z_i)\,\xi^{x}(1-\xi)^{1-x}, & M_i=0\end{cases} \]</div>
+      <p class="note">Quien contesta aporta la densidad con su título registrado; quien no, aporta <b>los dos valores posibles</b> ponderados por su probabilidad. Esa persona sigue en la verosimilitud.</p></div>
+    <div class="card"><span class="tag">Paso 3 · regla de Bayes para un título ausente</span>
+      <div class="math">\[ w_i=P(X_i=1\mid Y_i=y_i,Z_i=z_i)=\frac{\xi\,f_\theta(y_i\mid x=1,z_i)}{\xi\,f_\theta(y_i\mid x=1,z_i)+(1-\xi)\,f_\theta(y_i\mid x=0,z_i)} \]</div>
+      <p class="note">El salario y la experiencia observados actualizan la creencia sobre el título ausente. Si el título está observado no hace falta calcular nada.</p></div>
+    <div class="card"><span class="tag">Paso 4 · E y M</span>
+      <div class="math">\[ Q=\sum_{i:m_i=1}\log\{f_\theta(y_i\mid x_i,z_i)\xi^{x_i}(1-\xi)^{1-x_i}\}+\sum_{i:m_i=0}\Big[w_i\log\{f_\theta(y_i\mid 1,z_i)\xi\}+(1-w_i)\log\{f_\theta(y_i\mid 0,z_i)(1-\xi)\}\Big] \]</div>
+      <p class="note">El código crea para cada encuestado dos filas con pesos \(w_i\) y \(1-w_i\) y ajusta una regresión ponderada: eso es el paso M.</p></div>
+
+    <div class="lab" id="lab-miss">
+      <div class="lab-title">Laboratorio · Caso completos, EM y omitir la variable</div>
+      <div class="ctl">
+        <label>Mecanismo de falta<select id="mi_mech">
+          <option value="mar">MAR · depende de la experiencia (curso)</option>
+          <option value="mcar">MCAR · al azar (30 % faltan)</option>
+          <option value="mary">MAR · depende del salario</option>
+          <option value="mnar">MNAR · depende del propio título</option>
+        </select></label>
+        <label>Semilla<input id="mi_seed" type="number" value="2026"></label>
+      </div>
+      <div class="tools"><button type="button" id="mi_new">Nueva muestra</button></div>
+      <div class="stats" id="mi_stats"></div>
+      <div class="tbl"><table class="plain mini" id="mi_tbl"></table></div>
+      <figure class="fig" id="f_mi"><div class="tl-scroll"></div>
+        <figcaption>Distribución del estimador de la prima del título \(\hat\beta\) en 150 muestras repetidas de \(n=800\): casos completos (naranja) frente a EM (azul). La línea vertical es el valor real, 0,25.</figcaption></figure>
+      <div class="legend"><span><i class="a"></i>EM</span><span><i class="p"></i>casos completos</span></div>
+      <div class="stats" id="mi_rep"></div>
+      <div class="callout" id="mi_msg"></div>
+    </div>
+    <div class="callout key">
+      <h4>Qué enseña cada análisis (diapositivas)</h4>
+      <p><b>EM</b> usa a los 800 y la prima queda cerca del 0,25 real. <b>Casos completos</b> bajo MAR por experiencia sigue centrado cerca de 0,25, pero con error típico mayor porque descarta observaciones (en una corrida de referencia con semilla 2026: 0,0285 frente a 0,0272 con EM, con 245 títulos faltantes, el 30,6 %). <b>Omitir el título</b> cambia el modelo: la prima no se puede estimar y el intercepto absorbe el efecto medio, \(\xi\beta\approx0{,}55\times0{,}25=0{,}1375\) (10,2 → ≈10,34). Si título y experiencia estuviesen asociados, también se sesgaría el coeficiente de la experiencia, aunque esté totalmente observada: \(E[Y\mid Z]=\alpha+\gamma Z+\beta E[X\mid Z]\).</p>
+    </div>
+    <div class="callout tip">
+      <h4>Mensajes para llevarse (Lección 1)</h4>
+      <p>La falta es parte del proceso generador de datos. Los casos completos no son automáticamente representativos. MCAR, MAR y MNAR son <b>supuestos</b> sobre por qué faltan los valores. Bajo MAR, los métodos de verosimilitud usan los registros incompletos sin rellenarlos antes. <b>EM es una ruta computacional hacia la máxima verosimilitud, no una solución para MNAR</b>; si MNAR es plausible, se informa la sensibilidad al supuesto.</p>
+    </div>
+    <div class="codepair" data-file="Algoritmo EM para una covariable binaria con datos faltantes" data-src="curso">
+<script type="text/x-r">
+set.seed(2026)
+n <- 800
+experience <- pmax(0, rnorm(n, 10, 5))
+degree.true <- rbinom(n, 1, .55)
+log_salary <- 10.2 + .06 * experience + .25 * degree.true + rnorm(n, 0, .35)
+salary.survey <- data.frame(log_salary, experience, degree = degree.true)
+# MAR: responder a la pregunta del título depende de la experiencia observada
+p.answer <- plogis(.8 + .08 * (experience - mean(experience)))
+salary.survey$degree_answered <- rbinom(n, 1, p.answer)
+salary.survey$degree[salary.survey$degree_answered == 0] <- NA_integer_
+
+em.degree <- function(y, z, x, maxit = 1000, tol = 1e-8) {
+  obs <- !is.na(x)
+  xi <- mean(x[obs])
+  fit <- lm(y ~ x + z, subset = obs)
+  beta <- coef(fit); sigma2 <- mean(resid(fit)^2)
+  for (iter in seq_len(maxit)) {
+    # E-step: P(titulo = 1 | y, z) por la regla de Bayes
+    mu0 <- beta[1] + beta["z"] * z
+    mu1 <- mu0 + beta["x"]
+    r0 <- dnorm(y, mu0, sqrt(sigma2)) * (1 - xi)
+    r1 <- dnorm(y, mu1, sqrt(sigma2)) * xi
+    w <- ifelse(obs, x, r1 / (r0 + r1))
+    # M-step: regresion ponderada sobre los dos datos posibles de cada persona
+    pseudo <- rbind(data.frame(y = y, x = 0, z = z, wt = 1 - w),
+                    data.frame(y = y, x = 1, z = z, wt = w))
+    fit.new <- lm(y ~ x + z, data = pseudo, weights = wt)
+    beta.new <- coef(fit.new)
+    sigma2.new <- with(pseudo, weighted.mean((y - predict(fit.new))^2, wt))
+    xi.new <- mean(w)
+    if (max(abs(beta.new - beta), abs(sigma2.new - sigma2), abs(xi.new - xi)) < tol) break
+    beta <- beta.new; sigma2 <- sigma2.new; xi <- xi.new
+  }
+  list(beta = beta.new, sigma2 = sigma2.new, xi = xi.new, posterior = w, iterations = iter)
+}
+em.fit <- em.degree(salary.survey$log_salary, salary.survey$experience, salary.survey$degree)
+
+# Tres análisis: casos completos, EM y omitir la variable
+cc.fit   <- lm(log_salary ~ degree + experience, data = subset(salary.survey, !is.na(degree)))
+omit.fit <- lm(log_salary ~ experience, data = salary.survey)
+rbind(real = c(10.2, .25, .06), casos_completos = coef(cc.fit), EM = em.fit$beta)
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy.stats import norm
+import statsmodels.api as sm
+
+rng = np.random.default_rng(2026)
+n = 800
+experience = np.maximum(0, rng.normal(10, 5, n))
+degree_true = rng.binomial(1, .55, n)
+log_salary = 10.2 + .06 * experience + .25 * degree_true + rng.normal(0, .35, n)
+# MAR: responder a la pregunta del título depende de la experiencia observada
+p_answer = 1 / (1 + np.exp(-(.8 + .08 * (experience - experience.mean()))))
+degree = np.where(rng.binomial(1, p_answer) == 1, degree_true, np.nan)
+
+def em_degree(y, z, x, maxit=1000, tol=1e-8):
+    obs = ~np.isnan(x)
+    xi = x[obs].mean()
+    X = np.column_stack([np.ones(obs.sum()), x[obs], z[obs]])
+    fit = sm.OLS(y[obs], X).fit()
+    beta, sigma2 = fit.params, np.mean(fit.resid ** 2)
+    for it in range(1, maxit + 1):
+        # E-step: P(titulo = 1 | y, z) por la regla de Bayes
+        mu0 = beta[0] + beta[2] * z
+        mu1 = mu0 + beta[1]
+        r0 = norm.pdf(y, mu0, np.sqrt(sigma2)) * (1 - xi)
+        r1 = norm.pdf(y, mu1, np.sqrt(sigma2)) * xi
+        w = np.where(obs, np.nan_to_num(x), r1 / (r0 + r1))
+        # M-step: regresion ponderada sobre los dos datos posibles de cada persona
+        Xp = np.column_stack([np.ones(2 * len(y)), np.r_[np.zeros(len(y)), np.ones(len(y))], np.r_[z, z]])
+        yp, wt = np.r_[y, y], np.r_[1 - w, w]
+        fit_new = sm.WLS(yp, Xp, weights=wt).fit()
+        beta_new = fit_new.params
+        sigma2_new = np.average((yp - Xp @ beta_new) ** 2, weights=wt)
+        xi_new = w.mean()
+        done = max(abs(beta_new - beta).max(), abs(sigma2_new - sigma2), abs(xi_new - xi)) < tol
+        beta, sigma2, xi = beta_new, sigma2_new, xi_new
+        if done:
+            break
+    return beta, sigma2, xi, w, it
+
+beta_em, sigma2_em, xi_em, w_post, iters = em_degree(log_salary, experience, degree)
+
+# Tres análisis: casos completos, EM y omitir la variable
+ok = ~np.isnan(degree)
+cc = sm.OLS(log_salary[ok], np.column_stack([np.ones(ok.sum()), degree[ok], experience[ok]])).fit()
+omit = sm.OLS(log_salary, sm.add_constant(experience)).fit()
+print("real            ", [10.2, .25, .06])
+print("casos completos ", cc.params.round(4))
+print("EM              ", beta_em.round(4), "en", iters, "iteraciones")
+</script>
+</div>
+    <ul class="walk">
+      <li><b>Generación MAR:</b> <code>p.answer</code> depende de la experiencia, así que quien tiene más experiencia contesta más. Los NA se fijan donde <code>degree_answered == 0</code>.</li>
+      <li><b>Arranque:</b> \(\xi\) y los coeficientes salen de los casos completos.</li>
+      <li><b>E-step:</b> <code>r1/(r0+r1)</code> es \(w_i\) por Bayes; <code>ifelse(obs, x, …)</code> deja intacto el título cuando existe.</li>
+      <li><b>M-step:</b> <code>pseudo</code> duplica cada fila con \(x=0\) y \(x=1\) y pesos \(1-w\) y \(w\); <code>lm(…, weights = wt)</code> es la regresión ponderada. Se actualizan \(\xi=\bar w\) y \(\sigma^2\) como media ponderada de residuos.</li>
+      <li><b>Parada:</b> cuando el mayor cambio de parámetros baja de <code>tol</code>. En la corrida de referencia converge en 11 iteraciones.</li>
+      <li><b>Comparación:</b> <code>rbind(real, casos_completos, EM)</code> pone los tres juegos de coeficientes uno bajo otro.</li>
+    </ul>
+    <p class="note">Comprobación con muestras repetidas: en una corrida de referencia de 1 000 muestras, el error típico de EM para un coeficiente fue ≈2,8 % menor que el de casos completos. EM aprovecha el salario y la experiencia de todos los encuestados.</p>
+  </div>
+</section>
+
+<!-- ===================================================== 7 -->
+<section id="b7">
+  <div class="sec-head"><div class="eyebrow">Lección 2</div><h2>Datos longitudinales y modelos con variables latentes</h2></div>
+  <p class="note">Las observaciones repetidas del mismo estudiante <b>no son independientes</b>; las de estudiantes distintos sí. Los datos longitudinales miden a muchos individuos varias veces; las series temporales miden una o pocas variables a lo largo del tiempo.</p>
+
+  <div class="sub" id="b7-dep">
+    <h3>7.1 Por qué falla la regresión simple</h3>
+    <p>Ejemplo: 16 estudiantes seguidos durante cuatro semestres (64 registros) con nota media y horas de estudio diarias. El modelo \(Y_{i,t}=\beta_0+\beta_1X_{i,t}+\epsilon_{i,t}\) con \(\epsilon_{i,t}\overset{iid}{\sim}N(0,\sigma_\epsilon^2)\) ajusta una sola recta a los 64 registros y supone \(\text{Cov}(\epsilon_{i,t},\epsilon_{i,s})=0\) para \(t\neq s\). Pero la preparación o el talento del estudiante afectan a varios semestres: las notas se mueven juntas, los errores típicos salen demasiado pequeños y los intervalos demasiado estrechos.</p>
+    <figure class="fig" id="f_corr"><div class="tl-scroll"></div>
+      <figcaption>Correlaciones entre semestres de los 16 estudiantes. Notas del mismo estudiante están fuertemente asociadas incluso con cuatro semestres de distancia (0,851 entre el 1.º y el 4.º). No es evidencia de que un semestre cause el siguiente.</figcaption></figure>
+    <p>Un primer paso es añadir una tendencia: con \(u=t-1\) y \(X^c=X-3\), \(Y_{i,t}=\beta_0+\beta_1X^c_{i,t}+\beta_2u+\beta_3uX^c_{i,t}+\epsilon_{i,t}\). Aún así todos tienen la misma nota inicial y la misma tendencia, y los errores se suponen independientes.</p>
+  </div>
+
+  <div class="sub" id="b7-lmm">
+    <h3>7.2 Modelo lineal mixto (LMM)</h3>
+    <div class="card"><span class="tag">Definición</span>
+      <div class="math">\[ Y_{i,t}=\beta^\top x_{i,t}+b_i^\top z_{i,t}+\epsilon_{i,t},\qquad \epsilon_{i,t}\overset{iid}{\sim}N(0,\sigma^2),\quad b_i\overset{iid}{\sim}N(0,D),\quad b_i\perp\epsilon_{i,t} \]</div>
+      <p class="note">\(\beta\) son los <b>efectos fijos</b> (la población); \(b_i\) son los <b>efectos aleatorios</b> específicos de cada individuo; \(D\) describe la variación entre estudiantes y \(\epsilon\) la variabilidad que queda dentro del estudiante. Como \(E(b_i)=0\), el modelo marginal tiene \(E[Y\mid x,z]=\beta x\) (solo en modelos lineales).</p>
+    </div>
+    <div class="card"><span class="tag">Media y covarianza de las medidas repetidas</span>
+      <div class="math">\[ Y_i=x_i\beta+z_ib_i+\epsilon_i\ \Rightarrow\ E(Y_i)=x_i\beta,\qquad \operatorname{Var}(Y_i)=V_i=z_iDz_i^\top+\sigma^2I \]</div>
+      <p class="note">\(x_i\beta\) es la trayectoria media; \(z_iDz_i^\top\) es la covarianza que comparten las medidas del mismo estudiante; \(\sigma^2I\) es el resto. Con solo intercepto aleatorio, la correlación entre dos semestres es \(\tau^2/(\tau^2+\sigma^2)\).</p>
+    </div>
+    <div class="card"><span class="tag">El modelo de las notas</span>
+      <div class="math">\[ Y_{i,t}=\underbrace{\beta_0+\beta_1u+\beta_2X^c_{i,t}+\beta_3uX^c_{i,t}}_{\text{parte fija}}+\underbrace{b_{0,i}+b_{1,i}u}_{\text{parte aleatoria}}+\epsilon_{i,t},\qquad \binom{b_{0,i}}{b_{1,i}}\sim N\!\Big[\binom00,\begin{pmatrix}\sigma_0^2&\sigma_{01}\\\sigma_{01}&\sigma_1^2\end{pmatrix}\Big] \]</div>
+      <ul class="tight">
+        <li>\(\beta_0\): nota media del semestre 1 con 3 h/día; \(\beta_1\): cambio medio por semestre; \(\beta_2\): asociación de las horas con la nota en el semestre 1; \(\beta_3\): cómo cambia esa asociación cada semestre.</li>
+        <li><b>Intercepto aleatorio</b> \(b_{0,i}\): desplaza la nota inicial. <b>Pendiente aleatoria</b> \(b_{1,i}\): inclina la trayectoria; la pendiente del estudiante \(i\) es \(\beta_1+b_{1,i}\).</li>
+        <li>\(\rho_{01}=\sigma_{01}/(\sigma_0\sigma_1)>0\): quienes empiezan más alto mejoran más rápido.</li>
+      </ul>
+    </div>
+    <div class="card"><span class="tag">Verosimilitud (integra los efectos aleatorios)</span>
+      <div class="math">\[ L(\beta,D,\sigma^2)=\prod_{i=1}^N\int f(y_i\mid x_i,z_i,b_i)\,f_D(b_i)\,db_i,\qquad \log L=-\tfrac12\sum_i\Big[\log|V_i|+(y_i-x_i\beta)^\top V_i^{-1}(y_i-x_i\beta)\Big]+c \]</div>
+      <p class="note">Con \(y_i\) y \(b_i\) normales la integral tiene forma cerrada: \(y_i\sim N(x_i\beta,V_i)\). Es la misma estructura «integrar lo no observado» del bloque 6.</p>
+    </div>
+    <figure class="fig" id="f_aic"><div class="tl-scroll"></div>
+      <figcaption>Panel simulado de 800 estudiantes, 3 200 notas, ajustado por máxima verosimilitud. AIC \(=-2\ell+2k\); \(k\) cuenta efectos fijos, parámetros de covarianza de \(D\) y la varianza residual (3, 5 y 8), no un parámetro por estudiante.</figcaption></figure>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>Modelo</th><th>k</th><th>AIC</th><th>ΔAIC</th></tr></thead>
+      <tbody>
+        <tr><td>Solo horas de estudio</td><td class="num">3</td><td class="num">21 983,96</td><td class="num">1 189,32</td></tr>
+        <tr><td>Tendencia temporal</td><td class="num">5</td><td class="num">21 666,25</td><td class="num">871,61</td></tr>
+        <tr><td><b>LMM (intercepto + pendiente)</b></td><td class="num">8</td><td class="num"><b>20 794,64</b></td><td class="num"><b>0,00</b></td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">En ese panel las estimaciones fueron: DE del intercepto aleatorio 5,02, DE de la pendiente aleatoria 0,59 y DE residual 5,01 (valores reales 5, 0,6 y 5).</p>
+  </div>
+
+  <div class="sub" id="b7-shrink">
+    <h3>7.3 Encogimiento: efectos aleatorios como a priori</h3>
+    <p>Para un LMM gaussiano, el efecto del estudiante \(i\) se estima con su esperanza condicional:</p>
+    <div class="math">\[ \hat b_i=E(b_i\mid y_i)=\hat D z_i^\top\hat V_i^{-1}(y_i-x_i\hat\beta)=\Big(z_i^\top z_i/\sigma^2+D^{-1}\Big)^{-1}z_i^\top (y_i-x_i\hat\beta)/\sigma^2 \]</div>
+    <p>Es exactamente la <b>media a posteriori</b> de \(b_i\) bajo la a priori \(N(0,D)\): el BLUP (<code>ranef()</code>). Historias cortas o ruidosas se encogen hacia 0; patrones claros y repetidos reciben un ajuste mayor. Para un intercepto aleatorio con \(T\) medidas, el factor es \(\lambda=\dfrac{\tau^2}{\tau^2+\sigma^2/T}\).</p>
+    <div class="lab" id="lab-lmm">
+      <div class="lab-title">Laboratorio · BLUP frente a mínimos cuadrados por estudiante</div>
+      <div class="ctl">
+        <label>Semestres observados por estudiante<select id="lm_nobs"><option>2</option><option>3</option><option selected>4</option></select></label>
+        <label>DE de la pendiente aleatoria \(\sigma_1\) <span class="val" id="lm_s1_v"></span><input id="lm_s1" type="range" min="0.1" max="2" step="0.1" value="0.6"></label>
+        <label>DE residual \(\sigma\) <span class="val" id="lm_sig_v"></span><input id="lm_sig" type="range" min="1" max="10" step="0.5" value="5"></label>
+        <label>DE del intercepto \(\sigma_0\) <span class="val" id="lm_s0_v"></span><input id="lm_s0" type="range" min="1" max="10" step="0.5" value="5"></label>
+      </div>
+      <div class="tools"><button type="button" id="lm_new">Otra muestra</button></div>
+      <figure class="fig" id="f_lmm"><div class="tl-scroll"></div>
+        <figcaption>Seis estudiantes. Línea discontinua del color: recta de mínimos cuadrados con sus datos. Línea continua: trayectoria del modelo mixto (población + \(\hat b_i\)). Discontinua neutra: media de la población. Con pocos semestres o mucho ruido, la recta individual se va a valores absurdos y el BLUP la devuelve hacia la media.</figcaption></figure>
+      <div class="stats" id="lm_stats"></div>
+    </div>
+    <p class="note">Lo que enseña el laboratorio: con \(\sigma_1\) pequeño frente al ruido, el BLUP de la pendiente casi no se aparta de la media; con \(\sigma_1\) grande el BLUP se parece más a la recta del estudiante. En promedio, el error de la pendiente del modelo mixto es menor que el de mínimos cuadrados por estudiante.</p>
+    <div class="card"><span class="tag">Predicción: poblacional frente a condicional</span>
+      <p>Para un <b>estudiante nuevo</b> se predice solo con los efectos fijos, \(\hat Y=x^\top\hat\beta\) (<code>re.form = ~0</code>). Para uno <b>ya observado</b> se añade su efecto, \(\hat Y_{i,4}=x_{i,4}^\top\hat\beta+z_{i,4}^\top\hat b_i\). El curso compara el modelo mixto con los lineales por RMSE y MAE al predecir el semestre 4 a partir de los tres primeros.</p>
+    </div>
+    <div class="codepair" data-file="Modelo lineal mixto: pendiente e intercepto aleatorios por estudiante" data-src="curso">
+<script type="text/x-r">
+set.seed(2026)
+n <- 800; time <- 0:3
+study_hours_c <- pmin(7, pmax(0, rnorm(n, 3, 1))) - 3
+b0 <- rnorm(n, 0, 5); b1 <- rnorm(n, 0, 0.6)       # efectos aleatorios del estudiante
+wide <- data.frame(id = factor(seq_len(n)), study_hours_c)
+for (j in 1:4)
+  wide[[paste0("grade", j)]] <- 55 + 2 * time[j] + 4 * study_hours_c +
+    0.3 * time[j] * study_hours_c + b0 + b1 * time[j] + rnorm(n, 0, 5)
+
+long <- tidyr::pivot_longer(wide, cols = starts_with("grade"),
+                            names_to = "occasion", values_to = "grade")
+long$semester <- as.integer(sub("grade", "", long$occasion))
+long$time <- long$semester - 1
+
+library(lme4)
+mixed_fit <- lmer(grade ~ time * study_hours_c + (time | id), data = long, REML = FALSE)
+summary(mixed_fit)                       # efectos fijos + DE aleatorias + correlacion
+ranef(mixed_fit)$id |> head()            # b_i estimados: medias a posteriori encogidas
+
+# Prediccion: poblacion (sin efectos aleatorios) frente a estudiante concreto
+new_student <- data.frame(id = factor("new"), time = 3, study_hours_c = 1)
+predict(mixed_fit, new_student, re.form = ~0, allow.new.levels = TRUE)
+</script>
+<script type="text/x-py">
+import numpy as np, pandas as pd
+import statsmodels.formula.api as smf
+
+rng = np.random.default_rng(2026)
+n, time = 800, np.arange(4)
+study_hours_c = np.clip(rng.normal(3, 1, n), 0, 7) - 3
+b0, b1 = rng.normal(0, 5, n), rng.normal(0, 0.6, n)    # efectos aleatorios del estudiante
+long = pd.DataFrame({
+    "id": np.repeat(np.arange(n), 4), "time": np.tile(time, n),
+    "study_hours_c": np.repeat(study_hours_c, 4)})
+long["grade"] = (55 + 2 * long.time + 4 * long.study_hours_c
+                 + 0.3 * long.time * long.study_hours_c
+                 + np.repeat(b0, 4) + np.repeat(b1, 4) * long.time
+                 + rng.normal(0, 5, len(long)))
+
+mixed = smf.mixedlm("grade ~ time * study_hours_c", long,
+                    groups=long["id"], re_formula="~time")
+mixed_fit = mixed.fit(reml=False)
+print(mixed_fit.summary())               # efectos fijos + DE aleatorias + correlacion
+print(list(mixed_fit.random_effects.items())[:3])   # b_i estimados (encogidos)
+
+# Prediccion: poblacion (sin efectos aleatorios) para time = 3 y 4 h/dia (study_hours_c = 1)
+b = mixed_fit.fe_params
+print(b["Intercept"] + b["time"] * 3 + b["study_hours_c"] * 1 + b["time:study_hours_c"] * 3)
+</script>
+</div>
+    <ul class="walk">
+      <li><b>Simulación:</b> <code>b0</code>, <code>b1</code> son los efectos aleatorios; la nota media suma población (55 + 2·tiempo + …), efecto del estudiante y ruido de ocasión.</li>
+      <li><b><code>(time | id)</code></b> da a cada estudiante un intercepto y una pendiente aleatorios con covarianza estimada; <code>id</code> indica qué filas son del mismo estudiante. En statsmodels es <code>groups=</code> + <code>re_formula="~time"</code>.</li>
+      <li><b>ML o REML:</b> ML para comparar modelos con efectos fijos distintos y la misma estructura aleatoria; REML (por defecto) para las componentes de varianza finales.</li>
+      <li><b><code>ranef</code></b> devuelve los \(\hat b_i\): conditional modes, iguales a las medias condicionales en un LMM gaussiano.</li>
+      <li><code>summary</code> de <code>lmer</code> no da p-valores de efectos fijos: se usan intervalos o una comparación de modelos justificada (<code>anova(m0, m1)</code>, razón de verosimilitudes, \(\chi^2_1\) bajo \(H_0:\beta_3=0\)).</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="b7-ext">
+    <h3>7.4 Extensiones: GLMM, no lineal y estructuras de correlación</h3>
+    <div class="card"><span class="tag">GLMM: pasa/no pasa</span>
+      <div class="math">\[ Y_{i,t}\mid b_i\sim\text{Bernoulli}(\pi_{i,t}),\quad \operatorname{logit}(\pi_{i,t})=\beta_0+\beta_1T_t+\beta_2H^c_{i,t}+b_{0,i}+b_{1,i}T_t,\quad L(\beta,D)=\prod_i\int\Big\{\prod_{t=1}^4\pi_{i,t}^{y_{i,t}}(1-\pi_{i,t})^{1-y_{i,t}}\Big\}f_D(b_i)\,db_i \]</div>
+      <p class="note">Elige distribución y enlace según el resultado (Bernoulli + logit para binarios; Poisson + log para recuentos). Dado \(b_i\) las respuestas son independientes y al integrar \(b_i\) aparece la asociación intra-individuo. La integral no tiene forma cerrada: <code>glmer()</code> la aproxima por Laplace.</p></div>
+    <div class="card"><span class="tag">Modelo no lineal mixto: curva de aprendizaje</span>
+      <div class="math">\[ Y_{i,t}=\frac{A+b_i}{1+\exp\{(m-t)/s\}}+\epsilon_{i,t},\qquad b_i\sim N(0,\tau^2),\ \epsilon_{i,t}\sim N(0,\sigma^2) \]</div>
+      <p class="note">\(A\) es la meseta poblacional; \(b_i\) permite que la meseta de cada estudiante difiera; \(m\) es el punto medio; \(s\) la rapidez de subida.</p></div>
+    <figure class="fig" id="f_struct"><div class="tl-scroll"></div>
+      <figcaption>Cuatro estructuras de correlación para cuatro ocasiones (valores ilustrativos). Independencia: sin correlación. Intercambiable: igual para todos los pares. AR(1): decrece con la distancia. No estructurada: cada par tiene la suya (requiere muchos datos).</figcaption></figure>
+    <div class="codepair" data-file="Pasa/no pasa (GLMM) y curva de aprendizaje no lineal" data-src="curso">
+<script type="text/x-r">
+exam <- long
+exam$pass <- as.integer(exam$grade >= 50)
+pass_fit <- glmer(pass ~ time + study_hours_c + (time | id),
+                  data = exam, family = binomial)   # Bernoulli + logit, aproximacion de Laplace
+summary(pass_fit)
+
+# Curva de aprendizaje logistica con meseta aleatoria por estudiante
+library(nlme)
+learning <- expand.grid(id = factor(1:800), semester = 1:4)
+b_asym <- rnorm(800, 0, 5)
+learning$grade <- with(learning, SSlogis(semester, Asym = 90 + b_asym[as.integer(id)],
+                                         xmid = 1.2, scal = 1.2)) + rnorm(nrow(learning), 0, 4)
+learning_fit <- nlme(grade ~ SSlogis(semester, Asym, xmid, scal), data = learning,
+                     fixed = Asym + xmid + scal ~ 1, random = Asym ~ 1 | id,
+                     start = c(Asym = 90, xmid = 1.2, scal = 1.2))
+summary(learning_fit)
+</script>
+<script type="text/x-py">
+# statsmodels no ajusta GLMM binomiales por Laplace; la via bayesiana es bambi (sobre PyMC)
+import bambi as bmb
+
+long["pass_"] = (long["grade"] >= 50).astype(int)
+model = bmb.Model("pass_ ~ time + study_hours_c + (time | id)",
+                  long, family="bernoulli")        # logit por defecto
+idata = model.fit(draws=1000, tune=1000, chains=4, random_seed=2026)
+import arviz as az
+print(az.summary(idata, var_names=["Intercept", "time", "study_hours_c"]))
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>pass</code></b> vale 1 si la nota es ≥ 50; el modelo relaciona semestre y horas con el log-odds de aprobar y deja que cada estudiante tenga su nivel y su tendencia.</li>
+      <li><b><code>SSlogis</code></b> es la curva logística autoarrancable; <code>random = Asym ~ 1 | id</code> deja que la meseta varíe por estudiante.</li>
+      <li>En Python, <code>bambi</code> escribe el mismo modelo con la fórmula de lme4 pero lo ajusta de forma bayesiana (con PyMC).</li>
+    </ul>
+    <div class="callout tip">
+      <h4>Flujo de análisis longitudinal (Lección 2)</h4>
+      <p>(1) Definir a quién se sigue, el resultado, la escala de tiempo y el objetivo (asociación, cambio o predicción). (2) Mirar el diagrama de dispersión y las trayectorias; elegir efectos fijos y una estructura aleatoria plausible. (3) Ajustar con <code>lmer()</code> y ML al comparar modelos anidados. (4) Revisar residuos, convergencia, singularidad y predicción en estudiantes reservados. (5) Interpretar la heterogeneidad. (6) Distinguir predicción poblacional (estudiante nuevo) y condicional (estudiante observado). En todo momento, explicitar los supuestos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================== PREGUNTAS -->
+<section id="preguntas">
+  <div class="sec-head"><div class="eyebrow">Para practicar</div><h2>Preguntas posibles</h2></div>
+
+  <div class="q" id="q1"><span class="qn">PREGUNTA 1 · CONJUGACIÓN</span>
+    <p class="stmt">Con a priori Beta(2, 2) se observan 15 éxitos en 20 ensayos. Calcula la posterior, su media y el peso de la a priori.</p>
+    <div class="result">Posterior Beta(2+15, 2+5) = Beta(17, 7); media 17/24 = 0,708. Peso de la a priori (a+b)/(a+b+n) = 4/24 = 0,167: 0,167·0,5 + 0,833·0,75 = 0,708.</div>
+  </div>
+  <div class="q" id="q2"><span class="qn">PREGUNTA 2 · A PRIORI PREDICTIVA</span>
+    <p class="stmt">Si \(\alpha\sim N(0,2{,}5^2)\), ¿qué rango central del 95 % implica para la probabilidad \(p=\operatorname{logit}^{-1}(\alpha)\)? ¿Es una a priori «vaga»?</p>
+    <div class="result">Extremos \(\operatorname{logit}^{-1}(\mp1{,}96\cdot2{,}5)=\operatorname{logit}^{-1}(\mp4{,}9)\) → [0,007; 0,993]. En la escala de la probabilidad apila masa en 0 y 1: lo vago en el logit no es vago en \(p\); por eso se comprueba antes de ajustar.</div>
+  </div>
+  <div class="q" id="q3"><span class="qn">PREGUNTA 3 · PARADOJA DE SIMPSON</span>
+    <p class="stmt">En Berkeley, ¿cómo es posible que las mujeres tengan mayor tasa en cuatro de seis departamentos y menor tasa global?</p>
+    <div class="result">Global: 44,5 % hombres frente a 30,4 % mujeres. El 51,5 % de las solicitudes masculinas fue a A y B (alta admisión) frente al 7,2 % de las femeninas. El porcentaje global mezcla la tasa con el destino de las solicitudes.</div>
+  </div>
+  <div class="q" id="q4"><span class="qn">PREGUNTA 4 · METROPOLIS</span>
+    <p class="stmt">Posterior Beta(90, 20) y propuesta simétrica. La cadena está en \(p=0{,}82\) y propone \(0{,}78\). ¿Con qué probabilidad se acepta? ¿Y si estuviera en 0,78 y propusiera 0,82?</p>
+    <div class="result">\(a=\min\{1,(0{,}78/0{,}82)^{89}(0{,}22/0{,}18)^{19}\}\). \(\ln a=89\ln0{,}9512+19\ln1{,}2222=-4{,}451+3{,}813=-0{,}638\) → \(a=0{,}53\). En sentido contrario \(\ln a=+0{,}638\) → \(a=1\): siempre acepta, porque 0,82 está más cerca de la moda.</div>
+  </div>
+  <div class="q" id="q5"><span class="qn">PREGUNTA 5 · DIAGNÓSTICOS</span>
+    <p class="stmt">Cuatro cadenas dan \(\hat R=1{,}8\) y ESS = 40 sobre 60 000 draws guardados, con aceptación del 95 %. ¿Se pueden usar los resultados?</p>
+    <div class="result">No. \(\hat R\gg1\): las cadenas no exploraron la misma distribución. ESS = 40: los 60 000 draws equivalen a 40 independientes. Aceptación alta con paso diminuto: la cadena apenas se mueve. Hay que ampliar el paso, calentar más y alargar las cadenas desde arranques dispersos.</div>
+  </div>
+  <div class="q" id="q6"><span class="qn">PREGUNTA 6 · PREDICCIÓN</span>
+    <p class="stmt">¿Por qué la predicción para 10 mujeres nuevas en A es ≈ 8,18 con Beta–Binomial y ≈ 6,6 con el logístico de 12 celdas? ¿Cuál usarías?</p>
+    <div class="result">El primero estima la tasa de A/mujeres con sus 89 de 108 (0,818). El segundo impone un efecto de sexo común y su réplica de A/mujeres cae por debajo de los 89 observados. Antes de pronosticar hay que investigar ese desajuste, p. ej. con una interacción sexo×departamento.</div>
+  </div>
+  <div class="q" id="q7"><span class="qn">PREGUNTA 7 · PASO E DEL EM</span>
+    <p class="stmt">\(\alpha=10{,}2\), \(\delta=0{,}06\), \(\beta=0{,}25\), \(\sigma=0{,}35\), \(\xi=0{,}55\). Un encuestado con experiencia 10 y \(\log\)salario 10,9 no declaró su título. Calcula \(w_i\).</p>
+    <div class="result">\(\mu_0=10{,}2+0{,}6=10{,}8\); \(\mu_1=11{,}05\). \(f_1\propto e^{-\frac12(−0{,}429)^2}=0{,}912\); \(f_0\propto e^{-\frac12(0{,}286)^2}=0{,}960\). \(w=\dfrac{0{,}55\cdot0{,}912}{0{,}55\cdot0{,}912+0{,}45\cdot0{,}960}=0{,}537\).</div>
+  </div>
+  <div class="q" id="q8"><span class="qn">PREGUNTA 8 · CLASIFICAR EL MECANISMO</span>
+    <p class="stmt">La edad falta más cuando la encuesta es telefónica. ¿Qué mecanismo es? ¿Y si faltara más cuanta más edad tiene la persona?</p>
+    <div class="result">Lo primero es MAR: depende del modo, que está observado. Lo segundo es MNAR: depende del propio valor ausente. En el laboratorio, con MNAR el estimador de \(\xi\) sale sesgado (≈0,25 frente a 0,55), aunque el coeficiente de la regresión no.</div>
+  </div>
+  <div class="q" id="q9"><span class="qn">PREGUNTA 9 · ENCOGIMIENTO</span>
+    <p class="stmt">Intercepto aleatorio con \(\tau=5\), \(\sigma=5\) y \(T=4\) semestres. Un estudiante tiene residual medio +10 respecto de la media. ¿Cuál es su \(\hat b_0\)? ¿Y la correlación entre dos semestres?</p>
+    <div class="result">\(\lambda=25/(25+25/4)=0{,}8\) → \(\hat b_0=0{,}8\cdot10=8\). Correlación \(\tau^2/(\tau^2+\sigma^2)=25/50=0{,}5\).</div>
+  </div>
+</section>
+
+<section id="trampas">
+  <div class="sec-head"><div class="eyebrow">Para no perder puntos</div><h2>Trampas y detalles</h2></div>
+  <ul class="tight">
+    <li><b>Precisión frente a varianza:</b> JAGS usa precisión en <code>dnorm</code> y PyMC/Stan usan la desviación típica. \(N(0,2{,}5^2)\) es <code>dnorm(0, 1/2.5^2)</code> en JAGS y <code>Normal(0, 2.5)</code> en PyMC.</li>
+    <li><b>Probabilidad de la hipótesis:</b> \(P(p>0{,}8\mid y)=0{,}703\) es un enunciado sobre el parámetro; un intervalo de confianza no lo permite. Un intervalo creíble es un intervalo de la posterior.</li>
+    <li><b>Un rechazo cuenta:</b> en Metropolis la cadena repite el estado anterior; no se descartan esas iteraciones.</li>
+    <li><b>Aceptación alta ≠ buen muestreo.</b> Revisa trazas, \(\hat R\), ESS y autocorrelación de todos los coeficientes.</li>
+    <li><b>Transformar cada draw:</b> el intervalo de \(e^{\mu+\sigma^2/2}\) sale de exponenciar cada par, no de exponenciar el intervalo de \(\mu\).</li>
+    <li><b>Conjugación no es plausibilidad:</b> la comodidad algebraica no sustituye a una a priori razonable ni a su chequeo predictivo.</li>
+    <li><b>EM no arregla MNAR</b> y omitir una variable cambia el modelo.</li>
+    <li><b>ML o REML:</b> para comparar efectos fijos se usa ML; para las varianzas finales, REML.</li>
+    <li><b>Los \(b_i\) no son un parámetro por estudiante</b> en el AIC: se integran y solo cuentan los parámetros de \(D\) y \(\sigma^2\).</li>
+  </ul>
+</section>
+
+<section id="tarjetas">
+  <div class="sec-head"><div class="eyebrow">Autoevaluación</div><h2>Tarjetas de repaso</h2></div>
+  <div class="stack">
+    <details class="fc"><summary>Regla de Bayes para un parámetro</summary><div class="ans"><div class="math">\[ \pi(\theta\mid y)=\frac{f(y\mid\theta)\pi(\theta)}{f(y)}\propto L(\theta\mid y)\pi(\theta) \]</div><p>\(f(y)\) es solo la constante normalizadora.</p></div></details>
+    <details class="fc"><summary>Posterior Beta–Binomial</summary><div class="ans"><p>\(p\sim\text{Beta}(a,b)\), \(Z\mid p\sim\text{Bin}(n,p)\ \Rightarrow\ p\mid z\sim\text{Beta}(a+z,\,b+n-z)\).</p></div></details>
+    <details class="fc"><summary>Media a posteriori como promedio ponderado</summary><div class="ans"><div class="math">\[ E(p\mid z)=\frac{a+b}{a+b+n}\frac{a}{a+b}+\frac{n}{a+b+n}\frac zn \]</div></div></details>
+    <details class="fc"><summary>Predictiva posterior Beta–Binomial</summary><div class="ans"><p>\(P(Z_{new}=j\mid z)=\binom mj\dfrac{B(a'+j,\,b'+m-j)}{B(a',b')}\) con \((a',b')\) los parámetros de la posterior. Incluye la incertidumbre en \(p\) y la binomial de los casos nuevos.</p></div></details>
+    <details class="fc"><summary>¿Qué es una familia conjugada?</summary><div class="ans"><p>Una a priori es conjugada si la posterior pertenece a la misma familia. Da fórmulas cerradas. En modelos de varios parámetros puede haber conjugación <i>condicional</i>, que habilita Gibbs.</p></div></details>
+    <details class="fc"><summary>Chequeo predictivo a priori</summary><div class="ans"><p>Simular \(p^{(s)}\sim\pi\), \(Z^{(s)}\mid p^{(s)}\) y ver si los recuentos son plausibles, antes de usar los datos.</p></div></details>
+    <details class="fc"><summary>Razón de odds en el logístico de Berkeley</summary><div class="ans"><p>\(OR_F=e^{\beta}\); ajustado por departamento, la mediana a posteriori es ≈1,10 con intervalo [0,94; 1,29], que cruza 1.</p></div></details>
+    <details class="fc"><summary>Probabilidad de aceptación de Metropolis–Hastings</summary><div class="ans"><div class="math">\[ a=\min\Big\{1,\frac{\tilde\pi(\theta^\star)\,q(\theta^{(s)}\mid\theta^\star)}{\tilde\pi(\theta^{(s)})\,q(\theta^\star\mid\theta^{(s)})}\Big\} \]</div><p>La constante normalizadora se cancela.</p></div></details>
+    <details class="fc"><summary>\(\hat R\) y ESS</summary><div class="ans"><p>\(\hat R\) compara varianza entre y dentro de cadenas (cerca de 1 es bueno). ESS es el número de draws independientes equivalentes, descontando la autocorrelación.</p></div></details>
+    <details class="fc"><summary>Condicionales completas del modelo normal</summary><div class="ans"><p>\(\mu\mid\sigma^2,y\sim N(M_\mu,V_\mu)\) con \(V_\mu=(1/s_0^2+n/\sigma^2)^{-1}\); \(\sigma^2\mid\mu,y\sim\text{IG}(a_0+n/2,\ b_0+\tfrac12\sum(y_i-\mu)^2)\).</p></div></details>
+    <details class="fc"><summary>Idea del HMC y de NUTS</summary><div class="ans"><p>Momento \(r\sim N(0,M)\), \(H=U+K\) con \(U=-\log\pi\). Pasos leapfrog guiados por el gradiente y aceptación que corrige el error. NUTS es la versión adaptativa (Stan).</p></div></details>
+    <details class="fc"><summary>Variacional y ELBO</summary><div class="ans"><p>Minimizar \(\mathrm{KL}(q_\phi\|\pi)\) equivale a maximizar \(E_q[\log p(y,\theta)]-E_q[\log q_\phi]\). Rápida, pero puede subestimar la incertidumbre.</p></div></details>
+    <details class="fc"><summary>MCAR, MAR y MNAR</summary><div class="ans"><p>MCAR: \(f(m)\). MAR: \(f(m\mid x_{obs},y)\). MNAR: depende también de \(x_{mis}\). Los dos primeros son ignorables para la verosimilitud (con parámetros distintos); el tercero requiere modelar la falta o hacer sensibilidad.</p></div></details>
+    <details class="fc"><summary>Verosimilitud observada con una covariable discreta ausente</summary><div class="ans"><p>\(L_i=\sum_{x}f_\theta(y_i\mid x,z_i)\,\xi^x(1-\xi)^{1-x}\) para quien no declara el título.</p></div></details>
+    <details class="fc"><summary>Peso del paso E</summary><div class="ans"><p>\(w_i=\dfrac{\xi f_\theta(y_i\mid1,z_i)}{\xi f_\theta(y_i\mid1,z_i)+(1-\xi)f_\theta(y_i\mid0,z_i)}\): la regla de Bayes aplicada al dato ausente.</p></div></details>
+    <details class="fc"><summary>Qué hace el paso M en la encuesta salarial</summary><div class="ans"><p>Regresión ponderada sobre dos filas por persona (título 0 y 1, pesos \(1-w_i\) y \(w_i\)); \(\xi=\bar w\).</p></div></details>
+    <details class="fc"><summary>Sesgo por omitir una variable</summary><div class="ans"><p>\(E[Y\mid Z]=\alpha+\gamma Z+\beta E[X\mid Z]\). Si \(X\perp Z\), el intercepto se desplaza \(\xi\beta\) (≈0,1375); si no, también se sesga la pendiente de \(Z\).</p></div></details>
+    <details class="fc"><summary>Modelo lineal mixto</summary><div class="ans"><p>\(Y_{i,t}=\beta x_{i,t}+b_iz_{i,t}+\epsilon_{i,t}\), \(b_i\sim N(0,D)\), \(\epsilon\sim N(0,\sigma^2)\). \(\operatorname{Var}(Y_i)=z_iDz_i^\top+\sigma^2I\).</p></div></details>
+    <details class="fc"><summary>Intercepto frente a pendiente aleatorios</summary><div class="ans"><p>El intercepto desplaza el punto de partida de cada estudiante; la pendiente inclina su trayectoria (\(\beta_1+b_{1,i}\)). \(\rho_{01}>0\): quien empieza más alto mejora más rápido.</p></div></details>
+    <details class="fc"><summary>BLUP y encogimiento</summary><div class="ans"><p>\(\hat b_i=\hat Dz_i^\top\hat V_i^{-1}(y_i-x_i\hat\beta)\) es la media a posteriori de \(b_i\) con a priori \(N(0,D)\). Las historias cortas o ruidosas se encogen hacia 0.</p></div></details>
+    <details class="fc"><summary>Predicción poblacional frente a condicional</summary><div class="ans"><p>Estudiante nuevo: \(x^\top\hat\beta\) (<code>re.form = ~0</code>). Estudiante observado: se suma \(z^\top\hat b_i\).</p></div></details>
+    <details class="fc"><summary>GLMM y cómo se calcula su verosimilitud</summary><div class="ans"><p>\(g(\mu_{i,t})=x^\top\beta+z^\top b_i\) con Bernoulli+logit o Poisson+log. La integral sobre \(b_i\) no tiene forma cerrada; <code>glmer()</code> usa Laplace.</p></div></details>
+    <details class="fc"><summary>Estructuras de correlación de trabajo</summary><div class="ans"><p>Independencia, intercambiable (igual para todo par), AR(1) (decrece con la distancia) y no estructurada (una por par; necesita muchos datos).</p></div></details>
+  </div>
+</section>
+
+<footer class="foot">
+  <div>Diapositivas: Francesco Ungolo, School of Risk and Actuarial Studies, UNSW Sydney, para la Universidad de Alcalá de Henares: «Data Analysis with Incomplete Observations» (Lección 1), «Cross-sectional and Longitudinal Data Analysis with Latent Variable Models» (Lección 2) y «Bayesian Statistics: Models, Inference, and Computation» (Lección 3). El código de las pestañas R sigue esas diapositivas; el de Python y los bloques marcados «complemento» son aportación de esta guía. Uso educativo, sin fines comerciales.</div>
+  <div>Fuentes citadas por el curso: Rubin (1976); Little y Rubin (2019); Dempster, Laird y Rubin (1977); Bickel, Hammel y O’Connell (1975); Gelman et al. (2013) <i>Bayesian Data Analysis</i> y (2026) <i>Bayesian Workflow</i>; Metropolis et al. (1953); Hastings (1970); Geman y Geman (1984); Plummer (2003) JAGS; Carpenter et al. (2017) Stan; Hoffman y Gelman (2014) NUTS; McElreath (2020) <i>Statistical Rethinking</i>; Blei, Ng y Jordan (2003); Hoffman et al. (2013); Blei, Kucukelbir y McAuliffe (2017); Bates et al. (2015) lme4; Fitzmaurice, Laird y Ware <i>Applied Longitudinal Analysis</i>; Diggle <i>Longitudinal Data Analysis</i>.</div>
+</footer>
+</div>
+
+<script>
+(function () {
+'use strict';
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/* ====================== Utilidades ====================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const fmt = (v, d = 3) => Number.isFinite(v) ? v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–';
+const sum = (a) => a.reduce((s, v) => s + v, 0);
+const mean = (a) => sum(a) / a.length;
+const variance = (a) => { const m = mean(a); return sum(a.map(v => (v - m) ** 2)) / (a.length - 1); };
+const corr = (a, b) => { const ma = mean(a), mb = mean(b); let sab = 0, saa = 0, sbb = 0; for (let i = 0; i < a.length; i++) { const x = a[i] - ma, y = b[i] - mb; sab += x * y; saa += x * x; sbb += y * y; } return sab / Math.sqrt(saa * sbb); };
+const quantile = (arr, q) => { const s = [...arr].sort((x, y) => x - y); const pos = (s.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos); return s[lo] + (s[hi] - s[lo]) * (pos - lo); };
+const num = (id) => parseFloat($('#' + id).value);
+
+// Generador con semilla (mulberry32): solo para los laboratorios de esta página
+function rng(seed) {
+  let a = (seed | 0) >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const gauss = (r) => { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); };
+const phi = (x) => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+function Phi(x) { const t = 1 / (1 + 0.2316419 * Math.abs(x)); const d = phi(x); const p = d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))); return x >= 0 ? 1 - p : p; }
+function probit(p) { // Acklam
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  const pl = 0.02425;
+  let q, r;
+  if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  q = p - 0.5; r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+function gammaFn(z) { // Lanczos
+  if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gammaFn(1 - z));
+  z -= 1;
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5;
+  return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+}
+
+/* ====================== Gráficos SVG genéricos ====================== */
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo; if (!(span > 0)) return [lo];
+  const raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), nm = raw / mag;
+  const step = (nm < 1.5 ? 1 : nm < 3 ? 2 : nm < 7 ? 5 : 10) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + step * 1e-6; v += step) out.push(+v.toPrecision(12));
+  return out;
+}
+const tickFmt = (v) => { const a = Math.abs(v); if (a >= 100000) return (v / 1000).toLocaleString('es-ES') + 'k'; return String(+v.toPrecision(4)).replace('.', ','); };
+
+function chart(o) {
+  const W = o.w || 520, H = o.h || 300;
+  const P = Object.assign({ l: 46, r: 12, t: 12, b: 36 }, o.pad || {});
+  const [x0, x1] = o.x, [y0, y1] = o.y;
+  const sx = (v) => P.l + (v - x0) / (x1 - x0) * (W - P.l - P.r);
+  const sy = (v) => H - P.b - (v - y0) / (y1 - y0) * (H - P.t - P.b);
+  chart.n = (chart.n || 0) + 1; const id = 'cl' + chart.n;
+  const out = [`<clipPath id="${id}"><rect x="${P.l}" y="${P.t}" width="${W - P.l - P.r}" height="${H - P.t - P.b}"/></clipPath>`];
+  const xt = o.xticks || niceTicks(x0, x1, o.nx || 6), yt = o.yticks || niceTicks(y0, y1, o.ny || 5);
+  if (!o.nogrid) {
+    xt.forEach(v => out.push(`<line class="gr" x1="${sx(v)}" y1="${P.t}" x2="${sx(v)}" y2="${H - P.b}"/>`));
+    yt.forEach(v => out.push(`<line class="gr" x1="${P.l}" y1="${sy(v)}" x2="${W - P.r}" y2="${sy(v)}"/>`));
+  }
+  if (o.zero !== false) {
+    if (x0 < 0 && x1 > 0) out.push(`<line class="ax" x1="${sx(0)}" y1="${P.t}" x2="${sx(0)}" y2="${H - P.b}" stroke-opacity=".35"/>`);
+    if (y0 < 0 && y1 > 0) out.push(`<line class="ax" x1="${P.l}" y1="${sy(0)}" x2="${W - P.r}" y2="${sy(0)}" stroke-opacity=".35"/>`);
+  }
+  out.push(`<line class="ax" x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}"/><line class="ax" x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${H - P.b}"/>`);
+  xt.forEach(v => out.push(`<text class="tx" x="${sx(v)}" y="${H - P.b + 14}" text-anchor="middle">${o.xfmt ? o.xfmt(v) : tickFmt(v)}</text>`));
+  yt.forEach(v => out.push(`<text class="tx" x="${P.l - 6}" y="${sy(v) + 4}" text-anchor="end">${o.yfmt ? o.yfmt(v) : tickFmt(v)}</text>`));
+  if (o.xl) out.push(`<text class="tx" x="${(P.l + W - P.r) / 2}" y="${H - 4}" text-anchor="middle">${o.xl}</text>`);
+  if (o.yl) out.push(`<text class="tx" transform="translate(11 ${(P.t + H - P.b) / 2}) rotate(-90)" text-anchor="middle">${o.yl}</text>`);
+
+  const body = [];
+  (o.items || []).forEach(it => {
+    const cls = it.cls || 's-a';
+    switch (it.k) {
+      case 'hist': {
+        const e = it.edges;
+        for (let i = 0; i < it.dens.length; i++) {
+          const xa = sx(e[i]), xb = sx(e[i + 1]), ya = sy(it.dens[i]);
+          body.push(`<rect class="${it.cls || 'f-a o50'}" x="${xa.toFixed(1)}" y="${ya.toFixed(1)}" width="${Math.max(0.5, xb - xa - 0.6).toFixed(1)}" height="${Math.max(0, sy(0) - ya).toFixed(1)}"/>`);
+        }
+        break;
+      }
+      case 'line': body.push(`<polyline class="ln ${it.thin ? 'thin' : ''} ${it.dash ? 'dash' : ''} ${cls}" points="${it.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1)).join(' ')}"/>`); break;
+      case 'area': body.push(`<polygon class="${it.cls || 'f-a o25'}" points="${it.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1)).join(' ')}"/>`); break;
+      case 'pts': { const r = it.r || 2; body.push(`<g class="${it.cls || 'f-a'}" fill-opacity="${it.op == null ? 0.6 : it.op}">${it.pts.map(p => `<circle cx="${sx(p[0]).toFixed(1)}" cy="${sy(p[1]).toFixed(1)}" r="${r}"/>`).join('')}</g>`); break; }
+      case 'hline': body.push(`<line class="ln thin ${it.dash === false ? '' : 'dash'} ${cls}" x1="${P.l}" y1="${sy(it.y)}" x2="${W - P.r}" y2="${sy(it.y)}"/>`); break;
+      case 'vline': body.push(`<line class="ln thin ${it.dash === false ? '' : 'dash'} ${cls}" x1="${sx(it.x)}" y1="${P.t}" x2="${sx(it.x)}" y2="${H - P.b}"/>`); break;
+      case 'seg': body.push(`<line class="ln thin ${it.dash ? 'dash' : ''} ${cls}" x1="${sx(it.a[0])}" y1="${sy(it.a[1])}" x2="${sx(it.b[0])}" y2="${sy(it.b[1])}"/>`); break;
+      case 'dot': body.push(`<circle class="${it.cls || 'f-ink'}" cx="${sx(it.p[0])}" cy="${sy(it.p[1])}" r="${it.r || 4}"/>`); break;
+      case 'rect': body.push(`<rect class="${it.cls || 'f-a o25'}" x="${sx(it.x)}" y="${sy(it.y + it.h)}" width="${sx(it.x + it.w) - sx(it.x)}" height="${sy(it.y) - sy(it.y + it.h)}"/>`); break;
+      case 'poly': body.push(`<polygon class="${it.cls || 'f-a o25'}" points="${it.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1)).join(' ')}"/>`); break;
+      default: break;
+    }
+  });
+  out.push(`<g clip-path="url(#${id})">${body.join('')}</g>`);
+  (o.items || []).forEach(it => {
+    if (it.k === 'text') out.push(`<text class="tx-l ${it.cls || ''}" x="${sx(it.x) + (it.dx || 0)}" y="${sy(it.y) + (it.dy || 0)}" text-anchor="${it.anchor || 'start'}">${it.t}</text>`);
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || 'Gráfico')}">${out.join('')}</svg>`;
+}
+function histData(data, lo, hi, bins) {
+  const w = (hi - lo) / bins, c = new Array(bins).fill(0); let n = 0;
+  data.forEach(v => { if (v >= lo && v < hi) { c[Math.floor((v - lo) / w)]++; } n++; });
+  return { edges: Array.from({ length: bins + 1 }, (_, i) => lo + i * w), dens: c.map(k => k / (n * w)) };
+}
+const curvePts = (f, a, b, n = 200) => Array.from({ length: n + 1 }, (_, i) => { const x = a + (b - a) * i / n; return [x, f(x)]; });
+const setFig = (sel, html) => { const box = $(sel + ' .tl-scroll'); if (box) box.innerHTML = html; };
+
+/* ====================== Diagramas de flujo ====================== */
+// nodes: [{ t:'línea1\nlínea2', s:'subtítulo', tone:'a|p|w|f|ok|bad', pill:true, col, row }]
+// edges: [{ a, b, label, tone, loop }] ; si se omite, se enlazan los nodos consecutivos
+function flow(spec) {
+  const nodes = spec.nodes.map((n, i) => Object.assign({ col: i, row: 0, tone: 'a' }, n));
+  const CH = 7.3, LH = 15;
+  nodes.forEach(n => {
+    n.lines = n.t.split('\n'); n.sub = n.s ? n.s.split('\n') : [];
+    const wmax = Math.max(...n.lines.map(l => [...l].length * CH), ...n.sub.map(l => [...l].length * 6.2), 56);
+    n.w = Math.round(wmax + 26);
+    n.h = n.lines.length * LH + n.sub.length * 13 + 16;
+  });
+  const cols = [...new Set(nodes.map(n => n.col))].sort((a, b) => a - b);
+  const rows = [...new Set(nodes.map(n => n.row))].sort((a, b) => a - b);
+  const edges = spec.edges || nodes.slice(1).map((_, i) => ({ a: i, b: i + 1 }));
+  // anchura de columna y hueco entre columnas (según etiquetas de flechas que las unen)
+  const colW = {}; cols.forEach(c => { colW[c] = Math.max(...nodes.filter(n => n.col === c).map(n => n.w)); });
+  const gap = {}; cols.forEach(c => { gap[c] = 40; });
+  edges.forEach(e => {
+    const A = nodes[e.a], B = nodes[e.b];
+    if (!e.loop && B.col > A.col && e.label) { const L = [...(e.label.t || e.label)].length * 6.4 + 14; for (let c = A.col; c < B.col; c++) gap[c] = Math.max(gap[c] || 40, L); }
+  });
+  const sepAfter = new Set(spec.sep || []);
+  let x = 16; const colX = {};
+  cols.forEach(c => { colX[c] = x; x += colW[c] + (sepAfter.has(c) ? 60 : (gap[c] || 40)); });
+  const width = Math.round(x - (gap[cols[cols.length - 1]] || 40) + 16);
+  const rowH = Math.max(...nodes.map(n => n.h));
+  const loopRows = new Set(edges.filter(e => e.loop).map(e => nodes[e.a].row));
+  const rowY = {}; let y = 12;
+  rows.forEach(r => { rowY[r] = y; y += rowH + (loopRows.has(r) ? 52 : 34); });
+  const height = Math.round(y - 34 + (loopRows.has(rows[rows.length - 1]) ? 52 : 0) + 8 + (spec.topPad || 0));
+  nodes.forEach(n => { n.x = colX[n.col] + (colW[n.col] - n.w) / 2; n.y = rowY[n.row] + (rowH - n.h) / 2 + (spec.topPad || 0); n.cx = n.x + n.w / 2; n.cy = n.y + n.h / 2; });
+  const out = [];
+  const defs = `<defs>${['a', 'p', 'ink', 'ok', 'bad', 'w'].map(t => `<marker id="ah-${t}-${flow.n = (flow.n || 0) + 1}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="f-${t}"/></marker>`).join('')}</defs>`;
+  const mk = (t) => `url(#ah-${t}-${flow.n - 5 + ['a', 'p', 'ink', 'ok', 'bad', 'w'].indexOf(t)})`;
+  out.push(defs);
+  (spec.sep || []).forEach(c => {
+    const sxp = colX[c] + colW[c] + 30;
+    out.push(`<line class="ln thin dash s-w" x1="${sxp}" y1="${4 + (spec.topPad || 0)}" x2="${sxp}" y2="${height - 6}"/>`);
+    if (spec.sepLabels) { out.push(`<text class="tx" x="${sxp - 8}" y="${12}" text-anchor="end">${spec.sepLabels[0]}</text><text class="tx" x="${sxp + 8}" y="${12}">${spec.sepLabels[1]}</text>`); }
+  });
+  edges.forEach(e => {
+    const A = nodes[e.a], B = nodes[e.b];
+    if (A.col !== B.col && sepAfter.has(A.col) && B.col === A.col + 1 && !e.force) return;
+    const tone = e.tone || 'ink', lab = e.label && (e.label.t || e.label), ltone = (e.label && e.label.tone) || tone;
+    const cls = `ln s-${tone}`;
+    if (e.loop) {
+      const y1 = A.y + A.h, y2 = rowY[A.row] + rowH + 26 + (spec.topPad || 0);
+      out.push(`<path class="${cls}" d="M${A.cx} ${y1} V${y2} H${B.cx} V${B.y + B.h + 2}" marker-end="${mk(tone)}"/>`);
+      if (lab) out.push(`<text class="tx-l tx-${ltone === 'ink' ? '' : ltone}" x="${(A.cx + B.cx) / 2}" y="${y2 - 5}" text-anchor="middle">${esc(lab)}</text>`);
+      return;
+    }
+    if (B.col > A.col) {
+      const x1 = A.x + A.w, y1 = A.cy, x2 = B.x, y2 = B.cy;
+      const xm = Math.min(x1 + 16, (x1 + x2) / 2);
+      out.push(`<path class="${cls}" d="M${x1} ${y1} H${xm} V${y2} H${x2 - 1}" marker-end="${mk(tone)}"/>`);
+      if (lab) out.push(`<text class="tx-l tx-${ltone === 'ink' ? '' : ltone}" x="${(xm + x2) / 2 + (y1 === y2 ? 0 : 4)}" y="${y2 - 6}" text-anchor="middle">${esc(lab)}</text>`);
+    } else {
+      out.push(`<path class="${cls}" d="M${A.cx} ${A.y + A.h} V${B.y - 2}" marker-end="${mk(tone)}"/>`);
+    }
+  });
+  nodes.forEach(n => {
+    const cl = n.tone === 'f' ? 'ink' : n.tone, rx = n.pill ? Math.min(n.h / 2, 22) : 5;
+    out.push(`<g class="node"><rect class="s-${cl}" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="${rx}" ${n.tone === 'f' ? 'stroke-dasharray="5 3"' : ''}/>`);
+    n.lines.forEach((l, i) => out.push(`<text x="${n.cx}" y="${n.y + 18 + i * LH}" text-anchor="middle" ${i === 0 && n.lines.length > 0 && n.bold !== false ? 'font-weight="600"' : ''}>${esc(l)}</text>`));
+    n.sub.forEach((l, i) => out.push(`<text class="sub" x="${n.cx}" y="${n.y + 18 + n.lines.length * LH + i * 13}" text-anchor="middle">${esc(l)}</text>`));
+    out.push('</g>');
+  });
+  return `<svg style="max-width:none" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(spec.aria || 'Diagrama de flujo')}">${out.join('')}</svg>`;
+}
+
+
+/*PURE-START*/
+/* ====================== Matemática bayesiana (sin DOM) ====================== */
+const LG = (z) => { // log-gamma (Lanczos)
+  if (z < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - LG(1 - z);
+  z -= 1;
+  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  let x = c[0]; for (let i = 1; i < 9; i++) x += c[i] / (z + i);
+  const t = z + 7.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+};
+const lbeta = (a, b) => LG(a) + LG(b) - LG(a + b);
+const betaPdf = (x, a, b) => (x <= 0 || x >= 1) ? 0 : Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log1p(-x) - lbeta(a, b));
+const log1pexp = (x) => x > 30 ? x : x < -30 ? Math.exp(x) : Math.log1p(Math.exp(x));
+const plogis = (x) => 1 / (1 + Math.exp(-x));
+
+// Rejilla de una densidad en (0,1): masa por celda, acumulada, cuantiles y probabilidades
+function gridDist(pdf, N = 4000) {
+  const mass = new Float64Array(N), cum = new Float64Array(N); let tot = 0;
+  for (let i = 0; i < N; i++) { mass[i] = pdf((i + 0.5) / N); tot += mass[i]; }
+  let acc = 0;
+  for (let i = 0; i < N; i++) { mass[i] /= tot; acc += mass[i]; cum[i] = acc; }
+  const cdf = (x) => { if (x <= 0) return 0; if (x >= 1) return 1; const u = x * N, i = Math.floor(u); return (i ? cum[i - 1] : 0) + mass[i] * (u - i); };
+  const q = (p) => { let lo = 0, hi = N - 1; while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] >= p) hi = m; else lo = m + 1; } const prev = lo ? cum[lo - 1] : 0; return (lo + (p - prev) / (mass[lo] || 1)) / N; };
+  return { cdf, q, mass, N };
+}
+const betaDist = (a, b) => gridDist((x) => betaPdf(x, a, b));
+
+// Predictiva Beta-Binomial para m nuevos casos
+function betaBinPmf(m, a, b) {
+  const out = [];
+  for (let k = 0; k <= m; k++) out.push(Math.exp(LG(m + 1) - LG(k + 1) - LG(m - k + 1) + lbeta(a + k, b + m - k) - lbeta(a, b)));
+  return out;
+}
+function pmfSummary(pmf) {
+  let mu = 0, c = 0, lo = null, hi = null;
+  pmf.forEach((p, k) => { mu += k * p; c += p; if (lo === null && c >= 0.025) lo = k; if (hi === null && c >= 0.975) hi = k; });
+  return { mean: mu, lo, hi };
+}
+
+// Metropolis 1D con paso gaussiano; logf devuelve -Infinity fuera del soporte
+function mh1d(logf, start, n, step, r) {
+  const out = new Float64Array(n); let x = start, lx = logf(x), acc = 0;
+  for (let i = 0; i < n; i++) {
+    const y = x + step * gauss(r), ly = logf(y);
+    if (Math.log(r()) < ly - lx) { x = y; lx = ly; acc++; }
+    out[i] = x;
+  }
+  return { draws: out, acc: acc / n };
+}
+
+// R-hat (Gelman-Rubin) y tamaño efectivo (Geyer, como Stan) para varias cadenas del mismo largo
+function rhatEss(chains) {
+  const m = chains.length, n = chains[0].length;
+  const mu = chains.map((c) => { let s = 0; for (let i = 0; i < n; i++) s += c[i]; return s / n; });
+  const vr = chains.map((c, j) => { let s = 0; for (let i = 0; i < n; i++) s += (c[i] - mu[j]) ** 2; return s / (n - 1); });
+  const W = vr.reduce((a, b) => a + b, 0) / m;
+  const mm = mu.reduce((a, b) => a + b, 0) / m;
+  const B = m > 1 ? n * mu.reduce((s, v) => s + (v - mm) ** 2, 0) / (m - 1) : 0;
+  const varPlus = (n - 1) / n * W + B / n;
+  const rhat = m > 1 && W > 0 ? Math.sqrt(varPlus / W) : NaN;
+  const acov = (j, t) => { const c = chains[j], mj = mu[j]; let s = 0; for (let i = 0; i + t < n; i++) s += (c[i] - mj) * (c[i + t] - mj); return s / n; };
+  const rho = (t) => { let a = 0; for (let j = 0; j < m; j++) a += acov(j, t); a /= m; return 1 - (W - a) / varPlus; };
+  let sumP = 0, prev = rho(0) + rho(1);
+  sumP = prev > 0 ? prev : 0;
+  const maxLag = Math.min(n - 3, 2000);
+  for (let t = 2; t < maxLag; t += 2) {
+    const P = rho(t) + rho(t + 1);
+    if (P <= 0) break;
+    sumP += P;
+  }
+  const tau = Math.max(-1 + 2 * sumP, 1 / Math.log10(m * n));
+  return { rhat, ess: m * n / tau };
+}
+
+// Objetivos 1D sobre (0,1) para el laboratorio de MCMC
+const TARGETS = {
+  beta: {
+    name: 'Beta(90, 20)  (Berkeley, dpto. A)',
+    logf: (x) => (x <= 0 || x >= 1) ? -Infinity : 89 * Math.log(x) + 19 * Math.log1p(-x),
+    pdf: (x) => betaPdf(x, 90, 20)
+  },
+  bimodal: {
+    name: 'Mezcla bimodal ½Beta(30,70) + ½Beta(90,20)',
+    pdf: (x) => 0.5 * betaPdf(x, 30, 70) + 0.5 * betaPdf(x, 90, 20),
+    logf: (x) => (x <= 0 || x >= 1) ? -Infinity : Math.log(0.5 * betaPdf(x, 30, 70) + 0.5 * betaPdf(x, 90, 20))
+  }
+};
+
+/* ---------- Muestreadores sobre una normal bivariada N(0, [[1,ρ],[ρ,1]]) ---------- */
+function samp2d(kind, rho, N, o, r) {
+  const s2 = 1 - rho * rho, sd = Math.sqrt(s2);
+  const pts = new Array(N); let x = -2, y = 2, acc = 0, prop = 0;
+  const lp = (a, b) => -(a * a - 2 * rho * a * b + b * b) / (2 * s2);
+  for (let i = 0; i < N; i++) {
+    if (kind === 'rwm') {
+      const a = x + o.step * gauss(r), b = y + o.step * gauss(r); prop++;
+      if (Math.log(r()) < lp(a, b) - lp(x, y)) { x = a; y = b; acc++; }
+    } else if (kind === 'gibbs') {
+      x = rho * y + sd * gauss(r); y = rho * x + sd * gauss(r);
+    } else { // HMC con integrador leapfrog
+      let q1 = x, q2 = y, p1 = gauss(r), p2 = gauss(r);
+      const grad = (a, b) => [(a - rho * b) / s2, (b - rho * a) / s2];
+      const H = (a, b, c, d) => -lp(a, b) + 0.5 * (c * c + d * d);
+      const h0 = H(q1, q2, p1, p2);
+      let g = grad(q1, q2);
+      p1 -= 0.5 * o.eps * g[0]; p2 -= 0.5 * o.eps * g[1];
+      for (let l = 0; l < o.L; l++) {
+        q1 += o.eps * p1; q2 += o.eps * p2; g = grad(q1, q2);
+        const k = l === o.L - 1 ? 0.5 : 1;
+        p1 -= k * o.eps * g[0]; p2 -= k * o.eps * g[1];
+      }
+      prop++;
+      if (Math.log(r()) < h0 - H(q1, q2, p1, p2)) { x = q1; y = q2; acc++; }
+    }
+    pts[i] = [x, y];
+  }
+  const xs = Float64Array.from(pts, (p) => p[0]);
+  const e = rhatEss([xs]);
+  return { pts, acc: prop ? acc / prop : 1, ess: e.ess };
+}
+
+/* ---------- Gibbs para N(μ, σ²) con prior normal e inversa-gamma ---------- */
+function rgam(shape, rate, r) { // Marsaglia–Tsang (shape ≥ 1)
+  const d = shape - 1 / 3, c = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    const x = gauss(r), t = 1 + c * x; if (t <= 0) continue;
+    const v = t * t * t, u = r();
+    if (Math.log(u) < 0.5 * x * x + d - d * v + d * Math.log(v)) return d * v / rate;
+  }
+}
+function gibbsNormal(y, pr, S, r) {
+  const n = y.length, ybar = mean(y), sy = sum(y);
+  let mu = ybar, s2 = variance(y); const out = [];
+  for (let s = 0; s < S; s++) {
+    const V = 1 / (1 / pr.s0sq + n / s2), M = V * (pr.m0 / pr.s0sq + sy / s2);
+    mu = M + Math.sqrt(V) * gauss(r);
+    let ss = 0; for (let i = 0; i < n; i++) ss += (y[i] - mu) ** 2;
+    s2 = 1 / rgam(pr.a0 + n / 2, pr.b0 + ss / 2, r);
+    out.push([mu, s2]);
+  }
+  return out;
+}
+
+/* ---------- Berkeley: logística bayesiana con Metropolis ---------- */
+const BERK = {
+  depts: ['A', 'B', 'C', 'D', 'E', 'F'],
+  men: [[512, 825], [353, 560], [120, 325], [138, 417], [53, 191], [22, 373]],
+  women: [[89, 108], [17, 25], [202, 593], [131, 375], [94, 393], [24, 341]]
+};
+BERK.cells = [];
+BERK.depts.forEach((d, j) => {
+  [['Hombres', 0, BERK.men[j]], ['Mujeres', 1, BERK.women[j]]].forEach(([g, f, v]) => {
+    const row = [1, f, 0, 0, 0, 0, 0]; if (j > 0) row[1 + j] = 1;
+    BERK.cells.push({ dept: d, sex: g, female: f, adm: v[0], n: v[1], x: row });
+  });
+});
+const BERK_PAR = ['α', 'β (mujer)', 'γB', 'γC', 'γD', 'γE', 'γF'];
+function berkLogPost(th, sd) {
+  let l = 0;
+  for (const c of BERK.cells) {
+    let eta = 0; for (let j = 0; j < 7; j++) eta += c.x[j] * th[j];
+    l += -c.adm * log1pexp(-eta) - (c.n - c.adm) * log1pexp(eta);
+  }
+  for (let j = 0; j < 7; j++) l -= th[j] * th[j] / (2 * sd * sd);
+  return l;
+}
+function cholesky(A) {
+  const d = A.length, L = Array.from({ length: d }, () => new Array(d).fill(0));
+  for (let i = 0; i < d; i++) for (let j = 0; j <= i; j++) {
+    let s = A[i][j]; for (let k = 0; k < j; k++) s -= L[i][k] * L[j][k];
+    L[i][j] = i === j ? Math.sqrt(Math.max(s, 1e-12)) : s / L[j][j];
+  }
+  return L;
+}
+function berkMCMC(sd, iters, warm, r) {
+  // 1) cadena piloto componente a componente para estimar la forma de la posterior
+  let th = new Array(7).fill(0), lv = berkLogPost(th, sd); const pilot = [];
+  for (let s = 0; s < 3000; s++) {
+    for (let j = 0; j < 7; j++) {
+      const t2 = th.slice(); t2[j] += 0.12 * gauss(r); const l2 = berkLogPost(t2, sd);
+      if (Math.log(r()) < l2 - lv) { th = t2; lv = l2; }
+    }
+    if (s >= 1000) pilot.push(th.slice());
+  }
+  const mu = new Array(7).fill(0); pilot.forEach((p) => p.forEach((v, j) => { mu[j] += v / pilot.length; }));
+  const cov = Array.from({ length: 7 }, (_, a) => Array.from({ length: 7 }, (_, b) => pilot.reduce((s, p) => s + (p[a] - mu[a]) * (p[b] - mu[b]), 0) / (pilot.length - 1)));
+  const L = cholesky(cov), sc = 2.38 / Math.sqrt(7);
+  // 2) cuatro cadenas con propuesta conjunta, arranques dispersos
+  const chains = []; const acc = [];
+  for (let c = 0; c < 4; c++) {
+    let t = Array.from({ length: 7 }, () => 0.2 * gauss(r)), l = berkLogPost(t, sd), a = 0;
+    const draws = [];
+    for (let s = 0; s < iters; s++) {
+      const z = Array.from({ length: 7 }, () => gauss(r)), t2 = t.slice();
+      for (let i = 0; i < 7; i++) { let v = 0; for (let j = 0; j <= i; j++) v += L[i][j] * z[j]; t2[i] += sc * v; }
+      const l2 = berkLogPost(t2, sd);
+      if (Math.log(r()) < l2 - l) { t = t2; l = l2; a++; }
+      if (s >= warm) draws.push(t.slice());
+    }
+    chains.push(draws); acc.push(a / iters);
+  }
+  return { chains, acc };
+}
+function berkSummary(res, r) {
+  const keep = res.chains[0].length, all = [].concat(...res.chains);
+  const par = BERK_PAR.map((name, j) => {
+    const cs = res.chains.map((ch) => Float64Array.from(ch, (v) => v[j]));
+    const xs = all.map((v) => v[j]);
+    const e = rhatEss(cs);
+    return { name, med: quantile(xs, 0.5), sd: Math.sqrt(variance(xs)), lo: quantile(xs, 0.025), hi: quantile(xs, 0.975), rhat: e.rhat, ess: e.ess };
+  });
+  const orDraws = all.map((v) => Math.exp(v[1]));
+  const pNeg = all.filter((v) => v[1] < 0).length / all.length;
+  // predictiva posterior: 2000 réplicas de la tabla de 12 celdas
+  const S = Math.min(2000, all.length), rep = BERK.cells.map(() => new Float64Array(S));
+  for (let s = 0; s < S; s++) {
+    const th = all[Math.floor(s * all.length / S)];
+    BERK.cells.forEach((c, k) => {
+      let eta = 0; for (let j = 0; j < 7; j++) eta += c.x[j] * th[j];
+      const p = plogis(eta); let y = 0; for (let i = 0; i < c.n; i++) if (r() < p) y++;
+      rep[k][s] = y;
+    });
+  }
+  const ppc = BERK.cells.map((c, k) => ({ cell: c, lo: quantile(Array.from(rep[k]), 0.025), hi: quantile(Array.from(rep[k]), 0.975) }));
+  // 10 mujeres nuevas en el departamento A
+  const yNew = all.map((v) => { const p = plogis(v[0] + v[1]); let y = 0; for (let i = 0; i < 10; i++) if (r() < p) y++; return y; });
+  return { par, orMed: quantile(orDraws, 0.5), orLo: quantile(orDraws, 0.025), orHi: quantile(orDraws, 0.975), pNeg, ppc, predMean: mean(yNew), predLo: quantile(yNew, 0.025), predHi: quantile(yNew, 0.975), keep };
+}
+
+/* ---------- Datos incompletos: encuesta salarial, EM y análisis alternativos ---------- */
+function simSurvey(n, mech, r) {
+  const z = [], x = [], y = [];
+  for (let i = 0; i < n; i++) { const zi = Math.max(0, 10 + 5 * gauss(r)), xi = r() < 0.55 ? 1 : 0; z.push(zi); x.push(xi); y.push(10.2 + 0.06 * zi + 0.25 * xi + 0.35 * gauss(r)); }
+  const zb = mean(z), yb = mean(y);
+  const xo = x.map((xi, i) => {
+    const p = mech === 'mcar' ? 0.7 : mech === 'mar' ? plogis(0.8 + 0.08 * (z[i] - zb)) : mech === 'mary' ? plogis(0.8 + 3 * (y[i] - yb)) : plogis(1.5 - 3 * xi);
+    return r() < p ? xi : NaN;
+  });
+  return { z, x, y, xo };
+}
+function solveN(A, b) { // eliminación gaussiana con pivote
+  const n = b.length, M = A.map((row, i) => [...row, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let i = c + 1; i < n; i++) if (Math.abs(M[i][c]) > Math.abs(M[p][c])) p = i;
+    [M[c], M[p]] = [M[p], M[c]];
+    for (let i = c + 1; i < n; i++) { const f = M[i][c] / M[c][c]; for (let j = c; j <= n; j++) M[i][j] -= f * M[c][j]; }
+  }
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) { let s = M[i][n]; for (let j = i + 1; j < n; j++) s -= M[i][j] * x[j]; x[i] = s / M[i][i]; }
+  return x;
+}
+function wls(rows) { // rows: [y, x, z, w] -> coef [a, b, d] y varianza ponderada
+  const A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], bb = [0, 0, 0];
+  rows.forEach(([y, x, z, w]) => { const v = [1, x, z]; for (let i = 0; i < 3; i++) { bb[i] += w * v[i] * y; for (let j = 0; j < 3; j++) A[i][j] += w * v[i] * v[j]; } });
+  return { beta: solveN(A, bb), A };
+}
+function olsCC(d) {
+  const rows = []; d.y.forEach((y, i) => { if (!Number.isNaN(d.xo[i])) rows.push([y, d.xo[i], d.z[i], 1]); });
+  const { beta, A } = wls(rows);
+  let rss = 0; rows.forEach(([y, x, z]) => { rss += (y - beta[0] - beta[1] * x - beta[2] * z) ** 2; });
+  const s2 = rss / (rows.length - 3);
+  const inv1 = solveN(A, [0, 1, 0]); // columna 2 de A^{-1}
+  return { beta, se: Math.sqrt(s2 * inv1[1]), n: rows.length };
+}
+function olsOmit(d) { // y ~ 1 + z
+  const n = d.y.length, zb = mean(d.z), yb = mean(d.y); let sxy = 0, sxx = 0;
+  for (let i = 0; i < n; i++) { sxy += (d.z[i] - zb) * (d.y[i] - yb); sxx += (d.z[i] - zb) ** 2; }
+  const b = sxy / sxx; return { a: yb - b * zb, b };
+}
+function emDegree(d) {
+  const n = d.y.length, obs = d.xo.map((v) => !Number.isNaN(v));
+  const cc = olsCC(d); let beta = cc.beta.slice();
+  let xi = mean(d.xo.filter((v) => !Number.isNaN(v)));
+  let s2 = 0, k = 0; d.y.forEach((y, i) => { if (obs[i]) { s2 += (y - beta[0] - beta[1] * d.xo[i] - beta[2] * d.z[i]) ** 2; k++; } }); s2 /= k;
+  let iter = 0, w = new Array(n).fill(0);
+  for (iter = 1; iter <= 1000; iter++) {
+    const sd = Math.sqrt(s2);
+    for (let i = 0; i < n; i++) {
+      if (obs[i]) { w[i] = d.xo[i]; continue; }
+      const mu0 = beta[0] + beta[2] * d.z[i], mu1 = mu0 + beta[1];
+      const l0 = Math.exp(-0.5 * ((d.y[i] - mu0) / sd) ** 2) * (1 - xi), l1 = Math.exp(-0.5 * ((d.y[i] - mu1) / sd) ** 2) * xi;
+      w[i] = l1 / (l0 + l1);
+    }
+    const rows = []; for (let i = 0; i < n; i++) { rows.push([d.y[i], 0, d.z[i], 1 - w[i]]); rows.push([d.y[i], 1, d.z[i], w[i]]); }
+    const nb = wls(rows).beta;
+    let rss = 0, sw = 0; rows.forEach(([y, x, z, wt]) => { rss += wt * (y - nb[0] - nb[1] * x - nb[2] * z) ** 2; sw += wt; });
+    const ns2 = rss / sw, nxi = mean(w);
+    const dif = Math.max(Math.abs(nb[0] - beta[0]), Math.abs(nb[1] - beta[1]), Math.abs(nb[2] - beta[2]), Math.abs(ns2 - s2), Math.abs(nxi - xi));
+    beta = nb; s2 = ns2; xi = nxi;
+    if (dif < 1e-8) break;
+  }
+  return { beta, xi, iter, sigma: Math.sqrt(s2) };
+}
+
+/* ---------- Longitudinal: efectos aleatorios como a priori (BLUP = media a posteriori) ---------- */
+function lmmShrink(o, r) {
+  // o: { S, T, nObs, s0, s1, rho, sig, b0, b1 }
+  const D = [[o.s0 * o.s0, o.rho * o.s0 * o.s1], [o.rho * o.s0 * o.s1, o.s1 * o.s1]];
+  const dd = D[0][0] * D[1][1] - D[0][1] * D[1][0];
+  const Di = [[D[1][1] / dd, -D[0][1] / dd], [-D[1][0] / dd, D[0][0] / dd]];
+  const L = [Math.sqrt(D[0][0]), 0], L2 = [D[0][1] / L[0], Math.sqrt(Math.max(D[1][1] - (D[0][1] / L[0]) ** 2, 1e-12))];
+  const stud = [];
+  for (let i = 0; i < o.S; i++) {
+    const z1 = gauss(r), z2 = gauss(r), bi0 = L[0] * z1, bi1 = L2[0] * z1 + L2[1] * z2;
+    const t = [], yv = [];
+    for (let k = 0; k < o.nObs; k++) { t.push(k); yv.push(o.b0 + o.b1 * k + bi0 + bi1 * k + o.sig * gauss(r)); }
+    // MCO por estudiante
+    const tb = mean(t), yb = mean(yv); let sxy = 0, sxx = 0; t.forEach((tk, k) => { sxy += (tk - tb) * (yv[k] - yb); sxx += (tk - tb) ** 2; });
+    const slopeO = sxy / sxx, intO = yb - slopeO * tb;
+    // BLUP: (Z'Z/σ² + D⁻¹)⁻¹ Z'(y−μ)/σ²
+    const res = yv.map((v, k) => v - o.b0 - o.b1 * t[k]);
+    let a11 = Di[0][0], a12 = Di[0][1], a22 = Di[1][1], c1 = 0, c2 = 0;
+    t.forEach((tk, k) => { a11 += 1 / (o.sig ** 2); a12 += tk / (o.sig ** 2); a22 += tk * tk / (o.sig ** 2); c1 += res[k] / (o.sig ** 2); c2 += tk * res[k] / (o.sig ** 2); });
+    const det = a11 * a22 - a12 * a12, hb0 = (a22 * c1 - a12 * c2) / det, hb1 = (-a12 * c1 + a11 * c2) / det;
+    stud.push({ t, y: yv, int: o.b0 + bi0, slope: o.b1 + bi1, intO, slopeO, intB: o.b0 + hb0, slopeB: o.b1 + hb1 });
+  }
+  const rm = (f) => Math.sqrt(mean(stud.map(f)));
+  return {
+    stud,
+    rmseSlopeO: rm((s) => (s.slopeO - s.slope) ** 2), rmseSlopeB: rm((s) => (s.slopeB - s.slope) ** 2),
+    rmseIntO: rm((s) => (s.intO - s.int) ** 2), rmseIntB: rm((s) => (s.intB - s.int) ** 2)
+  };
+}
+/*PURE-END*/
+
+/* ====================== Código: resaltado, pestañas R / Python y copia ====================== */
+const R_RE = /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*(?:e[+-]?\d+)?L?\b)|(\b(?:function|if|else|for|while|repeat|break|next|return|TRUE|FALSE|NULL|NA|Inf|in|library|require)\b)|([A-Za-z_.][\w.]*)(?=\()|(<-|<<-|->|%[^%\s]*%|\|>)/gm;
+const PY_RE = /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*(?:e[+-]?\d+)?\b)|(\b(?:import|from|as|def|return|for|in|if|else|elif|while|with|True|False|None|lambda|and|or|not|break|continue|pass|print|assert)\b)|([A-Za-z_][\w]*)(?=\()|(==|!=|<=|>=|\*\*|@|\/\/)/gm;
+function highlight(code, re) {
+  let out = '', last = 0, m;
+  re.lastIndex = 0;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const t = esc(m[0]);
+    out += m[1] ? `<span class="c-com">${t}</span>` : m[2] ? `<span class="c-str">${t}</span>` : m[3] ? `<span class="c-num">${t}</span>` : m[4] ? `<span class="c-kw">${t}</span>` : m[5] ? `<span class="c-fn">${t}</span>` : `<span class="c-op">${t}</span>`;
+    last = m.index + m[0].length;
+    if (m[0].length === 0) re.lastIndex++;
+  }
+  return out + esc(code.slice(last));
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { /* sin portapapeles */ }
+  document.body.removeChild(ta);
+}
+let LANG = 'r';
+try { const v = localStorage.getItem('bayes-lang'); if (v === 'r' || v === 'py') LANG = v; } catch (e) { /* sin almacenamiento */ }
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem('bayes-lang', l); } catch (e) { /* sin almacenamiento */ }
+  $$('.code[data-pair]').forEach((box) => {
+    $$('.code-tabs button', box).forEach((b) => b.setAttribute('aria-selected', String(b.dataset.l === l)));
+    $$('pre', box).forEach((p) => { p.hidden = p.dataset.l !== l; });
+  });
+}
+function mountCode() {
+  $$('div.codepair').forEach((pair) => {
+    const get = (t) => { const s = pair.querySelector(`script[type="text/x-${t}"]`); return s ? s.textContent.replace(/^\n+/, '').replace(/\s+$/, '') : ''; };
+    const codes = { r: get('r'), py: get('py') };
+    const src = pair.dataset.src === 'complemento' ? 'complemento' : 'curso';
+    const box = document.createElement('div');
+    box.className = 'code'; box.dataset.pair = '1';
+    box.innerHTML = `<div class="code-head"><span class="fname">${esc(pair.dataset.file)} · <span class="badge">${src}</span></span><span class="code-tabs" role="tablist"><button type="button" role="tab" data-l="r">R</button><button type="button" role="tab" data-l="py">Python</button></span><button type="button" class="copy">Copiar</button></div>`
+      + `<pre data-l="r"><code>${highlight(codes.r, R_RE)}</code></pre><pre data-l="py"><code>${highlight(codes.py, PY_RE)}</code></pre>`;
+    $$('.code-tabs button', box).forEach((b) => b.addEventListener('click', () => setLang(b.dataset.l)));
+    box.querySelector('.copy').addEventListener('click', (ev) => {
+      const b = ev.currentTarget, code = codes[LANG];
+      const done = () => { b.textContent = '¡Copiado!'; setTimeout(() => { b.textContent = 'Copiar'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, () => fallbackCopy(code, done));
+      else fallbackCopy(code, done);
+    });
+    pair.replaceWith(box);
+  });
+  setLang(LANG);
+}
+
+/* ====================== Utilidades de laboratorio ====================== */
+const stat = (l, v, c = '') => `<div><span>${l}</span><b class="${c}">${v}</b></div>`;
+const CH_CLS = ['s-a', 's-p', 's-ok', 's-bad'];
+function onChange(ids, fn) { ids.forEach((id) => { const el = $('#' + id); if (el) { el.addEventListener('input', fn); el.addEventListener('change', fn); } }); }
+function presets(sel, attr, apply) {
+  $$(sel).forEach((b) => b.addEventListener('click', () => apply(b.getAttribute(attr).split(','))));
+}
+
+/* ====================== Figuras estáticas ====================== */
+function barsFig(o) {
+  const W = o.w || 560, H = o.h || 300, P = { l: 44, r: 12, t: 28, b: 44 };
+  const gw = (W - P.l - P.r) / o.groups.length, bw = Math.min(30, gw / (o.series.length + 1));
+  const sy = (v) => H - P.b - v / o.ymax * (H - P.t - P.b);
+  const out = [];
+  niceTicks(0, o.ymax, 5).forEach((v) => { out.push(`<line class="gr" x1="${P.l}" y1="${sy(v)}" x2="${W - P.r}" y2="${sy(v)}"/><text class="tx" x="${P.l - 6}" y="${sy(v) + 4}" text-anchor="end">${tickFmt(v)}${o.unit || ''}</text>`); });
+  out.push(`<line class="ax" x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}"/>`);
+  o.groups.forEach((g, i) => {
+    const cx = P.l + gw * (i + 0.5), x0 = cx - bw * o.series.length / 2;
+    out.push(`<text class="tx-l" x="${cx}" y="${H - P.b + 16}" text-anchor="middle">${g.label}</text>`);
+    g.vals.forEach((v, k) => {
+      out.push(`<rect class="${o.series[k].cls}" x="${x0 + k * bw}" y="${sy(v)}" width="${bw - 2}" height="${sy(0) - sy(v)}"/>`);
+      out.push(`<text class="tx" x="${x0 + k * bw + (bw - 2) / 2}" y="${sy(v) - 4}" text-anchor="middle">${String(v).replace('.', ',')}</text>`);
+    });
+  });
+  o.series.forEach((s, k) => { out.push(`<rect class="${s.cls}" x="${P.l + 4 + k * 110}" y="6" width="10" height="10"/><text class="tx-l" x="${P.l + 18 + k * 110}" y="15">${s.name}</text>`); });
+  if (o.yl) out.push(`<text class="tx" transform="translate(11 ${(P.t + H - P.b) / 2}) rotate(-90)" text-anchor="middle">${o.yl}</text>`);
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria)}">${out.join('')}</svg>`;
+}
+function heat(m, labels, x0, y0, cell, op) {
+  const out = [];
+  m.forEach((row, i) => row.forEach((v, j) => {
+    out.push(`<rect class="f-a" fill-opacity="${op(v).toFixed(2)}" x="${x0 + j * cell}" y="${y0 + i * cell}" width="${cell - 2}" height="${cell - 2}" rx="2"/>`);
+    out.push(`<text class="tx-b" x="${x0 + j * cell + (cell - 2) / 2}" y="${y0 + i * cell + cell / 2 + 3}" text-anchor="middle">${String(v).replace('.', ',')}</text>`);
+  }));
+  labels.forEach((l, j) => {
+    out.push(`<text class="tx" x="${x0 + j * cell + (cell - 2) / 2}" y="${y0 - 6}" text-anchor="middle">${l}</text>`);
+    out.push(`<text class="tx" x="${x0 - 6}" y="${y0 + j * cell + cell / 2 + 3}" text-anchor="end">${l}</text>`);
+  });
+  return out.join('');
+}
+function corrFig() {
+  const m = [[1, 0.985, 0.933, 0.851], [0.985, 1, 0.979, 0.926], [0.933, 0.979, 1, 0.982], [0.851, 0.926, 0.982, 1]];
+  const body = heat(m, ['Sem. 1', 'Sem. 2', 'Sem. 3', 'Sem. 4'], 70, 28, 62, (v) => 0.12 + 0.88 * Math.max(0, (v - 0.8) / 0.2));
+  return `<svg width="340" height="290" viewBox="0 0 340 290" role="img" aria-label="Matriz de correlaciones entre semestres">${body}</svg>`;
+}
+function structFig() {
+  const n = 4, idx = [...Array(n).keys()];
+  const exch = idx.map((i) => idx.map((j) => (i === j ? 1 : 0.6)));
+  const ar1 = idx.map((i) => idx.map((j) => +Math.pow(0.7, Math.abs(i - j)).toFixed(2)));
+  const ind = idx.map((i) => idx.map((j) => (i === j ? 1 : 0)));
+  const uns = [[1, 0.8, 0.5, 0.3], [0.8, 1, 0.7, 0.4], [0.5, 0.7, 1, 0.75], [0.3, 0.4, 0.75, 1]];
+  const out = [], c = 40;
+  [['Independencia', ind], ['Intercambiable', exch], ['AR(1)', ar1], ['No estructurada', uns]].forEach(([t, m], k) => {
+    const x0 = 36 + k * 170;
+    out.push(`<text class="tx-b" x="${x0 + 2 * c - 1}" y="14" text-anchor="middle">${t}</text>`);
+    out.push(heat(m, ['1', '2', '3', '4'], x0, 40, c, (v) => 0.1 + 0.9 * v));
+  });
+  return `<svg width="710" height="210" viewBox="0 0 710 210" role="img" aria-label="Cuatro estructuras de correlación">${out.join('')}</svg>`;
+}
+function simpsonFig() {
+  return barsFig({
+    w: 600, h: 300, ymax: 100, unit: ' %', yl: '% admitidos',
+    groups: [['A', 62.1, 82.4], ['B', 63.0, 68.0], ['C', 36.9, 34.1], ['D', 33.1, 34.9], ['E', 27.7, 23.9], ['F', 5.9, 7.0], ['Todos', 44.5, 30.4]].map(([l, a, b]) => ({ label: l, vals: [a, b] })),
+    series: [{ name: 'Hombres', cls: 'f-p' }, { name: 'Mujeres', cls: 'f-a' }], aria: 'Tasa de admisión por departamento y sexo'
+  });
+}
+function aicFig() {
+  const W = 560, H = 150, P = { l: 170, r: 90, t: 8, b: 8 }, rows = [['Solo horas de estudio', 1189.32, 'f-w'], ['Tendencia temporal', 871.61, 'f-p'], ['LMM (intercepto + pendiente)', 0, 'f-a']];
+  const sx = (v) => P.l + v / 1189.32 * (W - P.l - P.r), out = [];
+  rows.forEach(([n, v, cls], i) => {
+    const y = P.t + 14 + i * 40;
+    out.push(`<text class="tx-l" x="${P.l - 8}" y="${y + 14}" text-anchor="end">${n}</text><rect class="${cls}" x="${P.l}" y="${y}" width="${Math.max(2, sx(v) - P.l)}" height="22" rx="2"/><text class="tx-b" x="${sx(v) + 6}" y="${y + 15}">ΔAIC ${fmt(v, 2)}</text>`);
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Diferencia de AIC entre modelos">${out.join('')}</svg>`;
+}
+
+/* ====================== Diagramas de flujo ====================== */
+function mountFlows() {
+  setFig('#f_mapa', flow({
+    aria: 'De la a priori y los datos a la posterior', nodes: [
+      { t: 'A priori π(θ)', s: 'lo que se sabía', tone: 'a', col: 0, row: 0 },
+      { t: 'Datos y', s: 'verosimilitud f(y | θ)', tone: 'a', col: 0, row: 1 },
+      { t: 'Regla de Bayes', s: 'π(θ|y) ∝ f(y|θ) π(θ)', tone: 'f', col: 1, row: 0 },
+      { t: '¿Cálculo exacto?', tone: 'f', pill: true, col: 2, row: 0 },
+      { t: 'Conjugación', s: 'Beta–Binomial', tone: 'p', col: 3, row: 0 },
+      { t: 'MCMC', s: 'Metropolis · Gibbs · HMC\nJAGS · Stan · PyMC', tone: 'p', col: 3, row: 1 },
+      { t: 'Posterior', s: 'estimar · predecir · chequear', tone: 'p', col: 4, row: 0 }
+    ],
+    edges: [{ a: 0, b: 2 }, { a: 1, b: 2 }, { a: 2, b: 3 }, { a: 3, b: 4, label: 'sí', tone: 'ok' }, { a: 3, b: 5, label: 'no', tone: 'bad' }, { a: 4, b: 6 }, { a: 5, b: 6 }]
+  }));
+  setFig('#f_mh', flow({
+    aria: 'Un paso de Metropolis-Hastings', nodes: [
+      { t: 'Estado actual', s: 'θ(s)', tone: 'a', col: 0, row: 0 },
+      { t: 'Proponer', s: 'θ* ~ q(θ* | θ(s))', tone: 'a', col: 1, row: 0 },
+      { t: 'Razón de densidades', s: 'a = min(1, π̃(θ*) / π̃(θ(s)))\nsi q es simétrica', tone: 'w', col: 2, row: 0 },
+      { t: '¿u < a?', s: 'u ~ U(0, 1)', tone: 'f', pill: true, col: 3, row: 0 },
+      { t: 'Aceptar', s: 'θ(s+1) = θ*', tone: 'ok', col: 4, row: 0 },
+      { t: 'Rechazar', s: 'θ(s+1) = θ(s)', tone: 'bad', col: 4, row: 1 }
+    ],
+    edges: [{ a: 0, b: 1 }, { a: 1, b: 2 }, { a: 2, b: 3 }, { a: 3, b: 4, label: 'sí', tone: 'ok' }, { a: 3, b: 5, label: 'no', tone: 'bad' }, { a: 4, b: 0, loop: true, label: 'siguiente iteración', tone: 'a' }]
+  }));
+}
+
+/* ====================== Laboratorios ====================== */
+function labBB() {
+  function run() {
+    const a = num('bb_a'), b = num('bb_b'), z = num('bb_z'), n = num('bb_n'), p0 = num('bb_t'), m = Math.round(num('bb_m'));
+    if (![a, b, z, n, p0, m].every(Number.isFinite) || a <= 0 || b <= 0 || n < 0 || z < 0 || z > n || m < 1 || m > 60) { $('#bb_stats').innerHTML = stat('Entrada', 'revisa los valores: 0 ≤ z ≤ n, a y b > 0, 1 ≤ m ≤ 60', 'bad'); return; }
+    const pa = a + z, pb = b + n - z, post = betaDist(pa, pb), lo = post.q(0.025), hi = post.q(0.975), mu = pa / (pa + pb);
+    const prior = (x) => betaPdf(x, a, b), lik = (x) => betaPdf(x, z + 1, n - z + 1), pdf = (x) => betaPdf(x, pa, pb);
+    const xs = Array.from({ length: 301 }, (_, i) => 0.0005 + 0.999 * i / 300);
+    const peak = Math.max(...xs.map((x) => Math.max(pdf(x), lik(x), Math.min(prior(x), 40))));
+    const items = [
+      { k: 'area', cls: 'f-a o25', pts: [[lo, 0], ...Array.from({ length: 61 }, (_, i) => [lo + (hi - lo) * i / 60, pdf(lo + (hi - lo) * i / 60)]), [hi, 0]] },
+      { k: 'line', cls: 's-p', dash: true, pts: xs.map((x) => [x, prior(x)]) },
+      { k: 'line', cls: 's-w', thin: true, pts: xs.map((x) => [x, lik(x)]) },
+      { k: 'line', cls: 's-a', pts: xs.map((x) => [x, pdf(x)]) },
+      { k: 'vline', x: mu, cls: 's-a', dash: false }
+    ];
+    if (n > 0) items.push({ k: 'vline', x: z / n, cls: 's-w' });
+    setFig('#f_bb1', chart({ w: 560, h: 280, x: [0, 1], y: [0, peak * 1.1], xl: 'probabilidad de admisión p', yl: 'densidad', items, aria: 'A priori, verosimilitud y posterior' }));
+    const pmf = betaBinPmf(m, pa, pb), sm = pmfSummary(pmf), maxp = Math.max(...pmf);
+    setFig('#f_bb2', chart({
+      w: 560, h: 220, x: [-0.5, m + 0.5], y: [0, maxp * 1.15], xl: `admitidas entre ${m} solicitantes nuevas`, yl: 'probabilidad', xticks: m <= 20 ? Array.from({ length: m + 1 }, (_, k) => k) : undefined, nogrid: true,
+      items: pmf.map((p, k) => ({ k: 'rect', x: k - 0.4, y: 0, w: 0.8, h: p, cls: (k >= sm.lo && k <= sm.hi) ? 'f-a o70' : 'f-w o25' })), aria: 'Predictiva posterior'
+    }));
+    $('#bb_stats').innerHTML = stat('Proporción observada', n > 0 ? fmt(z / n, 3) : '–') + stat('Peso de la a priori', fmt((a + b) / (a + b + n), 3)) + stat('Posterior', `Beta(${fmt(pa, 0)}, ${fmt(pb, 0)})`) + stat('Media a posteriori', fmt(mu, 3), 'ok')
+      + stat('IC creíble 95 %', `[${fmt(lo, 3)}, ${fmt(hi, 3)}]`) + stat(`P(p > ${fmt(p0, 2)} | y)`, fmt(1 - post.cdf(p0), 3)) + stat(`E(Z nuevas), m = ${m}`, fmt(sm.mean, 2)) + stat('Predictivo 95 %', `[${sm.lo}, ${sm.hi}]`);
+  }
+  onChange(['bb_a', 'bb_b', 'bb_z', 'bb_n', 'bb_t', 'bb_m'], run);
+  presets('[data-bb]', 'data-bb', (v) => { ['bb_a', 'bb_b', 'bb_z', 'bb_n'].forEach((id, i) => { $('#' + id).value = v[i]; }); run(); });
+  run();
+}
+
+function labPP() {
+  function run() {
+    const s = num('pp_sd'), k = +$('#pp_k').value, sd = s * Math.sqrt(k), r = rng(1);
+    $('#pp_sd_v').textContent = fmt(s, 2);
+    const ps = Array.from({ length: 20000 }, () => plogis(sd * gauss(r)));
+    const h = histData(ps, 0, 1, 25), lo = plogis(-1.96 * sd), hi = plogis(1.96 * sd), ext = ps.filter((p) => p < 0.05 || p > 0.95).length / ps.length;
+    setFig('#f_pp', chart({ w: 560, h: 260, x: [0, 1], y: [0, Math.max(...h.dens) * 1.12], xl: 'probabilidad implícita p', yl: 'densidad', items: [{ k: 'hist', edges: h.edges, dens: h.dens, cls: 'f-a o50' }, { k: 'vline', x: lo, cls: 's-p' }, { k: 'vline', x: hi, cls: 's-p' }], aria: 'A priori predictiva de p' }));
+    $('#pp_stats').innerHTML = stat('DE del logit', fmt(sd, 2)) + stat('Rango central 95 % de p', `[${fmt(lo, 4)}, ${fmt(hi, 4)}]`) + stat('Masa en p < 0,05 o p > 0,95', fmt(100 * ext, 1) + ' %', ext > 0.4 ? 'bad' : 'ok')
+      + stat('Lectura', ext > 0.4 ? 'a priori en U: muy informativa en los extremos' : ext < 0.12 ? 'concentrada en el centro' : 'razonablemente abierta', ext > 0.4 ? 'bad' : 'ok');
+  }
+  onChange(['pp_sd', 'pp_k'], run); run();
+}
+
+function labMcmc() {
+  let seed = 1;
+  function run() {
+    const tk = $('#m_target').value, step = num('m_step'), iters = Math.round(num('m_iter')), disp = $('#m_disp').value === '1';
+    const warm = Math.max(0, Math.min(Math.round(num('m_warm')), iters - 20));
+    if (!(step > 0) || !(iters >= 100)) return;
+    const tg = TARGETS[tk], r = rng(seed * 7919), starts = disp ? [0.1, 0.4, 0.7, 0.95] : [0.8, 0.8, 0.8, 0.8];
+    const chains = starts.map((s0) => mh1d(tg.logf, s0, iters, step, r));
+    const kept = chains.map((c) => c.draws.slice(warm)), pooled = [].concat(...kept.map((c) => Array.from(c)));
+    const e = rhatEss(kept), acc = chains.map((c) => c.acc);
+    const stride = Math.max(1, Math.ceil(iters / 700));
+    const traces = chains.map((c, k) => ({ k: 'line', cls: CH_CLS[k], thin: true, pts: Array.from({ length: Math.ceil(iters / stride) }, (_, i) => [i * stride + 1, c.draws[i * stride]]) }));
+    setFig('#f_m_trace', chart({ w: 560, h: 240, x: [1, iters], y: [0, 1], xl: 'iteración', yl: 'p', items: [...traces, ...(warm > 0 ? [{ k: 'vline', x: warm, cls: 's-ink' }] : [])], aria: 'Trazas de cuatro cadenas' }));
+    const h = histData(pooled, 0, 1, 50), curve = curvePts(tg.pdf, 0.002, 0.998, 300), top = Math.max(...h.dens, ...curve.map((p) => p[1]));
+    setFig('#f_m_hist', chart({ w: 560, h: 230, x: [0, 1], y: [0, top * 1.1], xl: 'p', yl: 'densidad', items: [{ k: 'hist', edges: h.edges, dens: h.dens, cls: 'f-a o50' }, { k: 'line', cls: 's-p', pts: curve }], aria: 'Histograma de la posterior muestreada frente a la exacta' }));
+    const gd = gridDist(tg.pdf), exact = gd.mass.reduce((s, m, i) => s + m * (i + 0.5) / gd.N, 0), est = mean(pooled);
+    const ok = e.rhat < 1.05, essFrac = e.ess / pooled.length, meanAcc = mean(acc);
+    $('#m_stats').innerHTML = stat('Aceptación', fmt(100 * meanAcc, 0) + ' %', meanAcc < 0.12 || meanAcc > 0.85 ? 'bad' : 'ok') + stat('R̂', fmt(e.rhat, 3), ok ? 'ok' : 'bad') + stat('ESS', `${fmt(e.ess, 0)} de ${fmt(pooled.length, 0)}`, essFrac < 0.03 ? 'bad' : 'ok')
+      + stat('Media (MCMC / exacta)', `${fmt(est, 3)} / ${fmt(exact, 3)}`) + stat('IC 95 % (MCMC)', `[${fmt(quantile(pooled, 0.025), 3)}, ${fmt(quantile(pooled, 0.975), 3)}]`);
+    let msg;
+    if (!ok) msg = 'R̂ lejos de 1: las cadenas no han explorado la misma distribución. No se pueden mezclar sus draws; hay que cambiar la propuesta o alargar el muestreo.';
+    else if (meanAcc < 0.12) msg = 'Aceptación muy baja: el paso es demasiado grande y casi todas las propuestas caen en zonas de densidad ínfima. La cadena se queda parada.';
+    else if (essFrac < 0.03) msg = 'R̂ parece correcto pero el ESS es minúsculo: los draws están muy autocorrelados (paso demasiado pequeño o mezcla lenta).';
+    else msg = 'Trazas solapadas, R̂ cercano a 1 y ESS razonable: el muestreo es fiable para este objetivo.';
+    if (meanAcc > 0.85 && step < 0.01) msg += ' Fíjate: la aceptación es altísima y aun así el muestreo es malo.';
+    $('#m_msg').textContent = msg;
+  }
+  onChange(['m_target', 'm_step', 'm_iter', 'm_warm', 'm_disp'], run);
+  presets('[data-m]', 'data-m', (v) => { $('#m_target').value = v[0]; $('#m_step').value = v[1]; $('#m_iter').value = v[2]; $('#m_warm').value = v[3]; $('#m_disp').value = v[4]; run(); });
+  $('#m_seed').addEventListener('click', () => { seed++; run(); });
+  run();
+}
+
+function labSamp() {
+  let seed = 1;
+  function run() {
+    const rho = num('s_rho'), o = { step: num('s_step'), eps: num('s_eps'), L: Math.round(num('s_L')) };
+    $('#s_rho_v').textContent = fmt(rho, 2);
+    if (!(o.step > 0 && o.eps > 0 && o.L >= 1)) return;
+    const N = 3000, s2 = Math.sqrt(1 - rho * rho), rr = Math.sqrt(5.991);
+    const ell = Array.from({ length: 81 }, (_, i) => { const t = 2 * Math.PI * i / 80; return [rr * Math.cos(t), rr * (rho * Math.cos(t) + s2 * Math.sin(t))]; });
+    const stats = [];
+    [['rwm', '#f_s_rwm', 'Metropolis'], ['gibbs', '#f_s_gibbs', 'Gibbs'], ['hmc', '#f_s_hmc', 'HMC']].forEach(([kind, sel, name], k) => {
+      const res = samp2d(kind, rho, N, o, rng(seed * 101 + k)), path = res.pts.slice(0, 150);
+      setFig(sel, chart({
+        w: 300, h: 300, x: [-4, 4], y: [-4, 4], pad: { l: 30, r: 8, t: 8, b: 26 }, nx: 4, ny: 4, aria: `Primeros 150 pasos de ${name}`,
+        items: [{ k: 'line', pts: ell, cls: 's-w', thin: true, dash: true }, { k: 'line', pts: path, cls: 's-a', thin: true }, { k: 'pts', pts: path, cls: 'f-a', r: 2.4, op: 0.55 }, { k: 'dot', p: path[0], cls: 'f-bad', r: 4 }]
+      }));
+      stats.push(stat(`${name} · aceptación`, kind === 'gibbs' ? '100 % (siempre)' : fmt(100 * res.acc, 0) + ' %', kind !== 'gibbs' && res.acc < 0.15 ? 'bad' : 'ok'));
+      stats.push(stat(`${name} · ESS por 1 000 pasos`, fmt(res.ess / N * 1000, 0), res.ess / N < 0.05 ? 'bad' : 'ok'));
+    });
+    $('#s_stats').innerHTML = stats.join('');
+  }
+  onChange(['s_rho', 's_step', 's_eps', 's_L'], run);
+  $('#s_seed').addEventListener('click', () => { seed++; run(); });
+  run();
+}
+
+function labGibbs() {
+  function run() {
+    const n = +$('#g_n').value, s0 = +$('#g_s0').value, seed = num('g_seed') || 41;
+    const r = rng(seed), y = Array.from({ length: n }, () => 10 + 0.4 * gauss(r));
+    const all = gibbsNormal(y, { m0: 10, s0sq: s0 * s0, a0: 2, b0: 0.16 }, 7000, rng(seed + 1)), post = all.slice(1000);
+    const mus = post.map((p) => p[0]), s2s = post.map((p) => p[1]), inc = post.map((p) => Math.exp(p[0] + p[1] / 2));
+    const x0 = quantile(mus, 0.002), x1 = quantile(mus, 0.998), y0 = quantile(s2s, 0.002), y1 = quantile(s2s, 0.998);
+    const ybar = mean(y), v0 = variance(y), path = [[ybar, v0]];
+    let prev = v0;
+    for (let s = 0; s < 25; s++) { path.push([all[s][0], prev]); path.push([all[s][0], all[s][1]]); prev = all[s][1]; }
+    const cloud = post.filter((_, i) => i % 5 === 0);
+    setFig('#f_g_path', chart({
+      w: 560, h: 280, x: [x0, x1], y: [Math.max(0, y0 * 0.9), y1 * 1.05], xl: 'μ (log-ingreso medio)', yl: 'σ²', nx: 5, aria: 'Posterior conjunta y camino de Gibbs',
+      items: [{ k: 'pts', pts: cloud, cls: 'f-w', r: 1.8, op: 0.25 }, { k: 'line', pts: path, cls: 's-a', thin: true }, { k: 'dot', p: path[0], cls: 'f-bad', r: 4 }]
+    }));
+    const lo = quantile(inc, 0.025), hi = quantile(inc, 0.975), a = quantile(inc, 0.002), b = quantile(inc, 0.998), h = histData(inc, a, b, 40), top = Math.max(...h.dens);
+    setFig('#f_g_inc', chart({
+      w: 560, h: 200, x: [a, b], y: [0, top * 1.15], xl: 'ingreso medio anual (€)', yl: 'densidad', xfmt: (v) => fmt(v, 0), nx: 5, aria: 'Posterior del ingreso medio anual',
+      items: [{ k: 'hist', edges: h.edges, dens: h.dens, cls: 'f-a o50' }, { k: 'rect', x: lo, y: 0, w: hi - lo, h: top * 0.04, cls: 'f-p' }, { k: 'vline', x: quantile(inc, 0.5), cls: 's-ink' }]
+    }));
+    const q = (arr) => `${fmt(quantile(arr, 0.5), 2)} [${fmt(quantile(arr, 0.025), 2)}, ${fmt(quantile(arr, 0.975), 2)}]`;
+    $('#g_stats').innerHTML = stat('Media muestral', fmt(ybar, 3)) + stat('μ · mediana [IC 95 %]', q(mus)) + stat('σ² · mediana [IC 95 %]', `${fmt(quantile(s2s, 0.5), 3)} [${fmt(quantile(s2s, 0.025), 3)}, ${fmt(quantile(s2s, 0.975), 3)}]`)
+      + stat('Ingreso medio (€)', `${fmt(quantile(inc, 0.5), 0)} [${fmt(lo, 0)}, ${fmt(hi, 0)}]`) + stat('ESS de μ', fmt(rhatEss([Float64Array.from(mus)]).ess, 0));
+  }
+  onChange(['g_n', 'g_s0', 'g_seed'], run); run();
+}
+
+function labBerk() {
+  let seed = 11, first = true;
+  function run() {
+    const sd = +$('#berk_sd').value, it = +$('#berk_it').value, r = rng(seed * 4099);
+    const warm = Math.round(it / 4), res = berkMCMC(sd, it, warm, r), s = berkSummary(res, r);
+    $('#berk_acc').innerHTML = res.acc.map((a, k) => stat(`Cadena ${k + 1} · aceptación`, fmt(100 * a, 0) + ' %')).join('') + stat('Draws guardados', fmt(4 * (it - warm), 0));
+    $('#berk_tbl').innerHTML = '<thead><tr><th>Parámetro</th><th>Mediana</th><th>DE</th><th>IC creíble 95 %</th><th>R̂</th><th>ESS</th></tr></thead><tbody>'
+      + s.par.map((p) => `<tr><td>${p.name}</td><td class="num">${fmt(p.med, 2)}</td><td class="num">${fmt(p.sd, 2)}</td><td class="num">[${fmt(p.lo, 2)}, ${fmt(p.hi, 2)}]</td><td class="num" style="color:var(--${p.rhat < 1.05 ? 'ok' : 'unknown'})">${fmt(p.rhat, 3)}</td><td class="num">${fmt(p.ess, 0)}</td></tr>`).join('') + '</tbody>';
+    const all = [].concat(...res.chains), ors = all.map((v) => Math.exp(v[1])), h = histData(ors, 0.6, 1.8, 40);
+    setFig('#f_berk_or', chart({ w: 300, h: 240, x: [0.6, 1.8], y: [0, Math.max(...h.dens) * 1.15], xl: 'odds ratio mujer/hombre e^β', yl: 'densidad', nx: 4, pad: { l: 40, r: 8, t: 10, b: 34 }, items: [{ k: 'hist', edges: h.edges, dens: h.dens, cls: 'f-a o50' }, { k: 'vline', x: 1, cls: 's-ink' }, { k: 'vline', x: s.orMed, cls: 's-p', dash: false }], aria: 'Posterior del odds ratio' }));
+    const lab = BERK.cells.map((c) => c.dept + (c.female ? '♀' : '♂'));
+    setFig('#f_berk_ppc', chart({
+      w: 380, h: 240, x: [-0.6, 11.6], y: [0, 1], xticks: Array.from({ length: 12 }, (_, k) => k), xfmt: (v) => lab[v], yfmt: (v) => fmt(v, 1), pad: { l: 52, r: 8, t: 10, b: 34 }, nogrid: true, aria: 'Chequeo predictivo posterior por celda', yl: 'proporción admitida',
+      items: [...s.ppc.map((p, k) => ({ k: 'rect', x: k - 0.2, y: p.lo / p.cell.n, w: 0.4, h: Math.max(0.004, (p.hi - p.lo) / p.cell.n), cls: 'f-a o25' })),
+        ...s.ppc.map((p, k) => ({ k: 'dot', p: [k, p.cell.adm / p.cell.n], cls: (p.cell.adm < p.lo || p.cell.adm > p.hi) ? 'f-bad' : 'f-ink', r: 4 }))]
+    }));
+    const out = s.ppc.filter((p) => p.cell.adm < p.lo || p.cell.adm > p.hi).map((p) => p.cell.dept + (p.cell.female ? '/mujeres' : '/hombres'));
+    $('#berk_stats').innerHTML = stat('OR mujer/hombre', `${fmt(s.orMed, 2)} [${fmt(s.orLo, 2)}, ${fmt(s.orHi, 2)}]`) + stat('P(β < 0 | y)', fmt(s.pNeg, 2)) + stat('Celdas fuera del intervalo', out.length ? out.join(', ') : 'ninguna', out.length ? 'bad' : 'ok')
+      + stat('10 mujeres nuevas en A', `${fmt(s.predMean, 1)} [${s.predLo}, ${s.predHi}]`) + stat('Solo A/mujeres (Beta–Binomial)', '8,2 [5, 10]');
+  }
+  onChange(['berk_sd', 'berk_it'], run);
+  $('#berk_run').addEventListener('click', () => { seed++; run(); });
+  setTimeout(run, 60);
+}
+
+function labMiss() {
+  const MSG = {
+    mcar: 'MCAR: la falta no depende de nada. Casos completos y EM son insesgados; EM tiene algo menos de error típico porque aprovecha el salario y la experiencia de todos los encuestados.',
+    mar: 'MAR (experiencia): la falta depende de una variable observada. Casos completos sigue centrado en el valor real pero con más error típico; EM usa a todos y queda centrado con error menor.',
+    mary: 'MAR (salario): la falta depende del salario, que es la respuesta y está observado. Los casos completos quedan sesgados (la prima del título sale subestimada) y EM, que modela el salario de todos, sigue centrado. MAR no significa «inofensivo» para casos completos.',
+    mnar: 'MNAR (título): quienes tienen título contestan menos. El coeficiente de la regresión se salva porque la selección es sobre una covariable, pero EM supone un único modelo para el título y estima mal su prevalencia ξ (≈ 0,25 frente al 0,55 real) y todo lo que dependa de ella. Si además la falta dependiera del salario, ambos análisis fallarían. EM no es una solución a MNAR.'
+  };
+  let busy = 0;
+  function run() {
+    const mech = $('#mi_mech').value, seed = num('mi_seed') || 2026;
+    const d = simSurvey(800, mech, rng(seed)), cc = olsCC(d), em = emDegree(d), om = olsOmit(d), miss = d.xo.filter(Number.isNaN).length;
+    $('#mi_stats').innerHTML = stat('Títulos faltantes', `${miss} (${fmt(100 * miss / 800, 1)} %)`) + stat('Casos completos', cc.n) + stat('Iteraciones de EM', em.iter) + stat('ξ̂ de EM (real 0,55)', fmt(em.xi, 3), Math.abs(em.xi - 0.55) > 0.06 ? 'bad' : 'ok') + stat('Error típico de β (casos completos)', fmt(cc.se, 4));
+    $('#mi_tbl').innerHTML = '<thead><tr><th>Parámetro</th><th>Real</th><th>Casos completos</th><th>EM</th><th>Omitir el título</th></tr></thead><tbody>'
+      + `<tr><td>Intercepto</td><td class="num">10,200</td><td class="num">${fmt(cc.beta[0], 3)}</td><td class="num">${fmt(em.beta[0], 3)}</td><td class="num">${fmt(om.a, 3)}</td></tr>`
+      + `<tr><td>Prima del título β</td><td class="num">0,250</td><td class="num">${fmt(cc.beta[1], 3)}</td><td class="num">${fmt(em.beta[1], 3)}</td><td class="num">no se puede estimar</td></tr>`
+      + `<tr><td>Experiencia</td><td class="num">0,060</td><td class="num">${fmt(cc.beta[2], 4)}</td><td class="num">${fmt(em.beta[2], 4)}</td><td class="num">${fmt(om.b, 4)}</td></tr></tbody>`;
+    $('#mi_msg').innerHTML = `<h4>Lectura</h4><p>${MSG[mech]}</p>`;
+    const token = ++busy;
+    $('#mi_rep').innerHTML = stat('Repetición', 'calculando 150 muestras…');
+    setTimeout(() => {
+      if (token !== busy) return;
+      const rr = rng(seed + 1000), ccB = [], emB = [], xis = [];
+      for (let i = 0; i < 150; i++) { const s = simSurvey(800, mech, rr); ccB.push(olsCC(s).beta[1]); const e = emDegree(s); emB.push(e.beta[1]); xis.push(e.xi); }
+      const hc = histData(ccB, 0.1, 0.4, 30), he = histData(emB, 0.1, 0.4, 30), sdv = (a) => Math.sqrt(variance(a));
+      setFig('#f_mi', chart({ w: 560, h: 240, x: [0.1, 0.4], y: [0, Math.max(...hc.dens, ...he.dens) * 1.12], xl: 'estimación de la prima β', yl: 'densidad', items: [{ k: 'hist', edges: hc.edges, dens: hc.dens, cls: 'f-p o50' }, { k: 'hist', edges: he.edges, dens: he.dens, cls: 'f-a o50' }, { k: 'vline', x: 0.25, cls: 's-ink', dash: false }], aria: 'Distribución muestral de la prima estimada' }));
+      const bias = (a) => mean(a) - 0.25;
+      $('#mi_rep').innerHTML = stat('Casos completos · media (sesgo)', `${fmt(mean(ccB), 3)} (${fmt(bias(ccB), 3)})`, Math.abs(bias(ccB)) > 0.015 ? 'bad' : 'ok') + stat('Casos completos · DE', fmt(sdv(ccB), 4))
+        + stat('EM · media (sesgo)', `${fmt(mean(emB), 3)} (${fmt(bias(emB), 3)})`, Math.abs(bias(emB)) > 0.015 ? 'bad' : 'ok') + stat('EM · DE', fmt(sdv(emB), 4)) + stat('ξ̂ medio de EM (real 0,55)', fmt(mean(xis), 3), Math.abs(mean(xis) - 0.55) > 0.06 ? 'bad' : 'ok');
+    }, 30);
+  }
+  onChange(['mi_mech', 'mi_seed'], run);
+  $('#mi_new').addEventListener('click', () => { $('#mi_seed').value = (num('mi_seed') || 0) + 1; run(); });
+  setTimeout(run, 80);
+}
+
+function labLmm() {
+  let seed = 5;
+  const COLS = ['s-a', 's-p', 's-ok', 's-bad', 's-w', 's-ink'], FILL = ['f-a', 'f-p', 'f-ok', 'f-bad', 'f-w', 'f-ink'];
+  function run() {
+    const o = { S: 400, nObs: +$('#lm_nobs').value, s0: num('lm_s0'), s1: num('lm_s1'), rho: 0.3, sig: num('lm_sig'), b0: 55, b1: 2 };
+    $('#lm_s1_v').textContent = fmt(o.s1, 1); $('#lm_sig_v').textContent = fmt(o.sig, 1); $('#lm_s0_v').textContent = fmt(o.s0, 1);
+    const res = lmmShrink(o, rng(seed * 313)), six = res.stud.slice(0, 6);
+    const ys = [].concat(...six.map((s) => [...s.y, s.intO, s.intO + 3 * s.slopeO, s.intB, s.intB + 3 * s.slopeB])), y0 = Math.min(...ys) - 4, y1 = Math.max(...ys) + 4;
+    const items = [{ k: 'line', cls: 's-ink', dash: true, pts: [[0, o.b0], [3, o.b0 + 3 * o.b1]] }];
+    six.forEach((s, i) => {
+      items.push({ k: 'line', cls: COLS[i], thin: true, dash: true, pts: [[0, s.intO], [3, s.intO + 3 * s.slopeO]] });
+      items.push({ k: 'line', cls: COLS[i], pts: [[0, s.intB], [3, s.intB + 3 * s.slopeB]] });
+      items.push({ k: 'pts', cls: FILL[i], pts: s.t.map((t, k) => [t, s.y[k]]), r: 3.4, op: 0.9 });
+    });
+    setFig('#f_lmm', chart({ w: 560, h: 300, x: [-0.2, 3.2], y: [y0, y1], xticks: [0, 1, 2, 3], xfmt: (v) => 'Sem. ' + (v + 1), xl: 'semestre', yl: 'nota', items, aria: 'Trayectorias de seis estudiantes: mínimos cuadrados frente a BLUP' }));
+    const t = Array.from({ length: o.nObs }, (_, k) => k), tb = mean(t), sxx = sum(t.map((v) => (v - tb) ** 2)), lam = o.s1 ** 2 / (o.s1 ** 2 + o.sig ** 2 / sxx);
+    $('#lm_stats').innerHTML = stat('Pendiente · RMSE por MCO', fmt(res.rmseSlopeO, 2), 'bad') + stat('Pendiente · RMSE del BLUP', fmt(res.rmseSlopeB, 2), 'ok') + stat('Intercepto · RMSE por MCO', fmt(res.rmseIntO, 2), 'bad') + stat('Intercepto · RMSE del BLUP', fmt(res.rmseIntB, 2), 'ok')
+      + stat('Factor de encogimiento de la pendiente', fmt(lam, 2)) + stat('Estudiantes simulados', 400);
+  }
+  onChange(['lm_nobs', 'lm_s1', 'lm_sig', 'lm_s0'], run);
+  $('#lm_new').addEventListener('click', () => { seed++; run(); });
+  run();
+}
+
+function init() {
+  mountCode(); mountFlows();
+  setFig('#f_simpson', simpsonFig()); setFig('#f_corr', corrFig()); setFig('#f_aic', aicFig()); setFig('#f_struct', structFig());
+  labBB(); labPP(); labMcmc(); labSamp(); labGibbs(); labLmm(); labBerk(); labMiss();
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>
