@@ -1102,6 +1102,7 @@ print(cuota_ahorro(rend), 0.19 * rend)` } }
 
     // ------------------------------------------------------------------
     seguridad_social: {
+        guide: 'guias/seguridad_social.html',
         sections: [
             {
                 id: 'idea', title: 'Idea clave',
