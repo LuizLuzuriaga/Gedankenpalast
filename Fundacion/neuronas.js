@@ -234,13 +234,16 @@ const Ollama = (() => {
     function elegir(nombre) { try { localStorage.setItem(clave, nombre); } catch { /* opcional */ } }
 
     // Texto (o JSON si json=true) generado por el modelo. Los modelos pequeños tardan: hasta 5 minutos.
-    async function generar(prompt, { json = true, modeloElegido } = {}) {
+    async function generar(prompt, { json = true, modeloElegido, contexto = 2048 } = {}) {
         const m = modeloElegido || modelo();
         if (!m) throw new Error('No hay ningún modelo descargado en Ollama.');
-        const cuerpo = { model: m, prompt, stream: false, options: { temperature: 0.3 } };
+        const cuerpo = { model: m, prompt, stream: false, options: { temperature: 0.3, num_ctx: contexto } };   // contexto pequeño: ahorra memoria en equipos modestos
         if (json) cuerpo.format = 'json';
         const r = await pedir('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }, 300000);
-        if (!r.ok) throw new Error('Ollama respondió HTTP ' + r.status);
+        if (!r.ok) {
+            const detalle = await r.text().catch(() => '');
+            throw new Error(/out-of-memory|memory/i.test(detalle) ? 'falta memoria: cierra programas o baja el contexto, o usa un modelo más pequeño' : 'Ollama respondió HTTP ' + r.status);
+        }
         return (await r.json()).response || '';
     }
     function extraerJson(texto) {
