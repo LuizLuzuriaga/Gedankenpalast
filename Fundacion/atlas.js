@@ -82,6 +82,31 @@ const TOPICS = [
         knowledge: 'seguridad_social'
     },
 
+    {
+        id: 'act_biometria', cluster: 'act', name: 'Biometría y demografía',
+        desc: 'Demografía y teoría de la supervivencia: crecimiento y estructura de la población, tasas y estandarización, tablas de mortalidad, proyecciones, grupos de varias cabezas, leyes de supervivencia y graduación.',
+        related: ['act_vida', 'act_pensiones', 'mat_probabilidad', 'ds_estadistica', 'lee_carter'],
+        knowledge: 'biometria'
+    },
+    {
+        id: 'act_derecho_seguro', cluster: 'act', name: 'Derecho del seguro',
+        desc: 'Ley de Contrato de Seguro, seguros de personas y de daños, responsabilidad civil y el sistema de supervisión y capital de Solvencia II con sus tres pilares, SCR y MCR.',
+        related: ['act_solvencia', 'act_no_vida', 'act_vida', 'eco_derecho_bancario'],
+        knowledge: 'derecho_seguro'
+    },
+    {
+        id: 'act_erm', cluster: 'act', name: 'ERM y valor de la aseguradora',
+        desc: 'Gestión integral de riesgos de una aseguradora de vida: valor intrínseco de mercado (MCEV), mejor estimación de las provisiones técnicas (BEL) e hipótesis de mortalidad, gastos y caída de cartera.',
+        related: ['act_solvencia', 'act_vida', 'act_gestion_riesgos', 'act_ifrs17', 'act_derecho_seguro'],
+        knowledge: 'erm_mcev'
+    },
+    {
+        id: 'act_deontologia', cluster: 'act', name: 'Código deontológico',
+        desc: 'Código de conducta del Instituto de Actuarios Españoles: ámbito, objetivos y seis principios (integridad, competencia, imparcialidad, obediencia, iniciativa y comunicación).',
+        related: ['act_gestion_riesgos', 'act_contabilidad'],
+        knowledge: 'deontologia'
+    },
+
     // DATA SCIENCE
     {
         id: 'ds_estadistica', cluster: 'ds', name: 'Estadística',
@@ -196,6 +221,13 @@ const TOPICS = [
         desc: 'Inferencia causal de políticas y programas: resultados potenciales y contrafactual, aleatorización, regresión en discontinuidad, diferencias en diferencias, emparejamiento y variables instrumentales.',
         related: ['eco_econometria', 'ds_econometria', 'eco_tfg', 'ds_estadistica', 'eco_macro'],
         knowledge: 'evaluacion_impacto'
+    },
+
+    {
+        id: 'eco_derecho_bancario', cluster: 'eco', name: 'Derecho bancario',
+        desc: 'Derecho del mercado financiero: crisis de 2008 y respuesta regulatoria, Unión Bancaria (supervisión, resolución y garantía de depósitos), contratación bancaria, crédito documentario y titulización.',
+        related: ['act_solvencia', 'act_derecho_seguro', 'eco_macro', 'act_gestion_riesgos', 'eco_fiscalidad'],
+        knowledge: 'derecho_bancario'
     },
 
     // MATEMÁTICAS Y PROBABILIDAD

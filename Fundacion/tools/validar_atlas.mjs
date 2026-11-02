@@ -15,7 +15,7 @@ const ctx = vm.createContext({
     localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
     document: {}, window: {}
 });
-const ARCHIVOS = ['knowledgeData.js', 'atlas.js', 'conocimientos.js', 'conocimientos_mucaf.js', 'conocimientos_grado.js', 'conocimientos_grado2.js', 'neuronas.js'];
+const ARCHIVOS = ['knowledgeData.js', 'atlas.js', 'conocimientos.js', 'conocimientos_mucaf.js', 'conocimientos_grado.js', 'conocimientos_grado2.js', 'conocimientos_drive.js', 'neuronas.js'];
 for (const f of ARCHIVOS) {
     const p = path.join(dir, f);
     if (!fs.existsSync(p)) continue;
