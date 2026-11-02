@@ -1125,7 +1125,7 @@ print(cuota_ahorro(rend), 0.19 * rend)` } }
                         'Para alcanzar el <b>100 %</b> de la base reguladora hay que acreditar 37 años cotizados a partir de 2027.',
                         'Incapacidad permanente absoluta: 100 % de la base reguladora. La gran invalidez añade un complemento para disponer de ayuda de tercera persona.'
                     ] },
-                    { type: 'callout', text: 'Para practicar: la plataforma de tests de Seguridad Social (64 preguntas, 19 casos jurisprudenciales y 5 ejercicios de cálculo) está en github.com/LuizLuzuriaga/asignaturas. La financiación por reparto frente a capitalización se desarrolla en <b>Previsión social y pensiones</b>.' }
+                    { type: 'callout', text: 'Para practicar: abre la guía de este tema, con seis tests (64 preguntas, en modo examen o repaso), 19 casos jurisprudenciales, 7 ejercicios de cálculo y 8 preguntas de desarrollo. La financiación por reparto frente a capitalización se desarrolla en <b>Previsión social y pensiones</b>.' }
                 ]
             },
             {
