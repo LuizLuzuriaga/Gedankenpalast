@@ -175,6 +175,11 @@ nav.toc .in { gap: 6px 14px; font-size: 12.5px; }
 .code-head button { padding: 2px 10px; font-size: 12px; flex: none; }
 .code pre { margin: 0; padding: 12px 14px; overflow: auto; max-height: 560px; font-family: var(--font-data); font-size: 12.5px; line-height: 1.55; tab-size: 2; }
 .code pre code { font-family: inherit; white-space: pre; }
+.code-head { flex-wrap: wrap; }
+.code-tabs { display: inline-flex; gap: 4px; }
+.code-tabs button { padding: 2px 10px; font-size: 12px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); background: transparent; }
+.code-tabs button[aria-selected="true"] { border-color: var(--pres); color: var(--pres); }
+.code pre[hidden] { display: none; }
 .c-com { color: var(--muted); font-style: italic; }
 .c-str { color: var(--pres); }
 .c-num { color: var(--accent); }
@@ -309,7 +314,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
   </div>
   <div class="callout tip">
     <h4>Cómo leer el código</h4>
-    <p>Cada bloque indica su fichero de origen. Una etiqueta <span class="pill">curso</span> significa que es el script de clase (limpiado de comentarios sueltos). Una etiqueta <span class="pill p">complemento</span> significa que lo he añadido yo para completar un ejemplo o corregir un detalle y no está en los scripts del profesor. Debajo de cada bloque hay una lista «qué hace, paso a paso». Los scripts de R no se pueden ejecutar aquí: pégalos en RStudio (necesitas los <code>.RData</code> del curso para los Temas 2 y 3).</p>
+    <p>Cada bloque tiene dos pestañas, <b>R</b> y <b>Python</b>, con el mismo orden de pasos (los números aleatorios no coinciden porque R usa Mersenne-Twister y NumPy usa PCG64, pero los resultados son equivalentes). Cada bloque indica su fichero de origen. Una etiqueta <span class="pill">curso</span> significa que es el script de clase (limpiado de comentarios sueltos). Una etiqueta <span class="pill p">complemento</span> significa que lo he añadido yo para completar un ejemplo o corregir un detalle y no está en los scripts del profesor. Debajo de cada bloque hay una lista «qué hace, paso a paso». Los scripts de R no se pueden ejecutar aquí: pégalos en RStudio (necesitas los <code>.RData</code> del curso para los Temas 2 y 3).</p>
   </div>
 </section>
 
@@ -358,7 +363,8 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
       <figure class="fig" id="g_fig"><div class="tl-scroll"></div><figcaption>Gráfico de retardo \((u_i,u_{i+1})\): si los puntos forman una malla o pocas rectas, el generador no es independiente.</figcaption></figure>
     </div>
     <p>Otros generadores que hay que saber nombrar: <b>Mersenne Twister</b> (el de R por defecto, periodo \(2^{19937}-1\); Matsumoto y Nishimura, 1998), <b>PCG</b> (congruencial más una permutación de la salida; O'Neill, 2014) y <b>Xoshiro/Xorshift</b> (XOR, desplazamientos y rotaciones de bits; Marsaglia, 2003). En R, <code>RNGkind()</code> muestra el generador y <code>set.seed()</code> fija la semilla: misma semilla, misma secuencia, experimento reproducible.</p>
-    <script type="text/x-r" data-file="Tema 1. GLCS.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. GLCS.R" data-src="curso">
+<script type="text/x-r">
 # --- GCLS de clase: a = 5, c = 3, m = 16, semilla 7 ---
 a <- 5; c <- 3; m <- 16; semilla <- 7
 
@@ -402,6 +408,50 @@ set.seed(123); u1 <- runif(10000)           # semilla 1
 set.seed(999); u2 <- runif(10000)           # semilla 2
 c(mean(u1), mean(u2)); c(var(u1), var(u2))
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- GCLS de clase: a = 5, c = 3, m = 16, semilla 7 ---
+a, c, m, semilla = 5, 3, 16, 7
+
+xi = np.empty(10000)                       # aquí guardamos los z_i
+xi[0] = semilla
+for i in range(1, 10000):
+    xi[i] = (a * xi[i - 1] + c) % m        # z_i = (a z_{i-1} + c) mod m
+print(xi[:30])                             # se ve que repite cada 16 valores
+
+ui = xi / m                                # uniformes U(0,1)
+print(ui.mean())                           # debería rondar 0.5
+print(ui.var(ddof=1))                      # debería rondar 1/12 = 0.0833 (var de R divide entre n-1)
+plt.hist(ui, bins=20, color="lightblue", edgecolor="white"); plt.title("Histograma del GCLS"); plt.show()
+plt.plot(ui[:-1], ui[1:], "o", ms=3); plt.title("Gráfico de retardo (u_i, u_{i+1})"); plt.show()
+
+# --- Lo mismo como función ---
+def gcls(semilla, a, c, m, n):
+    x = np.zeros(n + 1)
+    u = np.zeros(n)
+    x[0] = semilla
+    for i in range(n):
+        x[i + 1] = (a * x[i] + c) % m      # % es el módulo en Python
+        u[i] = x[i + 1] / m
+    return {"X": x, "U": u}                # devuelve un diccionario con dos vectores
+
+# Parámetros de Park y Miller (a·x < 2^53, así que el módulo en float64 es exacto)
+res = gcls(semilla=12345, a=16807, c=0, m=2**31 - 1, n=1000)
+print(res["U"][:5])
+fig, ax = plt.subplots(1, 2)
+ax[0].hist(res["X"], bins=20, color="lightblue", edgecolor="white"); ax[0].set_title("z_i")
+ax[1].hist(res["U"], bins=20, color="lightblue", edgecolor="white"); ax[1].set_title("u_i")
+plt.show()
+plt.plot(res["U"][:-1], res["U"][1:], "o", ms=3); plt.show()
+
+# --- Generador propio de NumPy (PCG64; R usa Mersenne-Twister, los números no coinciden pero el comportamiento sí) ---
+u1 = np.random.default_rng(123).uniform(size=10000)    # semilla 1
+u2 = np.random.default_rng(999).uniform(size=10000)    # semilla 2
+print(u1.mean(), u2.mean(), u1.var(ddof=1), u2.var(ddof=1))
+</script>
+</div>
     <ol class="walk">
       <li><b>Bucle con matriz.</b> Reserva un vector de 10 000 huecos y aplica la recurrencia en su forma «resta de la parte entera»: \((az+c)-m\lfloor (az+c)/m\rfloor\). Es exactamente la definición de módulo.</li>
       <li><b><code>xi/m</code></b> convierte los estados enteros en uniformes. Con \(m=16\) solo hay 16 valores distintos posibles: el histograma es una escalera, no una uniforme continua. Por eso se usan \(m\) enormes.</li>
@@ -451,7 +501,8 @@ c(mean(u1), mean(u2)); c(var(u1), var(u2))
       <div class="stats" id="i_stats"></div>
       <figure class="fig" id="i_fig"><div class="tl-scroll"></div><figcaption>Histograma de los \(x=F^{-1}(u)\) generados (barras) frente a la densidad teórica (línea).</figcaption></figure>
     </div>
-    <script type="text/x-r" data-file="Tema 1. Metodo Inversion.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Metodo Inversion.R" data-src="curso">
+<script type="text/x-r">
 set.seed(123)
 n <- 10000
 
@@ -480,13 +531,48 @@ x.inv  <- -log(1 - u) / lambda            # inversión a mano
 x.qexp <- qexp(u, rate = lambda)          # inversión de R: con la misma u salen los mismos x
 c(mean(x.inv), mean(x.qexp)); c(var(x.inv), var(x.qexp))
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+rng = np.random.default_rng(123)
+n = 10000
+
+# --- Exponencial: F(x) = 1 - exp(-lambda x)  =>  x = -ln(u)/lambda ---
+lam = 2
+u = rng.uniform(size=n)
+x = -np.log(u) / lam                       # (equivale a -log(1-u)/lambda)
+xs = np.linspace(0, x.max(), 300)
+plt.hist(x, bins=30, density=True, color="lightblue")
+plt.plot(xs, stats.expon.pdf(xs, scale=1 / lam), "r", lw=2); plt.show()
+print(x.mean())                            # ≈ 1/lambda   = 0.5
+print(x.var(ddof=1))                       # ≈ 1/lambda^2 = 0.25
+
+# --- Weibull: x = beta * (-ln(1-u))^(1/alpha) ---
+u = rng.uniform(size=10000)
+alpha, beta = 2, 3
+x = (-np.log(1 - u)) ** (1 / alpha) * beta
+xs = np.linspace(0, x.max(), 300)
+plt.hist(x, bins=30, density=True, color="lightblue")
+plt.plot(xs, stats.weibull_min.pdf(xs, c=alpha, scale=beta), "r", lw=2); plt.show()
+
+# --- scipy ya trae la inversa (función ppf) de muchas distribuciones ---
+# stats.expon.ppf(), stats.weibull_min.ppf(), stats.logistic.ppf(), stats.cauchy.ppf() ...
+u = rng.uniform(size=n)
+x_inv = -np.log(1 - u) / lam               # inversión a mano
+x_ppf = stats.expon.ppf(u, scale=1 / lam)  # inversión de scipy: con la misma u salen los mismos x
+print(x_inv.mean(), x_ppf.mean(), x_inv.var(ddof=1), x_ppf.var(ddof=1))
+</script>
+</div>
     <ol class="walk">
       <li><b>Paso clave:</b> <code>u &lt;- runif(n)</code> da los uniformes; <code>x &lt;- -log(u)/lambda</code> los transforma. Un solo vector, una sola línea: eso es simular por inversión.</li>
       <li><b><code>probability = TRUE</code></b> pinta el histograma como densidad (área 1) para poder superponer <code>curve(dexp(...))</code>. Si ambos coinciden, el método funciona.</li>
       <li><b>Comprobación de momentos.</b> Para la exponencial \(E[X]=1/\lambda\) y \(\operatorname{Var}(X)=1/\lambda^2\).</li>
       <li><b><code>q…()</code></b> son las funciones cuantil de R, es decir, \(F^{-1}\). Con la misma <code>u</code>, <code>qexp(u, λ)</code> y la fórmula a mano coinciden exactamente.</li>
     </ol>
-    <script type="text/x-r" data-file="Pareto por inversión (tarea «hazlo con qpareto»)" data-src="complemento">
+    <div class="codepair" data-file="Pareto por inversión (tarea «hazlo con qpareto»)" data-src="complemento">
+<script type="text/x-r">
 # Pareto(xm, alpha): F(x) = 1 - (xm/x)^alpha  =>  x = xm / (1-u)^(1/alpha)
 set.seed(123)
 xm <- 5000; alpha <- 3; n <- 10000
@@ -500,6 +586,26 @@ curve(dpareto(x, xm, alpha), add = TRUE, col = "red", lwd = 2, from = xm, to = 2
 
 mean(x)                                   # media teórica: alpha*xm/(alpha-1) = 7500
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# Pareto(xm, alpha): F(x) = 1 - (xm/x)^alpha  =>  x = xm / (1-u)^(1/alpha)
+rng = np.random.default_rng(123)
+xm, alpha, n = 5000, 3, 10000
+u = rng.uniform(size=n)
+x = xm * (1 - u) ** (-1 / alpha)
+
+# scipy sí trae la densidad (stats.pareto, con b = alpha y scale = xm); también valdría escribirla a mano
+dpareto = lambda x, xm, alpha: np.where(x >= xm, alpha * xm**alpha / x ** (alpha + 1), 0.0)
+xs = np.linspace(xm, 20000, 400)
+plt.hist(x[x < 20000], bins=60, density=True, color="lightblue"); plt.title("Pareto(5000, 3)")
+plt.plot(xs, dpareto(xs, xm, alpha), "r", lw=2); plt.show()
+
+print(x.mean())                            # media teórica: alpha*xm/(alpha-1) = 7500
+</script>
+</div>
     <ol class="walk">
       <li>Es la misma receta con otra \(F^{-1}\). La media teórica existe solo si \(\alpha>1\) y la varianza solo si \(\alpha>2\); con colas tan pesadas la media muestral converge lentamente.</li>
       <li>Se recorta el histograma en 20 000 solo para que se vea; la cola real llega mucho más lejos.</li>
@@ -528,7 +634,8 @@ mean(x)                                   # media teórica: alpha*xm/(alpha-1) =
       <div class="stats" id="t_stats"></div>
       <figure class="fig" id="t_fig"><div class="tl-scroll"></div><figcaption>Frecuencias simuladas (barras) frente a las probabilidades teóricas (marcas).</figcaption></figure>
     </div>
-    <script type="text/x-r" data-file="Tema 1. Método Tabla de Búsqueda.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Método Tabla de Búsqueda.R" data-src="curso">
+<script type="text/x-r">
 # Cartera de cobro de primas: sin impago 0.75, retraso 0.15, impago 0.10
 # Regla:  1 si u<0.75 ; 2 si 0.75<=u<0.90 ; 3 si u>=0.90
 set.seed(123)
@@ -550,7 +657,33 @@ barplot(prop.table(table(estado)),
         main = "Estado de los préstamos simulados", ylab = "Probabilidad",
         names.arg = c("Sin impago", "Retraso", "Default"))
     </script>
-    <script type="text/x-r" data-file="Versión general con cumsum / findInterval" data-src="complemento">
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Cartera de cobro de primas: sin impago 0.75, retraso 0.15, impago 0.10
+# Regla:  1 si u<0.75 ; 2 si 0.75<=u<0.90 ; 3 si u>=0.90
+rng = np.random.default_rng(123)
+n = 10000
+u = rng.uniform(size=n)
+
+estado = np.where(u < 0.75, 1, np.where(u < 0.90, 2, 3))
+
+conteo = pd.Series(estado).value_counts().sort_index()
+print(conteo)                              # nº de casos de cada estado
+print(conteo / n)                          # proporciones simuladas
+
+teoricas = [0.75, 0.15, 0.10]
+simuladas = (conteo / n).round(4).tolist()
+print(pd.DataFrame([teoricas, simuladas], index=["Teorica", "Simulada"], columns=[1, 2, 3]))
+
+plt.bar(["Sin impago", "Retraso", "Default"], conteo / n, color=["forestgreen", "gold", "firebrick"])
+plt.title("Estado de los préstamos simulados"); plt.ylabel("Probabilidad"); plt.show()
+</script>
+</div>
+    <div class="codepair" data-file="Versión general con cumsum / findInterval" data-src="complemento">
+<script type="text/x-r">
 # Para cualquier vector de probabilidades p (suma 1) y valores x
 tabla_busqueda <- function(n, x, p) {
   F <- cumsum(p)                           # probabilidades acumuladas F(x_i)
@@ -561,6 +694,24 @@ set.seed(123)
 sim <- tabla_busqueda(10000, x = 1:5, p = c(0.15, 0.25, 0.20, 0.10, 0.30))
 round(prop.table(table(sim)), 3)          # ≈ 0.15 0.25 0.20 0.10 0.30
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+
+# Para cualquier vector de probabilidades p (suma 1) y valores x
+def tabla_busqueda(n, x, p, rng):
+    x = np.asarray(x)
+    F = np.cumsum(p)                                     # probabilidades acumuladas F(x_i)
+    u = rng.uniform(size=n)
+    # índice del tramo donde cae cada u (searchsorted hace lo que findInterval en R)
+    idx = np.searchsorted(np.r_[0, F[:-1]], u, side="right") - 1
+    return x[idx]
+
+rng = np.random.default_rng(123)
+sim = tabla_busqueda(10000, x=range(1, 6), p=[0.15, 0.25, 0.20, 0.10, 0.30], rng=rng)
+print(pd.Series(sim).value_counts(normalize=True).sort_index().round(3))   # ≈ 0.15 0.25 0.20 0.10 0.30
+</script>
+</div>
     <ol class="walk">
       <li><b><code>ifelse</code> anidado</b> es la tabla de búsqueda escrita a mano: cada condición mira un corte de la acumulada (0,75 → 0,90 → 1).</li>
       <li><b><code>table</code> y <code>prop.table</code></b> cuentan y normalizan. Con 10 000 datos las proporciones se parecen mucho a las teóricas (ley de los grandes números).</li>
@@ -619,7 +770,8 @@ round(prop.table(table(sim)), 3)          # ≈ 0.15 0.25 0.20 0.10 0.30
       </tbody>
     </table></div>
     <p class="note">Observa que Pareto, Weibull y Exponencial se simulan mejor <b>por inversión</b> (ahí aceptación–rechazo desperdicia el 93 % de los candidatos). Aceptación–rechazo se reserva para densidades que no se pueden invertir.</p>
-    <script type="text/x-r" data-file="Tema 1. Método de Aceptacion Rechazo.R (Gamma y Beta)" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Método de Aceptacion Rechazo.R (Gamma y Beta)" data-src="curso">
+<script type="text/x-r">
 set.seed(123)
 
 # ============ Gamma(2,1):  f(x) = x * exp(-x),  x en [0, 8] ============
@@ -654,7 +806,49 @@ aceptado <- U2 <= f_beta(U1)
 mean(aceptado)                             # ≈ 1/2.0736 = 0.482
 mean(U1[aceptado])                         # media teórica: 4/(4+3) = 0.571
     </script>
-    <script type="text/x-r" data-file="Cualquier densidad: función genérica" data-src="complemento">
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+from scipy.special import beta as beta_fn
+
+rng = np.random.default_rng(123)
+
+# ============ Gamma(2,1):  f(x) = x * exp(-x),  x en [0, 8] ============
+f_gamma = lambda x: x * np.exp(-x)
+a, b = 0, 8
+k = np.exp(-1)                             # máximo de la densidad (en x = 1)
+
+u1 = rng.uniform(size=1000); u2 = rng.uniform(size=1000)     # dos uniformes independientes
+print(np.corrcoef(u1, u2)[0, 1])           # ≈ 0: comprobación de independencia
+U1 = a + (b - a) * u1                      # U(0,1) -> U(a, b)
+U2 = k * u2                                # U(0,1) -> U(0, k)
+fx = f_gamma(U1)                           # altura de la curva en cada candidato
+
+aceptado = U2 <= fx                        # True = bajo la curva = se acepta
+print(aceptado.mean())                     # tasa de aceptación empírica (≈ 0.34)
+
+x_dom = np.linspace(0, 8, 1000)
+plt.plot(x_dom, f_gamma(x_dom), "b", lw=3); plt.ylim(0, 0.4)
+plt.plot(U1[aceptado], U2[aceptado], "o", ms=3, color="darkgreen")
+plt.plot(U1[~aceptado], U2[~aceptado], "o", ms=3, color="red")
+dens = stats.gaussian_kde(U1[aceptado]); plt.plot(x_dom, dens(x_dom), "k", lw=3)   # densidad de lo generado
+plt.axhline(k, ls="--", color="gray")                                              # tope del rectángulo
+plt.xlabel("x"); plt.ylabel("f(x)"); plt.title("Método de aceptación-rechazo"); plt.show()
+
+# ============ Beta(4,3): f(x) = 60 x^3 (1-x)^2, x en [0, 1] ============
+print(beta_fn(4, 3))                       # = 1/60
+f_beta = lambda x: 60 * x**3 * (1 - x) ** 2
+u1 = rng.uniform(size=10000); u2 = rng.uniform(size=10000)
+U1 = 0 + (1 - 0) * u1
+U2 = 2.0736 * u2                           # k = f(0.6) = 2.0736
+aceptado = U2 <= f_beta(U1)
+print(aceptado.mean())                     # ≈ 1/2.0736 = 0.482
+print(U1[aceptado].mean())                 # media teórica: 4/(4+3) = 0.571
+</script>
+</div>
+    <div class="codepair" data-file="Cualquier densidad: función genérica" data-src="complemento">
+<script type="text/x-r">
 # k = máximo de f en [a,b] (con optimize, como hace el script con Normal-Power)
 aceptacion_rechazo <- function(f, a, b, n_candidatos) {
   opt <- optimize(f, interval = c(a, b), maximum = TRUE)
@@ -668,6 +862,24 @@ set.seed(123)
 r <- aceptacion_rechazo(function(x) x * exp(-x), 0, 8, 10000)
 r$tasa; mean(r$x)                           # media de Gamma(2,1) = 2 (truncada en 8: algo menor)
     </script>
+<script type="text/x-py">
+import numpy as np
+from scipy.optimize import minimize_scalar
+
+# k = máximo de f en [a,b] (con minimize_scalar sobre -f, como optimize(maximum=TRUE) en R)
+def aceptacion_rechazo(f, a, b, n_candidatos, rng):
+    opt = minimize_scalar(lambda x: -f(x), bounds=(a, b), method="bounded")
+    k = -opt.fun * 1.001                   # pequeño margen de seguridad
+    U1 = rng.uniform(a, b, n_candidatos)
+    U2 = rng.uniform(0, k, n_candidatos)
+    acept = U2 <= f(U1)
+    return {"x": U1[acept], "tasa": acept.mean(), "k": k}
+
+rng = np.random.default_rng(123)
+r = aceptacion_rechazo(lambda x: x * np.exp(-x), 0, 8, 10000, rng)
+print(r["tasa"], r["x"].mean())            # media de Gamma(2,1) = 2 (truncada en 8: algo menor)
+</script>
+</div>
     <ol class="walk">
       <li><b>Dos uniformes por candidato</b>: <code>U1</code> decide dónde (eje x) y <code>U2</code> a qué altura (eje y). Se comprueba que no están correlacionadas.</li>
       <li><b><code>aceptado &lt;- U2 &lt;= fx</code></b> es toda la lógica del método: el punto está bajo la curva o no.</li>
@@ -697,7 +909,8 @@ r$tasa; mean(r$x)                           # media de Gamma(2,1) = 2 (truncada 
       <div class="math">\[ \text{Si }S\sim N(\mu,\sigma^2):\quad \mathrm{VaR}_\alpha=\mu+\sigma z_\alpha,\qquad \mathrm{TVaR}_\alpha=\mu+\sigma\,\frac{\varphi(z_\alpha)}{1-\alpha} \]</div>
       <p class="note">Con \(\alpha=0{,}99\): \(z=2{,}3263\), \(\varphi(z)/(1-\alpha)=2{,}6652\). Entonces \(\mathrm{VaR}_{99\%}=60\,000+2{,}3263\cdot4301{,}16=70\,006\) y \(\mathrm{TVaR}_{99\%}=60\,000+2{,}6652\cdot4301{,}16=71\,463{,}5\). El VaR 99 % es la pérdida que solo se supera en el 1 % de los escenarios; el TVaR es la pérdida media <i>dentro</i> de ese 1 %.</p>
     </div>
-    <script type="text/x-r" data-file="Tema1 MetodoBoxMuller.R" data-src="curso">
+    <div class="codepair" data-file="Tema1 MetodoBoxMuller.R" data-src="curso">
+<script type="text/x-r">
 set.seed(123)
 n <- 10000
 
@@ -739,6 +952,53 @@ z_alpha      <- qnorm(alpha)
 tVaR_teorico <- mu_S + sigma_S * dnorm(z_alpha) / (1 - alpha)
 c(VaR_99, VaR_teorico, tVaR_99, tVaR_teorico)
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+rng = np.random.default_rng(123)
+n = 10000
+
+# 1) dos uniformes independientes
+u1 = rng.uniform(size=n); u2 = rng.uniform(size=n)
+print(np.corrcoef(u1, u2)[0, 1])           # ≈ 0
+
+# 2) transformación de Box-Muller
+z1 = np.sqrt(-2 * np.log(u1)) * np.cos(2 * np.pi * u2)
+z2 = np.sqrt(-2 * np.log(u1)) * np.sin(2 * np.pi * u2)
+print(z1.mean(), z1.var(ddof=1), z2.mean(), z2.var(ddof=1), np.corrcoef(z1, z2)[0, 1])   # 0, 1, 0, 1, 0
+plt.plot(z1, z2, "o", ms=2); plt.title("Box-Muller"); plt.show()
+xs = np.linspace(-4, 4, 300)
+plt.hist(z1, bins=30, density=True, color="lightblue", edgecolor="white")
+plt.plot(xs, stats.norm.pdf(xs), "r", lw=3); plt.title("Normal estándar: método Box-Muller"); plt.show()
+
+# ========= Ejercicio: importe agregado de siniestros de dos carteras =========
+mu1, sigma1 = 10000, 2500
+mu2, sigma2 = 50000, 3500
+alpha = 0.99
+rng = np.random.default_rng(123)
+
+U1 = rng.uniform(size=n); U2 = rng.uniform(size=n)
+Z1 = np.sqrt(-2 * np.log(U1)) * np.cos(2 * np.pi * U2)
+Z2 = np.sqrt(-2 * np.log(U1)) * np.sin(2 * np.pi * U2)
+
+X1 = mu1 + sigma1 * Z1                     # X = mu + sigma * Z
+X2 = mu2 + sigma2 * Z2
+S = X1 + X2                                # pérdida agregada
+
+VaR_99 = np.quantile(S, alpha)             # VaR empírico = cuantil 99 %
+tVaR_99 = S[S > VaR_99].mean()             # TVaR empírico = media de lo que supera al VaR
+
+# Validación teórica
+mu_S = mu1 + mu2
+sigma_S = np.sqrt(sigma1**2 + sigma2**2)   # independientes: se suman varianzas
+VaR_teorico = stats.norm.ppf(alpha, loc=mu_S, scale=sigma_S)
+z_alpha = stats.norm.ppf(alpha)
+tVaR_teorico = mu_S + sigma_S * stats.norm.pdf(z_alpha) / (1 - alpha)
+print(VaR_99, VaR_teorico, tVaR_99, tVaR_teorico)
+</script>
+</div>
     <ol class="walk">
       <li><b>Dos normales por pareja.</b> Aquí se usan <code>Z1</code> para la cartera 1 y <code>Z2</code> para la 2: son independientes por construcción, justo lo que exige el enunciado.</li>
       <li><b>Cambio de escala y posición:</b> \(X=\mu+\sigma Z\) (estandarización inversa). Sin él solo tendríamos \(N(0,1)\).</li>
@@ -791,7 +1051,8 @@ c(VaR_99, VaR_teorico, tVaR_99, tVaR_teorico)
         <figure class="fig" id="n_fig2"><div class="tl-scroll"></div><figcaption>Histograma de \(X=\mu+\sigma Z\) y su VaR (línea roja) y TVaR (línea ámbar).</figcaption></figure>
       </div>
     </div>
-    <script type="text/x-r" data-file="Tema 1. Metodo de Marsaglia.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Metodo de Marsaglia.R" data-src="curso">
+<script type="text/x-r">
 # ---- Con función y bucle while (se ve el rechazo) ----
 marsaglia <- function(n) {
   z1 <- numeric(0); z2 <- numeric(0)
@@ -833,6 +1094,53 @@ X <- 15000 + 3000 * Z                        # cartera hogar
 mean(X)                                      # coste medio esperado ≈ 15000
 quantile(X, 0.99)                            # VaR 99 % (teórico: 15000 + 2.3263*3000 = 21979)
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# ---- Con función y bucle while (se ve el rechazo) ----
+def marsaglia(n, rng):
+    z1, z2 = [], []
+    while len(z1) < n:
+        u1, u2 = rng.uniform(), rng.uniform()
+        v1, v2 = 2 * u1 - 1, 2 * u2 - 1    # U(0,1) -> U(-1,1)
+        w = v1**2 + v2**2                  # R^2
+        if 0 < w < 1:                      # dentro del círculo unidad: se acepta
+            f = np.sqrt(-2 * np.log(w) / w)
+            z1.append(v1 * f)
+            z2.append(v2 * f)
+    return np.array(z1), np.array(z2)
+
+rng = np.random.default_rng(123)
+z1, z2 = marsaglia(10000, rng)
+print(z1.mean(), z1.var(ddof=1), z2.mean(), z2.var(ddof=1), np.corrcoef(z1, z2)[0, 1])
+
+# ========= Ejercicio: cartera hogar ~ N(15000, 3000^2) =========
+rng = np.random.default_rng(123)
+n_sim = 10000
+n_gen = round((n_sim / 2) * 1.5)           # generamos un exceso: se rechaza ≈ 21 %
+u1 = rng.uniform(-1, 1, n_gen); u2 = rng.uniform(-1, 1, n_gen)
+w = u1**2 + u2**2
+ok = (w > 0) & (w < 1)                     # filtro de aceptación (vectorizado)
+h = n_sim // 2
+u1, u2, w = u1[ok][:h], u2[ok][:h], w[ok][:h]
+f = np.sqrt(-2 * np.log(w) / w)
+Z = np.r_[u1 * f, u2 * f]                  # 10 000 normales estándar
+
+# Certificar la normalidad de varias formas
+xs = np.linspace(-4, 4, 300)
+plt.hist(Z, bins=50, density=True, color="lightblue", edgecolor="white")
+plt.plot(xs, stats.norm.pdf(xs), color="firebrick", lw=2); plt.show()      # 1) histograma + densidad
+stats.probplot(Z, dist="norm", plot=plt); plt.show()                       # 2) Q-Q plot
+print(stats.kstest(Z, "norm", args=(0, 1)))                                # 3) Kolmogorov-Smirnov
+print(Z.mean(), Z.var(ddof=1))                                             # 4) momentos
+
+X = 15000 + 3000 * Z                       # cartera hogar
+print(X.mean())                            # coste medio esperado ≈ 15000
+print(np.quantile(X, 0.99))                # VaR 99 % (teórico: 15000 + 2.3263*3000 = 21979)
+</script>
+</div>
     <ol class="walk">
       <li><b><code>w &gt; 0 &amp;&amp; w &lt; 1</code></b>: el <code>w &gt; 0</code> evita \(\ln 0\); el <code>w &lt; 1</code> es el filtro del círculo.</li>
       <li><b>Versión vectorizada.</b> En R los bucles son lentos: se genera de golpe un 50 % más de parejas de las necesarias, se filtran y se recortan a las 5000 que hacen falta (cada pareja da 2 normales). Como se acepta el 78,5 %, el 150 % siempre alcanza.</li>
@@ -886,7 +1194,8 @@ quantile(X, 0.99)                            # VaR 99 % (teórico: 15000 + 2.326
         <figure class="fig" id="c_f3"><div class="tl-scroll"></div><figcaption>③ NORTA: \(\exp(\sigma X)\) lognormales con dependencia.</figcaption></figure>
       </div>
     </div>
-    <script type="text/x-r" data-file="Tema 1. Cholesky.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Cholesky.R" data-src="curso">
+<script type="text/x-r">
 # Dos carteras: coste de Auto y de Hogar con correlación 0.65
 R <- matrix(c(1.00, 0.65,
               0.65, 1.00), nrow = 2, byrow = TRUE)
@@ -918,6 +1227,41 @@ VaR995_Total <- quantile(Coste_Total, 0.995) - mean(Coste_Total)
 c(Capital_Auto, Capital_Hogar, VaR995_Total)
 Capital_Auto + Capital_Hogar               # mayor que VaR995_Total: efecto diversificación
     </script>
+<script type="text/x-py">
+import numpy as np
+
+# Dos carteras: coste de Auto y de Hogar con correlación 0.65
+R = np.array([[1.00, 0.65],
+              [0.65, 1.00]])
+L = np.linalg.cholesky(R)                  # NumPy devuelve ya la triangular INFERIOR (en R, chol() da la superior)
+print(L @ L.T)                             # comprobamos R = L L'  (debe dar R)
+
+rng = np.random.default_rng(123)
+n = 10000
+Z = rng.standard_normal((2, n))            # 2 filas = 2 variables; n columnas = n escenarios
+X = L @ Z                                  # normales correlacionadas
+print(np.corrcoef(X))                      # ≈ R (np.corrcoef ya toma las variables en filas)
+
+# Escalas reales: Auto ~ N(10000, 2500^2); Hogar ~ N(7000, 1800^2)
+mu_1, sigma_1 = 10000, 2500
+mu_2, sigma_2 = 7000, 1800
+Y = np.zeros((2, n))
+Y[0] = mu_1 + sigma_1 * X[0]
+Y[1] = mu_2 + sigma_2 * X[1]
+print(np.corrcoef(Y))                      # la correlación no cambia con escala y posición
+
+# VaR 99.5 % de cada cartera y de la suma
+VaR995_Auto = np.quantile(Y[0], 0.995)
+VaR995_Hogar = np.quantile(Y[1], 0.995)
+Capital_Auto = VaR995_Auto - mu_1          # capital = VaR - pérdida esperada
+Capital_Hogar = VaR995_Hogar - mu_2
+
+Coste_Total = Y[0] + Y[1]
+VaR995_Total = np.quantile(Coste_Total, 0.995) - Coste_Total.mean()
+print(Capital_Auto, Capital_Hogar, VaR995_Total)
+print(Capital_Auto + Capital_Hogar)        # mayor que VaR995_Total: efecto diversificación
+</script>
+</div>
     <ol class="walk">
       <li><b>Variables en filas.</b> <code>Z</code> es una matriz \(2\times n\): cada columna es un escenario. Por eso se multiplica <code>L %*% Z</code> y al comprobar se traspone con <code>t(X)</code>.</li>
       <li><b>La correlación se conserva</b> al cambiar escala y posición (\(\mu+\sigma X\) con \(\sigma>0\)), así que <code>cor(t(Y))</code> sigue siendo \(R\).</li>
@@ -925,7 +1269,8 @@ Capital_Auto + Capital_Hogar               # mayor que VaR995_Total: efecto dive
     </ol>
     <h4>Monte Carlo de precios con Cholesky (Santander, Iberdrola, Inditex)</h4>
     <p>Los precios siguen un movimiento browniano geométrico: \(S_t=S_{t-1}\exp\{(\mu-\tfrac{\sigma^2}{2})\Delta t+\sigma\sqrt{\Delta t}\,\varepsilon\}\) con \(\varepsilon\sim N(0,1)\). Los parámetros se estiman con los <b>rendimientos logarítmicos</b> \(r_t=\ln(S_t/S_{t-1})\), no con los precios; y para que los tres activos se muevan juntos se sortea el shock con Cholesky sobre la matriz de covarianzas de los rendimientos.</p>
-    <script type="text/x-r" data-file="Tema 1. Cholesky-Montecarlo.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Cholesky-Montecarlo.R" data-src="curso">
+<script type="text/x-r">
 library(quantmod)
 getSymbols(c("SAN.MC", "IBE.MC", "ITX.MC"), src = "yahoo", from = "2020-01-01")
 precios <- na.omit(merge(Ad(SAN.MC), Ad(IBE.MC), Ad(ITX.MC)))   # precios ajustados diarios
@@ -955,6 +1300,43 @@ hist(Precio_fut, breaks = 20, probability = TRUE, col = "lightblue")
 curve(dlnorm(x, meanlog = log(S0) + mu[1] - sd1^2 / 2, sdlog = sd1),
       add = TRUE, col = "red", lwd = 3)
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import yfinance as yf                      # pip install yfinance (equivale a quantmod::getSymbols en R)
+import matplotlib.pyplot as plt
+from scipy import stats
+
+precios = yf.download(["SAN.MC", "IBE.MC", "ITX.MC"], start="2020-01-01", auto_adjust=True)["Close"].dropna()
+precios = precios[["SAN.MC", "IBE.MC", "ITX.MC"]]                # el orden del script de R
+precios.columns = ["Santander", "Iberdrola", "Inditex"]
+# (el curso guarda una copia en PreciosAcciones.RData: con pyreadr.read_r evita volver a descargar)
+
+rend = np.log(precios).diff().dropna()     # rendimientos logarítmicos diarios
+mu = rend.mean().to_numpy()                # media diaria de cada activo
+Sigma = rend.cov().to_numpy()              # matriz de varianzas-covarianzas
+L = np.linalg.cholesky(Sigma)              # Sigma = L L'
+
+rng = np.random.default_rng(123)
+n = 10000
+Z = rng.standard_normal((3, n))            # 3 normales independientes por escenario
+X = L @ Z                                  # shocks ~ N(0, Sigma): ya llevan sigma y correlación
+print(np.round(np.cov(X) - rend.cov().to_numpy(), 6))   # ≈ 0: la covarianza simulada reproduce la real
+
+# Precio a un día. Ojo: X ya incluye sigma, por eso NO se multiplica otra vez por sigma
+sd1 = np.sqrt(Sigma[0, 0])
+S0 = float(precios["Santander"].iloc[-1])
+Precio_fut = S0 * np.exp((mu[0] - sd1**2 / 2) * 1 + X[0])
+
+print(np.quantile(Precio_fut, 0.40), np.quantile(Precio_fut, 0.60))   # rango central de escenarios
+print(S0 - np.quantile(Precio_fut, 0.995))                            # pérdida a un día en el peor 0.5 %
+
+# Contraste con la teoría: ln(S_t) ~ N(ln S0 + mu - sigma^2/2, sigma^2)
+xs = np.linspace(Precio_fut.min(), Precio_fut.max(), 300)
+plt.hist(Precio_fut, bins=20, density=True, color="lightblue")
+plt.plot(xs, stats.lognorm.pdf(xs, s=sd1, scale=np.exp(np.log(S0) + mu[0] - sd1**2 / 2)), "r", lw=3); plt.show()
+</script>
+</div>
     <ol class="walk">
       <li><b>Rendimientos logarítmicos</b> porque son aproximadamente normales y aditivos en el tiempo; el precio, no.</li>
       <li><b><code>cov(rend)</code> + <code>chol</code></b> son los dos ingredientes: la estructura de dependencia y la escala de cada activo.</li>
@@ -982,7 +1364,8 @@ curve(dlnorm(x, meanlog = log(S0) + mu[1] - sd1^2 / 2, sdlog = sd1),
       <div class="math">\[ P(X_i\le x)=P\big(F_i^{-1}(U_i)\le x\big)=P\big(U_i\le F_i(x)\big)=F_i(x) \]</div>
       <p class="note"><b>Ventajas:</b> flexible, escalable, sencillo una vez hecho Cholesky. <b>Inconvenientes:</b> la correlación final <u>no es exactamente</u> la de \(R\) (se conserva en las normales, no en las marginales transformadas); problemas con distribuciones muy asimétricas; dependencia limitada. Ejemplo exacto con lognormales de parámetro \(\sigma\): \(\operatorname{Corr}(X_1,X_2)=\dfrac{e^{\rho\sigma^2}-1}{e^{\sigma^2}-1}\). Con \(\rho=0{,}7,\ \sigma=0{,}5\): \(0{,}673\), no 0,7. Alternativas: cópulas, distribuciones elípticas (t multivariante), modelos factoriales, Iman–Conover, bootstrap.</p>
     </div>
-    <script type="text/x-r" data-file="Tema 1. Norta.R" data-src="curso">
+    <div class="codepair" data-file="Tema 1. Norta.R" data-src="curso">
+<script type="text/x-r">
 set.seed(123)
 n <- 5000
 
@@ -1022,6 +1405,50 @@ PrimaPura  <- mean(CosteTotal)                        # prima pura = coste esper
 VaR995     <- quantile(CosteTotal, 0.995)
 VaR995 - PrimaPura                                     # capital = VaR - media
     </script>
+<script type="text/x-py">
+import numpy as np
+from scipy import stats
+
+rng = np.random.default_rng(123)
+n = 5000
+
+# --- Dos lognormales con correlación 0.7 ---
+R = np.array([[1, 0.7], [0.7, 1]])
+L = np.linalg.cholesky(R)
+Z = rng.standard_normal((2, n))
+Y = L @ Z                                  # normales correlacionadas (Cholesky)
+print(np.corrcoef(Y)[0, 1])                # ≈ 0.70
+
+U = stats.norm.cdf(Y)                      # a uniformes (dependientes)
+N1 = stats.lognorm.ppf(U[0], s=0.5, scale=np.exp(0))   # inversa de la lognormal (meanlog = 0, sdlog = 0.5)
+N2 = stats.lognorm.ppf(U[1], s=0.5, scale=np.exp(0))
+print(np.corrcoef(N1, N2)[0, 1])           # ≈ 0.67 (no 0.70): la correlación no se conserva exacta
+
+# --- Ejemplo actuarial: tres riesgos ---
+#   Autos  ~ Lognormal(8, 0.7^2)
+#   Hogar  ~ Gamma(shape = 5, scale = 1500)        media 7500
+#   RC     ~ Pareto(xm = 5000, alpha = 3)           media 7500
+R = np.array([[1.00, 0.55, 0.40],
+              [0.55, 1.00, 0.65],
+              [0.40, 0.65, 1.00]])
+rng = np.random.default_rng(123)
+n = 10000
+L = np.linalg.cholesky(R)
+Y = L @ rng.standard_normal((3, n))
+U = stats.norm.cdf(Y)
+
+X1 = stats.lognorm.ppf(U[0], s=0.7, scale=np.exp(8))          # Autos
+X2 = stats.gamma.ppf(U[1], a=5, scale=1500)                   # Hogar
+xm, alpha = 5000, 3
+X3 = xm * (1 - U[2]) ** (-1 / alpha)                          # RC: Pareto por inversión a mano
+print(np.corrcoef([X1, X2, X3]))                              # dependencia resultante (< R)
+
+CosteTotal = X1 + X2 + X3
+PrimaPura = CosteTotal.mean()                                 # prima pura = coste esperado
+VaR995 = np.quantile(CosteTotal, 0.995)
+print(VaR995 - PrimaPura)                                     # capital = VaR - media
+</script>
+</div>
     <ol class="walk">
       <li><b>Cuatro funciones lo resumen todo:</b> <code>chol</code> (dependencia), <code>pnorm</code> (normal → uniforme), <code>q…</code> (uniforme → distribución objetivo), y las sumas/cuantiles para el análisis de riesgo.</li>
       <li><b>La correlación baja de 0,70 a 0,67</b> porque la transformación no lineal \(\exp(\sigma\cdot)\) distorsiona la correlación lineal. En el examen basta con saber que NORTA no la conserva y por qué.</li>
@@ -1089,7 +1516,8 @@ VaR995 - PrimaPura                                     # capital = VaR - media
       <h4>Interpretar el logaritmo</h4>
       <p><b>Semielástico:</b> \(\log Y=\beta_0+\beta_1X\): un aumento de 1 unidad en \(X\) cambia \(Y\) en torno a \(100\beta_1\,\%\). <b>Log-log:</b> \(\log Y=\beta_0+\beta_1\log X\): un 1 % más de \(X\) cambia \(Y\) un \(\beta_1\,\%\) (elasticidad).</p>
     </div>
-    <script type="text/x-r" data-file="Tema2_LimpiezaDatos.R (Lending Club: decisiones sobre los NA)" data-src="curso">
+    <div class="codepair" data-file="Tema2_LimpiezaDatos.R (Lending Club: decisiones sobre los NA)" data-src="curso">
+<script type="text/x-r">
 load("LimpiezaDatos.Rdata")                # data.frame 'loan' (préstamos de Lending Club)
 dim(loan); str(loan); summary(loan)
 
@@ -1123,6 +1551,44 @@ loan$dti_final[is.na(loan$dti_final)] <- median(loan$dti_final, na.rm = TRUE)
 
 colSums(is.na(loan))                       # comprobación final: sin NA
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import pyreadr                              # pip install pyreadr: lee los .Rdata del curso
+
+loan = pyreadr.read_r("LimpiezaDatos.Rdata")["loan"]      # DataFrame 'loan' (préstamos de Lending Club)
+print(loan.shape); loan.info(); print(loan.describe(include="all"))
+
+print(loan.isna().sum())                    # nº de NA por columna
+print(loan.isna().mean())                   # y su porcentaje
+print(loan.duplicated().sum())              # duplicados
+
+# 1) emp_title: texto libre con miles de niveles  ->  ELIMINAR la variable
+loan = loan.drop(columns="emp_title")
+
+# 2) emp_length: NA = dato perdido real  ->  indicador de NA + MEDIANA (asimétrica)
+loan["emp_length_na"] = loan["emp_length"].isna().astype(int)
+loan["emp_length"] = loan["emp_length"].fillna(loan["emp_length"].median())
+
+# 3) annual_income_joint / debt_to_income_joint: NA ESTRUCTURAL (solo existen si la solicitud es conjunta)
+#    No se imputa: se crea una variable final con el dato conjunto si procede, y se borran las originales
+joint = loan["application_type"] == "joint"
+loan["income_final"] = np.where(joint, loan["annual_income_joint"], loan["annual_income"])
+loan["dti_final"] = np.where(joint, loan["debt_to_income_joint"], loan["debt_to_income"])
+loan = loan.drop(columns=["annual_income_joint", "debt_to_income_joint"])
+
+# 4) months_since_last_delinq / months_since_90d_late: NA = "el evento nunca ocurrió"  (es información)
+loan["never_delinq"] = loan["months_since_last_delinq"].isna().astype(int)
+loan["months_since_last_delinq"] = loan["months_since_last_delinq"].fillna(999)
+loan["never_90d_late"] = loan["months_since_90d_late"].isna().astype(int)
+loan["months_since_90d_late"] = loan["months_since_90d_late"].fillna(999)
+
+# 5) debt_to_income: pocos NA y variable asimétrica  ->  MEDIANA
+loan["dti_final"] = loan["dti_final"].fillna(loan["dti_final"].median())
+
+print(loan.isna().sum())                    # comprobación final: sin NA
+</script>
+</div>
     <ol class="walk">
       <li><b>Diagnóstico antes de actuar:</b> contar NA, porcentajes, duplicados, tipo de cada columna (<code>str</code>) y distribuciones (<code>hist</code>, <code>barplot</code>).</li>
       <li><b>Mediana frente a media.</b> Con distribución asimétrica la media la arrastran los extremos; la mediana no. Para variables enteras (años, caballos) se usa la mediana o la moda para no inventar decimales.</li>
@@ -1130,7 +1596,8 @@ colSums(is.na(loan))                       # comprobación final: sin NA
       <li><b>NA estructural:</b> no es un fallo de captura sino que la pregunta no aplica. Imputar la media sería un error; se construye una variable que combina las dos fuentes.</li>
       <li><b>Valor «999» y bandera:</b> el NA significa «nunca». Se marca con una bandera y un valor fuera de rango. (Para una regresión logística conviene mejor categorizar en tramos con nivel «Nunca».)</li>
     </ol>
-    <script type="text/x-r" data-file="Ejercicio Tema 2 · preprocesamiento de auto232 (solución del profesor, 23-10-26)" data-src="curso">
+    <div class="codepair" data-file="Ejercicio Tema 2 · preprocesamiento de auto232 (solución del profesor, 23-10-26)" data-src="curso">
+<script type="text/x-r">
 load("EjercicioTema2.RData")               # data.frame auto232
 colSums(is.na(auto232))                    # NA por variable
 colSums(is.na(auto232)) / nrow(auto232)    # porcentaje
@@ -1171,6 +1638,57 @@ dum_clase  <- model.matrix(~ Clase  - 1, data = auto232)
 # y se eliminan las columnas originales (Ant, BM, Clase, Estado, Genero, Zona ...)
 modelo <- lm(LogCuota ~ -1 + ., data = auto232)           # -1: sin intercepto, porque hay dummies de todos los niveles
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import pyreadr
+import statsmodels.api as sm
+
+auto232 = pyreadr.read_r("EjercicioTema2.RData")["auto232"]   # DataFrame auto232
+print(auto232.isna().sum())                 # NA por variable
+print(auto232.isna().mean())                # porcentaje
+
+print(auto232.duplicated().sum())           # nº de filas duplicadas
+auto232 = auto232.drop_duplicates()         # se eliminan
+
+na_fila = auto232.isna().sum(axis=1)        # nº de NA de cada individuo
+auto232 = auto232[na_fila < 4].copy()       # fuera quien tiene 4 de 10 variables sin dato (40 %)
+
+# Cuota (numérica continua): media.  LogCuota: el logaritmo de Cuota
+auto232["Cuota"] = auto232["Cuota"].fillna(auto232["Cuota"].mean())
+auto232["LogCuota"] = auto232["LogCuota"].fillna(np.log(auto232["Cuota"]))
+
+# Variables enteras (Ant, CV_vehi, BM): moda o media redondeada, para no crear valores imposibles
+moda = lambda x: x.mode().iloc[0]
+auto232["Ant"] = auto232["Ant"].fillna(moda(auto232["Ant"]))
+auto232["CV_vehi"] = auto232["CV_vehi"].fillna(round(auto232["CV_vehi"].mean()))
+auto232["BM"] = auto232["BM"].fillna(moda(auto232["BM"]))
+auto232["Valor"] = auto232["Valor"].fillna(auto232["Valor"].mean())
+
+# Categórica (Zona): moda
+auto232["Zona"] = auto232["Zona"].fillna(moda(auto232["Zona"]))
+
+# Interacciones y términos no lineales
+auto232["GeneroM"] = (auto232["Genero"] == "M").astype(int)         # dummy de género
+auto232["potenciaEdad"] = auto232["CV_vehi"] * auto232["Edad"]
+auto232["Edad2"] = auto232["Edad"] ** 2
+auto232["EdadGenero"] = auto232["Edad"] * auto232["GeneroM"]
+
+# Dicotomización
+auto232["Ant_grupo"] = pd.cut(auto232["Ant"], bins=[-np.inf, 0, 1, 2, 3, 9, 15, 20, np.inf],
+                              labels=["0", "1", "2", "3", "4-9", "10-15", "16-20", ">20"])
+auto232["BM_grupo"] = pd.cut(auto232["BM"], bins=np.unique(np.quantile(auto232["BM"], np.linspace(0, 1, 6))),
+                             include_lowest=True)                    # 5 grupos de igual tamaño (quintiles)
+# Una columna por categoría para cada variable categórica (lo mismo que model.matrix(~ var - 1) en R)
+categoricas = ["Estado", "Clase", "Genero", "Zona", "Ant_grupo", "BM_grupo"]
+dummies = [pd.get_dummies(auto232[c], prefix=c).astype(float) for c in categoricas]
+# se pegan con pd.concat y se eliminan las columnas originales (Ant, BM, Clase, Estado, Genero, Zona ...)
+auto232 = pd.concat([auto232.drop(columns=categoricas + ["Ant", "BM"]).astype(float)] + dummies, axis=1)
+X = auto232.drop(columns="LogCuota")
+modelo = sm.OLS(auto232["LogCuota"], X).fit()                        # sin constante: hay dummies de todos los niveles
+print(modelo.summary())
+</script>
+</div>
     <ol class="walk">
       <li><b>Decisión por fila y por columna.</b> Se mira primero cuántos NA tiene cada <i>individuo</i> (<code>rowSums</code>) y se elimina al que tiene demasiados; los demás NA se rellenan. «Todas son correctas si la estrategia tiene sentido».</li>
       <li><b>Moda para enteros y categóricas.</b> <code>table</code> cuenta, <code>sort(..., decreasing=TRUE)</code> ordena y <code>names(...)[1]</code> da el valor más frecuente.</li>
@@ -1222,7 +1740,8 @@ modelo <- lm(LogCuota ~ -1 + ., data = auto232)           # -1: sin intercepto, 
         <figure class="fig" id="r_f2"><div class="tl-scroll"></div><figcaption>Residuos frente a valores ajustados: debe ser una nube sin forma centrada en 0.</figcaption></figure>
       </div>
     </div>
-    <script type="text/x-r" data-file="Tema 2. OLS.R" data-src="curso">
+    <div class="codepair" data-file="Tema 2. OLS.R" data-src="curso">
+<script type="text/x-r">
 load(file = "Tema2Datos.RData")            # contiene Datos (primas) y sev (siniestros Francia)
 head(Datos); summary(Datos)
 
@@ -1259,6 +1778,54 @@ summary(modelo2)
 par(mfrow = c(2, 2)); plot(modelo2)        # residuos muy asimétricos, colas pesadas
 # Conclusión del curso: para el coste siniestral la Normal funciona mal -> GLMs (Gamma, Tweedie...)
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+import pyreadr
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from scipy import stats
+
+d = pyreadr.read_r("Tema2Datos.RData")      # contiene Datos (primas) y sev (siniestros Francia)
+Datos, sev = d["Datos"], d["sev"]
+print(Datos.head()); print(Datos.describe())
+
+modelo = smf.ols("prima ~ edad + bm + potencia + antiguedad + kms + capital", data=Datos).fit()
+print(modelo.summary())                     # coeficientes, errores típicos, p-valores, R2
+
+print(modelo.fittedvalues)                  # valores ajustados \hat y
+print(modelo.params)                        # beta_0, ..., beta_6
+# Comprobamos a mano que \hat y_1 = b0 + b1*edad_1 + b2*bm_1 + ...
+b = modelo.params
+print(b["Intercept"] + b["edad"] * Datos["edad"].iloc[0] + b["bm"] * Datos["bm"].iloc[0]
+      + b["potencia"] * Datos["potencia"].iloc[0] + b["antiguedad"] * Datos["antiguedad"].iloc[0]
+      + b["kms"] * Datos["kms"].iloc[0] + b["capital"] * Datos["capital"].iloc[0])
+
+# ---------- Diagnóstico de residuos ----------
+res = modelo.resid
+plt.plot(modelo.fittedvalues, res, "o", color="blue", ms=3); plt.axhline(0, color="red", lw=3)
+plt.xlabel("Valores ajustados"); plt.ylabel("Residuos"); plt.show()                         # 1) alrededor de 0
+xs = np.linspace(res.min(), res.max(), 300)
+plt.hist(res, bins=40, density=True, color="lightblue")
+plt.plot(xs, stats.norm.pdf(xs, res.mean(), res.std(ddof=1)), "r", lw=3); plt.show()       # 2) normalidad
+sm.qqplot(res, line="s"); plt.show()                                                        # 3) Q-Q plot
+plt.plot(res.to_numpy()); plt.axhline(0, color="red"); plt.show()                           # 4) independencia
+sm.graphics.influence_plot(modelo); plt.show()                                              # palanca e influencia (como plot(modelo) en R)
+
+# ---------- Ajuste medio por edad: real frente a estimado ----------
+Datos = Datos.assign(hat_prima=modelo.fittedvalues)
+prima_real = Datos.groupby("edad")["prima"].mean()
+prima_estimada = Datos.groupby("edad")["hat_prima"].mean()
+plt.plot(prima_real.index, prima_real, "o", color="blue"); plt.plot(prima_estimada.index, prima_estimada, "r", lw=2)
+plt.xlabel("edades"); plt.ylabel("Prima"); plt.show()
+
+# ---------- Datos reales de siniestros: el modelo normal falla ----------
+modelo2 = smf.ols("ClaimAmount ~ DrivAge + VehPower + BonusMalus + Density", data=sev).fit()
+print(modelo2.summary())
+sm.qqplot(modelo2.resid, line="s"); plt.show()       # residuos muy asimétricos, colas pesadas
+# Conclusión del curso: para el coste siniestral la Normal funciona mal -> GLMs (Gamma, Tweedie...)
+</script>
+</div>
     <ol class="walk">
       <li><b><code>lm(y ~ x1 + x2, data)</code></b> ajusta por OLS. <code>summary</code> da coeficientes con su error típico, el estadístico \(t\) y el p-valor de \(H_0:\beta_j=0\), el \(R^2\) y el \(F\) global.</li>
       <li><b>Comprobación manual del primer valor ajustado:</b> multiplicar cada coeficiente por el valor de su variable y sumar. Confirma que el modelo no es una caja negra.</li>
@@ -1293,7 +1860,8 @@ par(mfrow = c(2, 2)); plot(modelo2)        # residuos muy asimétricos, colas pe
       <p>\(p\) es el <b>número total de parámetros estimados</b>, incluyendo el intercepto y, en un modelo normal, la varianza \(\sigma^2\). Por eso en el script <code>AIC(modelo2)</code> coincide con <code>-2*logLik + 2*4</code> para un modelo con intercepto y dos variables (3 coeficientes + 1 varianza). Ejemplo: \(n=1000\), \(\ell=-3200\), \(p=4\): AIC \(=6400+8=6408\), BIC \(=6400+4\ln1000=6427{,}63\). El BIC penaliza más en cuanto \(n\ge 8\) porque \(\ln n>2\): prefiere modelos más sencillos.</p>
     </div>
     <p class="note"><b>Sobre el \(R^2_{adj}\):</b> existen varias versiones (Ezekiel/Wherry, Olkin–Pratt, Pratt; Yin y Fan, 2001). La de clase es la primera. El \(R^2\) siempre sube al añadir variables; el ajustado puede bajar, y por eso sirve para comparar. Ejemplo: \(R^2=0{,}30,\ n=100,\ p=4\Rightarrow R^2_{adj}=1-0{,}70\cdot\tfrac{99}{95}=0{,}2705\).</p>
-    <script type="text/x-r" data-file="Tema 2. Medidas validación.R" data-src="curso">
+    <div class="codepair" data-file="Tema 2. Medidas validación.R" data-src="curso">
+<script type="text/x-r">
 load(file = "Tema2Datos.RData")
 modelo  <- lm(ClaimAmount ~ ClaimNb + Exposure + VehPower + VehAge + DrivAge + BonusMalus +
                 VehBrand + VehGas + Area + Density + Region, data = sev)    # modelo grande
@@ -1323,6 +1891,42 @@ AIC(modelo2)                                        # = -2*logLik(modelo2) + 2*4
 BIC(modelo2)                                        # = -2*logLik(modelo2) + 4*log(n)
 -2 * logLik(modelo2) + 4 * log(nrow(sev))
     </script>
+<script type="text/x-py">
+import numpy as np
+import pyreadr
+import statsmodels.formula.api as smf
+
+sev = pyreadr.read_r("Tema2Datos.RData")["sev"]
+modelo = smf.ols("ClaimAmount ~ ClaimNb + Exposure + VehPower + VehAge + DrivAge + BonusMalus + "
+                 "C(VehBrand) + C(VehGas) + C(Area) + Density + C(Region)", data=sev).fit()   # modelo grande
+modelo2 = smf.ols("ClaimAmount ~ Exposure + BonusMalus", data=sev).fit()                       # modelo pequeño
+
+print(modelo2.predict())                    # = modelo2.fittedvalues
+print(modelo2.conf_int())                   # IC 95 % de los coeficientes
+print(modelo2.conf_int(alpha=0.01).loc[["Exposure", "BonusMalus"]])    # IC al 99 %
+
+# Intervalos de confianza de la predicción media
+pred_ic = modelo2.get_prediction().summary_frame(alpha=0.05)           # columnas mean, mean_ci_lower, mean_ci_upper
+
+# ---- Medidas no penalizadas, a mano ----
+y = sev["ClaimAmount"]
+res1 = y - modelo.fittedvalues
+res2 = y - modelo2.fittedvalues
+print((res1**2).sum(), (res2**2).sum())                 # SSE
+print((res1**2).mean(), (res2**2).mean())               # MSE
+print(np.sqrt((res1**2).mean()), np.sqrt((res2**2).mean()))   # RMSE
+print(res1.abs().mean(), res2.abs().mean())             # MAE
+print(100 * (res1 / y).abs().mean())                    # MAPE (con y = 0 da inf)
+print(1 - (res1**2).sum() / ((y - y.mean()) ** 2).sum())      # R2
+print(modelo.rsquared_adj)                              # R2 ajustado
+
+# ---- Medidas penalizadas ----
+print(modelo2.llf)                                      # log-verosimilitud
+print(modelo2.aic)                                      # = -2*llf + 2*4
+print(modelo2.bic)                                      # = -2*llf + 4*log(n)
+print(-2 * modelo2.llf + 4 * np.log(len(sev)))
+</script>
+</div>
     <ol class="walk">
       <li><b>Comparar un modelo grande con uno pequeño</b> con las mismas medidas. El grande siempre gana en SSE, MSE y \(R^2\) (dentro de muestra); lo interesante es si gana también en AIC/BIC.</li>
       <li><b><code>confint</code></b> da los intervalos de confianza de los coeficientes: \(\hat\beta_j\pm t_{n-p-1,\,1-\alpha/2}\,\widehat{se}(\hat\beta_j)\). Si el intervalo contiene el 0, el coeficiente no es significativo a ese nivel.</li>
@@ -1350,7 +1954,8 @@ BIC(modelo2)                                        # = -2*logLik(modelo2) + 4*l
       <div class="tl-scroll"></div>
       <figcaption>Cómo se lee el resultado de <code>step(direction="forward")</code>: en cada paso entra una variable y el AIC baja. Los valores son <b>ilustrativos</b> (inventados para mostrar la lógica, no del dataset); el criterio de parada es que ninguna candidata mejore el AIC.</figcaption>
     </figure>
-    <script type="text/x-r" data-file="Tema 2. Forward.R" data-src="curso">
+    <div class="codepair" data-file="Tema 2. Forward.R" data-src="curso">
+<script type="text/x-r">
 load(file = "Tema2Datos.RData")
 
 modelo_nulo     <- lm(ClaimAmount ~ 1, data = sev)             # solo constante
@@ -1380,6 +1985,61 @@ rbind(Forward  = evalua_modelo(modelo_fwd),     # (en el script del curso las et
       Backward = evalua_modelo(modelo_bwd),     #  están desplazadas; aquí cada una lleva su modelo)
       Mixto    = evalua_modelo(modelo_both))
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import pyreadr
+import statsmodels.formula.api as smf
+
+sev = pyreadr.read_r("Tema2Datos.RData")["sev"]
+y = "ClaimAmount"
+todas = ["ClaimNb", "Exposure", "VehPower", "VehAge", "DrivAge", "BonusMalus",
+         "C(VehBrand)", "C(VehGas)", "C(Area)", "Density", "C(Region)"]       # candidatas (C() = categórica)
+
+def criterio(terminos, datos, k=2):
+    """AIC (k=2) o BIC (k=log n) de la regresión con esos términos: -2 logL + k·(parámetros)."""
+    f = y + " ~ " + (" + ".join(terminos) if terminos else "1")
+    m = smf.ols(f, datos).fit()
+    return -2 * m.llf + k * (m.df_model + 1), m
+
+def step(datos, inicial, candidatas, direccion="forward", k=2):
+    """Equivalente de step() de R: añade o quita un término por paso mientras mejore el criterio."""
+    actual = list(inicial)
+    mejor, _ = criterio(actual, datos, k)
+    while True:
+        propuestas = []
+        if direccion in ("forward", "both"):
+            propuestas += [(actual + [t]) for t in candidatas if t not in actual]
+        if direccion in ("backward", "both"):
+            propuestas += [[x for x in actual if x != t] for t in actual]
+        if not propuestas:
+            break
+        valores = [(criterio(p, datos, k)[0], p) for p in propuestas]
+        v, p = min(valores, key=lambda t: t[0])
+        if v < mejor - 1e-9:
+            mejor, actual = v, p
+        else:
+            break
+    return actual
+
+# Forward: parte del nulo y puede ir añadiendo hasta el techo
+fwd = step(sev, [], todas, "forward")
+print(fwd)                                                  # variables seleccionadas
+# Backward: parte del completo y va quitando
+bwd = step(sev, todas, todas, "backward")
+print(bwd)
+# Mixto (forward y backward): tras cada paso puede añadir o quitar
+both = step(sev, todas, todas, "both")
+
+# Función para evaluar cada propuesta con las medidas del apartado 2.3
+def evalua_modelo(terminos):
+    m = smf.ols(y + " ~ " + " + ".join(terminos), sev).fit()
+    e = sev[y] - m.fittedvalues
+    return {"SSE": (e**2).sum(), "MSE": (e**2).mean(), "RMSE": np.sqrt((e**2).mean()), "MAE": e.abs().mean(),
+            "R2": m.rsquared, "R2_adj": m.rsquared_adj, "AIC": m.aic, "BIC": m.bic}
+print(pd.DataFrame({"Forward": evalua_modelo(fwd), "Backward": evalua_modelo(bwd), "Mixto": evalua_modelo(both)}).T)
+</script>
+</div>
     <ol class="walk">
       <li><b><code>step()</code></b> usa el AIC por defecto (con <code>k = log(n)</code> sería BIC). Muestra una tabla en cada paso: <code>+ variable</code> o <code>- variable</code> con su AIC; se detiene cuando ningún movimiento lo mejora.</li>
       <li><b><code>scope</code></b> es el «techo»: el modelo más grande que forward puede alcanzar. Backward no necesita <code>scope</code> porque ya parte del techo.</li>
@@ -1404,7 +2064,8 @@ rbind(Forward  = evalua_modelo(modelo_fwd),     # (en el script del curso las et
         <tr><td><b>LOOCV</b></td><td>\(K=n\): una observación de validación y \(n-1\) de entrenamiento. \(\mathrm{LOO\text{-}CV}=\frac1n\sum_{i=1}^n\text{medida}_i\).</td><td>Sin aleatoriedad y casi sin sesgo; pero ajusta \(n\) modelos (muy caro con \(n\) grande).</td></tr>
       </tbody>
     </table></div>
-    <script type="text/x-r" data-file="Tema 2. Cross-Validation.R" data-src="curso">
+    <div class="codepair" data-file="Tema 2. Cross-Validation.R" data-src="curso">
+<script type="text/x-r">
 load(file = "Tema2Datos.RData")
 set.seed(123)
 n <- nrow(sev)
@@ -1447,6 +2108,50 @@ for (i in 1:n_loo) {
 }
 sqrt(mean(e1^2))                                 # RMSE-LOOCV;  mean(abs(e1)) sería el MAE-LOOCV
     </script>
+<script type="text/x-py">
+import numpy as np
+import pyreadr
+import statsmodels.formula.api as smf
+
+sev = pyreadr.read_r("Tema2Datos.RData")["sev"].reset_index(drop=True)
+rng = np.random.default_rng(123)
+n = len(sev)
+
+# ---------- HOLD-OUT 70/30 ----------
+id_train = rng.choice(n, size=round(0.7 * n), replace=False)    # índices al azar para entrenar
+train = sev.iloc[id_train]
+test = sev.drop(sev.index[id_train])                            # el resto es test
+
+modelo_1 = smf.ols("ClaimAmount ~ Exposure + BonusMalus", data=train).fit()
+modelo_2 = smf.ols("ClaimAmount ~ DrivAge + Exposure", data=train).fit()
+pred_1 = modelo_1.predict(test)             # predecir datos NO usados en el ajuste
+pred_2 = modelo_2.predict(test)
+y = test["ClaimAmount"]
+print(np.sqrt(((y - pred_1) ** 2).mean()), np.sqrt(((y - pred_2) ** 2).mean()))   # RMSE fuera de muestra
+print((y - pred_1).abs().mean(), (y - pred_2).abs().mean())                       # MAE fuera de muestra
+
+# ---------- K-FOLD (K = 5) ----------
+K = 5
+folds = rng.permutation(np.arange(n) % K)   # etiqueta cada fila con un bloque 0..K-1
+RMSE_1, RMSE_2 = np.zeros(K), np.zeros(K)
+for k in range(K):
+    train, test = sev[folds != k], sev[folds == k]       # todos los bloques menos el k / el bloque k valida
+    m1 = smf.ols("ClaimAmount ~ Exposure + BonusMalus", data=train).fit()
+    m2 = smf.ols("ClaimAmount ~ DrivAge + Exposure", data=train).fit()
+    RMSE_1[k] = np.sqrt(((test["ClaimAmount"] - m1.predict(test)) ** 2).mean())
+    RMSE_2[k] = np.sqrt(((test["ClaimAmount"] - m2.predict(test)) ** 2).mean())
+print(RMSE_1.mean(), RMSE_2.mean())         # CV(5): media de las K medidas
+
+# ---------- LOOCV ----------
+n_loo = 500                                  # con n grande se usa un subconjunto (ajusta un modelo por fila)
+e1 = np.zeros(n_loo)
+for i in range(n_loo):
+    train, test = sev.drop(sev.index[i]), sev.iloc[[i]]
+    m = smf.ols("ClaimAmount ~ Exposure + BonusMalus", data=train).fit()
+    e1[i] = test["ClaimAmount"].iloc[0] - m.predict(test).iloc[0]    # error de la observación i
+print(np.sqrt((e1**2).mean()))               # RMSE-LOOCV;  np.abs(e1).mean() sería el MAE-LOOCV
+</script>
+</div>
     <ol class="walk">
       <li><b><code>sample(1:n, size)</code></b> elige índices sin reemplazo; <code>sev[id, ]</code> son las filas de entrenamiento y <code>sev[-id, ]</code> las de test.</li>
       <li><b><code>predict(modelo, newdata = test)</code></b> es lo esencial: el modelo se ajustó solo con <code>train</code> y se evalúa en filas que nunca vio.</li>
@@ -1456,7 +2161,8 @@ sqrt(mean(e1^2))                                 # RMSE-LOOCV;  mean(abs(e1)) se
     </ol>
     <h4>Ejercicio entregable (23-oct-2026): LogCuota con 20-fold CV</h4>
     <p>Enunciado: modelizar \(\log(\text{Cuota})\) de una cartera de autos con (1) preprocesamiento y justificación de los NA; (2) interacciones y dummies indicando la categoría de referencia; (3) OLS completo y Forward/Backward con AIC/BIC, comparando si dan el mismo modelo; (4) predicción de LogCuota frente a la Edad con bandas de confianza al 95 %; (5) <b>20-fold CV</b> comparando <code>LogCuota ~ 1 + Edad</code> con el modelo seleccionado en SSE, MSE, MAPE y \(R^2\).</p>
-    <script type="text/x-r" data-file="Apartados 4 y 5 del ejercicio (completados)" data-src="complemento">
+    <div class="codepair" data-file="Apartados 4 y 5 del ejercicio (completados)" data-src="complemento">
+<script type="text/x-r">
 # --- 3) Selección (sobre auto232 ya preprocesado) ---
 completo <- lm(LogCuota ~ ., data = auto232)
 nulo     <- lm(LogCuota ~ 1, data = auto232)
@@ -1492,6 +2198,48 @@ cv_medidas <- function(formula, datos, K = 20, semilla = 123) {
 rbind(Simple    = cv_medidas(LogCuota ~ Edad, auto232),
       Propuesto = cv_medidas(formula(fwd),    auto232))
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+# --- 3) Selección (sobre auto232 ya preprocesado) ---
+# Se reutiliza la función step() del bloque «Forward» (aquí con y = "LogCuota" y k = log(n) -> BIC)
+y = "LogCuota"
+candidatas = [f'Q("{c}")' for c in auto232.columns if c != y]     # Q() permite nombres con espacios o símbolos
+k_bic = np.log(len(auto232))
+fwd = step(auto232, [], candidatas, "forward", k=k_bic)
+bwd = step(auto232, candidatas, candidatas, "backward", k=k_bic)
+print(set(fwd) ^ set(bwd))                  # ¿qué variables difieren?
+
+# --- 4) Predicción frente a la edad con IC 95 % ---
+ed = pd.DataFrame({"Edad": np.arange(auto232["Edad"].min(), auto232["Edad"].max() + 1)})
+m_edad = smf.ols("LogCuota ~ Edad + I(Edad**2)", data=auto232).fit()   # curva suave (término cuadrático)
+p = m_edad.get_prediction(ed).summary_frame(alpha=0.05)
+plt.plot(auto232["Edad"], auto232["LogCuota"], "o", color=(0, 0, 1, 0.15), ms=3)
+plt.plot(ed["Edad"], p["mean"], "r", lw=3)
+plt.plot(ed["Edad"], p["mean_ci_lower"], "r--"); plt.plot(ed["Edad"], p["mean_ci_upper"], "r--")
+plt.xlabel("Edad"); plt.ylabel("LogCuota"); plt.show()
+
+# --- 5) 20-fold CV: medidas fuera de muestra de un modelo ---
+def cv_medidas(formula, datos, K=20, semilla=123):
+    rng = np.random.default_rng(semilla)
+    folds = rng.permutation(np.arange(len(datos)) % K)
+    y_real, y_pred = [], []
+    for k in range(K):
+        m = smf.ols(formula, data=datos[folds != k]).fit()
+        test = datos[folds == k]
+        y_real += list(test["LogCuota"]); y_pred += list(m.predict(test))
+    y_real, y_pred = np.array(y_real), np.array(y_pred)
+    e = y_real - y_pred
+    return {"SSE": (e**2).sum(), "MSE": (e**2).mean(), "MAPE": 100 * np.abs(e / y_real).mean(),
+            "R2": 1 - (e**2).sum() / ((y_real - y_real.mean()) ** 2).sum()}
+
+formula_fwd = "LogCuota ~ " + " + ".join(fwd)
+print(pd.DataFrame({"Simple": cv_medidas("LogCuota ~ Edad", auto232), "Propuesto": cv_medidas(formula_fwd, auto232)}).T)
+</script>
+</div>
     <ol class="walk">
       <li><b>Forward y backward con BIC</b> (<code>k = log(n)</code>) penalizan más que el AIC. Si el AIC y el BIC discrepan, el BIC suele quedarse con un modelo más pequeño.</li>
       <li><b>Banda de confianza:</b> <code>interval = "confidence"</code> da el IC de la <i>media</i> de LogCuota para cada edad (estrecho). Para un individuo concreto se usaría <code>"prediction"</code> (más ancho, incluye el ruido).</li>
@@ -1539,7 +2287,8 @@ rbind(Simple    = cv_medidas(LogCuota ~ Edad, auto232),
         <li><b>Ventajas:</b> reduce sobreajuste, bueno con multicolinealidad, estimaciones estables. <b>Inconvenientes:</b> no selecciona variables, todas se quedan.</li>
       </ul>
     </div>
-    <script type="text/x-r" data-file="Tema 3. Ridge_1variable.R (idea: minimizar SSE + λβ² con optim)" data-src="curso">
+    <div class="codepair" data-file="Tema 3. Ridge_1variable.R (idea: minimizar SSE + λβ² con optim)" data-src="curso">
+<script type="text/x-r">
 load(file = "datos_Ridge.Rdata"); Datos <- datos_Ridge
 y  <- Datos$CosteSiniestralidad
 x1 <- Datos$Edad
@@ -1568,12 +2317,45 @@ plot(log(grid_lambda), sse_ridge[, "b1"], type = "l", lwd = 2.5, col = "darkblue
 plot(log(grid_lambda), sse_ridge[, "SSE-ridge"], type = "l", lwd = 2.5, col = "darkred",
      xlab = expression(log(lambda)), ylab = "SSE")                       # peor ajuste dentro de muestra
     </script>
+<script type="text/x-py">
+import numpy as np
+import matplotlib.pyplot as plt
+import pyreadr
+from scipy.optimize import minimize
+
+Datos = pyreadr.read_r("datos_Ridge.Rdata")["datos_Ridge"]
+y = Datos["CosteSiniestralidad"].to_numpy()
+x1 = Datos["Edad"].to_numpy().astype(float)
+
+# SSE penalizado con una sola variable. Se centra x e y para poder ignorar el intercepto:
+#   b0 = mean(y) - b1 * mean(x1)
+def f_sse_ridge_1var(betas, x, y, lam):
+    betas = np.asarray(betas, dtype=float)
+    x_c = x - x.mean()
+    y_c = y - y.mean()
+    return np.sum((y_c - x_c * betas[0]) ** 2) + lam * np.sum(betas**2)     # SSE + lambda * beta^2
+
+grid_lambda = 10 ** np.linspace(-2, 5, 100)                 # 100 valores de lambda, de menos a más
+sse_ridge = np.full((100, 4), np.nan)                       # columnas: b0, b1, SSE, SSE-ridge
+for i, lam in enumerate(grid_lambda):
+    opt = minimize(f_sse_ridge_1var, x0=[0.0], args=(x1, y, lam), method="BFGS")
+    b1 = opt.x[0]
+    b0 = y.mean() - b1 * x1.mean()
+    sse_ridge[i] = [b0, b1, np.sum((y - (b0 + b1 * x1)) ** 2), f_sse_ridge_1var([b1], x1, y, lam)]
+
+plt.plot(np.log(grid_lambda), sse_ridge[:, 1], lw=2.5, color="darkblue")
+plt.xlabel("log(λ)"); plt.ylabel("β1"); plt.show()           # beta_1 -> 0 cuando lambda sube
+plt.plot(np.log(grid_lambda), sse_ridge[:, 3], lw=2.5, color="darkred")
+plt.xlabel("log(λ)"); plt.ylabel("SSE"); plt.show()           # peor ajuste dentro de muestra
+</script>
+</div>
     <ol class="walk">
       <li><b>Centrar</b> \(x\) e \(y\) (<code>scale(..., scale=FALSE)</code>) elimina el intercepto de la optimización: se recupera al final con \(\hat\beta_0=\bar y-\hat\beta_1\bar x\).</li>
       <li><b><code>optim(..., method="BFGS")</code></b> busca numéricamente el \(\beta_1\) que minimiza la función de coste. Se repite para 100 valores de \(\lambda\) en una rejilla logarítmica (<code>10^seq(-2, 5)</code>).</li>
       <li><b>Qué se ve:</b> a más \(\lambda\), \(\hat\beta_1\to0\) y el SSE dentro de muestra <i>empeora</i>: el precio de la regularización. A cambio se previene el sobreajuste fuera de muestra.</li>
     </ol>
-    <script type="text/x-r" data-file="Tema 3. Ridge_glmnet.R" data-src="curso">
+    <div class="codepair" data-file="Tema 3. Ridge_glmnet.R" data-src="curso">
+<script type="text/x-r">
 library(glmnet); library(caret)
 load(file = "datos_Ridge.Rdata")           # Potencia, Cilindrada, ValorVehiculo (muy correlacionadas), Edad, AntiguedadCarnet, MarcaVehiculo...
 
@@ -1610,6 +2392,80 @@ coef(ridge_mod, s = cv_ridge$lambda.min)    # coeficientes finales
 pred_ridge <- predict(ridge_mod, s = cv_ridge$lambda.min, newx = X_test)
 mean((y_test - pred_ridge)^2)               # MSE fuera de muestra de Ridge (frente a mse_ols_out)
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import pyreadr
+import statsmodels.api as sm
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
+from sklearn.model_selection import train_test_split, KFold
+from sklearn.preprocessing import StandardScaler
+
+# Nota: glmnet minimiza (1/2n)·SSE + λ·[(1-α)/2·Σβ² + α·Σ|β|] sobre X estandarizada.
+#   - Lasso(alpha=λ) y ElasticNet(alpha=λ, l1_ratio=α) de scikit-learn usan exactamente esa función.
+#   - Ridge de scikit-learn minimiza SSE + a·Σβ²: equivale a glmnet con a = n·λ.
+def modelo(alpha_en, lam, n):
+    if alpha_en == 0:
+        return Ridge(alpha=n * lam)
+    if alpha_en == 1:
+        return Lasso(alpha=lam, max_iter=100000)
+    return ElasticNet(alpha=lam, l1_ratio=alpha_en, max_iter=100000)
+
+def cv_glmnet(X, y, alpha_en, lambdas, nfolds=10, seed=2026, folds=None):
+    """Como cv.glmnet: error medio y su error estándar por lambda; lambda.min y lambda.1se."""
+    n = len(y)
+    if folds is None:
+        folds = np.random.default_rng(seed).permutation(np.arange(n) % nfolds)
+    err = np.zeros((nfolds, len(lambdas)))
+    for k in range(nfolds):
+        sc = StandardScaler().fit(X[folds != k])
+        for j, lam in enumerate(lambdas):
+            m = modelo(alpha_en, lam, int((folds != k).sum())).fit(sc.transform(X[folds != k]), y[folds != k])
+            err[k, j] = np.mean((y[folds == k] - m.predict(sc.transform(X[folds == k]))) ** 2)
+    cvm, cvse = err.mean(axis=0), err.std(axis=0, ddof=1) / np.sqrt(nfolds)
+    i_min = int(np.argmin(cvm))
+    # lambda.1se: el lambda más grande cuyo error no supera el mínimo + 1 error estándar
+    lam_1se = max(l for l, e in zip(lambdas, cvm) if e <= cvm[i_min] + cvse[i_min])
+    return {"lambda_min": lambdas[i_min], "lambda_1se": lam_1se, "cvm": cvm, "cvse": cvse}
+
+datos_Ridge = pyreadr.read_r("datos_Ridge.Rdata")["datos_Ridge"]        # Potencia, Cilindrada, ValorVehiculo (muy correlacionadas), Edad, AntiguedadCarnet, MarcaVehiculo...
+
+# 7 dummies para las 8 marcas (la octava es la referencia)
+for m in ["Tesla", "Seat", "BMW", "Volkswagen", "Toyota", "Volvo", "Hyundai"]:
+    datos_Ridge[m] = (datos_Ridge["MarcaVehiculo"] == m).astype(float)
+
+y = datos_Ridge["CosteSiniestralidad"].to_numpy()
+Xdf = datos_Ridge.drop(columns=["CosteSiniestralidad", "MarcaVehiculo"]).astype(float)
+X = Xdf.to_numpy()
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=2026)   # 80 % train, 20 % test
+
+# OLS: con multicolinealidad los coeficientes son inestables
+ols_fit = sm.OLS(y_train, sm.add_constant(X_train)).fit()
+print(ols_fit.summary())
+mse_ols_out = np.mean((y_test - ols_fit.predict(sm.add_constant(X_test))) ** 2)     # MSE fuera de muestra
+
+# Ridge: alpha = 0.  Camino de coeficientes para toda la rejilla de lambda
+grid_lambda = 10 ** np.linspace(5, -2, 100)
+sc = StandardScaler().fit(X_train)
+camino = np.array([Ridge(alpha=len(y_train) * lam).fit(sc.transform(X_train), y_train).coef_ for lam in grid_lambda])
+plt.plot(np.log(grid_lambda), camino)
+plt.xlabel("log(λ)"); plt.ylabel("coeficientes"); plt.title("Ridge: los coeficientes se encogen sin llegar a 0"); plt.show()
+
+# Elegir lambda por validación cruzada de 10 folds
+cv_ridge = cv_glmnet(X_train, y_train, 0, grid_lambda, nfolds=10)
+plt.errorbar(np.log(grid_lambda), cv_ridge["cvm"], yerr=cv_ridge["cvse"], fmt="o", ms=3)
+plt.xlabel("log(λ)"); plt.ylabel("MSE de CV"); plt.show()
+print(cv_ridge["lambda_min"])               # lambda de mínimo error CV
+print(cv_ridge["lambda_1se"])               # el más penalizado a menos de 1 error estándar del mínimo
+
+final = Ridge(alpha=len(y_train) * cv_ridge["lambda_min"]).fit(sc.transform(X_train), y_train)
+print(pd.Series(final.coef_, index=Xdf.columns))            # coeficientes finales (sobre X estandarizada)
+pred_ridge = final.predict(sc.transform(X_test))
+print(np.mean((y_test - pred_ridge) ** 2))                  # MSE fuera de muestra de Ridge (frente a mse_ols_out)
+</script>
+</div>
     <ol class="walk">
       <li><b>El problema de partida</b> (Potencia, Cilindrada y ValorVehiculo muy correlacionadas): OLS devuelve coeficientes grandes, de signos raros y con errores típicos enormes.</li>
       <li><b><code>glmnet(X, y, alpha=0)</code></b> ajusta Ridge para toda la rejilla de \(\lambda\) a la vez. <code>alpha = 0</code> es Ridge, <code>alpha = 1</code> es LASSO. Necesita una <i>matriz</i> numérica <code>X</code> (por eso las dummies a mano). Estandariza internamente las columnas y devuelve los coeficientes en la escala original.</li>
@@ -1657,7 +2513,8 @@ mean((y_test - pred_ridge)^2)               # MSE fuera de muestra de Ridge (fre
       <div class="stats" id="o_stats"></div>
       <figure class="fig" id="o_fig"><div class="tl-scroll"></div><figcaption>Elipses: niveles de SSE centrados en el punto OLS (●). Región sombreada: restricción. El punto verde es la solución penalizada. Con LASSO y el OLS cerca de un eje, la solución cae en el vértice (β₂ = 0).</figcaption></figure>
     </div>
-    <script type="text/x-r" data-file="Tema 3. LASSO_glmnet.R" data-src="curso">
+    <div class="codepair" data-file="Tema 3. LASSO_glmnet.R" data-src="curso">
+<script type="text/x-r">
 # Mismo preprocesado y partición train/test que en Ridge_glmnet.R
 grid_lambda <- 10^seq(5, -2, length = 100)
 lasso_mod <- glmnet(X_train, y_train, alpha = 1, lambda = grid_lambda)    # alpha = 1  ->  LASSO
@@ -1674,7 +2531,36 @@ coef(lasso_mod, s = cv_lasso$lambda.1se)            # los "." son coeficientes e
 pred_lasso <- predict(lasso_mod, s = cv_lasso$lambda.min, newx = X_test)
 mean((y_test - pred_lasso)^2)                       # MSE fuera de muestra
     </script>
-    <script type="text/x-r" data-file="LASSO por descenso por coordenadas, a mano" data-src="complemento">
+<script type="text/x-py">
+# Mismo preprocesado y partición train/test que en Ridge (X_train, X_test, y_train, y_test, Xdf, cv_glmnet, modelo)
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import Lasso, lasso_path
+from sklearn.preprocessing import StandardScaler
+
+grid_lambda = 10 ** np.linspace(5, -2, 100)
+sc = StandardScaler().fit(X_train)
+Xs = sc.transform(X_train)
+lambdas, coefs, _ = lasso_path(Xs, y_train - y_train.mean(), alphas=grid_lambda)      # alpha de sklearn = lambda de glmnet
+plt.plot(np.log(lambdas), coefs.T)
+plt.xlabel("log(λ)"); plt.ylabel("coeficientes"); plt.title("LASSO: los coeficientes llegan a 0 uno a uno"); plt.show()
+
+print(pd.DataFrame(coefs[:, [19, 49, 79]], index=Xdf.columns, columns=["λ20", "λ50", "λ80"]))   # se ven ceros exactos (esparsidad)
+
+cv_lasso = cv_glmnet(X_train, y_train, 1, grid_lambda, nfolds=10)
+print(cv_lasso["lambda_min"])               # mínimo error CV
+print(cv_lasso["lambda_1se"])               # modelo más simple con error equivalente
+
+m_1se = Lasso(alpha=cv_lasso["lambda_1se"], max_iter=100000).fit(Xs, y_train)
+print(pd.Series(m_1se.coef_, index=Xdf.columns))            # los 0 son coeficientes exactamente 0
+m_min = Lasso(alpha=cv_lasso["lambda_min"], max_iter=100000).fit(Xs, y_train)
+pred_lasso = m_min.predict(sc.transform(X_test))
+print(np.mean((y_test - pred_lasso) ** 2))                  # MSE fuera de muestra
+</script>
+</div>
+    <div class="codepair" data-file="LASSO por descenso por coordenadas, a mano" data-src="complemento">
+<script type="text/x-r">
 soft <- function(z, g) sign(z) * pmax(abs(z) - g, 0)   # soft-thresholding S_g(z)
 
 # Resuelve  (1/2n) * SSE + lambda * sum|beta|   (parametrización de glmnet)
@@ -1696,6 +2582,36 @@ lasso_cd <- function(X, y, lambda, iter = 500, tol = 1e-8) {
 }
 lasso_cd(X_train, y_train, lambda = 0.5)           # coeficientes estandarizados; los 0 son variables eliminadas
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+
+def soft(z, g):                                # soft-thresholding S_g(z)
+    return np.sign(z) * np.maximum(np.abs(z) - g, 0)
+
+# Resuelve  (1/2n) * SSE + lambda * sum|beta|   (parametrización de glmnet)
+def lasso_cd(X, y, lam, iters=500, tol=1e-8):
+    X = np.asarray(X, dtype=float)
+    X = (X - X.mean(axis=0)) / X.std(axis=0, ddof=1)       # estandarizar: media 0, sd 1
+    yc = y - y.mean()                                       # centrar y: el intercepto vale mean(y)
+    n, p = X.shape
+    beta = np.zeros(p)
+    for _ in range(iters):
+        beta_old = beta.copy()
+        for j in range(p):
+            r_j = yc - np.delete(X, j, axis=1) @ np.delete(beta, j)     # residuo parcial sin la variable j
+            z = X[:, j] @ r_j / n
+            beta[j] = soft(z, lam) / (X[:, j] @ X[:, j] / n)            # actualiza solo la coordenada j
+        if np.max(np.abs(beta - beta_old)) < tol:           # convergencia
+            break
+    return beta
+
+# Con los datos del curso: lasso_cd(X_train, y_train, lam=0.5). Ejemplo autocontenido:
+rng = np.random.default_rng(1)
+X_demo = rng.normal(size=(300, 6)); y_demo = 3 * X_demo[:, 0] - 2 * X_demo[:, 1] + rng.normal(size=300)
+print(pd.Series(lasso_cd(X_demo, y_demo, lam=0.5)))        # coeficientes estandarizados; los 0 son variables eliminadas
+</script>
+</div>
     <ol class="walk">
       <li><b><code>alpha = 1</code></b> es la única diferencia con el script de Ridge: el resto del pipeline (train/test, <code>cv.glmnet</code>, <code>lambda.min</code>, <code>lambda.1se</code>) es idéntico.</li>
       <li><b>Los puntos «.»</b> de <code>coef()</code> son ceros exactos. Con <code>lambda.1se</code> sobreviven pocas variables.</li>
@@ -1736,7 +2652,8 @@ lasso_cd(X_train, y_train, lambda = 0.5)           # coeficientes estandarizados
       </div>
       <div class="pill-row" id="p_coef"></div>
     </div>
-    <script type="text/x-r" data-file="Tema 3. ElasticNet_glmnet.R" data-src="curso">
+    <div class="codepair" data-file="Tema 3. ElasticNet_glmnet.R" data-src="curso">
+<script type="text/x-r">
 # Mismo preprocesado y partición. Elastic Net con alpha = 0.5
 alpha_enet <- 0.5
 grid_lambda <- 10^seq(5, -2, length = 100)
@@ -1764,7 +2681,43 @@ cat("MSE Out (OLS completo)          :", round(mse_ols1_out, 4), "\n")
 cat("MSE Out (OLS con significativas):", round(mse_ols2_out, 4), "\n")
 cat("MSE Out (Elastic Net 0.5)       :", round(mse_enet_out, 4), "\n")
     </script>
-    <script type="text/x-r" data-file="Rejilla conjunta (α, λ)" data-src="complemento">
+<script type="text/x-py">
+# Mismo preprocesado y partición. Elastic Net con alpha = 0.5 (X_train, X_test, y_train, y_test, cv_glmnet)
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import ElasticNet
+from sklearn.preprocessing import StandardScaler
+
+alpha_enet = 0.5
+grid_lambda = 10 ** np.linspace(5, -2, 100)
+sc = StandardScaler().fit(X_train)
+Xs, Xt = sc.transform(X_train), sc.transform(X_test)
+
+cv_enet = cv_glmnet(X_train, y_train, alpha_enet, grid_lambda, nfolds=10)
+plt.errorbar(np.log(grid_lambda), cv_enet["cvm"], yerr=cv_enet["cvse"], fmt="o", ms=3); plt.show()
+print(cv_enet["lambda_min"], cv_enet["lambda_1se"])
+
+# SSE fuera de muestra para toda la rejilla (se ve el mínimo de la curva en U)
+sse_test = np.array([np.sum((y_test - ElasticNet(alpha=l, l1_ratio=alpha_enet, max_iter=100000).fit(Xs, y_train).predict(Xt)) ** 2)
+                     for l in grid_lambda])
+plt.plot(np.log(grid_lambda), sse_test, lw=2.5, color="darkred")
+plt.xlabel("log(λ)"); plt.ylabel("SSE-out")
+plt.axvline(np.log(cv_enet["lambda_min"]), color="blue", ls="--")
+plt.axvline(np.log(cv_enet["lambda_1se"]), color="darkgreen", ls=":"); plt.show()
+
+# Comparativa final: todos los métodos, mismo test
+enet = ElasticNet(alpha=cv_enet["lambda_min"], l1_ratio=alpha_enet, max_iter=100000).fit(Xs, y_train)
+print(pd.Series(enet.coef_, index=Xdf.columns))
+mse_enet_out = np.mean((y_test - enet.predict(Xt)) ** 2)
+# mse_ols1_out y mse_ols2_out salen de los OLS ajustados antes (completo y solo con significativas)
+print("MSE Out (OLS completo)          :", round(mse_ols1_out, 4))
+print("MSE Out (OLS con significativas):", round(mse_ols2_out, 4))
+print("MSE Out (Elastic Net 0.5)       :", round(mse_enet_out, 4))
+</script>
+</div>
+    <div class="codepair" data-file="Rejilla conjunta (α, λ)" data-src="complemento">
+<script type="text/x-r">
 # cv.glmnet elige lambda para un alpha dado. Para elegir también alpha, se prueba una rejilla de alphas
 # usando LOS MISMOS folds para que las comparaciones sean justas.
 set.seed(2026)
@@ -1777,6 +2730,27 @@ cv_por_alpha <- sapply(alphas, function(a) {
 t(cv_por_alpha)                                   # una fila por alpha
 alpha_opt <- alphas[which.min(cv_por_alpha["cv_error", ])]
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+
+# cv_glmnet elige lambda para un alpha dado. Para elegir también alpha, se prueba una rejilla de alphas
+# usando LOS MISMOS folds para que las comparaciones sean justas (X_train, y_train y cv_glmnet de los bloques anteriores).
+rng = np.random.default_rng(2026)
+folds = rng.permutation(np.arange(len(y_train)) % 10)
+lambdas = 10 ** np.linspace(2, -3, 60)
+alphas = np.arange(0, 1.01, 0.25)
+
+filas = []
+for a in alphas:
+    cv = cv_glmnet(X_train, y_train, a, lambdas, nfolds=10, folds=folds)
+    filas.append({"alpha": a, "lambda_min": cv["lambda_min"], "cv_error": cv["cvm"].min()})
+cv_por_alpha = pd.DataFrame(filas)
+print(cv_por_alpha)                           # una fila por alpha
+alpha_opt = cv_por_alpha.loc[cv_por_alpha["cv_error"].idxmin(), "alpha"]
+print(alpha_opt)
+</script>
+</div>
     <ol class="walk">
       <li><b><code>alpha = 0.5</code></b> reparte la penalización a partes iguales entre \(\ell_1\) y \(\ell_2\).</li>
       <li><b>SSE en test para toda la rejilla.</b> <code>predict(..., s = grid_lambda)</code> devuelve una columna de predicciones por \(\lambda\). El SSE de test dibuja una «U»: pocos \(\lambda\) → sobreajuste, demasiados → modelo sin información.</li>
@@ -1827,7 +2801,8 @@ alpha_opt <- alphas[which.min(cv_por_alpha["cv_error", ])]
         <tr><td>Elastic Net</td><td><code>sse + lambda * (alpha*sum(abs(betas)) + (1-alpha)*sum(betas^2))</code></td><td>rejilla de \(\alpha\in\{0;0{,}25;0{,}5;0{,}75;1\}\) × 100 valores de \(\lambda\)</td></tr>
       </tbody>
     </table></div>
-    <script type="text/x-r" data-file="Tema 3. Ridge_VariasVariable.R (núcleo)" data-src="curso">
+    <div class="codepair" data-file="Tema 3. Ridge_VariasVariable.R (núcleo)" data-src="curso">
+<script type="text/x-r">
 load(file = "datos_Ridge.Rdata"); Datos <- datos_Ridge
 # 7 dummies de marca (la octava es la referencia) y quitamos la variable original
 for (m in c("Tesla","Seat","BMW","Volkswagen","Toyota","Volvo","Hyundai"))
@@ -1877,6 +2852,63 @@ matplot(log(grid_lambda), errores[, "MAPE-out"], type = "l", lwd = 2, xlab = "lo
 c(OLS_in = mape_ols_in, OLS_out = mape_ols_out,
   Ridge_in = errores[which.min(errores[, 4]), 3], Ridge_out = min(errores[, 4]))
     </script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import pyreadr
+import statsmodels.formula.api as smf
+from scipy.optimize import minimize
+from sklearn.model_selection import train_test_split
+
+Datos = pyreadr.read_r("datos_Ridge.Rdata")["datos_Ridge"]
+# 7 dummies de marca (la octava es la referencia) y quitamos la variable original
+for m in ["Tesla", "Seat", "BMW", "Volkswagen", "Toyota", "Volvo", "Hyundai"]:
+    Datos[m] = (Datos["MarcaVehiculo"] == m).astype(float)
+X = Datos.drop(columns="MarcaVehiculo")
+
+X_train, X_test = train_test_split(X, test_size=0.20, random_state=301026)
+
+# OLS de referencia con las variables significativas
+modelo1 = smf.ols("CosteSiniestralidad ~ Potencia + Cilindrada + Edad + AntiguedadCarnet", data=X_train).fit()
+y_tr, y_te = X_train["CosteSiniestralidad"], X_test["CosteSiniestralidad"]
+mape_ols_in = 100 * ((y_tr - modelo1.fittedvalues) / y_tr).abs().mean()
+mape_ols_out = 100 * ((y_te - modelo1.predict(X_test)) / y_te).abs().mean()
+
+# Coste de Ridge con varias variables: X estandarizada, y centrada, intercepto fuera de la penalización
+def f_sse_ridge(betas, x, y, lam):
+    x_c = (x - x.mean(axis=0)) / x.std(axis=0, ddof=1)
+    y_c = y - y.mean()
+    return np.sum((y_c - x_c @ betas) ** 2) + lam * np.sum(betas**2)
+
+grid_lambda = 10 ** np.linspace(-2, 5, 100)
+x_train = X_train.drop(columns="CosteSiniestralidad")
+X_mat = x_train.to_numpy(dtype=float); p_vars = X_mat.shape[1]
+x_mean, x_sd = X_mat.mean(axis=0), X_mat.std(axis=0, ddof=1)
+y_train = y_tr.to_numpy()
+X_test2 = X_test.drop(columns="CosteSiniestralidad").to_numpy(dtype=float)
+y_test = y_te.to_numpy()
+
+betas = np.full((100, p_vars + 1), np.nan)                       # b0 y un beta por variable
+errores = np.full((100, 4), np.nan)                              # coste-ridge, SSE-in, MAPE-in, MAPE-out
+for i, lam in enumerate(grid_lambda):
+    opt = minimize(f_sse_ridge, x0=np.zeros(p_vars), args=(X_mat, y_train, lam), method="BFGS")
+    b_orig = opt.x / x_sd                                        # deshacer la estandarización
+    b0_orig = y_train.mean() - np.sum(b_orig * x_mean)           # intercepto en la escala original
+    betas[i] = np.r_[b0_orig, b_orig]
+    yhat_in = b0_orig + X_mat @ b_orig
+    yhat_out = b0_orig + X_test2 @ b_orig
+    errores[i] = [opt.fun, np.sum((y_train - yhat_in) ** 2),
+                  100 * np.mean(np.abs((y_train - yhat_in) / y_train)),
+                  100 * np.mean(np.abs((y_test - yhat_out) / y_test))]
+print(np.argmin(errores[:, 3]) + 1)                              # lambda con mejor MAPE fuera de muestra (índice base 1, como R)
+plt.plot(np.log(grid_lambda), np.abs(betas[:, 1:]), lw=2)
+plt.xlabel("Log-lambda"); plt.ylabel("|betas|"); plt.show()      # camino de coeficientes
+plt.plot(np.log(grid_lambda), errores[:, 3], lw=2); plt.xlabel("log-lambda"); plt.ylabel("MAPE-out"); plt.show()
+print({"OLS_in": mape_ols_in, "OLS_out": mape_ols_out,
+       "Ridge_in": errores[np.argmin(errores[:, 3]), 2], "Ridge_out": errores[:, 3].min()})
+</script>
+</div>
     <ol class="walk">
       <li><b>Estandarizar y centrar.</b> <code>scale(x)</code> pone las variables en la misma escala (imprescindible, la penalización depende de ella) y <code>y - mean(y)</code> permite ignorar el intercepto, que no se penaliza.</li>
       <li><b>Deshacer la estandarización.</b> \(\beta_j=\beta_j^{std}/\sigma_{x_j}\) y \(\beta_0=\bar y-\sum\beta_j\bar x_j\): así los coeficientes y las predicciones están en las unidades originales y se pueden comparar con OLS.</li>
@@ -2351,33 +3383,50 @@ function flow(spec) {
 
 /* ====================== Código: resaltado y copia ====================== */
 const R_RE = /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*(?:e[+-]?\d+)?L?\b)|(\b(?:function|if|else|for|while|repeat|break|next|return|TRUE|FALSE|NULL|NA|Inf|in|library|require)\b)|([A-Za-z_.][\w.]*)(?=\()|(<-|<<-|->|%[^%\s]*%|\|>)/gm;
-function highlightR(code) {
+const PY_RE = /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*(?:e[+-]?\d+)?\b)|(\b(?:import|from|as|def|return|for|in|if|else|elif|while|with|True|False|None|lambda|and|or|not|break|continue|pass|print|assert|try|except|class)\b)|([A-Za-z_][\w]*)(?=\()|(==|!=|<=|>=|\*\*|@|\/\/)/gm;
+function highlight(code, re) {
   let out = '', last = 0, m;
-  R_RE.lastIndex = 0;
-  while ((m = R_RE.exec(code))) {
+  re.lastIndex = 0;
+  while ((m = re.exec(code))) {
     out += esc(code.slice(last, m.index));
     const t = esc(m[0]);
     out += m[1] ? `<span class="c-com">${t}</span>` : m[2] ? `<span class="c-str">${t}</span>` : m[3] ? `<span class="c-num">${t}</span>` : m[4] ? `<span class="c-kw">${t}</span>` : m[5] ? `<span class="c-fn">${t}</span>` : `<span class="c-op">${t}</span>`;
     last = m.index + m[0].length;
-    if (m[0].length === 0) R_RE.lastIndex++;
+    if (m[0].length === 0) re.lastIndex++;
   }
   return out + esc(code.slice(last));
 }
+let LANG = 'r';
+try { const v = localStorage.getItem('sim-lang'); if (v === 'r' || v === 'py') LANG = v; } catch (e) { /* sin almacenamiento */ }
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem('sim-lang', l); } catch (e) { /* sin almacenamiento */ }
+  $$('.code[data-pair]').forEach(box => {
+    $$('.code-tabs button', box).forEach(b => b.setAttribute('aria-selected', String(b.dataset.l === l)));
+    $$('pre', box).forEach(p => { p.hidden = p.dataset.l !== l; });
+  });
+}
 function mountCode() {
-  $$('script[type="text/x-r"]').forEach(s => {
-    const code = s.textContent.replace(/^\n+/, '').replace(/\s+$/, '');
-    const src = s.dataset.src === 'complemento' ? '<span class="badge">complemento</span>' : '<span class="badge">curso</span>';
+  $$('div.codepair').forEach(pair => {
+    const get = t => { const s = pair.querySelector('script[type="text/x-' + t + '"]'); return s ? s.textContent.replace(/^\n+/, '').replace(/\s+$/, '') : ''; };
+    const codes = { r: get('r'), py: get('py') };
+    const src = pair.dataset.src === 'complemento' ? '<span class="badge">complemento</span>' : '<span class="badge">curso</span>';
     const box = document.createElement('div');
-    box.className = 'code';
-    box.innerHTML = `<div class="code-head"><span class="fname">${esc(s.dataset.file || 'script.R')} · ${src}</span><button type="button" class="copy">Copiar</button></div><pre><code>${highlightR(code)}</code></pre>`;
-    box.querySelector('.copy').addEventListener('click', (ev) => {
-      const b = ev.currentTarget;
+    box.className = 'code'; box.dataset.pair = '1';
+    box.innerHTML = '<div class="code-head"><span class="fname">' + esc(pair.dataset.file || 'script') + ' · ' + src + '</span>'
+      + '<span class="code-tabs" role="tablist"><button type="button" role="tab" data-l="r">R</button><button type="button" role="tab" data-l="py">Python</button></span>'
+      + '<button type="button" class="copy">Copiar</button></div>'
+      + '<pre data-l="r"><code>' + highlight(codes.r, R_RE) + '</code></pre><pre data-l="py"><code>' + highlight(codes.py, PY_RE) + '</code></pre>';
+    $$('.code-tabs button', box).forEach(b => b.addEventListener('click', () => setLang(b.dataset.l)));
+    box.querySelector('.copy').addEventListener('click', ev => {
+      const b = ev.currentTarget, code = codes[LANG];
       const done = () => { b.textContent = '¡Copiado!'; setTimeout(() => { b.textContent = 'Copiar'; }, 1400); };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, () => fallbackCopy(code, done));
       else fallbackCopy(code, done);
     });
-    s.after(box);
+    pair.replaceWith(box);
   });
+  setLang(LANG);
 }
 function fallbackCopy(text, done) {
   const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';

@@ -219,7 +219,7 @@ print(list(fit.random_effects.items())[:3])    # BLUP: medias a posteriori encog
                 id: 'idea',
                 title: 'Idea clave',
                 blocks: [
-                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 3: diagramas de flujo de cada método, laboratorios interactivos, todo el código R explicado, preguntas posibles resueltas y tarjetas de repaso. Examen: 11 de noviembre de 2026.' },
+                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 3: diagramas de flujo de cada método, laboratorios interactivos, todo el código explicado en R y Python, preguntas posibles resueltas y tarjetas de repaso. Examen: 11 de noviembre de 2026.' },
                     { type: 'p', text: 'Un ordenador solo produce uniformes $U(0,1)$ de forma determinista. Todo lo demás se obtiene <b>transformándolas</b>: invirtiendo una función de distribución, aceptando o rechazando candidatos o mezclándolas con álgebra matricial. Sobre ese motor se construye el análisis de riesgo (Monte Carlo, VaR, TVaR) y los modelos de regresión que se validan fuera de muestra.' },
                     { type: 'list', title: 'Tema 1 · Simular', items: [
                         '<b>Uniformes</b>: generador congruencial $z_i=(az_{i-1}+c)\\bmod m$ y condiciones de Hull–Dobell.',
@@ -251,7 +251,7 @@ print(list(fit.random_effects.items())[:3])    # BLUP: medias a posteriori encog
             },
             {
                 id: 'codigo',
-                title: 'Código R',
+                title: 'Código',
                 blocks: [
                     { type: 'code', code: { r: `
 # Inversión: exponencial(lambda = 2)
@@ -267,7 +267,28 @@ z2 <- sqrt(-2 * log(u1)) * sin(2 * pi * u2)
 # Cholesky + NORTA: lognormales con correlación 0.7 en las normales
 R <- matrix(c(1, .7, .7, 1), 2); L <- t(chol(R))
 Y <- L %*% matrix(rnorm(2 * 5000), 2)
-X <- qlnorm(pnorm(Y), meanlog = 0, sdlog = 0.5)` } },
+X <- qlnorm(pnorm(Y), meanlog = 0, sdlog = 0.5)`,
+                        python: `
+import numpy as np
+from scipy import stats
+
+# Inversión: exponencial(lambda = 2)
+rng = np.random.default_rng(123)
+u = rng.uniform(size=10000)
+x = -np.log(1 - u) / 2
+print(x.mean(), x.var(ddof=1))                  # ≈ 0.5 y 0.25
+
+# Box-Müller: dos N(0,1) independientes
+u1, u2 = rng.uniform(size=10000), rng.uniform(size=10000)
+z1 = np.sqrt(-2 * np.log(u1)) * np.cos(2 * np.pi * u2)
+z2 = np.sqrt(-2 * np.log(u1)) * np.sin(2 * np.pi * u2)
+
+# Cholesky + NORTA: lognormales con correlación 0.7 en las normales
+R = np.array([[1, .7], [.7, 1]]); L = np.linalg.cholesky(R)
+Y = L @ rng.standard_normal((2, 5000))
+X = stats.lognorm.ppf(stats.norm.cdf(Y), s=0.5, scale=1)
+print(np.corrcoef(X)[0, 1])
+` } },
                     { type: 'code', code: { r: `
 # Ridge / LASSO / Elastic Net con glmnet (alpha = 0 / 1 / 0.5)
 library(glmnet)
@@ -275,7 +296,26 @@ cv <- cv.glmnet(X_train, y_train, alpha = 1, nfolds = 10)
 cv$lambda.min; cv$lambda.1se
 coef(cv, s = "lambda.1se")              # los "." son coeficientes exactamente 0
 pred <- predict(cv, newx = X_test, s = "lambda.min")
-mean((y_test - pred)^2)                 # MSE fuera de muestra` } }
+mean((y_test - pred)^2)                 # MSE fuera de muestra`,
+                        python: `
+# Ridge / LASSO / Elastic Net con scikit-learn (l1_ratio = 0 / 1 / 0.5; alpha de sklearn = lambda de glmnet en LASSO y Elastic Net)
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LassoCV, Lasso
+from sklearn.preprocessing import StandardScaler
+
+sc = StandardScaler().fit(X_train)                  # glmnet estandariza X por dentro; aquí se hace a mano
+cv = LassoCV(cv=10, random_state=2026).fit(sc.transform(X_train), y_train)
+mse = cv.mse_path_.mean(axis=1)
+se = cv.mse_path_.std(axis=1, ddof=1) / np.sqrt(cv.mse_path_.shape[1])
+lam_min = cv.alpha_
+lam_1se = cv.alphas_[mse <= mse.min() + se[mse.argmin()]].max()      # el más penalizado a menos de 1 error estándar
+print(lam_min, lam_1se)
+m = Lasso(alpha=lam_1se).fit(sc.transform(X_train), y_train)
+print(pd.Series(m.coef_))                           # los 0 son coeficientes exactamente 0
+pred = cv.predict(sc.transform(X_test))
+print(np.mean((y_test - pred) ** 2))                # MSE fuera de muestra
+` } }
                 ]
             },
             {
