@@ -1041,8 +1041,7 @@ function renderBlock(block) {
                 </button></li>`;
             }).join('')}</ul>`;
         default:
-            // markdown, glosario, ejercicios, lab y sinapsis los dibuja neuronas_ui.js
-            return typeof NeuronaUI !== 'undefined' ? NeuronaUI.render(block) : '';
+            return '';
     }
 }
 

@@ -9,5 +9,4 @@
 
 ## Ideas adaptadas
 
-Las neuronas en JSON, el inyector, las sinapsis propuestas con motivo y los laboratorios de Python que se ejecutan en el navegador (Pyodide) adaptan ideas de [Proyecto Alejandría](https://github.com/MarioGreks/proyecto-alejandria), de Mario Torralba, bajo licencia MIT. Es una reimplementación propia para una web estática; no se ha copiado su código.
-Pyodide (MPL-2.0) se descarga desde jsDelivr solo cuando se pulsa «Ejecutar».
+Pyodide (MPL-2.0) se descarga desde jsDelivr solo cuando se pulsa «Ejecutar el Python en el navegador».
