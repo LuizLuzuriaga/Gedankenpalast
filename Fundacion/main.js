@@ -451,8 +451,8 @@ Object.entries(TOPIC_PARENTS).forEach(([moonId, parentId], k) => {
 topicNodes.push({ topic: TOPIC_BY_ID.gran_atractor, center: GA_POS, r: 0, axisU: new THREE.Vector3(), axisV: new THREE.Vector3(), theta: 0, omega: 0, pos: new THREE.Vector3() });
 
 // Los nodos son discos de tamaño fijo en pantalla: nítidos y nunca gigantes al acercarse
-const NODE_SIZE = { topic: 7, moon: 5, core: 12, selected: 12 };
-const baseNodeSize = (n) => !n.topic.cluster ? NODE_SIZE.core : n.moon ? NODE_SIZE.moon : NODE_SIZE.topic;
+const NODE_SIZE = { topic: 7, moon: 5, core: 12, selected: 12, event: 11 };
+const baseNodeSize = (n) => !n.topic.cluster ? NODE_SIZE.core : n.nextEvent ? NODE_SIZE.event : n.moon ? NODE_SIZE.moon : NODE_SIZE.topic;
 const nodeGeo = new THREE.BufferGeometry();
 nodeGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(topicNodes.length * 3), 3));
 nodeGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(topicNodes.length * 3), 3));
@@ -497,8 +497,8 @@ const nodePoints = new THREE.Points(nodeGeo, new THREE.ShaderMaterial({
             if (vPulse > 0.5) {
                 // Anillo que nace en el nodo, se expande y se apaga cada 2,4 s, y un halo que respira
                 float t = fract(uTime / 2.4);
-                float ring = (1.0 - smoothstep(0.0, 0.32, abs(d - (1.1 + t * 2.6)))) * (1.0 - t) * 0.45;
-                float halo = exp(-d * d * 0.45) * 0.16 * beat;
+                float ring = (1.0 - smoothstep(0.0, 0.32, abs(d - (1.1 + t * 2.6)))) * (1.0 - t) * 0.9;
+                float halo = exp(-d * d * 0.35) * 0.4 * beat;
                 a = max(a, ring + halo);
             }
             a *= vAlpha;
@@ -637,6 +637,7 @@ const guideOpen = $('guide-open');
 const labelsButton = $('labels-button');
 const labelsMenu = $('labels-menu');
 const labelsCount = $('labels-count');
+const guideFull = $('guide-full');
 
 const state = {
     scene: 'portada',
@@ -693,6 +694,7 @@ function refreshPulses() {
         n.countdownEl.textContent = n.nextEvent ? Agenda.relative(n.nextEvent.date) : '';
     });
     nodeGeo.attributes.pulse.needsUpdate = true;
+    syncLabelStates(); // los temas con evento próximo son más grandes
 }
 
 Agenda.init({
@@ -914,9 +916,20 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault();
         searchInput.focus();
     }
+    // ← → recorren los temas del mismo cúmulo mientras hay uno abierto
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && state.selected && !e.target.closest('input, textarea, select, [role="separator"]')) {
+        const current = TOPIC_BY_ID[state.selected];
+        const siblings = ALL_TOPICS.filter(t => t.cluster === current.cluster);
+        const i = siblings.indexOf(current);
+        if (siblings.length > 1 && i >= 0) {
+            e.preventDefault();
+            selectTopic(siblings[(i + (e.key === 'ArrowRight' ? 1 : -1) + siblings.length) % siblings.length].id);
+        }
+    }
     if (e.key === 'Escape' && document.activeElement !== searchInput) {
         if (!filtersMenu.hidden) filtersMenu.hidden = true;
         else if (!labelsMenu.hidden) labelsMenu.hidden = true;
+        else if (panel.classList.contains('is-full')) setGuideFull(false);
         else if (!guide.hidden) closeGuide();
         else if (state.selected) closePanel();
     }
@@ -1186,9 +1199,20 @@ function openGuide(src) {
     }
 }
 
+function setGuideFull(on) {
+    panel.classList.toggle('is-full', on);
+    guideFull.textContent = on ? 'Volver al atlas' : 'Pantalla completa';
+    guideFull.setAttribute('aria-pressed', String(on));
+    if (!on) applyPanelWidth(panelWidth ? clampPanel(panelWidth) : '');
+}
+guideFull.addEventListener('click', () => setGuideFull(!panel.classList.contains('is-full')));
+
 function closeGuide() {
     guide.hidden = true;
     panel.classList.remove('is-guide');
+    guideFull.textContent = 'Pantalla completa';
+    guideFull.setAttribute('aria-pressed', String(panel.classList.contains('is-full')));
+    if (panel.classList.contains('is-full')) guideFull.textContent = 'Volver al atlas';
     // Si la guía ensanchó el panel, vuelve al ancho que el usuario tenía
     applyPanelWidth(panelWidth ? clampPanel(panelWidth) : '');
 }

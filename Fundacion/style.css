@@ -604,9 +604,11 @@ button {
     display: none;
 }
 
-.guide-back {
-    align-self: flex-start;
-    margin-left: var(--pad);
+.guide-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 var(--pad);
     flex: none;
 }
 
@@ -1810,4 +1812,27 @@ body.scene-portada .ag-error {
 
 .topic-label.is-glass.is-dim {
     color: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   TEMAS CON EVENTO PRÓXIMO: brillan más para encontrarlos de un vistazo
+   ========================================================================== */
+.topic-label.has-event:not(.is-selected):not(.is-glass) {
+    background: var(--text);
+    color: var(--ground);
+    animation: event-glow 2.4s ease-in-out infinite;
+}
+
+.topic-label.has-event:not(.is-selected) .countdown {
+    color: #5f6368;
+    font-weight: 500;
+}
+
+@keyframes event-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    50% { box-shadow: 0 0 20px 4px rgba(255, 255, 255, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .topic-label.has-event:not(.is-selected) { animation: none; }
 }

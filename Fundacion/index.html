@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <link rel="stylesheet" href="style.css?v=9.1">
+    <link rel="stylesheet" href="style.css?v=9.2">
 </head>
 <body class="scene-portada">
     <div id="webgl-container"></div>
@@ -78,7 +78,10 @@
 
             <!-- Guía de estudio dentro del mismo panel (temas con `guide` en conocimientos.js) -->
             <section id="guide" class="guide" aria-label="Guía de estudio" hidden>
-                <button type="button" class="control guide-back" id="guide-close">Volver al temario</button>
+                <div class="guide-bar">
+                    <button type="button" class="control guide-back" id="guide-close">Volver al temario</button>
+                    <button type="button" class="control guide-full" id="guide-full" aria-pressed="false">Pantalla completa</button>
+                </div>
                 <iframe id="guide-frame" class="guide-frame" title="Guía de estudio"></iframe>
             </section>
         </aside>
@@ -110,11 +113,11 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
     <!-- Datos y escena -->
-    <script src="knowledgeData.js?v=9.1"></script>
-    <script src="atlas.js?v=9.1"></script>
-    <script src="conocimientos.js?v=9.1"></script>
-    <script src="eventos.js?v=9.1"></script>
-    <script src="agenda.js?v=9.1"></script>
-    <script src="main.js?v=9.1"></script>
+    <script src="knowledgeData.js?v=9.2"></script>
+    <script src="atlas.js?v=9.2"></script>
+    <script src="conocimientos.js?v=9.2"></script>
+    <script src="eventos.js?v=9.2"></script>
+    <script src="agenda.js?v=9.2"></script>
+    <script src="main.js?v=9.2"></script>
 </body>
 </html>
