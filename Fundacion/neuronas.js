@@ -45,6 +45,7 @@ const Neuronas = (() => {
         const lab = n.laboratorio;
         if (lab != null) {
             if (typeof lab !== 'object' || typeof lab.codigo !== 'string' || !lab.codigo.trim()) errores.push('«laboratorio» necesita «codigo» (Python).');
+            else if (typeof lab.codigo_r !== 'string' || !lab.codigo_r.trim()) errores.push('«laboratorio» necesita «codigo_r»: el mismo código en R (toda celda de código tiene R y Python).');
             else if (lab.controles != null) {
                 if (!Array.isArray(lab.controles) || lab.controles.length > 24) errores.push('«controles» es una lista de hasta 24 controles.');
                 else lab.controles.forEach((c, i) => {
@@ -184,10 +185,11 @@ const Neuronas = (() => {
                 laboratorio: {
                     explicacion: 'qué se explora y qué hay que observar',
                     controles: [{ variable: 'n', label: 'Tamaño de la muestra', tipo: 'slider', min: 10, max: 1000, step: 10, default: 100 }],
-                    codigo: 'import numpy as np\nimport matplotlib.pyplot as plt\n# usa las variables de los controles directamente (n, ...)\nx = np.linspace(0, 1, n)\nplt.plot(x, x**2)\nplt.show()'
+                    codigo: 'import numpy as np\nimport matplotlib.pyplot as plt\n# usa las variables de los controles directamente (n, ...)\nx = np.linspace(0, 1, n)\nplt.plot(x, x**2)\nplt.show()',
+                    codigo_r: 'x <- seq(0, 1, length.out = n)   # mismo laboratorio en R; las variables de los controles ya existen\nplot(x, x^2, type = "l")'
                 }
             }, null, 2),
-            'Reglas: el laboratorio es Python con numpy y matplotlib (opcionalmente scipy, pandas o statsmodels); cada «variable» de un control ya existe como variable al ejecutar; los tipos de control son slider, checkbox o select. No inventes referencias: si no estás seguro, déjalas fuera.',
+            'Reglas: el laboratorio es Python con numpy y matplotlib (opcionalmente scipy, pandas o statsmodels); «codigo_r» es EXACTAMENTE el mismo laboratorio escrito en R (mismo orden de pasos y mismas variables); cada «variable» de un control ya existe como variable al ejecutar; los tipos de control son slider, checkbox o select. No inventes referencias: si no estás seguro, déjalas fuera.',
             clusters && clusters.length ? `RAMAS EXISTENTES EN MI SISTEMA: ${clusters.join(', ')}. Reutiliza una de ellas si el concepto encaja.` : ''
         ].filter(Boolean).join('\n\n');
     }

@@ -57,6 +57,7 @@ const NeuronaUI = (() => {
             ${lab.explicacion ? markdown(lab.explicacion) : ''}
             ${controles ? `<div class="lab-controls">${controles}</div>` : ''}
             <details class="lab-code"><summary>Código de Python (editable)</summary><textarea class="lab-src" rows="12" spellcheck="false" aria-label="Código del laboratorio">${esc(lab.codigo)}</textarea></details>
+            ${lab.codigo_r ? `<details class="lab-code"><summary>Mismo laboratorio en R (para copiar a RStudio)</summary><pre class="code-block"><code>${esc(lab.codigo_r)}</code></pre></details>` : ''}
             <div class="lab-actions"><button type="button" class="control lab-run">Ejecutar</button><span class="lab-status" role="status"></span></div>
             <pre class="run-out" hidden></pre><div class="run-figs"></div>
         </div>`;

@@ -534,7 +534,25 @@ Function MacDuration(rngFlujos As Range, tasa As Double) As Double
         num = num + t * cf / (1 + tasa) ^ t
     Next t
     MacDuration = num / pvTotal
-End Function`
+End Function`,
+            r: `# Cálculo de Duración y Convexidad de Flujos Pasivos
+cashflow_metrics <- function(cf_times, cashflows, yield_rate) {
+  discount_factors <- (1 + yield_rate)^(-cf_times)
+  pv_cf <- cashflows * discount_factors
+  pv_total <- sum(pv_cf)
+
+  # Duración de Macaulay
+  macaulay_duration <- sum(cf_times * pv_cf) / pv_total
+  # Convexidad
+  convexity <- sum(cf_times * (cf_times + 1) * pv_cf) / (pv_total * (1 + yield_rate)^2)
+  list(pv = pv_total, duracion = macaulay_duration, convexidad = convexity)
+}
+
+times <- 1:20
+liabilities <- rep(500000, 20)
+res <- cashflow_metrics(times, liabilities, 0.035)
+cat(sprintf("PV: %s € | Duración: %.2f años | Convexidad: %.2f\n",
+            format(round(res$pv), big.mark = ","), res$duracion, res$convexidad))`
         },
         upstream: ["vasicek"],
         downstream: ["gran_atractor"]
@@ -570,7 +588,36 @@ kf.F = np.array([[1.0, 1.0], [0.0, 0.98]]) # Matriz de transición
 kf.H = np.array([[1.0, 0.0]]) # Medida
 kf.P *= 1000.
 kf.R = 5.
-kf.Q = np.eye(2) * 0.0001`
+kf.Q = np.eye(2) * 0.0001
+
+# Filtrado de una serie de observaciones z (predecir y corregir en cada paso)
+rng = np.random.default_rng(1)
+zs = 0.03 + np.cumsum(rng.normal(0, 0.01, 50))
+niveles = []
+for z in zs:
+    kf.predict()
+    kf.update(z)
+    niveles.append(kf.x[0, 0])              # nivel filtrado del tipo`,
+            r: `# Filtro de Kalman escrito a mano en R (mismo modelo que la versión de Python)
+F <- matrix(c(1, 0, 1, 0.98), 2, 2)        # Matriz de transición [[1, 1], [0, 0.98]]
+H <- matrix(c(1, 0), 1, 2)                 # Medida
+x <- matrix(c(0.03, 0), 2, 1)              # [nivel_tipo, pendiente]
+P <- diag(2) * 1000
+R <- 5
+Q <- diag(2) * 0.0001
+
+# Filtrado de una serie de observaciones z (predecir y corregir en cada paso)
+set.seed(1)
+zs <- 0.03 + cumsum(rnorm(50, 0, 0.01))
+niveles <- numeric(length(zs))
+for (i in seq_along(zs)) {
+  x <- F %*% x;  P <- F %*% P %*% t(F) + Q                 # predecir
+  S <- H %*% P %*% t(H) + R                                 # varianza de la innovación
+  K <- P %*% t(H) %*% solve(S)                              # ganancia de Kalman
+  x <- x + K %*% (zs[i] - H %*% x)                          # corregir con la observación
+  P <- (diag(2) - K %*% H) %*% P
+  niveles[i] <- x[1, 1]                                     # nivel filtrado del tipo
+}`
         },
         upstream: [],
         downstream: ["vasicek"]
@@ -605,7 +652,18 @@ def simulate_gbm(S0, mu, sigma, T=1.0, steps=252, n_paths=1000):
     for t in range(1, steps + 1):
         z = np.random.standard_normal(n_paths)
         paths[t] = paths[t-1] * np.exp((mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * z)
-    return paths`
+    return paths`,
+            r: `# Simulación del Movimiento Browniano Geométrico (Itô SDE)
+simulate_gbm <- function(S0, mu, sigma, T = 1.0, steps = 252, n_paths = 1000) {
+  dt <- T / steps
+  paths <- matrix(0, nrow = steps + 1, ncol = n_paths)
+  paths[1, ] <- S0
+  for (t in 2:(steps + 1)) {
+    z <- rnorm(n_paths)
+    paths[t, ] <- paths[t - 1, ] * exp((mu - 0.5 * sigma^2) * dt + sigma * sqrt(dt) * z)
+  }
+  paths
+}`
         },
         upstream: [],
         downstream: ["vasicek", "black_scholes"]

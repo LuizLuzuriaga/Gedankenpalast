@@ -73,6 +73,28 @@ for (const [clave, k] of Object.entries(D.KNOWLEDGE)) {
     if (k.guide && !fs.existsSync(path.join(dir, k.guide))) err(`${clave}: no existe la guía ${k.guide}`);
 }
 
+// --- Paridad de lenguajes: toda celda de código tiene R y Python equivalentes ---------------------
+const paridad = (ruta, code) => {
+    const claves = Object.keys(code || {}).map(c => c.toLowerCase());
+    for (const l of ['r', 'python']) if (!claves.includes(l)) err(`${ruta}: falta la versión en ${l === 'r' ? 'R' : 'Python'} (tiene: ${claves.join(', ')})`);
+};
+for (const [clave, k] of Object.entries(D.KNOWLEDGE)) {
+    for (const s of k.sections || []) for (const b of s.blocks) if (b.type === 'code') paridad(`${clave}/${s.id}`, b.code);
+}
+for (const n of D.KNOWLEDGE_GRAPH) if (n.code) paridad(`método ${n.id}`, n.code);
+const guias = path.join(dir, 'guias');
+if (fs.existsSync(guias)) {
+    for (const f of fs.readdirSync(guias).filter(x => x.endsWith('.html'))) {
+        const h = fs.readFileSync(path.join(guias, f), 'utf8');
+        const pares = [...h.matchAll(/<div class="codepair"[^>]*>([\s\S]*?)<\/div>/g)];
+        pares.forEach((m, i) => {
+            if (!/type="text\/x-r"/.test(m[1]) || !/type="text\/x-py"/.test(m[1])) err(`guía ${f}: el bloque de código ${i + 1} no tiene R y Python`);
+        });
+        const sueltos = (h.match(/<script type="text\/x-(r|py)"/g) || []).length - pares.length * 2;
+        if (sueltos > 0) err(`guía ${f}: ${sueltos} bloque(s) de código fuera de un par R/Python`);
+    }
+}
+
 // --- Calculadoras: deben calcular con sus valores por defecto ----------------------------------
 for (const [id, c] of Object.entries(D.CALCULATORS)) {
     try {
