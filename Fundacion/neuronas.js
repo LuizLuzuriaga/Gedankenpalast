@@ -197,6 +197,81 @@ const Neuronas = (() => {
     return { validar, clusterPara, añadir, quitar, decidir, exportar, importar, leer, prompt, cargarEnAtlas, norm };
 })();
 
+/* ---------------------------------------------------------------------------------------------
+ * Ollama: IA local opcional. El navegador habla con http://localhost:11434 (nada sale de tu equipo).
+ * Idea tomada de Proyecto Alejandría (MarioGreks, MIT): Ollama redacta neuronas y razona sinapsis.
+ * Requiere tener Ollama instalado y permitir el origen de esta web (variable OLLAMA_ORIGINS).
+ * ------------------------------------------------------------------------------------------- */
+const Ollama = (() => {
+    const BASE = 'http://localhost:11434';
+    const PREFERIDOS = ['qwen2.5', 'phi3', 'llama3', 'mistral', 'gemma'];
+    let estado = { ok: false, modelos: [], error: '' };
+    const clave = 'gp.ollama.modelo';
+
+    async function pedir(ruta, opciones, ms) {
+        const c = new AbortController();
+        const t = setTimeout(() => c.abort(), ms);
+        try { return await fetch(BASE + ruta, Object.assign({ signal: c.signal }, opciones)); } finally { clearTimeout(t); }
+    }
+    async function detectar() {
+        try {
+            const r = await pedir('/api/tags', {}, 2500);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const d = await r.json();
+            estado = { ok: true, modelos: (d.models || []).map(m => m.name), error: '' };
+        } catch (e) {
+            estado = { ok: false, modelos: [], error: e.name === 'AbortError' ? 'sin respuesta' : String(e.message || e) };
+        }
+        return estado;
+    }
+    function modelo() {
+        let guardado = '';
+        try { guardado = localStorage.getItem(clave) || ''; } catch { /* opcional */ }
+        if (estado.modelos.includes(guardado)) return guardado;
+        for (const p of PREFERIDOS) { const m = estado.modelos.find(x => x.includes(p)); if (m) return m; }
+        return estado.modelos[0] || '';
+    }
+    function elegir(nombre) { try { localStorage.setItem(clave, nombre); } catch { /* opcional */ } }
+
+    // Texto (o JSON si json=true) generado por el modelo. Los modelos pequeños tardan: hasta 5 minutos.
+    async function generar(prompt, { json = true, modeloElegido } = {}) {
+        const m = modeloElegido || modelo();
+        if (!m) throw new Error('No hay ningún modelo descargado en Ollama.');
+        const cuerpo = { model: m, prompt, stream: false, options: { temperature: 0.3 } };
+        if (json) cuerpo.format = 'json';
+        const r = await pedir('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) }, 300000);
+        if (!r.ok) throw new Error('Ollama respondió HTTP ' + r.status);
+        return (await r.json()).response || '';
+    }
+    function extraerJson(texto) {
+        try { return JSON.parse(texto); } catch { /* el modelo añadió texto alrededor */ }
+        const i = texto.indexOf('{'), j = texto.lastIndexOf('}');
+        if (i >= 0 && j > i) { try { return JSON.parse(texto.slice(i, j + 1)); } catch { /* sin JSON */ } }
+        return null;
+    }
+
+    // Redacta una neurona completa a partir de un tema, con el mismo prompt que usarías en otra IA.
+    async function redactarNeurona(tema, clusters) {
+        const texto = await generar(Neuronas.prompt(clusters) + '\n\nTEMA DE LA NEURONA: ' + tema);
+        return extraerJson(texto);
+    }
+    // Razona qué temas del atlas se relacionan con la neurona; devuelve [{id, motivo}] solo con ids reales.
+    async function proponerSinapsis(neurona, temas) {
+        const lista = temas.map(t => `${t.id}: ${t.name}`).join('\n');
+        const prompt = [
+            'Eres un tutor universitario. Te doy un concepto nuevo y la lista de temas ya existentes en mi atlas (formato «id: nombre»).',
+            `CONCEPTO: ${neurona.nombre}\n${String(neurona.teoria).slice(0, 1200)}`,
+            `TEMAS EXISTENTES:\n${lista}`,
+            'Elige como máximo 5 temas existentes que estén realmente relacionados con el concepto (dependencia, aplicación, generalización o contraste).',
+            'Responde SOLO con JSON: {"sinapsis":[{"id":"id exacto de la lista","motivo":"una frase en español que explique la conexión"}]}'
+        ].join('\n\n');
+        const d = extraerJson(await generar(prompt));
+        const ids = new Set(temas.map(t => t.id));
+        return ((d && d.sinapsis) || []).filter(s => s && ids.has(s.id) && typeof s.motivo === 'string').slice(0, 5);
+    }
+    return { detectar, modelo, elegir, generar, redactarNeurona, proponerSinapsis, get estado() { return estado; } };
+})();
+
 // ==========================================================================
 // Ejecutor de Python (Pyodide), cargado solo cuando se pulsa «Ejecutar»
 // ==========================================================================

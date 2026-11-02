@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <link rel="stylesheet" href="style.css?v=9.12">
-    <link rel="stylesheet" href="neuronas.css?v=9.12">
+    <link rel="stylesheet" href="style.css?v=9.13">
+    <link rel="stylesheet" href="neuronas.css?v=9.13">
 </head>
 <body class="scene-portada">
     <div id="webgl-container"></div>
@@ -100,6 +100,30 @@
             </header>
             <p class="inyector-ayuda">Una neurona es un tema en JSON con teoría, glosario, ejercicios, referencias y un laboratorio de Python. Pide a tu IA que lo redacte con el prompt, pega aquí el resultado y se añade al atlas, guardado solo en este navegador. Idea adaptada de Proyecto Alejandría (MIT).</p>
             <div class="inyector-fila"><button type="button" class="control" id="inyector-prompt">Copiar prompt para tu IA</button></div>
+            <details class="ollama-caja" id="ollama-caja">
+                <summary><span id="ollama-estado">IA local (Ollama): comprobando…</span></summary>
+                <div class="ollama-cuerpo">
+                    <div id="ollama-conectado" hidden>
+                        <div class="inyector-fila">
+                            <label class="inyector-etq">Modelo <select id="ollama-modelo"></select></label>
+                        </div>
+                        <div class="inyector-fila">
+                            <input type="text" id="ollama-tema" class="ollama-tema" placeholder="Tema a redactar, p. ej. «Teorema de Bayes»" aria-label="Tema a redactar">
+                            <button type="button" class="control" id="ollama-redactar">Redactar neurona con Ollama</button>
+                        </div>
+                    </div>
+                    <div id="ollama-ayuda" class="inyector-ayuda">
+                        <p>Ollama es un programa gratuito que ejecuta modelos de IA en tu ordenador; nada sale de tu equipo.</p>
+                        <ol>
+                            <li>Instálalo desde <a href="https://ollama.com/download" target="_blank" rel="noopener">ollama.com/download</a> (en Windows es un instalador normal, sin ser administrador).</li>
+                            <li>Descarga un modelo en una terminal: <code>ollama pull qwen2.5:7b</code> (o <code>phi3:mini</code> si tu equipo es modesto).</li>
+                            <li>Permite esta web: <code>setx OLLAMA_ORIGINS "https://luizluzuriaga.github.io"</code>, cierra Ollama desde la bandeja y vuelve a abrirlo. Si abres el atlas desde <code>localhost</code> no hace falta.</li>
+                            <li>Recarga esta página y acepta, si el navegador lo pide, el permiso de acceso a la red local.</li>
+                        </ol>
+                        <button type="button" class="control control-quiet" id="ollama-reintentar">Volver a comprobar</button>
+                    </div>
+                </div>
+            </details>
             <textarea id="inyector-json" class="inyector-json" rows="12" spellcheck="false" placeholder="Pega aquí el JSON de la neurona" aria-label="JSON de la neurona"></textarea>
             <div class="inyector-fila">
                 <label class="inyector-etq">Cúmulo <select id="inyector-cluster"></select></label>
@@ -142,17 +166,17 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
     <!-- Datos y escena -->
-    <script src="knowledgeData.js?v=9.12"></script>
-    <script src="atlas.js?v=9.12"></script>
-    <script src="conocimientos.js?v=9.12"></script>
-    <script src="conocimientos_mucaf.js?v=9.12"></script>
-    <script src="conocimientos_grado.js?v=9.12"></script>
-    <script src="conocimientos_grado2.js?v=9.12"></script>
-    <script src="conocimientos_drive.js?v=9.12"></script>
-    <script src="eventos.js?v=9.12"></script>
-    <script src="agenda.js?v=9.12"></script>
-    <script src="neuronas.js?v=9.12"></script>
-    <script src="main.js?v=9.12"></script>
-    <script src="neuronas_ui.js?v=9.12"></script>
+    <script src="knowledgeData.js?v=9.13"></script>
+    <script src="atlas.js?v=9.13"></script>
+    <script src="conocimientos.js?v=9.13"></script>
+    <script src="conocimientos_mucaf.js?v=9.13"></script>
+    <script src="conocimientos_grado.js?v=9.13"></script>
+    <script src="conocimientos_grado2.js?v=9.13"></script>
+    <script src="conocimientos_drive.js?v=9.13"></script>
+    <script src="eventos.js?v=9.13"></script>
+    <script src="agenda.js?v=9.13"></script>
+    <script src="neuronas.js?v=9.13"></script>
+    <script src="main.js?v=9.13"></script>
+    <script src="neuronas_ui.js?v=9.13"></script>
 </body>
 </html>

@@ -189,13 +189,77 @@ const NeuronaUI = (() => {
         function pintarLista() {
             const lista = Neuronas.leer();
             $('inyector-lista').innerHTML = lista.length
-                ? lista.map(r => `<li><span>${esc(r.neurona.nombre)} <small>${esc(CLUSTERS.find(c => c.id === r.cluster).name)}</small></span><button type="button" class="control control-quiet" data-quitar="${esc(r.neurona.id)}">Quitar</button></li>`).join('')
+                ? lista.map(r => `<li><span>${esc(r.neurona.nombre)} <small>${esc(CLUSTERS.find(c => c.id === r.cluster).name)}</small></span><button type="button" class="control control-quiet" data-sin-ollama="${esc(r.neurona.id)}" hidden>Sinapsis con Ollama</button><button type="button" class="control control-quiet" data-quitar="${esc(r.neurona.id)}">Quitar</button></li>`).join('')
                 : '<li class="vacio">Todavía no has inyectado ninguna neurona.</li>';
         }
         $('inject-button').addEventListener('click', abrir);
         $('inyector-cerrar').addEventListener('click', cerrar);
         caja.addEventListener('click', (e) => { if (e.target === caja) cerrar(); });
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !caja.hidden) { e.stopPropagation(); cerrar(); } }, true);
+        // --- Ollama (opcional): IA local para redactar neuronas y proponer sinapsis ---
+        const ol = { caja: $('ollama-caja'), estado: $('ollama-estado'), conectado: $('ollama-conectado'), ayuda: $('ollama-ayuda'), sel: $('ollama-modelo') };
+        async function comprobarOllama() {
+            ol.estado.textContent = 'IA local (Ollama): comprobando…';
+            const e = await Ollama.detectar();
+            const listo = e.ok && e.modelos.length > 0;
+            ol.caja.classList.toggle('on', listo); ol.caja.classList.toggle('off', !listo);
+            ol.conectado.hidden = !listo;
+            ol.ayuda.hidden = listo;
+            if (listo) {
+                ol.sel.innerHTML = e.modelos.map(m => `<option>${esc(m)}</option>`).join('');
+                ol.sel.value = Ollama.modelo();
+                ol.estado.textContent = `IA local (Ollama): conectada, ${e.modelos.length} modelo(s)`;
+            } else {
+                ol.estado.textContent = e.ok ? 'IA local (Ollama): conectada, pero sin modelos descargados' : 'IA local (Ollama): no detectada';
+            }
+            document.querySelectorAll('[data-sin-ollama]').forEach(b => { b.hidden = !listo; });
+        }
+        ol.sel.addEventListener('change', () => Ollama.elegir(ol.sel.value));
+        $('ollama-reintentar').addEventListener('click', comprobarOllama);
+        $('inject-button').addEventListener('click', comprobarOllama);
+        $('ollama-redactar').addEventListener('click', async () => {
+            const tema = $('ollama-tema').value.trim();
+            if (!tema) { aviso('Escribe primero el tema que quieres que redacte Ollama.', true); return; }
+            const b = $('ollama-redactar');
+            b.disabled = true;
+            aviso(`Ollama (${Ollama.modelo()}) está redactando «${tema}»… puede tardar varios minutos.`);
+            try {
+                const n = await Ollama.redactarNeurona(tema, CLUSTERS.map(c => c.name));
+                if (!n) throw new Error('el modelo no devolvió un JSON legible; prueba otra vez o con un modelo mayor.');
+                json.value = JSON.stringify(n, null, 2);
+                const v = Neuronas.validar(n);
+                aviso(v.ok ? 'Neurona redactada y válida. Revísala y pulsa «Añadir al atlas».' : 'Neurona redactada, pero hay que corregirla antes de añadir:\n' + v.errores.join('\n'), !v.ok);
+            } catch (e) { aviso('Ollama no pudo redactarla: ' + (e.message || e), true); }
+            b.disabled = false;
+        });
+        $('inyector-lista').addEventListener('click', async (e) => {
+            const b = e.target.closest('[data-sin-ollama]');
+            if (!b) return;
+            const reg = Neuronas.leer().find(r => r.neurona.id === b.dataset.sinOllama);
+            if (!reg) return;
+            const li = b.closest('li');
+            let caja = li.querySelector('.inyector-sin');
+            if (!caja) { caja = document.createElement('div'); caja.className = 'inyector-sin'; li.appendChild(caja); }
+            b.disabled = true;
+            caja.textContent = 'Ollama está razonando las conexiones…';
+            try {
+                const hechas = new Set([...(reg.aceptadas || []), ...(reg.rechazadas || [])]);
+                const prop = await Ollama.proponerSinapsis(reg.neurona, TOPICS.filter(t => !t.neurona && !hechas.has(t.id)));
+                caja.dataset.neurona = reg.neurona.id;
+                caja.innerHTML = prop.length
+                    ? prop.map(s => `<div class="inyector-fila"><span><b>${esc(TOPIC_BY_ID[s.id].name)}</b> <small>${esc(s.motivo)}</small></span><button type="button" class="control" data-acepta="${esc(s.id)}">Aceptar</button><button type="button" class="control control-quiet" data-rechaza="${esc(s.id)}">Rechazar</button></div>`).join('')
+                    : 'Ollama no encontró conexiones claras.';
+            } catch (err) { caja.textContent = 'Ollama no pudo proponer sinapsis: ' + (err.message || err); }
+            b.disabled = false;
+        });
+        $('inyector-lista').addEventListener('click', (e) => {
+            const a = e.target.closest('[data-acepta],[data-rechaza]');
+            if (!a) return;
+            const caja = a.closest('.inyector-sin');
+            Neuronas.decidir(caja.dataset.neurona, a.dataset.acepta || a.dataset.rechaza, !!a.dataset.acepta);
+            try { sessionStorage.setItem('gp.reabrir', 'neu_' + caja.dataset.neurona); } catch { /* opcional */ }
+            location.reload();
+        });
         $('inyector-prompt').addEventListener('click', async () => {
             const texto = Neuronas.prompt(CLUSTERS.map(c => c.name));
             try { await navigator.clipboard.writeText(texto); aviso('Prompt copiado. Pégalo en tu IA y pega aquí el JSON que te devuelva.'); }

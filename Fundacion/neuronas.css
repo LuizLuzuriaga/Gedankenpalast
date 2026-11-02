@@ -57,3 +57,13 @@
 .inyector-lista small { color: var(--muted); margin-left: 8px; }
 .inyector-lista .vacio { color: var(--muted); }
 .btn-primario { background: var(--text); color: var(--ground); }
+
+.ollama-caja { border: 1px solid rgba(128,128,128,.3); border-radius: var(--radius-inner); padding: 10px 14px; }
+.ollama-caja summary { cursor: pointer; font-weight: 600; }
+.ollama-caja.on summary::before { content: "● "; color: #3fb97a; }
+.ollama-caja.off summary::before { content: "○ "; color: var(--muted); }
+.ollama-cuerpo { display: grid; gap: 10px; margin-top: 10px; }
+.ollama-cuerpo ol { margin: 6px 0 10px; padding-left: 20px; display: grid; gap: 4px; }
+.ollama-cuerpo code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
+.ollama-tema { flex: 1; min-width: 200px; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,.4); background: transparent; color: inherit; font: inherit; }
+.inyector-sin { display: grid; gap: 8px; margin-top: 8px; width: 100%; }
