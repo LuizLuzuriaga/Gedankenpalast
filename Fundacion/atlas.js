@@ -101,6 +101,18 @@ const TOPICS = [
         knowledge: 'erm_mcev'
     },
     {
+        id: 'act_franquicias', cluster: 'act', name: 'Franquicias y garantía máxima',
+        desc: 'Reparto del siniestro entre asegurado y compañía: prima con franquicia absoluta, garantía máxima, autoparticipación y mixtura de franquicias para siniestralidad exponencial y lognormal.',
+        related: ['act_no_vida', 'ds_estadistica', 'eco_derivados'],
+        knowledge: 'franquicias'
+    },
+    {
+        id: 'act_riesgo_suscripcion', cluster: 'act', name: 'Riesgo de suscripción no vida (Solvencia II)',
+        desc: 'Riesgos de prima, de reserva y catastrófico en la fórmula estándar: volumen, desviación típica combinada, factor lognormal al 99,5 % y catástrofes naturales y humanas.',
+        related: ['act_solvencia', 'act_no_vida', 'act_reserving', 'act_erm'],
+        knowledge: 'riesgo_suscripcion'
+    },
+    {
         id: 'act_deontologia', cluster: 'act', name: 'Código deontológico',
         desc: 'Código de conducta del Instituto de Actuarios Españoles: ámbito, objetivos y seis principios (integridad, competencia, imparcialidad, obediencia, iniciativa y comunicación).',
         related: ['act_gestion_riesgos', 'act_contabilidad'],
