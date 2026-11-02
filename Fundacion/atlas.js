@@ -167,6 +167,13 @@ const TOPICS = [
         knowledge: 'fiscalidad'
     },
 
+    {
+        id: 'eco_teoria_juegos', cluster: 'eco', name: 'Teoría de juegos',
+        desc: 'Decisiones interdependientes: formas extensiva y estratégica, dominancia, equilibrio de Nash en estrategias puras y mixtas, inducción hacia atrás, conocimiento común y juegos cooperativos.',
+        related: ['eco_micro', 'mat_optimizacion', 'mat_probabilidad', 'act_gestion_riesgos'],
+        knowledge: 'teoria_juegos'
+    },
+
     // MATEMÁTICAS Y PROBABILIDAD
     {
         id: 'mat_probabilidad', cluster: 'mat', name: 'Probabilidad',
@@ -188,6 +195,12 @@ const TOPICS = [
         desc: 'Cadenas de Markov en tiempo discreto y continuo, procesos de nacimiento y muerte y procesos de Poisson, con aplicaciones al seguro bonificado, la ruina y la siniestralidad.',
         related: ['mat_probabilidad', 'act_no_vida', 'ds_simulacion', 'act_gestion_riesgos', 'calculo_ito'],
         knowledge: 'procesos_estocasticos'
+    },
+    {
+        id: 'mat_dinamica', cluster: 'mat', name: 'Dinámica económica',
+        desc: 'Evolución en el tiempo de las magnitudes económicas: ecuaciones en diferencias y diferenciales, equilibrio y estabilidad, diagramas de fase y ecuaciones lineales de coeficientes constantes.',
+        related: ['mat_calculo', 'eco_macro', 'mat_procesos', 'mat_optimizacion'],
+        knowledge: 'dinamica_economica'
     },
     {
         id: 'mat_optimizacion', cluster: 'mat', name: 'Optimización',

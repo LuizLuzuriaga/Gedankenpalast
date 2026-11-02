@@ -271,6 +271,99 @@ Object.assign(CALCULATORS, {
         }
     },
 
+    // --- Colas M/M/1 -------------------------------------------------------
+    mm1: {
+        title: 'Cola M/M/1: llegadas Poisson y servicio exponencial',
+        inputs: [
+            { id: 'lam', label: 'Tasa de llegadas $\\lambda$ (clientes por hora)', value: 8, step: 0.5 },
+            { id: 'mu', label: 'Tasa de servicio $\\mu$ (clientes por hora)', value: 10, step: 0.5 }
+        ],
+        compute(v) {
+            const lam = Math.max(v.lam, 0), mu = Math.max(v.mu, 1e-9), rho = lam / mu;
+            if (rho >= 1) {
+                return { outputs: [{ label: 'Intensidad de tráfico $\\rho=\\lambda/\\mu$', value: NUM.fmt(rho, 3), note: 'Con $\\rho\\ge1$ no existe distribución estacionaria: la cola crece sin límite.' }] };
+            }
+            const L = rho / (1 - rho), W = 1 / (mu - lam);
+            return {
+                outputs: [
+                    { label: 'Intensidad de tráfico $\\rho=\\lambda/\\mu$', value: NUM.fmt(rho, 3) },
+                    { label: 'Sistema vacío $P_0=1-\\rho$', value: NUM.fmt(1 - rho, 3) },
+                    { label: 'Clientes en el sistema $L=\\rho/(1-\\rho)$', value: NUM.fmt(L, 3) },
+                    { label: 'Clientes en la cola $L_q=\\rho^2/(1-\\rho)$', value: NUM.fmt(rho * rho / (1 - rho), 3) },
+                    { label: 'Tiempo en el sistema $W=1/(\\mu-\\lambda)$', value: NUM.fmt(W * 60, 2) + ' min', note: 'Fórmula de Little: $L=\\lambda W$ = ' + NUM.fmt(lam * W, 3) },
+                    { label: 'Tiempo en la cola $W_q$', value: NUM.fmt(rho * W * 60, 2) + ' min' }
+                ]
+            };
+        }
+    },
+
+    // --- Teoría de juegos: bimatriz 2x2 -----------------------------------
+    juego2x2: {
+        title: 'Juego 2×2: equilibrios de Nash en estrategias puras y mixtas',
+        inputs: [
+            { id: 'a11', label: 'Jugador 1, pago (arriba, izquierda)', value: 2, step: 1 },
+            { id: 'a12', label: 'Jugador 1, pago (arriba, derecha)', value: 0, step: 1 },
+            { id: 'a21', label: 'Jugador 1, pago (abajo, izquierda)', value: 0, step: 1 },
+            { id: 'a22', label: 'Jugador 1, pago (abajo, derecha)', value: 1, step: 1 },
+            { id: 'b11', label: 'Jugador 2, pago (arriba, izquierda)', value: 1, step: 1 },
+            { id: 'b12', label: 'Jugador 2, pago (arriba, derecha)', value: 0, step: 1 },
+            { id: 'b21', label: 'Jugador 2, pago (abajo, izquierda)', value: 0, step: 1 },
+            { id: 'b22', label: 'Jugador 2, pago (abajo, derecha)', value: 2, step: 1 }
+        ],
+        compute(v) {
+            const A = [[v.a11, v.a12], [v.a21, v.a22]], B = [[v.b11, v.b12], [v.b21, v.b22]];
+            const names = [['(Arriba, Izquierda)', '(Arriba, Derecha)'], ['(Abajo, Izquierda)', '(Abajo, Derecha)']];
+            const pure = [];
+            for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) {
+                if (A[i][j] >= A[1 - i][j] && B[i][j] >= B[i][1 - j]) pure.push(names[i][j] + ' → ' + A[i][j] + ' ; ' + B[i][j]);
+            }
+            const dp = B[0][0] - B[1][0] - B[0][1] + B[1][1], dq = A[0][0] - A[0][1] - A[1][0] + A[1][1];
+            const p = dp !== 0 ? (B[1][1] - B[1][0]) / dp : NaN;   // prob. de "Arriba" que hace indiferente al jugador 2
+            const q = dq !== 0 ? (A[1][1] - A[0][1]) / dq : NaN;   // prob. de "Izquierda" que hace indiferente al jugador 1
+            const mixed = (p > 0 && p < 1 && q > 0 && q < 1);
+            const out = [
+                { label: 'Equilibrios de Nash en estrategias puras', value: pure.length ? String(pure.length) : 'ninguno', note: pure.join(' · ') || 'Hay que mirar el equilibrio en estrategias mixtas.' }
+            ];
+            if (mixed) {
+                const u1 = q * A[0][0] + (1 - q) * A[0][1], u2 = p * B[0][0] + (1 - p) * B[1][0];
+                out.push({ label: 'Equilibrio mixto: $P(\\text{Arriba})$ y $P(\\text{Izquierda})$', value: NUM.fmt(p, 3) + '  ·  ' + NUM.fmt(q, 3) });
+                out.push({ label: 'Pagos esperados en el equilibrio mixto', value: NUM.fmt(u1, 3) + '  ·  ' + NUM.fmt(u2, 3) });
+            } else {
+                out.push({ label: 'Equilibrio totalmente mixto', value: 'no existe', note: 'Alguna estrategia domina a la otra o las probabilidades salen fuera de $(0,1)$.' });
+            }
+            return { outputs: out };
+        }
+    },
+
+    // --- Dinámica económica: ecuación en diferencias de primer orden -----
+    dif1: {
+        title: 'Ecuación en diferencias $y(t+1)=a\\,y(t)+b$',
+        inputs: [
+            { id: 'a', label: 'Coeficiente $a$', value: 0.75, step: 0.05 },
+            { id: 'b', label: 'Término independiente $b$', value: 0.5, step: 0.1 },
+            { id: 'y0', label: 'Condición inicial $y(0)$', value: 10, step: 1 },
+            { id: 'T', label: 'Periodo $T$', value: 10, step: 1 }
+        ],
+        compute(v) {
+            const a = v.a, b = v.b, y0 = v.y0, T = Math.max(0, Math.min(200, Math.round(v.T)));
+            const eq = a === 1 ? NaN : b / (1 - a);
+            const yT = a === 1 ? y0 + b * T : eq + (y0 - eq) * Math.pow(a, T);
+            let tipo;
+            if (a === 1) tipo = b === 0 ? 'Todo punto es equilibrio' : 'Sin equilibrio: crece linealmente';
+            else if (Math.abs(a) < 1) tipo = a >= 0 ? 'Estable: convergencia monótona' : 'Estable: convergencia con oscilaciones';
+            else if (a === -1) tipo = 'Oscilación persistente (periodo 2)';
+            else tipo = a > 0 ? 'Inestable: divergencia monótona' : 'Inestable: oscilaciones crecientes';
+            return {
+                outputs: [
+                    { label: 'Equilibrio $y^*=b/(1-a)$', value: NUM.fmt(eq, 4) },
+                    { label: 'Teorema de estabilidad: $|a|$', value: NUM.fmt(Math.abs(a), 3), note: 'El equilibrio es asintóticamente estable si $|a|<1$.' },
+                    { label: 'Comportamiento', value: tipo },
+                    { label: 'Solución en $t=T$: $y^*+(y_0-y^*)a^T$', value: NUM.fmt(yT, 4) }
+                ]
+            };
+        }
+    },
+
     // --- Fiscalidad: cuota de la base del ahorro (IRPF) ------------------
     base_ahorro: {
         title: 'IRPF: cuota íntegra de la base imponible del ahorro',
@@ -507,7 +600,8 @@ print(np.quantile(S, 0.995), mu + z * sg, mu + sg * (z + g * (z**2 - 1) / 6))` }
                         '<b>Tema 2. Cadenas de Markov</b> (tiempo y estados discretos): matriz de transición, ecuaciones de Chapman–Kolmogorov, clasificación de estados, cadenas regulares y distribución estacionaria. Aplicación al <b>seguro bonificado</b> (bonus-malus).',
                         '<b>Tema 3. Cadenas de Markov en tiempo continuo</b>: matriz de intensidades $Q$ y ecuaciones de Kolmogorov.',
                         '<b>Tema 4. Procesos de nacimiento y muerte</b>: poblaciones, colas y supervivencia.',
-                        '<b>Tema 5. Procesos de Poisson</b>: procesos de recuento, tiempos entre ocurrencias exponenciales, superposición y descomposición.'
+                        '<b>Tema 5. Procesos de Poisson</b>: procesos de recuento, tiempos entre ocurrencias exponenciales, superposición y descomposición.',
+                        '<b>Modelos de colas</b> (versión de Grado, Análisis Estadístico Dinámico): notación de Kendall, medidas de efectividad y sistema M/M/1 como proceso de nacimiento y muerte.'
                     ] },
                     { type: 'list', title: 'Clasificación de los procesos de Markov', items: [
                         'Tiempo discreto y estados discretos: <b>cadenas de Markov</b>.',
@@ -526,6 +620,7 @@ print(np.quantile(S, 0.995), mu + z * sg, mu + sg * (z + g * (z**2 - 1) / 6))` }
                     { type: 'formula', label: 'Tiempo continuo: intensidades', tex: 'P(t,t+dt)=I+Q\\,dt+o(dt),\\qquad \\frac{d}{dt}P(t)=P(t)\\,Q\\ \\ \\Rightarrow\\ \\ P(t)=e^{Qt}' },
                     { type: 'formula', label: 'Nacimiento y muerte', tex: 'p_{n,n+1}(dt)=\\lambda_n\\,dt,\\qquad p_{n,n-1}(dt)=\\mu_n\\,dt' },
                     { type: 'formula', label: 'Proceso de Poisson de tasa $\\lambda$', tex: 'P[N(t+s)-N(s)=n]=\\frac{(\\lambda t)^n}{n!}\\,e^{-\\lambda t},\\qquad \\tau_k\\sim\\mathrm{Exp}(\\lambda)\\ \\text{independientes}' },
+                    { type: 'formula', label: 'Cola M/M/1 (nacimiento y muerte con tasas constantes)', tex: '\\rho=\\frac{\\lambda}{\\mu}<1,\\quad P_n=(1-\\rho)\\rho^n,\\quad L=\\frac{\\rho}{1-\\rho},\\quad W=\\frac1{\\mu-\\lambda}', note: 'Fórmula de Little: $L=\\lambda W$ y $L_q=\\lambda W_q$. Notación de Kendall: llegadas/servicio/servidores/capacidad, por ejemplo M/M/1/k.' },
                     { type: 'formula', label: 'Ruina del jugador (probabilidad $p\\ne q$)', tex: 'P[\\text{ruina desde }z]=\\frac{(q/p)^{a}-(q/p)^{z}}{(q/p)^{a}-1}' }
                 ]
             },
@@ -533,7 +628,9 @@ print(np.quantile(S, 0.995), mu + z * sg, mu + sg * (z + g * (z**2 - 1) / 6))` }
                 id: 'calculadora', title: 'Calculadora',
                 blocks: [
                     { type: 'p', text: 'Calcula $P^n$ de una cadena de dos estados, su distribución estacionaria y, además, probabilidades de un proceso de Poisson.' },
-                    { type: 'calculator', id: 'markov2' }
+                    { type: 'calculator', id: 'markov2' },
+                    { type: 'p', text: 'Y una cola M/M/1: con $\\rho=\\lambda/\\mu$ cercano a 1, el tiempo de espera se dispara.' },
+                    { type: 'calculator', id: 'mm1' }
                 ]
             },
             {
@@ -588,6 +685,7 @@ print((t <= 1).sum())                 # siniestros en el primer año` } }
                 blocks: [
                     { type: 'sources', items: [
                         'Núñez Velázquez, J. J. Procesos estocásticos para las finanzas y el seguro, Temas 1 a 5 y relaciones de ejercicios. Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá.',
+                        'Núñez Velázquez, J. J. Análisis estadístico dinámico, Temas 4 a 6 (nacimiento y muerte, colas y Poisson). Grado en Economía, Universidad de Alcalá.',
                         'Análisis dinámico mediante procesos estocásticos para actuarios y finanzas (libro de referencia del curso).',
                         'Ross, S. (2014). Introduction to Probability Models. Academic Press.'
                     ] }
@@ -1035,6 +1133,201 @@ print(cuota_ahorro(rend), 0.19 * rend)` } }
                         'AISS (2019). Desafíos en la Seguridad Social. Asociación Internacional de la Seguridad Social.',
                         'AISS (2025). Desarrollos y tendencias en la Seguridad Social. Asociación Internacional de la Seguridad Social.',
                         'Texto Refundido de la Ley General de la Seguridad Social (LGSS).'
+                    ] }
+                ]
+            }
+        ]
+    },
+
+    // ------------------------------------------------------------------
+    teoria_juegos: {
+        sections: [
+            {
+                id: 'idea', title: 'Idea clave',
+                blocks: [
+                    { type: 'p', text: 'La teoría de juegos estudia decisiones en las que el resultado de cada uno depende también de lo que hagan los demás. Un juego se describe con <b>jugadores</b>, <b>estrategias</b> y <b>pagos</b>, y se puede escribir de dos formas: la <b>forma extensiva</b> (un árbol con el orden de las jugadas) y la <b>forma estratégica</b> (una matriz de pagos). El concepto central es el <b>equilibrio de Nash</b>: un perfil de estrategias en el que nadie gana cambiando solo.' },
+                    { type: 'list', title: 'El programa', items: [
+                        '<b>Tema 1. Introducción y prerrequisitos</b>: juegos de suma cero y no nula, formas extensiva y estratégica, juegos de información perfecta (el juego de quitar piedras, en el que quien deja al rival un múltiplo de 3 acaba ganando: con $n=3$ gana el segundo jugador).',
+                        '<b>Tema 2</b>: estrategias y dominancia.',
+                        '<b>Tema 3. Juegos no cooperativos con información completa</b>: equilibrio de Nash, estrategias mixtas y juegos dinámicos.',
+                        '<b>Tema 4. Juegos cooperativos</b>: acuerdos vinculantes entre los jugadores.',
+                        '<b>Actividades</b>: subastas por turnos, dilema entre dos viajeros y conocimiento común (los sombreros rojos de Zenón).'
+                    ] },
+                    { type: 'list', title: 'Tres ideas que se repiten', items: [
+                        '<b>Eliminación iterativa de estrategias dominadas</b>: se descartan las estrategias que siempre dan peor pago que otra y se repite el análisis. En el ejemplo del dilema de los viajeros (se elige un múltiplo de 10 entre 10 y 60, y quien pide más pierde 15 mientras el otro gana 15) el proceso lleva al perfil $(10,10)$.',
+                        '<b>Inducción hacia atrás</b>: en los juegos dinámicos de información perfecta se resuelve desde el final del árbol hacia el principio.',
+                        '<b>Conocimiento común</b>: no basta con que todos sepan algo; importa que todos sepan que todos lo saben. En el problema de los sombreros rojos de Zenón cada minuto en el que nadie se pronuncia añade información común, y es ese encadenamiento el que permite deducir el color propio.'
+                    ] }
+                ]
+            },
+            {
+                id: 'formulas', title: 'Fórmulas',
+                blocks: [
+                    { type: 'formula', label: 'Equilibrio de Nash', tex: 's^*=(s_1^*,\\dots,s_n^*):\\quad u_i(s_i^*,s_{-i}^*)\\ge u_i(s_i,s_{-i}^*)\\quad\\forall s_i,\\ \\forall i' },
+                    { type: 'formula', label: 'Dominancia', tex: 's_i\\ \\text{domina a}\\ s_i\'\\ \\Longleftrightarrow\\ u_i(s_i,s_{-i})\\ge u_i(s_i\',s_{-i})\\ \\ \\forall s_{-i}\\ \\ (\\text{estrictamente en al menos uno})' },
+                    { type: 'formula', label: 'Equilibrio mixto en un juego 2×2', tex: 'p\\,b_{11}+(1-p)\\,b_{21}=p\\,b_{12}+(1-p)\\,b_{22}\\ \\Rightarrow\\ p=\\frac{b_{22}-b_{21}}{b_{11}-b_{21}-b_{12}+b_{22}}', note: 'Cada jugador mezcla de modo que el <b>rival</b> quede indiferente entre sus estrategias.' },
+                    { type: 'table', caption: 'Dilema de los viajeros: pago de quien pide $a$ cuando el otro pide $b$', head: ['Caso', 'Pago del que pide $a$'], rows: [
+                        ['$a=b$', '$a$'],
+                        ['$a>b$ (pides más)', '$b-15$'],
+                        ['$a<b$ (pides menos)', '$a+15$']
+                    ] }
+                ]
+            },
+            {
+                id: 'calculadora', title: 'Calculadora',
+                blocks: [
+                    { type: 'p', text: 'Escribe los ocho pagos de un juego 2×2. Por defecto es la «batalla de los sexos»: dos equilibrios puros y uno mixto. Prueba con el dilema del prisionero (pagos $3,3$; $0,5$; $5,0$; $1,1$) para ver una estrategia dominante.' },
+                    { type: 'calculator', id: 'juego2x2' }
+                ]
+            },
+            {
+                id: 'codigo', title: 'Código',
+                blocks: [
+                    { type: 'code', code: {
+                        r: `
+# Equilibrios de Nash en estrategias puras de un juego bimatricial
+A <- matrix(c(2, 0, 0, 1), 2, byrow = TRUE)   # pagos del jugador 1
+B <- matrix(c(1, 0, 0, 2), 2, byrow = TRUE)   # pagos del jugador 2
+
+nash_puros <- function(A, B) {
+  res <- NULL
+  for (i in 1:nrow(A)) for (j in 1:ncol(A))
+    if (A[i, j] == max(A[, j]) && B[i, j] == max(B[i, ])) res <- rbind(res, c(i, j))
+  res
+}
+nash_puros(A, B)
+
+# Equilibrio mixto 2x2 (cada jugador hace indiferente al rival)
+p <- (B[2, 2] - B[2, 1]) / (B[1, 1] - B[2, 1] - B[1, 2] + B[2, 2])   # P(fila 1)
+q <- (A[2, 2] - A[1, 2]) / (A[1, 1] - A[1, 2] - A[2, 1] + A[2, 2])   # P(columna 1)
+c(p = p, q = q)
+
+# Dilema de los viajeros: eliminacion iterativa de estrategias debilmente dominadas
+x <- seq(10, 60, 10)
+pago <- function(a, b) ifelse(a == b, a, ifelse(a > b, b - 15, a + 15))
+M <- outer(x, x, pago); dimnames(M) <- list(x, x)
+M`,
+                        python: `
+import numpy as np
+
+A = np.array([[2, 0], [0, 1]])   # jugador 1
+B = np.array([[1, 0], [0, 2]])   # jugador 2
+
+def nash_puros(A, B):
+    return [(i, j) for i in range(A.shape[0]) for j in range(A.shape[1])
+            if A[i, j] == A[:, j].max() and B[i, j] == B[i, :].max()]
+print(nash_puros(A, B))
+
+p = (B[1, 1] - B[1, 0]) / (B[0, 0] - B[1, 0] - B[0, 1] + B[1, 1])
+q = (A[1, 1] - A[0, 1]) / (A[0, 0] - A[0, 1] - A[1, 0] + A[1, 1])
+print(p, q)
+
+# Dilema de los viajeros
+x = np.arange(10, 70, 10)
+pago = lambda a, b: a if a == b else (b - 15 if a > b else a + 15)
+M = np.array([[pago(a, b) for b in x] for a in x]); print(M)` } }
+                ]
+            },
+            {
+                id: 'fuentes', title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Teoría de juegos. Transparencias de los Temas 1 a 4, hojas de problemas y actividades voluntarias. Grado en Economía, Universidad de Alcalá. Las transparencias son documentos escaneados: esta ficha se apoya en las hojas de problemas y en las actividades resueltas.',
+                        'Gibbons, R. (1992). Un primer curso de teoría de juegos (ed. española Antoni Bosch).',
+                        'Dixit, A. y Nalebuff, B. (1991). El arte de la estrategia (ed. española Antoni Bosch).',
+                        'Pérez, J., Jimeno, J. L. y Cerdá, E. (2004). Teoría de juegos. Pearson.'
+                    ] }
+                ]
+            }
+        ]
+    },
+
+    // ------------------------------------------------------------------
+    dinamica_economica: {
+        sections: [
+            {
+                id: 'idea', title: 'Idea clave',
+                blocks: [
+                    { type: 'p', text: 'La dinámica económica estudia cómo evoluciona una magnitud (renta, precio, capital) a lo largo del tiempo cuando cada valor depende del anterior. Se describe con <b>ecuaciones en diferencias</b> si el tiempo es discreto, $y(t+1)=f(y(t))$, o con <b>ecuaciones diferenciales</b> si es continuo. La pregunta es siempre la misma: ¿existe un equilibrio y es <b>estable</b>?' },
+                    { type: 'list', title: 'Los pasos de un análisis', items: [
+                        '<b>Clasificar</b> la ecuación: orden, lineal o no lineal, autónoma o no.',
+                        '<b>Equilibrio</b>: el valor $y^*$ que se repite, $y^*=f(y^*)$.',
+                        '<b>Estabilidad</b>: ¿las trayectorias próximas se acercan a $y^*$? Para primer orden lineal basta $|a|<1$; para no lineal, $|f\'(y^*)|<1$ (estabilidad local).',
+                        '<b>Diagrama de fase</b>: la gráfica de $y(t+1)$ frente a $y(t)$ con la bisectriz permite ver el equilibrio y la dirección de las trayectorias.',
+                        '<b>Solución general</b> de las ecuaciones lineales de coeficientes constantes (EDLCC): solución de la homogénea más una solución particular.'
+                    ] },
+                    { type: 'callout', text: 'Ejemplo resuelto: $y(t+1)=-3y(t)+12$ tiene equilibrio $y^*=3$ pero $|a|=3>1$, luego es <b>inestable</b>. En cambio $y(t+1)=\\tfrac34y(t)+\\tfrac12$ tiene $y^*=2$ y es asintóticamente estable. Para $y(t+1)=y(t)^2-4$ hay dos equilibrios, $\\tfrac{1\\pm\\sqrt{17}}{2}$, y en ambos $|2y^*|>1$, así que los dos son inestables.' }
+                ]
+            },
+            {
+                id: 'formulas', title: 'Fórmulas',
+                blocks: [
+                    { type: 'formula', label: 'Primer orden lineal', tex: 'y(t+1)=a\\,y(t)+b\\ \\Rightarrow\\ y^*=\\frac{b}{1-a},\\qquad y(t)=y^*+\\big(y(0)-y^*\\big)a^t' },
+                    { type: 'formula', label: 'Estabilidad', tex: '|a|<1\\ \\Rightarrow\\ y(t)\\to y^*\\quad(\\text{con oscilaciones si }a<0);\\qquad |a|>1\\ \\Rightarrow\\ \\text{inestable}' },
+                    { type: 'formula', label: 'No lineal: estabilidad local', tex: 'y(t+1)=f(y(t)),\\quad y^*=f(y^*),\\quad |f\'(y^*)|<1\\ \\Rightarrow\\ \\text{localmente estable}' },
+                    { type: 'table', caption: 'Solución de la EDLCC homogénea según las raíces $\\lambda_i$ del polinomio característico', head: ['Raíces', 'Sumando de la solución general'], rows: [
+                        ['Real simple $\\lambda$', '$C\\,\\lambda^t$'],
+                        ['Real múltiple (multiplicidad $p$)', '$(C_1+C_2t+\\dots+C_pt^{p-1})\\,\\lambda^t$'],
+                        ['Complejas conjugadas $a\\pm bi$', '$r^t\\,(C_1\\cos wt+C_2\\sin wt)$, con $r=\\sqrt{a^2+b^2}$ y $w=\\arctan(b/a)$'],
+                        ['Complejas múltiples', '$r^t\\big[(C_1\\cos wt+C_2\\sin wt)+t(C_3\\cos wt+C_4\\sin wt)+\\dots\\big]$']
+                    ] },
+                    { type: 'table', caption: 'Solución particular que se ensaya según el término independiente $g(t)$', head: ['$g(t)$', 'Se ensaya'], rows: [
+                        ['Polinomio $P_n(t)$', '$Q_n(t)$, o $t^pQ_n(t)$ si $1$ es raíz de multiplicidad $p$'],
+                        ['$a^t$', '$m\\,a^t$, o $t^pm\\,a^t$ si $a$ es raíz de multiplicidad $p$'],
+                        ['$a^t\\sin(\\theta t)$ o $a^t\\cos(\\theta t)$', '$a^t\\,[m_1\\sin\\theta t+m_2\\cos\\theta t]$, ajustado si coincide con la homogénea']
+                    ] }
+                ]
+            },
+            {
+                id: 'calculadora', title: 'Calculadora',
+                blocks: [
+                    { type: 'p', text: 'Elige $a$ y $b$. Con $a$ entre $-1$ y $1$ la trayectoria converge al equilibrio; con $a<0$ lo hace oscilando; con $|a|>1$ se aleja.' },
+                    { type: 'calculator', id: 'dif1' }
+                ]
+            },
+            {
+                id: 'codigo', title: 'Código',
+                blocks: [
+                    { type: 'code', code: {
+                        r: `
+# Trayectoria y equilibrio de y(t+1) = a y(t) + b
+dif1 <- function(a, b, y0, T) {
+  y <- numeric(T + 1); y[1] <- y0
+  for (t in 1:T) y[t + 1] <- a * y[t] + b
+  ystar <- if (a != 1) b / (1 - a) else NA
+  list(equilibrio = ystar, estable = abs(a) < 1, trayectoria = y)
+}
+r <- dif1(0.75, 0.5, 10, 20); r$equilibrio; r$estable
+plot(0:20, r$trayectoria, type = "b"); abline(h = r$equilibrio, lty = 2)
+
+# Equilibrios y estabilidad de y(t+1) = y(t)^2 - 4
+f  <- function(y) y^2 - 4
+eq <- (1 + c(1, -1) * sqrt(17)) / 2
+cbind(equilibrio = eq, derivada = 2 * eq, estable = abs(2 * eq) < 1)`,
+                        python: `
+import numpy as np
+
+def dif1(a, b, y0, T):
+    y = np.empty(T + 1); y[0] = y0
+    for t in range(T):
+        y[t + 1] = a * y[t] + b
+    ystar = b / (1 - a) if a != 1 else np.nan
+    return ystar, abs(a) < 1, y
+
+ystar, estable, y = dif1(0.75, 0.5, 10, 20)
+print(ystar, estable, y[-1])
+
+# y(t+1) = y(t)^2 - 4
+eq = (1 + np.array([1, -1]) * np.sqrt(17)) / 2
+print(eq, 2 * eq, abs(2 * eq) < 1)` } }
+                ]
+            },
+            {
+                id: 'fuentes', title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Dinámica económica (2024-25). Transparencias de los Temas 1 y 3, tabla de EDLCC, fórmulas trigonométricas y actividades voluntarias. Grado en Economía, Universidad de Alcalá. Las transparencias son documentos escaneados: esta ficha se apoya en la tabla de EDLCC y en las actividades resueltas.',
+                        'Chiang, A. C. (1988). Material de referencia del curso: métodos de economía matemática. McGraw-Hill.'
                     ] }
                 ]
             }
