@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <link rel="stylesheet" href="style.css?v=9.0">
+    <link rel="stylesheet" href="style.css?v=9.1">
 </head>
 <body class="scene-portada">
     <div id="webgl-container"></div>
@@ -42,6 +42,12 @@
                     </button>
                     <div id="filters-menu" class="menu filters-menu" hidden></div>
                 </div>
+                <div class="filters">
+                    <button type="button" class="control" id="labels-button" aria-expanded="false" aria-controls="labels-menu">
+                        Etiquetas <span class="count num" id="labels-count" hidden></span>
+                    </button>
+                    <div id="labels-menu" class="menu filters-menu" hidden></div>
+                </div>
                 <button type="button" class="control toggle" id="toggle-filaments" aria-pressed="true">Filamentos</button>
                 <button type="button" class="control toggle" id="toggle-orbits" aria-pressed="true">Órbitas</button>
                 <button type="button" class="control control-quiet" id="exit-button">Salir</button>
@@ -66,15 +72,16 @@
             </header>
             <p class="panel-desc" id="panel-desc" hidden></p>
             <p class="panel-event" id="panel-event" hidden></p>
+            <button type="button" class="control guide-open" id="guide-open" hidden>Acceder a la guía</button>
             <nav class="tabs" id="panel-tabs" role="tablist" aria-label="Secciones del tema"></nav>
             <div class="panel-body" id="panel-body"></div>
-        </aside>
 
-        <!-- Guía de estudio a pantalla completa (temas con `guide` en conocimientos.js) -->
-        <section id="guide" class="guide" aria-label="Guía de estudio" hidden>
-            <button type="button" class="control guide-close" id="guide-close">Volver al atlas</button>
-            <iframe id="guide-frame" class="guide-frame" title="Guía de estudio"></iframe>
-        </section>
+            <!-- Guía de estudio dentro del mismo panel (temas con `guide` en conocimientos.js) -->
+            <section id="guide" class="guide" aria-label="Guía de estudio" hidden>
+                <button type="button" class="control guide-back" id="guide-close">Volver al temario</button>
+                <iframe id="guide-frame" class="guide-frame" title="Guía de estudio"></iframe>
+            </section>
+        </aside>
     </div>
 
     <!-- PORTADA: título y firma -->
@@ -103,11 +110,11 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
     <!-- Datos y escena -->
-    <script src="knowledgeData.js?v=9.0"></script>
-    <script src="atlas.js?v=9.0"></script>
-    <script src="conocimientos.js?v=9.0"></script>
-    <script src="eventos.js?v=9.0"></script>
-    <script src="agenda.js?v=9.0"></script>
-    <script src="main.js?v=9.0"></script>
+    <script src="knowledgeData.js?v=9.1"></script>
+    <script src="atlas.js?v=9.1"></script>
+    <script src="conocimientos.js?v=9.1"></script>
+    <script src="eventos.js?v=9.1"></script>
+    <script src="agenda.js?v=9.1"></script>
+    <script src="main.js?v=9.1"></script>
 </body>
 </html>

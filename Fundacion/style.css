@@ -587,29 +587,67 @@ button {
     padding-right: 48px;
 }
 
-/* Guía de estudio: ocupa todo bajo la barra superior, por encima del panel */
+/* Guía de estudio: vive dentro del panel y ocupa el resto de su altura */
 .guide {
-    position: absolute;
-    top: var(--topbar);
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 3;
-    background: var(--ground);
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px calc(var(--pad) * -1) 0;
+    overflow: hidden;
+    border-radius: 0 0 var(--radius-card) var(--radius-card);
+}
+
+.guide[hidden],
+.guide-open[hidden] {
+    display: none;
+}
+
+.guide-back {
+    align-self: flex-start;
+    margin-left: var(--pad);
+    flex: none;
 }
 
 .guide-frame {
     display: block;
+    flex: 1;
     width: 100%;
-    height: 100%;
+    min-height: 0;
     border: 0;
+    background: var(--ground);
 }
 
-.guide-close {
-    position: absolute;
-    right: max(var(--gap), env(safe-area-inset-right, 0px));
-    bottom: calc(var(--gap) + env(safe-area-inset-bottom, 0px));
-    z-index: 1;
+.guide-open {
+    align-self: flex-start;
+    margin-top: 14px;
+    height: 38px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--text);
+    color: var(--ground);
+    font-weight: 600;
+}
+
+.guide-open:hover {
+    opacity: 0.88;
+}
+
+/* Con la guía abierta el panel solo enseña la cabecera y la guía */
+.panel.is-guide .panel-desc,
+.panel.is-guide .panel-event,
+.panel.is-guide .guide-open,
+.panel.is-guide .tabs,
+.panel.is-guide .panel-body {
+    display: none;
+}
+
+/* Arrastrado más allá de 7/8 de la pantalla hacia la izquierda: el panel lo ocupa todo */
+.panel.is-full {
+    left: var(--gap);
+    width: auto;
 }
 
 .kb-guide {
@@ -1164,8 +1202,8 @@ body.scene-portada .agenda {
     --ag-inverse-text: #ffffff;
 }
 
-/* La guía de estudio ocupa toda la pantalla: la pestaña no se le superpone */
-body:has(#guide:not([hidden])) .agenda {
+/* Con el panel a pantalla completa la pestaña de la agenda no se le superpone */
+body:has(.panel.is-full:not([hidden])) .agenda {
     display: none;
 }
 
@@ -1748,4 +1786,28 @@ body.scene-portada .ag-error {
     .kb-calc-inputs {
         grid-template-columns: 1fr 1fr;
     }
+}
+
+/* ==========================================================================
+   ETIQUETAS DE DISCIPLINA POR GRUPO: pequeñas y de vidrio
+   ========================================================================== */
+.topic-label.is-glass {
+    height: 18px;
+    padding: 0 8px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.topic-label.is-glass:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+.topic-label.is-glass.is-dim {
+    color: rgba(255, 255, 255, 0.3);
 }

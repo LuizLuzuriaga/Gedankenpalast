@@ -1038,5 +1038,5 @@ html { scroll-behavior: smooth; }
   $('closeAll').addEventListener('click', () => document.querySelectorAll('#cards details').forEach(d => { d.open = false; }));
 })();
 </script>
-</body>
+<script>if(window.top!==window)document.querySelectorAll('a[target="_top"]').forEach(function(a){a.style.display="none"});</script></body>
 </html>

@@ -346,8 +346,10 @@ cosmos.add(filaments);
             col.copy(COLOR_DEEP).lerp(COLOR_WHITE, rand() * 0.3).multiplyScalar(0.55);
             size *= 0.8;
         }
+        // Todos los puntos son blancos: el tono de cada zona solo se conserva como brillo
+        const lum = Math.min(1, Math.max(col.r, col.g, col.b) * 1.15);
         positions.set([p.x, p.y, p.z], i * 3);
-        colors.set([col.r, col.g, col.b], i * 3);
+        colors.set([lum, lum, lum], i * 3);
         sizes[i] = size;
     }
     const geo = new THREE.BufferGeometry();
@@ -368,7 +370,7 @@ const pulseGeo = new THREE.BufferGeometry();
     const sizes = new Float32Array(PULSE_COUNT).fill(2.6);
     for (let i = 0; i < PULSE_COUNT; i++) {
         pulseState.push({ f: pulseCurves[Math.floor(rand() * pulseCurves.length)], t: rand(), speed: 0.03 + rand() * 0.05 });
-        colors.set([1, 0.96, 0.88], i * 3);
+        colors.set([1, 1, 1], i * 3);
     }
     pulseGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     pulseGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -511,8 +513,7 @@ cosmos.add(nodePoints);
 
 topicNodes.forEach((n, i) => {
     n.index = i;
-    const hue = new THREE.Color(n.topic.cluster ? CLUSTER_BY_ID[n.topic.cluster].hue : '#fff1d6');
-    nodeGeo.attributes.color.setXYZ(i, hue.r, hue.g, hue.b);
+    nodeGeo.attributes.color.setXYZ(i, 1, 1, 1); // todos los puntos son blancos
     nodeGeo.attributes.size.setX(i, baseNodeSize(n));
     n.hit = new THREE.Mesh(hitGeo, hitMat);
     n.hit.userData.topicId = n.topic.id;
@@ -632,6 +633,10 @@ const panelEvent = $('panel-event');
 const panelResize = $('panel-resize');
 const guide = $('guide');
 const guideFrame = $('guide-frame');
+const guideOpen = $('guide-open');
+const labelsButton = $('labels-button');
+const labelsMenu = $('labels-menu');
+const labelsCount = $('labels-count');
 
 const state = {
     scene: 'portada',
@@ -643,7 +648,8 @@ const state = {
     hoverLabel: false,
     hoverNode: false,
     orbitSpeed: prefersReducedMotion ? 0 : 1,
-    filters: { language: null, framework: null }
+    filters: { language: null, framework: null },
+    labelGroups: new Set() // cúmulos cuyas etiquetas de disciplina se muestran todas
 };
 
 const esc = (s) => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -769,6 +775,40 @@ filtersButton.addEventListener('click', (e) => {
     const open = filtersMenu.hidden;
     filtersMenu.hidden = !open;
     filtersButton.setAttribute('aria-expanded', String(open));
+    if (open) labelsMenu.hidden = true;
+});
+
+// --- Etiquetas de disciplina por gran grupo (por defecto solo se ven las del tema elegido y las de la agenda) ---
+function renderLabelsMenu() {
+    const all = state.labelGroups.size === CLUSTERS.length;
+    labelsMenu.innerHTML = `<fieldset class="filter-group">
+        <legend>Mostrar etiquetas de disciplina</legend>
+        <button type="button" class="chip${all ? ' is-on' : ''}" data-group="*" aria-pressed="${all}">Todos los grupos</button>
+        ${CLUSTERS.map(c => {
+            const on = state.labelGroups.has(c.id);
+            return `<button type="button" class="chip${on ? ' is-on' : ''}" data-group="${c.id}" aria-pressed="${on}">${esc(c.name)}</button>`;
+        }).join('')}
+    </fieldset>`;
+    labelsCount.textContent = String(state.labelGroups.size);
+    labelsCount.hidden = !state.labelGroups.size;
+}
+labelsMenu.addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    const id = chip.dataset.group;
+    if (id === '*') {
+        state.labelGroups = state.labelGroups.size === CLUSTERS.length ? new Set() : new Set(CLUSTERS.map(c => c.id));
+    } else if (!state.labelGroups.delete(id)) {
+        state.labelGroups.add(id);
+    }
+    renderLabelsMenu();
+});
+labelsButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = labelsMenu.hidden;
+    labelsMenu.hidden = !open;
+    labelsButton.setAttribute('aria-expanded', String(open));
+    if (open) filtersMenu.hidden = true;
 });
 
 // --- Interruptores ---
@@ -861,6 +901,10 @@ document.addEventListener('click', (e) => {
         filtersMenu.hidden = true;
         filtersButton.setAttribute('aria-expanded', 'false');
     }
+    if (!e.target.closest('#labels-menu') && !e.target.closest('#labels-button')) {
+        labelsMenu.hidden = true;
+        labelsButton.setAttribute('aria-expanded', 'false');
+    }
 });
 
 window.addEventListener('keydown', (e) => {
@@ -872,6 +916,7 @@ window.addEventListener('keydown', (e) => {
     }
     if (e.key === 'Escape' && document.activeElement !== searchInput) {
         if (!filtersMenu.hidden) filtersMenu.hidden = true;
+        else if (!labelsMenu.hidden) labelsMenu.hidden = true;
         else if (!guide.hidden) closeGuide();
         else if (state.selected) closePanel();
     }
@@ -962,7 +1007,6 @@ function renderBlock(block) {
         case 'guide':
             return `<div class="kb-guide">
                 <p class="kb-p">${renderRich(block.text)}</p>
-                <button type="button" class="control kb-guide-open">Abrir la guía</button>
             </div>`;
         case 'html':
             return block.html;
@@ -1036,11 +1080,11 @@ function openPanel(topic) {
     panelBody.scrollTop = 0;
     panel.hidden = false;
     app.classList.add('has-panel');
-    // Los temas con guía de estudio la abren a pantalla completa al entrar
+    // Los temas con guía de estudio la ofrecen con un botón; se abre dentro de este mismo panel
     const src = topic.knowledge && KNOWLEDGE[topic.knowledge] ? KNOWLEDGE[topic.knowledge].guide : null;
     panel.dataset.guide = src || '';
-    if (src) openGuide(src);
-    else closeGuide();
+    guideOpen.hidden = !src;
+    closeGuide();
 }
 
 // Próximo evento del tema en la agenda, sobre las pestañas del panel
@@ -1054,10 +1098,13 @@ function renderPanelEvent(topic) {
     panelEvent.textContent = `${next.title} · ${when === date ? date : `${when}, ${date}`}${next.start ? `, ${next.start}` : ''}`;
 }
 
-// --- Borde del panel: arrastrar para cambiar el ancho; por debajo de PANEL_CLOSE_AT se cierra ---
+// --- Borde del panel: arrastrar para cambiar el ancho ---
+// Más allá de 7/8 de la pantalla hacia la izquierda el panel ocupa todo; más allá de 7/8 hacia la derecha se cierra
 const PANEL_MIN = 340;
-const PANEL_CLOSE_AT = 280;
-const panelMax = () => Math.min(900, window.innerWidth * 0.7);
+const PANEL_EDGE = 7 / 8;
+const panelMax = () => window.innerWidth * PANEL_EDGE;
+const wantsClose = (w) => w < window.innerWidth * (1 - PANEL_EDGE);
+const wantsFull = (w) => w > panelMax();
 const clampPanel = (w) => Math.round(Math.min(panelMax(), Math.max(PANEL_MIN, w)));
 let panelWidth = null;
 try {
@@ -1066,7 +1113,8 @@ try {
 } catch { /* sin localStorage: ancho por defecto */ }
 
 function applyPanelWidth(w) {
-    panel.style.setProperty('--panel-width', `${w}px`);
+    if (w) panel.style.setProperty('--panel-width', `${w}px`);
+    else panel.style.removeProperty('--panel-width');
 }
 if (panelWidth) applyPanelWidth(clampPanel(panelWidth));
 
@@ -1084,7 +1132,7 @@ new ResizeObserver(() => {
 
 let resizing = null;
 panelResize.addEventListener('pointerdown', (e) => {
-    resizing = { closing: false };
+    resizing = { closing: false, full: false };
     panelResize.setPointerCapture(e.pointerId);
     panel.classList.add('is-resizing');
     e.preventDefault();
@@ -1092,20 +1140,28 @@ panelResize.addEventListener('pointerdown', (e) => {
 panelResize.addEventListener('pointermove', (e) => {
     if (!resizing) return;
     const w = window.innerWidth - e.clientX - 14;
-    resizing.closing = w < PANEL_CLOSE_AT;
-    panel.classList.toggle('is-closing', resizing.closing);
-    applyPanelWidth(Math.round(Math.min(panelMax(), Math.max(PANEL_CLOSE_AT - 40, w))));
+    resizing.closing = wantsClose(w);
+    resizing.full = wantsFull(w);
     resizing.width = w;
+    panel.classList.toggle('is-closing', resizing.closing);
+    panel.classList.toggle('is-full', resizing.full); // vista previa de la pantalla completa
+    // Mientras se arrastra el panel sigue al cursor sin salir de [mínimo visible, 7/8]
+    applyPanelWidth(Math.round(Math.min(panelMax(), Math.max(PANEL_MIN * 0.5, w))));
 });
 function endResize() {
     if (!resizing) return;
-    const { closing, width } = resizing;
+    const { closing, full, width } = resizing;
     resizing = null;
     panel.classList.remove('is-resizing', 'is-closing');
     if (closing) {
+        panel.classList.remove('is-full');
         applyPanelWidth(panelWidth ? clampPanel(panelWidth) : PANEL_MIN);
         closePanel();
+    } else if (full) {
+        // Se queda a pantalla completa; el ancho anterior se conserva para restaurarlo
+        applyPanelWidth(panelWidth ? clampPanel(panelWidth) : PANEL_MIN);
     } else if (width) {
+        panel.classList.remove('is-full');
         storePanelWidth(clampPanel(width));
     }
 }
@@ -1114,21 +1170,32 @@ panelResize.addEventListener('pointercancel', endResize);
 panelResize.addEventListener('keydown', (e) => {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     e.preventDefault();
+    panel.classList.remove('is-full');
     const current = panel.getBoundingClientRect().width;
     storePanelWidth(clampPanel(current + (e.key === 'ArrowLeft' ? 24 : -24)));
 });
 
+// La guía ocupa el cuerpo del panel; una guía necesita sitio, así que el panel se ensancha si es estrecho
 function openGuide(src) {
     if (guideFrame.getAttribute('src') !== src) guideFrame.setAttribute('src', src);
     guide.hidden = false;
+    panel.classList.add('is-guide');
+    if (window.innerWidth > 760 && !panel.classList.contains('is-full')) {
+        const wanted = Math.round(window.innerWidth * 0.6);
+        if (panel.getBoundingClientRect().width < wanted) applyPanelWidth(wanted);
+    }
 }
 
 function closeGuide() {
     guide.hidden = true;
+    panel.classList.remove('is-guide');
+    // Si la guía ensanchó el panel, vuelve al ancho que el usuario tenía
+    applyPanelWidth(panelWidth ? clampPanel(panelWidth) : '');
 }
 
 function closePanel() {
     closeGuide();
+    panel.classList.remove('is-full', 'is-closing');
     panel.hidden = true;
     app.classList.remove('has-panel');
     state.selected = null;
@@ -1159,8 +1226,9 @@ panelBody.addEventListener('click', (e) => {
     }
     const row = e.target.closest('.related-row');
     if (row) selectTopic(row.dataset.id);
-    if (e.target.closest('.kb-guide-open') && panel.dataset.guide) openGuide(panel.dataset.guide);
 });
+
+guideOpen.addEventListener('click', () => { if (panel.dataset.guide) openGuide(panel.dataset.guide); });
 
 $('panel-close').addEventListener('click', closePanel);
 $('guide-close').addEventListener('click', closeGuide);
@@ -1290,7 +1358,7 @@ function selectTopic(id) {
 
     // En escritorio el panel ocupa la derecha: el tema queda en el centro del espacio libre
     if (window.innerWidth > 760) {
-        const panelShare = (panel.getBoundingClientRect().width + 14) / window.innerWidth;
+        const panelShare = Math.min(0.7, (panel.getBoundingClientRect().width + 14) / window.innerWidth);
         const distance = pos.distanceTo(target);
         const visibleWidth = 2 * distance * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect;
         const right = new THREE.Vector3().crossVectors(target.clone().sub(pos), camera.up).normalize();
@@ -1550,14 +1618,13 @@ function updateCosmos(dt) {
     labelRightEdge = panel.hidden || window.innerWidth <= 760 ? Infinity : panel.getBoundingClientRect().left - 8;
     labelTopEdge = topbar.getBoundingClientRect().bottom + LABEL_MARGIN + 15; // media altura de etiqueta incluida
     placedLabels.length = 0;
-    CLUSTERS.forEach(c => {
-        c.near = state.focusCluster === c.id || camera.position.distanceTo(clusterCenters[c.id]) < c.radius * 5.2;
-    });
-    const topicVisible = (n) => !n.topic.cluster
-        || n.nextEvent
-        || CLUSTER_BY_ID[n.topic.cluster].near
-        || state.selected === n.topic.id
+    // La etiqueta del Gran Atractor nunca se ve; las de disciplina salen por grupo desde el botón Etiquetas.
+    // Las que no son del tema elegido, ni sus vecinas, ni de la agenda, se dibujan pequeñas y de vidrio.
+    const isFocal = (n) => state.selected === n.topic.id || n.nextEvent
         || (state.selected && NEIGHBOURS[state.selected].has(n.topic.id));
+    topicNodes.forEach(n => n.labelEl.classList.toggle('is-glass', !!n.topic.cluster && !isFocal(n)));
+    const topicVisible = (n) => !!n.topic.cluster
+        && (isFocal(n) || state.labelGroups.has(n.topic.cluster));
     const ordered = [...topicNodes].sort((a, b) => labelPriority(a) - labelPriority(b));
     const [first, rest] = [ordered.filter(n => labelPriority(n) < 2), ordered.filter(n => labelPriority(n) === 2)];
     first.forEach(n => placeLabel(n.labelEl, n.pos, topicVisible(n)));
@@ -1596,6 +1663,7 @@ function animate() {
 
 renderClusterNav();
 renderFilters();
+renderLabelsMenu();
 setToggle($('toggle-orbits'), state.orbitsOn);
 camera.lookAt(0, 0, 0);
 animate();
