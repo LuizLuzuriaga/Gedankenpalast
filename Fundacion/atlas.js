@@ -86,7 +86,8 @@ const TOPICS = [
     {
         id: 'ds_estadistica', cluster: 'ds', name: 'Estadística',
         desc: 'Fundamento del análisis empírico: estimación puntual, intervalos de confianza, contrastes de hipótesis y teoría asintótica para inferir la población a partir de muestras.',
-        related: ['mat_probabilidad', 'ds_econometria', 'ds_ml_supervisado', 'ds_bayesiana']
+        related: ['mat_probabilidad', 'ds_econometria', 'ds_ml_supervisado', 'ds_bayesiana'],
+        knowledge: 'estadistica_basica'
     },
     {
         id: 'ds_bayesiana', cluster: 'ds', name: 'Estadística bayesiana',

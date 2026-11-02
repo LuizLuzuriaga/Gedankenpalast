@@ -52,6 +52,34 @@ Object.assign(CALCULATORS, {
         }
     },
 
+    // --- Estadística: intervalo y contraste para la media (σ conocida) ----
+    z_media: {
+        title: 'Media de una población normal con $\\sigma$ conocida',
+        inputs: [
+            { id: 'xbar', label: 'Media muestral $\\bar x$', value: 52, step: 0.5 },
+            { id: 'mu0', label: 'Valor de $H_0$: $\\mu_0$', value: 50, step: 0.5 },
+            { id: 'sigma', label: 'Desviación típica poblacional $\\sigma$', value: 8, step: 0.5 },
+            { id: 'n', label: 'Tamaño muestral $n$', value: 64, step: 4 },
+            { id: 'alpha', label: 'Nivel de significación $\\alpha$ (%)', value: 5, step: 1 },
+            { id: 'E', label: 'Error máximo deseado $E$ (para el tamaño muestral)', value: 1, step: 0.25 }
+        ],
+        compute(v) {
+            const n = Math.max(1, v.n), s = Math.max(v.sigma, 1e-9), a = Math.min(0.5, Math.max(0.001, v.alpha / 100));
+            const se = s / Math.sqrt(n), z = (v.xbar - v.mu0) / se;
+            const zc = NUM.inv(1 - a / 2);
+            const p = 2 * (1 - NUM.cdf(Math.abs(z)));
+            const nE = Math.pow(zc * s / Math.max(v.E, 1e-9), 2);
+            return {
+                outputs: [
+                    { label: 'Intervalo de confianza al ' + NUM.fmt((1 - a) * 100, 1) + ' %', value: NUM.fmt(v.xbar - zc * se, 3) + ' a ' + NUM.fmt(v.xbar + zc * se, 3), note: '$\\bar x\\pm z_{\\alpha/2}\\,\\sigma/\\sqrt n$ con $z_{\\alpha/2}=' + NUM.fmt(zc, 3) + '$' },
+                    { label: 'Estadístico de contraste $z=(\\bar x-\\mu_0)/(\\sigma/\\sqrt n)$', value: NUM.fmt(z, 3) },
+                    { label: 'p-valor (bilateral)', value: NUM.fmt(p, 4), note: p < a ? 'Se rechaza $H_0$ al nivel $\\alpha$.' : 'No se rechaza $H_0$ al nivel $\\alpha$.' },
+                    { label: 'Tamaño muestral para el error $E$: $n=(z_{\\alpha/2}\\sigma/E)^2$', value: NUM.fmt(Math.ceil(nE), 0) }
+                ]
+            };
+        }
+    },
+
     // --- Matemáticas financieras: capitalización simple y compuesta -----
     capitalizacion: {
         title: 'Capitalización simple frente a compuesta',
@@ -398,6 +426,95 @@ print(C0 * (1 + 0.12 * n), C0 * (1.12) ** n)` } }
                     { type: 'sources', items: [
                         'Cuadro de cuentas del Plan General de Contabilidad para pymes. Material de Sistema fiscal y contabilidad, Grado en Economía, Universidad de Alcalá.',
                         'Real Decreto 1514/2007 (PGC) y Real Decreto 1515/2007 (PGC de pymes).'
+                    ] }
+                ]
+            }
+        ]
+    },
+
+    // ------------------------------------------------------------------
+    estadistica_basica: {
+        sections: [
+            {
+                id: 'idea', title: 'Idea clave',
+                blocks: [
+                    { type: 'p', text: 'La estadística da el paso de los datos a las conclusiones sobre una población. Primero se construye el modelo (probabilidad y variables aleatorias), después se estudia cómo se comportan las muestras (estadísticos y distribuciones muestrales) y, por último, se infiere: estimar un parámetro, dar un intervalo, decidir con un contraste.' },
+                    { type: 'list', title: 'Los once temas (cuaderno de Estadística I, Grado en Economía)', items: [
+                        '<b>1. Probabilidad</b>: fenómenos aleatorios, espacio muestral, sucesos y operaciones; definiciones clásica (Laplace), frecuentista y axiomática; probabilidad compuesta e independencia.',
+                        '<b>2. Variables aleatorias y sus características</b>: función de distribución, función de cuantía (discretas) y de densidad (continuas), distribuciones bidimensionales, marginales y condicionadas.',
+                        '<b>3. Distribuciones discretas</b>: Bernoulli, Binomial, Poisson y Geométrica.',
+                        '<b>4. Distribuciones continuas</b>: Uniforme, Exponencial y Normal; relación de la Binomial y la Poisson con la Normal (corrección por continuidad); teorema central del límite.',
+                        '<b>5. Estadísticos muestrales y sus distribuciones</b>: muestreo aleatorio simple, parámetros, estimadores, función de distribución empírica, y las distribuciones $\\chi^2$ de Pearson, $t$ de Student y $F$ de Snedecor.',
+                        '<b>6. Estimación puntual</b>: propiedades (eficiencia, consistencia, suficiencia) y métodos, como el de los momentos.',
+                        '<b>7. Intervalos de confianza</b>: definición, métodos de construcción, tamaño muestral necesario y resumen de casos.',
+                        '<b>8. Contrastes de hipótesis paramétricas</b>: tipos de hipótesis, región crítica y de aceptación, errores de tipo I y II, potencia y fases de un contraste.',
+                        '<b>9. Análisis de la varianza</b>: clasificación simple, comparaciones múltiples de Scheffé, test de esfericidad de Bartlett y diseño de doble clasificación.',
+                        '<b>10. Bondad de ajuste y tablas de contingencia</b>: contraste $\\chi^2$ con parámetros conocidos y desconocidos, independencia y homogeneidad.',
+                        '<b>11. Contrastes no paramétricos</b>: localización (signos y mediana) y comparación de poblaciones.'
+                    ] },
+                    { type: 'callout', text: 'El hilo: el <b>teorema central del límite</b> del tema 4 justifica que la media muestral sea aproximadamente normal, y de ahí salen los intervalos (tema 7) y los contrastes (tema 8). Los contrastes del 10 y el 11 son la alternativa cuando no se puede suponer esa forma.' }
+                ]
+            },
+            {
+                id: 'formulas', title: 'Fórmulas',
+                blocks: [
+                    { type: 'formula', label: 'Probabilidad condicionada y compuesta', tex: 'P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)},\\qquad P(A\\cap B)=P(B)\\,P(A\\mid B),\\quad\\text{independientes: }P(A\\cap B)=P(A)P(B)' },
+                    { type: 'formula', label: 'Teorema central del límite', tex: '\\frac{\\bar X-\\mu}{\\sigma/\\sqrt n}\\ \\xrightarrow{d}\\ N(0,1)' },
+                    { type: 'formula', label: 'Distribuciones muestrales (población normal)', tex: '\\frac{\\bar X-\\mu}{S/\\sqrt n}\\sim t_{n-1},\\qquad \\frac{(n-1)S^2}{\\sigma^2}\\sim\\chi^2_{n-1},\\qquad \\frac{S_1^2/\\sigma_1^2}{S_2^2/\\sigma_2^2}\\sim F_{n_1-1,\\,n_2-1}' },
+                    { type: 'formula', label: 'Intervalo de confianza para la media ($\\sigma$ conocida)', tex: '\\bar x\\pm z_{\\alpha/2}\\frac{\\sigma}{\\sqrt n},\\qquad n\\ge\\Big(\\frac{z_{\\alpha/2}\\,\\sigma}{E}\\Big)^2' },
+                    { type: 'formula', label: 'Errores y potencia de un contraste', tex: '\\alpha=P(\\text{rechazar }H_0\\mid H_0\\text{ cierta}),\\quad \\beta=P(\\text{aceptar }H_0\\mid H_1\\text{ cierta}),\\quad \\text{potencia}=1-\\beta' },
+                    { type: 'formula', label: 'Bondad de ajuste de Pearson', tex: '\\chi^2=\\sum_{i=1}^{k}\\frac{(O_i-E_i)^2}{E_i}\\ \\sim\\ \\chi^2_{k-1-r}\\quad(r=\\text{parámetros estimados})' },
+                    { type: 'formula', label: 'ANOVA de una clasificación', tex: 'F=\\frac{SC_{\\text{entre}}/(k-1)}{SC_{\\text{dentro}}/(N-k)}\\ \\sim\\ F_{k-1,\\,N-k}' }
+                ]
+            },
+            {
+                id: 'calculadora', title: 'Calculadora',
+                blocks: [
+                    { type: 'p', text: 'Intervalo de confianza, contraste bilateral y tamaño muestral para la media de una población normal con $\\sigma$ conocida. Con los valores por defecto, $z=2$ y el p-valor queda justo por debajo del 5 %.' },
+                    { type: 'calculator', id: 'z_media' }
+                ]
+            },
+            {
+                id: 'codigo', title: 'Código',
+                blocks: [
+                    { type: 'code', code: {
+                        r: `
+# Intervalo de confianza y contraste para la media con sigma conocida
+xbar <- 52; mu0 <- 50; sigma <- 8; n <- 64; alpha <- 0.05
+se <- sigma / sqrt(n); z <- (xbar - mu0) / se
+c(z = z, p = 2 * (1 - pnorm(abs(z))))
+xbar + c(-1, 1) * qnorm(1 - alpha / 2) * se
+
+# Con sigma desconocida: t de Student sobre una muestra
+set.seed(1); x <- rnorm(30, 52, 8)
+t.test(x, mu = 50)
+
+# Bondad de ajuste chi-cuadrado y ANOVA de una clasificacion
+chisq.test(c(18, 22, 20, 40), p = c(.2, .2, .2, .4))
+g <- factor(rep(c("A", "B", "C"), each = 10)); y <- rnorm(30, rep(c(0, 0.5, 1), each = 10))
+summary(aov(y ~ g))`,
+                        python: `
+import numpy as np
+from statistics import NormalDist
+from scipy import stats           # si scipy no esta disponible, usa los calculos con NormalDist
+
+xbar, mu0, sigma, n, alpha = 52, 50, 8, 64, 0.05
+se = sigma / np.sqrt(n); z = (xbar - mu0) / se
+p = 2 * (1 - NormalDist().cdf(abs(z)))
+zc = NormalDist().inv_cdf(1 - alpha / 2)
+print(z, p, xbar - zc * se, xbar + zc * se)
+
+rng = np.random.default_rng(1); x = rng.normal(52, 8, 30)
+print(stats.ttest_1samp(x, 50))
+print(stats.chisquare([18, 22, 20, 40], f_exp=[20, 20, 20, 40]))
+print(stats.f_oneway(*[rng.normal(m, 1, 10) for m in (0, .5, 1)]))` } }
+                ]
+            },
+            {
+                id: 'fuentes', title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Apuntes manuscritos de Estadística I (Temas 1 a 11), Grado en Economía, Universidad de Alcalá. Están escaneados; el índice se ha reconstruido con OCR.'
                     ] }
                 ]
             }
