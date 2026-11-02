@@ -48,7 +48,8 @@ const TOPICS = [
     {
         id: 'act_contabilidad', cluster: 'act', name: 'Contabilidad',
         desc: 'Registro y presentación del balance y la cuenta técnica: devengo del margen de servicio, liberación de reservas técnicas y conciliación contable-actuarial.',
-        related: ['act_ifrs17']
+        related: ['act_ifrs17'],
+        knowledge: 'contabilidad_pgc'
     },
     {
         id: 'act_vida', cluster: 'act', name: 'Seguros de Vida',
@@ -129,12 +130,14 @@ const TOPICS = [
     {
         id: 'eco_macro', cluster: 'eco', name: 'Macroeconomía',
         desc: 'Comportamiento agregado de la economía: PIB, inflación, curva de tipos, política monetaria, ciclos y modelos de equilibrio dinámico estocástico (DSGE).',
-        related: ['eco_micro', 'eco_econometria', 'act_gestion_riesgos']
+        related: ['eco_micro', 'eco_econometria', 'act_gestion_riesgos', 'eco_mate_financiera'],
+        knowledge: 'politica_fiscal'
     },
     {
         id: 'eco_micro', cluster: 'eco', name: 'Microeconomía',
         desc: 'Decisiones de consumidores y empresas: maximización de la utilidad con restricciones, producción, precios, estructuras de mercado y teoría de juegos.',
-        related: ['mat_optimizacion', 'eco_macro', 'act_no_vida']
+        related: ['mat_optimizacion', 'eco_macro', 'act_no_vida', 'eco_teoria_juegos'],
+        knowledge: 'coase'
     },
     {
         id: 'eco_econometria', cluster: 'eco', name: 'Econometría',
@@ -174,6 +177,18 @@ const TOPICS = [
         knowledge: 'teoria_juegos'
     },
 
+    {
+        id: 'eco_tfg', cluster: 'eco', name: 'TFG: brecha de renta del hogar',
+        desc: 'Trabajo de Fin de Grado sobre el impacto del sexo del cabeza de familia en la renta del hogar en España con la EFF: mínimos cuadrados ponderados, regresión cuantílica por decil y rentas financieras.',
+        related: ['eco_econometria', 'ds_econometria', 'ds_estadistica', 'eco_micro', 'eco_macro'],
+        knowledge: 'tfg_brecha'
+    },
+    {
+        id: 'eco_mate_financiera', cluster: 'eco', name: 'Matemáticas financieras',
+        desc: 'Capitalización simple y compuesta, equivalencia financiera, reserva matemática de una operación y fundamentos de la valoración de bonos y de la estructura temporal de tipos.',
+        related: ['eco_renta_fija', 'eco_macro', 'act_vida', 'mat_calculo'],
+        knowledge: 'mate_financiera'
+    },
     // MATEMÁTICAS Y PROBABILIDAD
     {
         id: 'mat_probabilidad', cluster: 'mat', name: 'Probabilidad',

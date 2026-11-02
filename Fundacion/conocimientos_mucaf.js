@@ -830,6 +830,11 @@ print(crr(100, 100, 0.03, 0.20, 1.0, 500))` } }
                         '<b>Preferencia por la liquidez</b>: el forward incorpora una prima positiva que compensa el riesgo de plazo.',
                         '<b>Segmentación de mercados</b>: cada plazo tiene su propia oferta y demanda.'
                     ] },
+                    { type: 'list', title: 'Un trabajo propio: tipos de interés y expectativas (Economía financiera)', items: [
+                        'Se comparan dos estrategias con 1.000.000 €: invertir a dos años o invertir a un año y reinvertir al tipo forward. En certidumbre, ambas dan lo mismo, 1.040.000 € al 4 %, y esa igualdad es la que impide el arbitraje.',
+                        'El tipo forward funciona como una especie de media geométrica de los tipos de la ETTI. Si las dos estrategias dieran resultados distintos, se podría emitir bonos y comprar la estrategia mejor sin riesgo, y la presión de oferta y demanda movería precios y tipos hasta igualarlos.',
+                        'En incertidumbre, el forward ya no es una previsión exacta: por eso existen las hipótesis de expectativas, de preferencia por la liquidez y de segmentación de mercados.'
+                    ] },
                     { type: 'callout', text: 'La inmunización (Redington) conecta este tema con <b>Gestión de riesgos</b>: una cartera de activos protege un pasivo frente a movimientos paralelos de la curva si iguala su valor actual y su duración, y su convexidad es mayor que la del pasivo.' }
                 ]
             },
@@ -897,7 +902,8 @@ print(ns(np.arange(1, 11), 0.04, -0.02, 0.01, 0.5))` } }
                     { type: 'sources', items: [
                         'Torralba, M. (2026). Renta fija: Tema I (valoración de bonos), Tema II (estructura temporal de los tipos de interés, basado en materiales de E. Navarro Arribas) y Tema III (riesgo de variación de los tipos). Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá.',
                         'Nelson, C. R. y Siegel, A. F. (1987). Parsimonious modeling of yield curves. Journal of Business.',
-                        'Redington, F. M. (1952). Review of the principles of life-office valuations. Journal of the Institute of Actuaries.'
+                        'Redington, F. M. (1952). Review of the principles of life-office valuations. Journal of the Institute of Actuaries.',
+                        'Luzuriaga Izquierdo, L. A. y Martínez Fernández de Bobadilla, A. Tendencias de los tipos de interés y sus consecuencias: un juego de expectativas. Economía financiera, 3.er curso del Grado en Economía, Universidad de Alcalá.'
                     ] }
                 ]
             }
@@ -1013,7 +1019,11 @@ print(S @ wtan / (wtan @ S @ wtan))                     # betas respecto a la ca
                         '<b>8. Entidades de crédito (I)</b>: Impuesto sobre Sociedades, provisiones por insolvencias y riesgo país.',
                         '<b>9. Entidades de crédito y seguros (II)</b>: el IVA.'
                     ] },
-                    { type: 'callout', text: 'Los tipos y límites de esta ficha son los de las diapositivas del curso (ejercicio 2025). Cámbialos si la normativa cambia: el esquema de cálculo sigue siendo el mismo.' }
+                    { type: 'callout', text: 'Los tipos y límites de esta ficha son los de las diapositivas del curso (ejercicio 2025). Cámbialos si la normativa cambia: el esquema de cálculo sigue siendo el mismo.' },
+                    { type: 'list', title: 'Ejemplos resueltos del Grado (Sistema fiscal)', items: [
+                        '<b>Alquiler de un apartamento dos meses al año</b>: ingresos íntegros $2.400$ €; gastos deducibles IBI ($180\times2/12=30$), comunidad ($300\times2/12=50$) y amortización del $3\,\%$ sobre $100.000$ (valor sin suelo) por $2/12$ ($500$). Rendimiento neto $=2.400-30-50-500=1.820$ €. Como no es vivienda habitual, se imputa además el $2\,\%$ del valor catastral ($70.000$) por los $10/12$ del año sin alquilar: $1.166{,}67$ €. Total: $2.986{,}67$ €.',
+                        '<b>Indemnización por despido</b>: de $550.000$ € percibidos, $200.000$ € es la cuantía obligatoria del Estatuto de los Trabajadores, pero el máximo exento es $180.000$ €. Tributan $550.000-180.000=370.000$ €.'
+                    ] }
                 ]
             },
             {
