@@ -104,7 +104,8 @@ const TOPICS = [
     {
         id: 'ds_econometria', cluster: 'ds', name: 'Econometría aplicada',
         desc: 'Modelos econométricos en ciencia de datos: MCO y MCG, endogeneidad, series temporales, modelos autorregresivos y evaluación de causalidad.',
-        related: ['eco_econometria', 'ds_estadistica', 'ds_ml_supervisado']
+        related: ['eco_econometria', 'ds_estadistica', 'ds_ml_supervisado'],
+        knowledge: 'econometria_ii'
     },
     {
         id: 'ds_ml_supervisado', cluster: 'ds', name: 'Machine Learning supervisado',
@@ -190,6 +191,13 @@ const TOPICS = [
         related: ['eco_renta_fija', 'eco_macro', 'act_vida', 'mat_calculo'],
         knowledge: 'mate_financiera'
     },
+    {
+        id: 'eco_eval_impacto', cluster: 'eco', name: 'Evaluación de impacto',
+        desc: 'Inferencia causal de políticas y programas: resultados potenciales y contrafactual, aleatorización, regresión en discontinuidad, diferencias en diferencias, emparejamiento y variables instrumentales.',
+        related: ['eco_econometria', 'ds_econometria', 'eco_tfg', 'ds_estadistica', 'eco_macro'],
+        knowledge: 'evaluacion_impacto'
+    },
+
     // MATEMÁTICAS Y PROBABILIDAD
     {
         id: 'mat_probabilidad', cluster: 'mat', name: 'Probabilidad',
