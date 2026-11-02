@@ -255,7 +255,7 @@ const Ollama = (() => {
 
     // Redacta una neurona completa a partir de un tema, con el mismo prompt que usarías en otra IA.
     async function redactarNeurona(tema, clusters) {
-        const texto = await generar(Neuronas.prompt(clusters) + '\n\nTEMA DE LA NEURONA: ' + tema);
+        const texto = await generar(Neuronas.prompt(clusters) + '\n\nTEMA DE LA NEURONA: ' + tema, { contexto: 4096 });
         return extraerJson(texto);
     }
     // Razona qué temas del atlas se relacionan con la neurona; devuelve [{id, motivo}] solo con ids reales.
