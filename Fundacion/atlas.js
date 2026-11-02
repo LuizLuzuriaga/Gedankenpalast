@@ -53,12 +53,14 @@ const TOPICS = [
     {
         id: 'act_vida', cluster: 'act', name: 'Seguros de Vida',
         desc: 'Riesgos biométricos: tablas de mortalidad dinámicas, riesgo de longevidad, rentas vitalicias, conmutación actuarial y proyecciones de supervivencia.',
-        related: ['mat_probabilidad', 'act_solvencia', 'act_pensiones']
+        related: ['mat_probabilidad', 'act_solvencia', 'act_pensiones'],
+        knowledge: 'mate_vida'
     },
     {
         id: 'act_no_vida', cluster: 'act', name: 'Seguros No Vida',
         desc: 'Tarificación y reservas en seguros generales: Poisson y binomial negativa para la frecuencia, colas pesadas para la severidad, credibilidad y triángulos IBNR.',
-        related: ['eco_micro', 'act_solvencia', 'ds_estadistica']
+        related: ['eco_micro', 'act_solvencia', 'ds_estadistica', 'mat_procesos'],
+        knowledge: 'mate_no_vida'
     },
     {
         id: 'act_reserving', cluster: 'act', name: 'Reserving',
@@ -70,6 +72,13 @@ const TOPICS = [
         desc: 'Sistemas de previsión para la jubilación: ciclo de vida de ahorro y consumo, tasa de intercambio y de sustitución, inflación, reparto frente a capitalización y riesgo de longevidad.',
         related: ['act_vida', 'eco_macro', 'act_gestion_riesgos'],
         knowledge: 'prevision_pensiones'
+    },
+
+    {
+        id: 'act_seguridad_social', cluster: 'act', name: 'Seguridad Social',
+        desc: 'Economía y técnica del sistema público de protección: factores endógenos y exógenos, prestaciones a corto y largo plazo, riesgos profesionales, organización y gestión, y los retos del envejecimiento.',
+        related: ['act_pensiones', 'eco_macro', 'act_vida'],
+        knowledge: 'seguridad_social'
     },
 
     // DATA SCIENCE
@@ -133,6 +142,31 @@ const TOPICS = [
         related: ['ds_econometria', 'eco_macro', 'ds_estadistica']
     },
 
+    {
+        id: 'eco_derivados', cluster: 'eco', name: 'Derivados financieros',
+        desc: 'Forwards, futuros y opciones: valoración por no arbitraje, movimiento browniano geométrico y lema de Itô, Black-Scholes-Merton, árbol binomial y letras griegas para cubrir posiciones.',
+        related: ['black_scholes', 'calculo_ito', 'eco_renta_fija', 'mat_probabilidad', 'mat_calculo'],
+        knowledge: 'derivados'
+    },
+    {
+        id: 'eco_renta_fija', cluster: 'eco', name: 'Renta fija',
+        desc: 'Valoración de bonos, estructura temporal de los tipos de interés (contado, forward, Nelson-Siegel), duración, convexidad e inmunización de carteras.',
+        related: ['eco_derivados', 'vasicek', 'alm_redington', 'eco_macro', 'act_gestion_riesgos'],
+        knowledge: 'renta_fija'
+    },
+    {
+        id: 'eco_cartera', cluster: 'eco', name: 'Gestión de carteras',
+        desc: 'Media-varianza de Markowitz, CAPM, APT y modelos de factores (Fama-French) y Black-Litterman para combinar el equilibrio de mercado con opiniones de expertos.',
+        related: ['mat_optimizacion', 'mat_algebra', 'eco_renta_fija', 'act_gestion_riesgos', 'eco_micro'],
+        knowledge: 'carteras'
+    },
+    {
+        id: 'eco_fiscalidad', cluster: 'eco', name: 'Fiscalidad financiera',
+        desc: 'Tributación de las operaciones y productos financieros en el IRPF y el Impuesto sobre Sociedades: cuentas, deuda, acciones, seguros, fondos, planes de pensiones, FATCA/CRS e IVA.',
+        related: ['act_pensiones', 'act_vida', 'act_contabilidad', 'eco_renta_fija'],
+        knowledge: 'fiscalidad'
+    },
+
     // MATEMÁTICAS Y PROBABILIDAD
     {
         id: 'mat_probabilidad', cluster: 'mat', name: 'Probabilidad',
@@ -148,6 +182,12 @@ const TOPICS = [
         id: 'mat_calculo', cluster: 'mat', name: 'Cálculo',
         desc: 'Cálculo diferencial e integral multivariable, cálculo vectorial y ecuaciones diferenciales ordinarias y parciales.',
         related: ['mat_optimizacion', 'mat_probabilidad', 'ds_deep_learning']
+    },
+    {
+        id: 'mat_procesos', cluster: 'mat', name: 'Procesos estocásticos',
+        desc: 'Cadenas de Markov en tiempo discreto y continuo, procesos de nacimiento y muerte y procesos de Poisson, con aplicaciones al seguro bonificado, la ruina y la siniestralidad.',
+        related: ['mat_probabilidad', 'act_no_vida', 'ds_simulacion', 'act_gestion_riesgos', 'calculo_ito'],
+        knowledge: 'procesos_estocasticos'
     },
     {
         id: 'mat_optimizacion', cluster: 'mat', name: 'Optimización',
