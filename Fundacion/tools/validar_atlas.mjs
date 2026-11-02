@@ -15,7 +15,7 @@ const ctx = vm.createContext({
     localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
     document: {}, window: {}
 });
-const ARCHIVOS = ['knowledgeData.js', 'atlas.js', 'conocimientos.js', 'conocimientos_mucaf.js', 'conocimientos_grado.js', 'conocimientos_grado2.js', 'conocimientos_drive.js', 'conocimientos_drive2.js', 'neuronas.js'];
+const ARCHIVOS = ['knowledgeData.js', 'atlas.js', 'conocimientos.js', 'conocimientos_mucaf.js', 'conocimientos_grado.js', 'conocimientos_grado2.js', 'conocimientos_drive.js', 'conocimientos_drive2.js'];
 for (const f of ARCHIVOS) {
     const p = path.join(dir, f);
     if (!fs.existsSync(p)) continue;
@@ -46,7 +46,7 @@ const usados = new Set(D.TOPICS.map(t => t.knowledge).filter(Boolean));
 for (const k of Object.keys(D.KNOWLEDGE)) if (!usados.has(k)) avisos.push(`Temario sin tema que lo use: ${k}`);
 
 // --- Temarios ---------------------------------------------------------------------------
-const TIPOS = new Set(['p', 'callout', 'list', 'formula', 'steps', 'table', 'sources', 'calculator', 'guide', 'html', 'code', 'related', 'markdown', 'glosario', 'ejercicios', 'lab', 'sinapsis']);
+const TIPOS = new Set(['p', 'callout', 'list', 'formula', 'steps', 'table', 'sources', 'calculator', 'guide', 'html', 'code', 'related']);
 const cadenas = [];                       // textos con posible matemática en línea
 const formulas = [];                      // fórmulas en bloque
 function recoger(v, ruta) {
