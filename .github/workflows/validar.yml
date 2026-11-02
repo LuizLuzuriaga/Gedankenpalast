@@ -1,0 +1,21 @@
+name: Validar atlas
+
+# En cada subida comprueba que el atlas es coherente: ids únicos, relaciones y temarios que existen,
+# calculadoras que calculan con sus valores por defecto y fórmulas que KaTeX sabe dibujar.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Instalar KaTeX
+        run: npm install --no-save katex@0.16.8
+      - name: Validar el atlas
+        run: node Fundacion/tools/validar_atlas.mjs

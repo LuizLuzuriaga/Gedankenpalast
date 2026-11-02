@@ -1021,7 +1021,7 @@ print(S @ wtan / (wtan @ S @ wtan))                     # betas respecto a la ca
                     ] },
                     { type: 'callout', text: 'Los tipos y límites de esta ficha son los de las diapositivas del curso (ejercicio 2025). Cámbialos si la normativa cambia: el esquema de cálculo sigue siendo el mismo.' },
                     { type: 'list', title: 'Ejemplos resueltos del Grado (Sistema fiscal)', items: [
-                        '<b>Alquiler de un apartamento dos meses al año</b>: ingresos íntegros $2.400$ €; gastos deducibles IBI ($180\times2/12=30$), comunidad ($300\times2/12=50$) y amortización del $3\,\%$ sobre $100.000$ (valor sin suelo) por $2/12$ ($500$). Rendimiento neto $=2.400-30-50-500=1.820$ €. Como no es vivienda habitual, se imputa además el $2\,\%$ del valor catastral ($70.000$) por los $10/12$ del año sin alquilar: $1.166{,}67$ €. Total: $2.986{,}67$ €.',
+                        '<b>Alquiler de un apartamento dos meses al año</b>: ingresos íntegros $2.400$ €; gastos deducibles IBI ($180\\times2/12=30$), comunidad ($300\\times2/12=50$) y amortización del $3\\,\\%$ sobre $100.000$ (valor sin suelo) por $2/12$ ($500$). Rendimiento neto $=2.400-30-50-500=1.820$ €. Como no es vivienda habitual, se imputa además el $2\\,\\%$ del valor catastral ($70.000$) por los $10/12$ del año sin alquilar: $1.166{,}67$ €. Total: $2.986{,}67$ €.',
                         '<b>Indemnización por despido</b>: de $550.000$ € percibidos, $200.000$ € es la cuantía obligatoria del Estatuto de los Trabajadores, pero el máximo exento es $180.000$ €. Tributan $550.000-180.000=370.000$ €.'
                     ] }
                 ]

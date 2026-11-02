@@ -1028,6 +1028,7 @@ function renderBlock(block) {
             return `<div class="kb-code">
                 <div class="segmented" role="tablist">${langs.map((l, i) => `<button type="button" role="tab" class="segment${i ? '' : ' is-on'}" data-lang="${l}" aria-selected="${!i}">${CODE_NAMES[l] || l}</button>`).join('')}</div>
                 ${langs.map((l, i) => `<pre class="code-block" data-lang="${l}"${i ? ' hidden' : ''}><code>${esc(block.code[l].trim())}</code></pre>`).join('')}
+                ${langs.some(l => l.toLowerCase() === 'python') ? `<div class="kb-run"><button type="button" class="control run-py">Ejecutar el Python en el navegador</button><span class="lab-status" role="status"></span></div><pre class="run-out" hidden></pre><div class="run-figs"></div>` : ''}
             </div>`;
         }
         case 'related':
@@ -1040,7 +1041,8 @@ function renderBlock(block) {
                 </button></li>`;
             }).join('')}</ul>`;
         default:
-            return '';
+            // markdown, glosario, ejercicios, lab y sinapsis los dibuja neuronas_ui.js
+            return typeof NeuronaUI !== 'undefined' ? NeuronaUI.render(block) : '';
     }
 }
 
