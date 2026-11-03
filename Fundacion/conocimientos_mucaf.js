@@ -234,6 +234,45 @@ Object.assign(CALCULATORS, {
         }
     },
 
+    // --- Renta fija: cupón corrido y precio ex-cupón ---------------------
+    cupon_corrido: {
+        title: 'Cupón corrido y precio ex-cupón',
+        inputs: [
+            { id: 'C', label: 'Cupón del periodo (% del nominal)', value: 3.5625, step: 0.0001 },
+            { id: 'd', label: 'Días desde el último cupón $d$', value: 127, step: 1 },
+            { id: 'b', label: 'Días entre cupones $b$', value: 180, step: 1 },
+            { id: 'Pb', label: 'Precio bruto (% del nominal)', value: 104.725541, step: 0.000001 }
+        ],
+        compute(v) {
+            const cc = v.C * v.d / v.b;
+            return { outputs: [
+                { label: 'Cupón corrido $C\\,d/b$', value: NUM.fmt(cc, 6) + ' %' },
+                { label: 'Precio ex-cupón $P^{*}=P-\\mathrm{CC}$', value: NUM.fmt(v.Pb - cc, 6) + ' %', note: 'Con los datos del bono de Guatemala (30/360 US): 2,513542 % y 102,212 %.' }
+            ] };
+        }
+    },
+
+    // --- Renta fija: forward a partir de dos tipos al contado --------------
+    forward: {
+        title: 'Tipo forward entre dos plazos',
+        inputs: [
+            { id: 't1', label: 'Plazo $t_1$ (años)', value: 1, step: 0.25 },
+            { id: 'R1', label: 'Tipo al contado $R_{t_1}$ (%)', value: 5, step: 0.05 },
+            { id: 't2', label: 'Plazo $t_2$ (años)', value: 2, step: 0.25 },
+            { id: 'R2', label: 'Tipo al contado $R_{t_2}$ (%)', value: 6, step: 0.05 }
+        ],
+        compute(v) {
+            const a = Math.pow(1 + v.R2 / 100, v.t2), b = Math.pow(1 + v.R1 / 100, v.t1);
+            const F = v.t2 > v.t1 ? Math.pow(a / b, 1 / (v.t2 - v.t1)) - 1 : NaN;
+            const f = v.t2 > v.t1 ? (Math.log(1 + v.R2 / 100) * v.t2 - Math.log(1 + v.R1 / 100) * v.t1) / (v.t2 - v.t1) : NaN;
+            return { outputs: [
+                { label: 'Forward $F_{t_1,t_2}$', value: NUM.fmt(F * 100, 4) + ' %', note: 'Con 5 % a un año y 6 % a dos años sale 7,01 % (Ejemplo 5.1 del Tema 2).' },
+                { label: 'Forward con capitalización continua', value: NUM.fmt(f * 100, 4) + ' %' },
+                { label: 'Pendiente de la ETTI', value: NUM.fmt((v.R2 - v.R1) * 100, 1) + ' pb' }
+            ] };
+        }
+    },
+
     // --- Gestión de carteras: dos activos y activo libre de riesgo -------
     markowitz: {
         title: 'Markowitz con dos activos y activo libre de riesgo',
@@ -814,6 +853,7 @@ print(crr(100, 100, 0.03, 0.20, 1.0, 500))` } }
 
     // ------------------------------------------------------------------
     renta_fija: {
+        guide: 'guias/renta_fija.html',
         sections: [
             {
                 id: 'idea', title: 'Idea clave',
@@ -823,8 +863,10 @@ print(crr(100, 100, 0.03, 0.20, 1.0, 500))` } }
                         '<b>Tema 1. Valoración de bonos</b>: bonos con cupón (americanos) y cupón cero, precio, TIR, bonos indexados a la inflación.',
                         '<b>Tema 2. Estructura temporal de los tipos de interés (ETTI)</b>: tipo al contado, función de descuento, TIR y sesgo del cupón, tipos forward y tipos capitalizables continuamente.',
                         '<b>Tema 3. Riesgo de variación de los tipos</b>: elasticidad del precio, duración y convexidad, evidencia empírica en deuda pública e inmunización de carteras.',
-                        '<b>Trabajo. Estimación de la ETTI</b>: modelo de Nelson y Siegel (1987) y variantes.'
+                        '<b>Tema 4. Modelos en tiempo continuo</b>: procesos de Wiener y de Itô, lema de Itô, reversión a la media (Vasicek y CIR), función de descuento sin arbitraje y valoración por simulación.',
+                        '<b>Anexo. Estimación de la ETTI</b>: bootstrapping, Nelson y Siegel (1987), Svensson, splines cúbicas y Vasicek–Fong; mínimos cuadrados ponderados por la duración.'
                     ] },
+                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 4 y del anexo de estimación de la ETTI: todos los ejemplos de los apuntes resueltos paso a paso, diez laboratorios interactivos (precio, cupón corrido, convenciones de días, forwards, duración, inmunización, Svensson, Vasicek y CIR), formulario, código en R y Python, preguntas resueltas y tarjetas.' },
                     { type: 'list', title: 'Hipótesis sobre la forma de la ETTI', items: [
                         '<b>Expectativas puras</b>: los tipos forward son predictores insesgados de los tipos futuros.',
                         '<b>Preferencia por la liquidez</b>: el forward incorpora una prima positiva que compensa el riesgo de plazo.',
@@ -847,14 +889,24 @@ print(crr(100, 100, 0.03, 0.20, 1.0, 500))` } }
                     { type: 'formula', label: 'Nelson y Siegel (1987): forward instantáneo', tex: 'f(t,T)=\\beta_0+\\beta_1\\,e^{-k(T-t)}+\\beta_2\\,k\\,(T-t)\\,e^{-k(T-t)}', note: '$\\beta_0$ es el tipo a muy largo plazo y $\\beta_0+\\beta_1$ el tipo a muy corto plazo (la operación a un día).' },
                     { type: 'formula', label: 'Duración de Macaulay, modificada y convexidad', tex: 'D=\\frac{\\sum t\\,\\mathrm{PV}_t}{P},\\qquad D_m=\\frac{D}{1+y},\\qquad C=\\frac{1}{P}\\sum\\frac{t(t+1)\\,\\mathrm{CF}_t}{(1+y)^{t+2}}' },
                     { type: 'formula', label: 'Cambio de precio ante $\\Delta y$', tex: '\\frac{\\Delta P}{P}\\approx -D_m\\,\\Delta y+\\tfrac12\\,C\\,(\\Delta y)^2' },
-                    { type: 'formula', label: 'Inmunización de Redington', tex: 'V_A=V_L,\\qquad D_A=D_L,\\qquad C_A>C_L' }
+                    { type: 'formula', label: 'Inmunización de Redington', tex: 'V_A=V_L,\\qquad D_A=D_L,\\qquad C_A>C_L' },
+                    { type: 'formula', label: 'Cupón corrido y precio ex-cupón', tex: '\\mathrm{CC}=C\\cdot\\frac{d}{b},\\qquad P^{*}=P-\\mathrm{CC}', note: '$d$: días desde el último cupón; $b$: días entre cupones (Actual/Actual; en 30/360 US se cuentan con la regla 30/360).' },
+                    { type: 'formula', label: 'Tipo cupón cero y función de descuento', tex: 'R_t=\\Bigl(\\frac{PA_t}{P}\\Bigr)^{1/t}-1,\\qquad v(T)=e^{-r_TT},\\quad r_T=\\ln(1+R_T)' },
+                    { type: 'formula', label: 'Forward continuo e instantáneo', tex: 'f_{t_1,t_2}=\\frac{r_{t_2}t_2-r_{t_1}t_1}{t_2-t_1},\\qquad f(T)=-\\frac{d\\ln v(T)}{dT},\\qquad r_T=\\frac1T\\int_0^Tf(t)\\,dt' },
+                    { type: 'formula', label: 'Hipótesis de las expectativas', tex: '\\text{TPE: }F_{t,t+1}=E_0[{}_tR_1];\\qquad \\text{TPL: }F_{t,t+1}=E_0[{}_tR_1]+L_t,\\ \\ 0<L_1<L_2<\\cdots' },
+                    { type: 'formula', label: 'Svensson: tipo al contado con capitalización continua', tex: 'r_T=\\beta_0+(\\beta_1+\\beta_2)\\frac{1-e^{-\\kappa_1T}}{\\kappa_1T}-\\beta_2e^{-\\kappa_1T}+\\beta_3\\frac{1-e^{-\\kappa_2T}}{\\kappa_2T}-\\beta_3e^{-\\kappa_2T}' },
+                    { type: 'formula', label: 'Spline cúbica sobre la función de descuento', tex: 'D(0,T)=1+a_1T+a_2T^2+a_3T^3+\\sum_{p}b_p\\,(T-\\xi_p)_+^3', note: 'Lineal en los parámetros: se estima por mínimos cuadrados ponderados con peso $1/D_j$ (duración de cada bono).' },
+                    { type: 'formula', label: 'Vasicek y función de descuento', tex: 'dr=\\kappa(\\mu-r)\\,dt+\\sigma\\,dW,\\qquad \\nu(t,s)=e^{A(t,s)-r(t)B(t,s)},\\quad B=\\frac{1-e^{-\\kappa(s-t)}}{\\kappa}' }
                 ]
             },
             {
                 id: 'calculadora', title: 'Calculadora',
                 blocks: [
                     { type: 'p', text: 'Modifica el cupón, la TIR y el plazo para ver cómo cambian el precio, la duración y la convexidad, y cuánto mejora la aproximación al añadir la convexidad.' },
-                    { type: 'calculator', id: 'bono' }
+                    { type: 'calculator', id: 'bono' },
+                    { type: 'p', text: 'Cupón corrido y tipo forward: dos cálculos que se repiten en todos los ejercicios.' },
+                    { type: 'calculator', id: 'cupon_corrido' },
+                    { type: 'calculator', id: 'forward' }
                 ]
             },
             {

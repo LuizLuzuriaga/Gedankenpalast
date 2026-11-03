@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Guía de estudio de Renta fija y sus derivados: valoración de bonos, estructura temporal de los tipos de interés, duración, convexidad e inmunización, modelos de Vasicek y CIR y estimación de la ETTI con Nelson–Siegel, Svensson y splines, con todos los ejemplos de los apuntes, laboratorios interactivos y código en R y Python.">
+<title>Renta fija y sus derivados</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3Cellipse cx='11' cy='9' rx='3.5' ry='2' fill='%232a2a2d' transform='rotate(-32 11 9)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<style>
+
+/* Layout: una columna de lectura (~70ch) con índice fijo arriba; cada apartado lleva su línea temporal de flujos, las fórmulas van en fichas y las preguntas en bloques con filete lateral. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #16202b;
+  --muted: #57667a;
+  --rule: #d6dde6;
+  --accent: #1559a6;
+  --accent-soft: #dce8f5;
+  --pres: #9a5b12;
+  --pres-soft: #f6ead8;
+  --unknown: #b3261e;
+  --font-display: "Spectral", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --ok: #1c7a4a; --ok-soft: #dcefe4;
+  --code-bg: #eaeff5;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1822; --surface: #162330; --ink: #e4ebf3; --muted: #9fb0c4; --rule: #2a3c4f;
+    --accent: #7bbcf3; --accent-soft: #1b3550; --pres: #e3a95b; --pres-soft: #3a2c19; --unknown: #ff8a80;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1822; --surface: #162330; --ink: #e4ebf3; --muted: #9fb0c4; --rule: #2a3c4f;
+  --accent: #7bbcf3; --accent-soft: #1b3550; --pres: #e3a95b; --pres-soft: #3a2c19; --unknown: #ff8a80;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 800px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+nav.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
+nav.toc .in { max-width: 800px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px; display: flex; gap: 6px 18px; flex-wrap: wrap; font-size: 13px; }
+nav.toc a { color: var(--muted); text-decoration: none; font-weight: 500; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.hero { padding-block: 40px 8px; display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(32px, 6vw, 46px); line-height: 1.08; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: 28px; line-height: 1.2; margin: 0; text-wrap: balance; }
+h3 { font-family: var(--font-display); font-size: 21px; font-weight: 700; margin: 0; text-wrap: balance; }
+h4 { font-size: 16px; font-weight: 600; margin: 0; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 62ch; }
+
+section { padding-top: 48px; display: grid; gap: 18px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 6px; border-top: 2px solid var(--ink); padding-top: 12px; }
+.sub { display: grid; gap: 14px; padding-top: 10px; scroll-margin-top: 56px; }
+.stack { display: grid; gap: 14px; }
+
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: grid; gap: 10px; min-width: 0; }
+.math { overflow-x: auto; overflow-y: hidden; }
+.tag { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.note { font-size: 14px; color: var(--muted); }
+ul.tight { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.tbl { overflow-x: auto; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+td.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+
+/* Líneas temporales */
+figure.tl { margin: 0; display: grid; gap: 6px; min-width: 0; }
+.tl-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+.tl-scroll svg { display: block; margin: 0 auto; }
+figure.tl figcaption { font-size: 14px; color: var(--muted); }
+.tl-axis { stroke: var(--ink); stroke-opacity: .55; fill: none; }
+.tl-tick { stroke: var(--ink); stroke-opacity: .55; }
+.tl-txt { font-family: var(--font-data); font-size: 12px; fill: var(--ink); }
+.tl-t { font-family: var(--font-data); font-size: 12px; fill: var(--muted); }
+.tl-age { font-family: var(--font-data); font-size: 11px; fill: var(--muted); }
+.tl-l { font-family: var(--font-data); font-size: 11px; fill: var(--muted); font-style: italic; }
+.tl-mark { stroke: var(--ink); stroke-dasharray: 3 3; stroke-opacity: .7; fill: none; }
+.tl-marktxt { font-family: var(--font-data); font-size: 12px; font-weight: 500; fill: var(--ink); }
+.tl-a { fill: var(--accent); stroke: var(--accent); }
+.tl-p { fill: var(--pres); stroke: var(--pres); }
+.tl-w { fill: var(--muted); stroke: var(--muted); }
+.tl-f { fill: var(--ink); stroke: var(--ink); }
+.tl-lbl-a { fill: var(--accent); }
+.tl-lbl-p { fill: var(--pres); }
+.tl-lbl-w { fill: var(--muted); }
+.tl-lbl-f { fill: var(--ink); font-weight: 500; }
+.tl-q { fill: var(--unknown); font-weight: 600; }
+.tl-line { fill: none; stroke-width: 1.4; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { display: inline-block; width: 4px; height: 14px; }
+.legend i.a { background: var(--accent); } .legend i.p { background: var(--pres); } .legend i.w { background: var(--muted); }
+.legend i.f { width: 9px; height: 9px; background: var(--ink); transform: rotate(45deg); }
+.legend b { color: var(--unknown); font-family: var(--font-data); }
+
+.q { border-left: 3px solid var(--pres); background: var(--surface); border-radius: 0 6px 6px 0; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; scroll-margin-top: 56px; }
+.q .qn { font-family: var(--font-data); font-size: 12px; color: var(--pres); font-weight: 500; letter-spacing: .04em; }
+.q .stmt { font-family: var(--font-display); font-style: italic; font-size: 17px; }
+.result { background: var(--pres-soft); border-radius: 4px; padding: 8px 12px; font-family: var(--font-data); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+details.fc { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
+details.fc summary { cursor: pointer; padding: 12px 16px; font-weight: 500; list-style: none; display: flex; gap: 10px; }
+details.fc summary::-webkit-details-marker { display: none; }
+details.fc summary::before { content: "+"; font-family: var(--font-data); color: var(--accent); }
+details.fc[open] summary::before { content: "−"; }
+details.fc .ans { padding: 0 16px 14px 34px; display: grid; gap: 8px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; }
+
+button { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 4px; border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+.calc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .calc { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.calc label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.calc input { font-family: var(--font-data); font-size: 15px; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.out div { background: var(--accent-soft); border-radius: 4px; padding: 8px 12px; display: grid; gap: 2px; }
+.out span { font-size: 12px; color: var(--muted); }
+.out b { font-family: var(--font-data); font-weight: 500; font-size: 18px; font-variant-numeric: tabular-nums; }
+mjx-container[display="true"] { margin: 6px 0 !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* --- Simulación: extras --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --ok: #6fd39b; --ok-soft: #173326; --code-bg: #0c141c; }
+}
+:root[data-theme="dark"] { --ok: #6fd39b; --ok-soft: #173326; --code-bg: #0c141c; }
+
+nav.toc .in { gap: 6px 14px; font-size: 12.5px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; width: fit-content; background: var(--pres-soft); color: var(--pres); border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 600; }
+.chip b { font-family: var(--font-data); font-weight: 500; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+.src { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.src b { color: var(--accent); font-weight: 500; }
+
+.legend i.a { background: var(--accent); } .legend i.p { background: var(--pres); }
+.legend i.ok { background: var(--ok); } .legend i.bad { background: var(--unknown); }
+
+.callout { border-left: 3px solid var(--unknown); background: var(--surface); border-radius: 0 6px 6px 0; padding: 12px 16px; display: grid; gap: 6px; font-size: 15px; }
+.callout.tip { border-left-color: var(--ok); }
+.callout.key { border-left-color: var(--accent); }
+.callout h4 { font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+
+/* Código */
+.code { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; min-width: 0; overflow: hidden; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 10px 6px 14px; border-bottom: 1px solid var(--rule); font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.code-head .fname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.code-head .badge { color: var(--pres); }
+.code-head button { padding: 2px 10px; font-size: 12px; flex: none; }
+.code pre { margin: 0; padding: 12px 14px; overflow: auto; max-height: 560px; font-family: var(--font-data); font-size: 12.5px; line-height: 1.55; tab-size: 2; }
+.code pre code { font-family: inherit; white-space: pre; }
+.code-head { flex-wrap: wrap; }
+.code-tabs { display: inline-flex; gap: 4px; }
+.code-tabs button { padding: 2px 10px; font-size: 12px; border-radius: 4px; border: 1px solid var(--rule); color: var(--muted); background: transparent; }
+.code-tabs button[aria-selected="true"] { border-color: var(--pres); color: var(--pres); }
+.code pre[hidden] { display: none; }
+.c-com { color: var(--muted); font-style: italic; }
+.c-str { color: var(--pres); }
+.c-num { color: var(--accent); }
+.c-kw { color: var(--accent); font-weight: 600; }
+.c-fn { color: var(--ink); font-weight: 500; }
+.c-op { color: var(--muted); }
+details.codebox > summary { cursor: pointer; font-weight: 500; padding: 4px 0; list-style: none; display: flex; gap: 10px; }
+details.codebox > summary::-webkit-details-marker { display: none; }
+details.codebox > summary::before { content: "▸"; color: var(--accent); font-family: var(--font-data); }
+details.codebox[open] > summary::before { content: "▾"; }
+.walk { margin: 0; padding-left: 22px; display: grid; gap: 5px; font-size: 14.5px; }
+.walk li::marker { color: var(--accent); font-family: var(--font-data); font-size: 12px; }
+.walk code, p code, td code, li code, .note code { font-family: var(--font-data); font-size: .88em; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; }
+
+/* Figuras */
+figure.fig { margin: 0; display: grid; gap: 6px; min-width: 0; }
+figure.fig figcaption { font-size: 14px; color: var(--muted); }
+.fig .tl-scroll > svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.ax { stroke: var(--ink); stroke-opacity: .55; fill: none; }
+.gr { stroke: var(--rule); fill: none; }
+.tx { font-family: var(--font-data); font-size: 11px; fill: var(--muted); }
+.tx-l { font-family: var(--font-data); font-size: 11.5px; fill: var(--ink); }
+.tx-b { font-family: var(--font-data); font-size: 12px; fill: var(--ink); font-weight: 500; }
+.tx-w { fill: var(--muted); } .tx-a { fill: var(--accent); } .tx-p { fill: var(--pres); } .tx-ok { fill: var(--ok); } .tx-bad { fill: var(--unknown); }
+.s-a { stroke: var(--accent); } .s-p { stroke: var(--pres); } .s-ok { stroke: var(--ok); } .s-bad { stroke: var(--unknown); } .s-ink { stroke: var(--ink); } .s-w { stroke: var(--muted); }
+.f-a { fill: var(--accent); } .f-p { fill: var(--pres); } .f-ok { fill: var(--ok); } .f-bad { fill: var(--unknown); } .f-ink { fill: var(--ink); } .f-w { fill: var(--muted); }
+.f-as { fill: var(--accent-soft); } .f-ps { fill: var(--pres-soft); } .f-oks { fill: var(--ok-soft); } .f-surf { fill: var(--surface); }
+.ln { fill: none; stroke-width: 2; }
+.ln.thin { stroke-width: 1.2; } .ln.dash { stroke-dasharray: 5 4; }
+.o50 { fill-opacity: .5; } .o25 { fill-opacity: .28; } .o70 { fill-opacity: .72; }
+.node rect { fill: var(--surface); stroke-width: 1.6; }
+.node text { font-family: var(--font-data); font-size: 12px; fill: var(--ink); }
+.node .sub { font-size: 10.5px; fill: var(--muted); }
+
+/* Laboratorios */
+.lab { border: 1px dashed var(--accent); border-radius: 6px; padding: 14px 16px; display: grid; gap: 12px; background: color-mix(in srgb, var(--accent-soft) 35%, transparent); min-width: 0; }
+.lab > .lab-title { font-family: var(--font-data); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+.ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; }
+.ctl label { display: grid; gap: 3px; font-size: 12.5px; color: var(--muted); min-width: 0; }
+.ctl input, .ctl select { font-family: var(--font-data); font-size: 14px; padding: 5px 7px; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.ctl input[type=range] { padding: 0; accent-color: var(--accent); }
+.ctl .val { font-family: var(--font-data); color: var(--ink); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.stats div { background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; display: grid; gap: 1px; }
+.stats span { font-size: 11.5px; color: var(--muted); }
+.stats b { font-family: var(--font-data); font-weight: 500; font-size: 15px; font-variant-numeric: tabular-nums; }
+.stats b.ok { color: var(--ok); } .stats b.bad { color: var(--unknown); }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 760px) { .grid3 { grid-template-columns: 1fr; } }
+.seq { font-family: var(--font-data); font-size: 12.5px; word-break: break-word; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; }
+.mini { font-size: 13px; }
+.mini th, .mini td { padding: 4px 8px; }
+table.plain td, table.plain th { white-space: normal; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font-family: var(--font-data); font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.pill.p { background: var(--pres-soft); color: var(--pres); }
+nav.toc a.exam { color: var(--pres); }
+footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 14px; font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+
+.mini td.num, .mini th { text-align: center; }
+
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Índice">
+  <div class="in">
+    <a href="../" target="_top">← Gendanken Palast</a>
+    <a href="#mapa">Mapa</a><a href="#t1">Tema 1 · Bonos</a><a href="#t2">Tema 2 · ETTI</a><a href="#t3">Tema 3 · Duración</a><a href="#t4">Tema 4 · Continuo</a><a href="#anexo">Anexo · Estimación</a><a href="#formulas">Fórmulas</a><a href="#preguntas">Preguntas</a><a href="#tarjetas">Tarjetas</a>
+  </div>
+</nav>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Renta fija y sus derivados · Prof. Eliseo Navarro</div>
+  <h1>Renta fija y sus derivados</h1>
+  <p class="lede">Guía de estudio de los cuatro temas: valoración de bonos (Tema 1), estructura temporal de los tipos de interés (Tema 2), riesgo de tipo de interés, duración e inmunización (Tema 3) y modelos en tiempo continuo (Tema 4), más el anexo de estimación de la ETTI. Cada resultado se deduce, se calcula a mano con los números de los apuntes y se puede reproducir con un laboratorio interactivo y con código en R y Python.</p>
+  <div class="hero-meta">
+    <span class="chip">Material: <b>Mario Torralba</b> (Temas 1 y 3) · <b>Eliseo Navarro</b> (Temas 2, 4 y anexo)</span>
+    <span class="src">Ejemplos: Boletín de Deuda Pública, SENAF, Refinitiv/LSEG</span>
+  </div>
+  <div class="legend" aria-label="Leyenda de los gráficos">
+    <span><i class="a"></i>flujo, dato o curva principal</span>
+    <span><i class="p"></i>precio, resultado o curva de contraste</span>
+    <span><i class="w"></i>referencia</span>
+    <span><i class="ok"></i>valor de mercado / TIR</span>
+  </div>
+</header>
+
+<section id="mapa">
+  <div class="sec-head"><div class="eyebrow">Qué entra</div><h2>Mapa del temario</h2></div>
+  <div class="tbl"><table class="plain">
+    <thead><tr><th>Bloque</th><th>Contenido</th><th>Ejemplos de los apuntes que se resuelven</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#t1">Tema 1</a></td><td>Bono con cupones y cupón cero, precio, cupón corrido, precio ex-cupón, bonos indexados, convenciones de días</td><td>Ej. 1–7, bono Guatemala 30/360, ficha Refinitiv del bono a 50 años, boletín SENAF</td></tr>
+      <tr><td><a href="#t2">Tema 2</a></td><td>Tipo cupón cero, ETTI, arbitraje, TIR y sesgo del cupón, forwards, certidumbre, hipótesis TPE/TPL/segmentación, tipos continuos</td><td>Ej. 2.1, 3.1, 4.1, 4.2, 5.1, 6.1–6.3, 7.1 (Euríbor 28-jun-2013)</td></tr>
+      <tr><td><a href="#t3">Tema 3</a></td><td>Elasticidad, duración, convexidad, carteras, VPB, evidencia empírica, riesgo de reinversión, inmunización simple y múltiple, variaciones no paralelas</td><td>Ej. 3.4, bono 4,85 31.10.20, carteras 4.2 y 4.3, inmunización de 1-ene-2016, ejercicio de bonos A, B, C</td></tr>
+      <tr><td><a href="#t4">Tema 4</a></td><td>Wiener, difusión de Itô, lema de Itô, Vasicek, CIR, ecuación de valoración, simulación y opciones sobre bonos</td><td>Deducciones paso a paso y laboratorio de trayectorias</td></tr>
+      <tr><td><a href="#anexo">Anexo ETTI</a></td><td>Bootstrapping, aproximación funcional, Nelson–Siegel, Svensson, splines cúbicas, Vasicek–Fong, ponderaciones</td><td>Bono 31-ene-2008 frente a strips (23-sep-2004), método de estimación</td></tr>
+      <tr><td><a href="#formulas">Fórmulas</a>, <a href="#codigo">código</a>, <a href="#preguntas">preguntas</a></td><td>Formulario completo, código R y Python equivalente, preguntas de examen resueltas y tarjetas</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout tip"><h4>Cómo usar la guía</h4>
+    <p>Cada apartado sigue el orden idea → fórmula → ejemplo numérico de los apuntes → laboratorio. Los bloques de código tienen pestañas <b>R</b> y <b>Python</b> con los mismos pasos. Los números de cada ejemplo se han recalculado y coinciden con los de los apuntes salvo donde se indica una errata.</p>
+  </div>
+  <div class="callout"><h4>Erratas detectadas en los apuntes</h4>
+    <ul class="tight">
+      <li>Tema 3, §4.2: el valor de la primera cartera es \(1000\cdot1085{,}30+500\cdot970{,}87+1200\cdot971{,}71+750\cdot862{,}61=3.383.752{,}17\) €, no 3.783.752,17 €. El VPB de 1.590,65 € solo sale con el valor correcto.</li>
+      <li>Tema 1, ej. 5: el diagrama rotula el vencimiento «17.12.17»; la letra vence el 17.02.17 (351 días). El tipo es \(-0{,}031\,\%\), no \(-0{,}0031\,\%\).</li>
+      <li>Tema 1, ej. 7: el numerador del coeficiente de indexación debe ser el índice de referencia obtenido, 98,702, que da 0,98374.</li>
+      <li>Anexo ETTI, ejemplo de 2004: con los tipos cupón cero redondeados del texto el precio teórico sale ≈ 1.134,0 € (el apunte indica 1.134,39 €); la conclusión (diferencia sustancial frente a 1.135,30 €) no cambia.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================================================== TEMA 1 -->
+<section id="t1">
+  <div class="sec-head"><div class="eyebrow">Tema 1</div><h2>Valoración de títulos de renta fija</h2></div>
+  <p class="note">Idea que lo une todo: un bono es una promesa de flujos de caja fijados de antemano. Su valor es la suma de esos flujos descontados al tipo de mercado; como el tipo de mercado cambia, el precio cambia en sentido contrario, y además crece mecánicamente con el paso del tiempo (cupón corrido).</p>
+
+  <div class="sub" id="t1-elem">
+    <h3>1.1 Elementos que determinan los flujos de caja</h3>
+    <p>Los bonos y obligaciones son títulos que representan una parte alícuota de un préstamo. Se estudian solo aquellos con flujos <b>predeterminados</b> (excluidos indexados, amortizables anticipadamente o convertibles; la única excepción son los indexados a la inflación, §1.7). Según el pago de intereses hay dos modalidades: bonos con <b>cupones</b> (americanos) y bonos <b>cupón cero</b> (un único flujo al vencimiento).</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">Elementos</span>
+        <ul class="tight"><li><b>Nominal</b> \(N\): cuantía de referencia (1.000 € en el Tesoro).</li><li><b>Cupón</b> \(c\): porcentaje del nominal; \(C=c\cdot N\).</li><li><b>Frecuencia</b>: anual en el Tesoro (el último cupón se paga al vencimiento).</li><li><b>Vencimiento</b>: fecha de devolución del nominal.</li><li><b>Prima de amortización</b>: % sobre el nominal pagado al amortizar.</li></ul></div>
+      <div class="card"><span class="tag">Mercado español de deuda</span>
+        <ul class="tight"><li>Vencimientos habituales: 3, 5, 7, 10, 15 y 30 años.</li><li>El primer cupón es proporcional al tiempo desde la emisión (nueve meses ⇒ ≈ ¾ del cupón).</li><li>Valoración: capitalización compuesta y año natural.</li></ul></div>
+    </div>
+  </div>
+
+  <div class="sub" id="t1-precio">
+    <h3>1.2 Precio de un bono recién emitido</h3>
+    <div class="card"><div class="math">\[ P=\sum_{t=1}^{n-1}\frac{C}{(1+R)^t}+\frac{C+N}{(1+R)^n} \]</div>
+    <p class="note">\(R\) es el tipo efectivo anual de valoración; los flujos se descuentan a \(t=0\).</p></div>
+    <figure class="tl" data-tl="ej1"><div class="tl-scroll"></div><figcaption><b>Ejemplo 1.</b> Bono a 4 años, cupón 4 %, nominal 1.000 €, \(R=5\,\%\). Arriba el flujo, abajo su valor actual. \(P=964{,}54\) € (96,454 %).</figcaption></figure>
+    <p>El bono cotiza <b>por debajo de la par</b> porque su cupón (4 %) es inferior al tipo de mercado (5 %): nadie lo compraría a 1.000 € teniendo alternativas al 5 %, así que el precio baja hasta que la rentabilidad del bono coincide con la del mercado.</p>
+    <h4>Relación precio–tipo y posición respecto a la par</h4>
+    <div class="card"><div class="math">\[ P=cN\,\frac{1-(1+R)^{-n}}{R}+\frac{N}{(1+R)^n}=N\left[1+\frac{c-R}{R}\Bigl(1-\frac1{(1+R)^n}\Bigr)\right] \]</div>
+      <p class="note">Como \(0<1-(1+R)^{-n}<1\): si \(R<c\) entonces \(P>N\) (sobre la par); si \(R=c\), \(P=N\) (a la par); si \(R>c\), \(P<N\) (bajo la par). Solo vale en la emisión o inmediatamente tras pagar un cupón. A mayor tipo, menor precio: relación inversa y convexa.</p></div>
+    <div class="lab" id="lab-bono"><div class="lab-title">Laboratorio · precio y tipo de interés</div>
+      <div class="ctl"><label>Cupón anual (%)<input id="b_c" type="number" value="4" step="0.25"></label><label>Tipo de valoración R (%)<input id="b_y" type="number" value="5" step="0.25"></label><label>Años n<input id="b_n" type="number" value="4" min="1" max="60"></label></div>
+      <div class="stats" id="b_stats"></div>
+      <figure class="fig" id="b_fig"><div class="tl-scroll"></div><figcaption>Precio de un bono de 1.000 € frente al tipo. La línea vertical marca el cupón: a su izquierda el bono está sobre la par, a su derecha bajo la par. Con los valores iniciales se reproduce el Ejemplo 1 (964,54 €).</figcaption></figure></div>
+  </div>
+
+  <div class="sub" id="t1-real">
+    <h3>1.3 Plazos no enteros: el caso real del Boletín</h3>
+    <p>Entre la contratación y la liquidación hay hasta una semana (aquí D+2). El precio se calcula en la <b>fecha valor</b>. El primer flujo se descuenta con exponente igual a la fracción del año que falta para el próximo cupón y los demás suman años enteros.</p>
+    <p><b>Ejemplo 2.</b> Boletín de 1-mar-2016: ES00000123U9, O EST 5,40 31.01.23, precio ex-cupón 129,230, TIR 1,00 % (con tres decimales 1,002 %). Fecha valor 3-mar-2016; entre el 31-ene-2016 y el 31-ene-2017 hay 366 días (29 de febrero), faltan 334.</p>
+    <figure class="tl" data-tl="ej2"><div class="tl-scroll"></div><figcaption>Flujos del Ejemplo 2 (nominal 1.000 €, cupón 54 €) y exponentes de descuento.</figcaption></figure>
+    <div class="card"><div class="math">\[ P=\sum_{k=0}^{5}\frac{54}{(1{,}01002)^{k+334/366}}+\frac{1054}{(1{,}01002)^{6+334/366}}=1297{,}01\ \text{euros}\quad(129{,}701\ \%) \]</div>
+      <p class="note">(la suma recorre seis cupones de 54 €; el séptimo flujo es el último, 1.054 €). El Boletín publica 129,230 %: es el precio <b>ex-cupón</b> (§1.4).</p></div>
+  </div>
+
+  <div class="sub" id="t1-cc">
+    <h3>1.4 Evolución del precio: cupón corrido y precio ex-cupón</h3>
+    <p>Entre emisión y primer cupón (\(0<t<1\)) y con el tipo constante, el valor del bono es</p>
+    <div class="math">\[ V_t=\sum_{k\ge1}\frac{\mathrm{CF}_k}{(1+R)^{k-t}}=V_0\,(1+R)^t. \]</div>
+    <p>Por el mero paso del tiempo el precio sube a la tasa \(R\) (efecto del <b>cupón corrido</b>) hasta el pago del cupón, momento en que cae exactamente \(C\). Argumento: de dos bonos iguales salvo que B paga sus cupones 9 meses después de A, el B vale más (siempre puede invertir sus flujos 9 meses), y el valor de B es el que tendrá A dentro de 9 meses.</p>
+    <figure class="tl" data-tl="sawtooth"><div class="tl-scroll"></div><figcaption>El precio bruto crece hasta el pago del cupón y cae su importe: trazo discontinuo.</figcaption></figure>
+    <div class="grid2">
+      <div class="card"><span class="tag">Cupón corrido</span><div class="math">\[ \mathrm{CC}=C\cdot\frac{\text{días desde el último cupón}}{\text{días entre cupones}} \]</div><p class="note">Aproximación lineal de \(V_t\).</p></div>
+      <div class="card"><span class="tag">Precio ex-cupón (limpio)</span><div class="math">\[ P^{*}=P-\mathrm{CC},\qquad P=P^{*}+\mathrm{CC}\ (\text{bruto, sucio}) \]</div><p class="note">Las cotizaciones se dan ex-cupón: el precio ex-cupón refleja las condiciones del mercado.</p></div>
+    </div>
+    <div class="lab" id="lab-sierra"><div class="lab-title">Laboratorio · precio bruto y ex-cupón en el tiempo</div>
+      <div class="ctl"><label>Cupón (%)<input id="s_c" type="number" value="5" step="0.5"></label><label>Tipo R (%)<input id="s_y" type="number" value="5" step="0.5"></label><label>Años<input id="s_n" type="number" value="4" min="2" max="10"></label></div>
+      <div class="stats" id="s_stats"></div>
+      <figure class="fig" id="s_fig"><div class="tl-scroll"></div><figcaption>Línea continua: precio bruto (con saltos al pagar cupón). Discontinua: precio ex-cupón, sin saltos; sus variaciones se deben solo a cambios del tipo. Si cupón = tipo, el ex-cupón oscila alrededor de la par.</figcaption></figure></div>
+    <h4>Ejemplo 3: tres bonos al 4,50 % con vencimiento en 3 años y 182 días</h4>
+    <figure class="tl" data-tl="ej3"><div class="tl-scroll"></div><figcaption>Flujos del Ejemplo 3: \(C\) = 37,5; 44 y 59 €.</figcaption></figure>
+    <div class="tbl"><table class="mini"><thead><tr><th>Bono</th><th>Cupón</th><th>Precio bruto P</th><th>Cupón corrido</th><th>Ex-cupón P*</th><th>Frente a la par</th></tr></thead><tbody>
+      <tr><td>1</td><td class="num">3,75 %</td><td class="num">994,80</td><td class="num">37,5·183/365 = 18,80</td><td class="num">976,00</td><td>bajo la par</td></tr>
+      <tr><td>2</td><td class="num">4,40 %</td><td class="num">1.018,65</td><td class="num">44·183/365 = 22,06</td><td class="num">996,59</td><td>ligeramente bajo</td></tr>
+      <tr><td>3</td><td class="num">5,90 %</td><td class="num">1.073,66</td><td class="num">59·183/365 = 29,58</td><td class="num">1.044,08</td><td>sobre la par</td></tr></tbody></table></div>
+    <p>Con el precio bruto el bono 2 (cupón 4,40 % &lt; 4,50 %) parece cotizar sobre la par, contradiciendo la regla; con el ex-cupón la regla se cumple. Por eso se cotiza ex-cupón.</p>
+    <p><b>Ejemplo 4.</b> Del Ejemplo 2: \(\mathrm{CC}=54\cdot\frac{366-334}{366}=4{,}72\) €, y \(P^*=1297{,}01-4{,}72=1292{,}29\) € (129,229 %), que coincide con el Boletín (129,230; el rendimiento real es 1,0001892 %).</p>
+    <div class="callout key"><h4>Determinantes del precio</h4><p>Dos fuerzas: el paso del tiempo (cupón corrido y caída al pagar el cupón) y el tipo de valoración (relación inversa por coste de oportunidad). En el Boletín el precio ex-cupón de la obligación ES0000012783 5,50 30.07.17 (2006–2010) se mueve en sentido contrario a su TIR.</p></div>
+  </div>
+
+  <div class="sub" id="t1-cero">
+    <h3>1.5 Bonos cupón cero</h3>
+    <p>Un único flujo \(PA\) (precio de amortización) en \(n\). Si \(PA=N\) se emite «al descuento» (Letras del Tesoro a 6, 12 y 18 meses). No hay cupón corrido: precio y precio ex-cupón coinciden; con tipo constante el precio crece exponencialmente hasta \(PA\).</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">Corto plazo (&lt; 12 meses): simple y año comercial</span><div class="math">\[ P=\frac{N}{1+i\cdot\frac{n}{360}} \]</div></div>
+      <div class="card"><span class="tag">Largo plazo: compuesta y año natural</span><div class="math">\[ P=\frac{N}{(1+i)^{n}} \]</div></div>
+    </div>
+    <p><b>Ejemplo 5 (Letra).</b> ES0L01702171, 17-feb-2017, valor 3-mar-2016 (351 días), tipo \(-0{,}031\,\%\): \(P=\dfrac{1000}{1+(-0{,}00031)\cdot351/360}=1000{,}30\) € (100,030 %). Tipos negativos ⇒ precio sobre el nominal.</p>
+    <p><b>Ejemplo 6 (strip).</b> ES0000011983 CUP-0 31.01.24 al 1,44 %, valor 2-mar-2016: 335 días hasta el 31-ene-2017 (con 29 de febrero ⇒ 335/366) y siete años completos: \(P=\dfrac{100}{(1{,}0144)^{7+335/366}}=89{,}300\,\%\). Los strips son cupón cero sintéticos que surgen de segregar cupones y principal.</p>
+    <figure class="fig" id="f_zero"><div class="tl-scroll"></div><figcaption>Evolución del precio de un cupón cero con tipo constante al 4 %: crece exponencialmente hasta el 100 %.</figcaption></figure>
+    <p class="note">Al acercarse el vencimiento la sensibilidad del precio a los tipos se atenúa (el día del vencimiento el precio es 100 % sea cual sea el tipo): adelanto de la duración (Tema 3).</p>
+  </div>
+
+  <div class="sub" id="t1-ind">
+    <h3>1.6 Bonos indexados a la inflación</h3>
+    <p>El nominal se revaloriza con el coeficiente de indexación (IPC ex-tabaco). El índice de referencia interpola linealmente el IPC de los meses \(m-3\) y \(m-2\) (se conoce con mes y medio de adelanto).</p>
+    <div class="card"><div class="math">\[ \mathrm{CI}_{d,m}=\frac{\mathrm{IR}_{d,m}}{\text{Índice base}},\quad \mathrm{IR}_{d,m}=\mathrm{IPC}_{m-3}+(\mathrm{IPC}_{m-2}-\mathrm{IPC}_{m-3})\frac{d-1}{dd} \]</div>
+    <div class="math">\[ \text{Cupón}=c_{real}\cdot \mathrm{CI},\quad \mathrm{CC}=c_{real}\,\mathrm{CI}\,\frac{\text{días}}{\text{días}},\quad \text{Amortización}=N\cdot\max\{\mathrm{CI},1\} \]</div>
+    <div class="math">\[ \text{Precio de liquidación}=\text{Cotización}\cdot \mathrm{CI}^{*}+\mathrm{CC} \]</div></div>
+    <p><b>TIR real.</b> Con inflación nula los flujos serían \(cN\) y \(cN+N\) y la TIR real \(r\) resuelve \(P=\sum cN(1+r)^{-t}+N(1+r)^{-n}\). Con indexación, la TIR nominal \(k\) cumple \((1+k)=(1+r)(1+\pi)\) (Fisher) y si \(\mathrm{CI}_t/\mathrm{CI}_0=(1+\pi)^t\) la rentabilidad real es \(r\) sea cual sea la inflación: protege el poder adquisitivo.</p>
+    <p><b>Ejemplo 7.</b> ES00000127C8 OBL 1,00 30.11.30 IND, 7-abr-2016: \(\mathrm{IR}=98{,}67+(98{,}83-98{,}67)\cdot\tfrac{6}{30}=98{,}702\); índice base (30-nov-2014) 100,33319 ⇒ \(\mathrm{CI}=0{,}98374\). Cupón corrido (129 días de 366): \(1\cdot0{,}98374\cdot129/366=0{,}346728\). Cotización 98,992 %: liquidación \(98{,}992\cdot0{,}98374+0{,}346728=97{,}729\,\%\). La TIR del Boletín (1,06 %) es <b>real</b>; frente a una obligación no indexada que amortiza cuatro meses antes con TIR nominal 1,97 %, la diferencia aproxima la inflación esperada más una prima de riesgo de inflación (break-even).</p>
+  </div>
+
+  <div class="sub" id="t1-dias">
+    <h3>1.7 Convención para el cálculo de días</h3>
+    <ul class="tight"><li><b>Actual/Actual</b>: días entre dos fechas dividido por el número de días entre pagos de intereses.</li><li><b>Actual/365</b> y <b>Actual/360</b>.</li><li><b>30/360 US</b>: \(\dfrac{360(Y_2-Y_1)+30(M_2-M_1)+(D_2-D_1)}{360}\) con reglas: si \(D_1=31\) ⇒ 30; si \(D_2=31\) y \(D_1\in\{30,31\}\) ⇒ \(D_2=30\); si \(D_1\) es el último día de febrero ⇒ 30; si \(D_1\) y \(D_2\) son último día de febrero ⇒ \(D_2=30\).</li></ul>
+    <p><b>Ejemplo del bono de Guatemala</b> (7,125 % anual, amortización 15-dic-2027, último cupón 16-dic-2024, fecha valor 23-abr-2025, 30/360 US): días desde el último cupón \(=(2025-2024)\cdot360+(4-12)\cdot30+(23-16)=127\); días entre cupones \(=360+(6-12)\cdot30+0=180\). Cupón semestral 3,5625.</p>
+    <figure class="tl" data-tl="gt"><div class="tl-scroll"></div><figcaption>Flujos del bono de Guatemala (fuente: Eikon-LSEG). El primer cupón es de 3,5430 por el desfase de fechas; 53 días hasta él.</figcaption></figure>
+    <div class="math">\[ \mathrm{CC}=3{,}5625\cdot\frac{127}{180}=2{,}513541\,\%,\qquad P^{*}=104{,}725541-2{,}513541=102{,}212\,\% \]</div>
+    <div class="lab" id="lab-dias"><div class="lab-title">Laboratorio · cupón corrido con cualquier convención</div>
+      <div class="ctl"><label>Último cupón (dd/mm/aaaa)<input id="d_last" type="text" value="16/12/2024"></label><label>Fecha valor<input id="d_val" type="text" value="23/04/2025"></label><label>Próximo cupón<input id="d_next" type="text" value="16/06/2025"></label><label>Cupón del periodo (%)<input id="d_cup" type="number" value="3.5625" step="0.0001"></label><label>Precio bruto (%)<input id="d_dirty" type="number" value="104.725541" step="0.000001"></label><label>Convención<select id="d_conv"><option value="30">30/360 US</option><option value="act">Actual/Actual</option><option value="365">Actual/365</option><option value="360">Actual/360</option></select></label></div>
+      <div class="stats" id="d_stats"></div><div class="stats" id="d_stats2"></div>
+      <p class="note">Con 30/360 US y las fechas del ejemplo se obtienen 127 y 180 días (el primer cupón real del apunte vence el 16/06/2025; entre 16/12/2024 y 16/06/2025: 180 días 30/360).</p></div>
+  </div>
+
+  <div class="sub" id="t1-mercado">
+    <h3>1.8 Dos fichas de mercado para contrastar</h3>
+    <p><b>Refinitiv: bono del Reino de España 1,450 % 31-oct-2071.</b> Contratación 18-oct-2022, liquidación 20-oct-2022 (2 días hábiles), precio limpio 46,7955, 354 días de cupón corrido, precio sucio 48,2018, TIR 3,900457 %.</p>
+    <div class="tbl"><table class="mini"><thead><tr><th>Magnitud</th><th>Ficha Refinitiv</th><th>Calculada con las fórmulas de la guía</th></tr></thead><tbody>
+      <tr><td>Cupón corrido</td><td class="num">1,406301</td><td class="num">1,45·354/365 = 1,406301</td></tr>
+      <tr><td>Precio sucio</td><td class="num">48,201801</td><td class="num">46,7955 + 1,406301 = 48,201801</td></tr>
+      <tr><td>TIR</td><td class="num">3,900457 %</td><td class="num">3,9007 %</td></tr>
+      <tr><td>Duración / modificada</td><td class="num">27,1857 / 26,1652</td><td class="num">27,185 / 26,164</td></tr>
+      <tr><td>Convexidad</td><td class="num">1.026,39</td><td class="num">1.026,26</td></tr>
+      <tr><td>BPV (por 100 de nominal)</td><td class="num">0,1261</td><td class="num">0,12612</td></tr></tbody></table></div>
+    <p class="note">Coincide salvo diferencias de decimales por el calendario (la ficha usa liquidación del último cupón el 2-nov por día hábil). La duración y la convexidad se definen en el Tema 3. Se puede reproducir en el laboratorio de duración con cupón 1,45 %, TIR 3,9007 %, 50 años y fracción 0,0301.</p>
+    <p><b>SENAF Deuda Pública, 21-sep-2026</b> (275 referencias, 30 por página): para cada bono, lado de compra (nº de operaciones, importe, TIR, precio) y de venta (precio, TIR, importe, nº). Ejemplos de la primera página, en % del nominal:</p>
+    <div class="tbl"><table class="mini"><thead><tr><th>Título</th><th>Compra TIR</th><th>Compra precio</th><th>Venta precio</th><th>Venta TIR</th><th>Precio medio</th></tr></thead><tbody>
+      <tr><td>BON 0,000 01/2027</td><td class="num">2,811</td><td class="num">99,0100</td><td class="num">99,0450</td><td class="num">2,710</td><td class="num">99,0275</td></tr>
+      <tr><td>BON 2,350 03/2029</td><td class="num">3,387</td><td class="num">97,5100</td><td class="num">97,5500</td><td class="num">3,370</td><td class="num">97,5300</td></tr>
+      <tr><td>BON 2,500 05/2027</td><td class="num">3,019</td><td class="num">99,6450</td><td class="num">99,6950</td><td class="num">2,945</td><td class="num">99,6700</td></tr>
+      <tr><td>BON 3,500 05/2029</td><td class="num">3,372</td><td class="num">100,3100</td><td class="num">100,3550</td><td class="num">3,355</td><td class="num">100,3325</td></tr>
+      <tr><td>OBL 0,100 04/2031</td><td class="num">3,478</td><td class="num">85,8650</td><td class="num">85,9250</td><td class="num">3,462</td><td class="num">85,8950</td></tr>
+      <tr><td>OBL 0,700 04/2032</td><td class="num">3,561</td><td class="num">85,7000</td><td class="num">85,7700</td><td class="num">3,546</td><td class="num">85,7350</td></tr></tbody></table></div>
+    <p class="note">Precio de compra &lt; precio de venta y TIR de compra &gt; TIR de venta: es el diferencial oferta–demanda. La estimación de la ETTI parte de estos precios (Anexo y trabajos). Los precios cotizados son ex-cupón: hay que añadir el cupón corrido para obtener el precio de liquidación.</p>
+  </div>
+
+  <div class="codepair" data-file="Tema 1 · precio, cupón corrido y TIR" data-src="complemento">
+<script type="text/x-r">
+# Precio de un bono con cupón anual y plazos no enteros (convención del Tema 1)
+precio <- function(cf, t, y) sum(cf / (1 + y)^t)
+tir    <- function(cf, t, P) uniroot(function(y) precio(cf, t, y) - P, c(-0.5, 1), tol = 1e-12)$root
+
+# Ejemplo 1: bono a 4 años, cupón 4 %, R = 5 %
+precio(c(40, 40, 40, 1040), 1:4, 0.05)                    # 964.54
+
+# Ejemplo 2: ES00000123U9, 5,40 % 31.01.23 el 03/03/2016
+t  <- 334/366 + 0:6;  cf <- c(rep(54, 6), 1054)
+P  <- precio(cf, t, 0.01002);  cc <- 54 * (366 - 334) / 366
+c(bruto = P, cupon_corrido = cc, ex_cupon = P - cc)       # 1297.01, 4.72, 1292.29
+tir(cf, t, 1292.29 + cc)                                   # ~ 1.0002 %
+
+# Ejemplo 3: tres bonos al 4,5 % con 3 años y 182 días
+for (C in c(37.5, 44, 59)) {
+  t <- 182/365 + 0:3; cf <- c(rep(C, 3), 1000 + C)
+  P <- precio(cf, t, 0.045); cc <- C * 183 / 365
+  print(round(c(P, cc, P - cc), 2))
+}
+
+# Letra (simple, año comercial) y strip (compuesto, año natural)
+1000 / (1 + (-0.00031) * 351 / 360)                        # 1000.30
+100 / 1.0144^(7 + 335/366)                                 # 89.300
+
+# Convención 30/360 US (bono de Guatemala)
+d360 <- function(y1,m1,d1,y2,m2,d2) {
+  if (d1 == 31) d1 <- 30
+  if (d2 == 31 && d1 == 30) d2 <- 30
+  (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
+}
+cc <- 3.5625 * d360(2024,12,16, 2025,4,23) / d360(2024,12,16, 2025,6,16)
+c(cc, 104.725541 - cc)                                     # 2.513542, 102.212
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy.optimize import brentq
+
+def precio(cf, t, y):
+    cf, t = np.asarray(cf, float), np.asarray(t, float)
+    return float(np.sum(cf / (1 + y) ** t))
+
+def tir(cf, t, P):
+    return brentq(lambda y: precio(cf, t, y) - P, -0.5, 1.0, xtol=1e-14)
+
+# Ejemplo 1
+print(precio([40, 40, 40, 1040], [1, 2, 3, 4], 0.05))      # 964.54
+
+# Ejemplo 2: ES00000123U9, 5,40 % 31.01.23 el 03/03/2016
+t = 334 / 366 + np.arange(7); cf = [54] * 6 + [1054]
+P = precio(cf, t, 0.01002); cc = 54 * (366 - 334) / 366
+print(P, cc, P - cc)                                       # 1297.01 4.72 1292.29
+print(tir(cf, t, 1292.29 + cc))                            # ~ 0.010002
+
+# Ejemplo 3: tres bonos al 4,5 % con 3 años y 182 días
+for C in (37.5, 44, 59):
+    t = 182 / 365 + np.arange(4); cf = [C] * 3 + [1000 + C]
+    P = precio(cf, t, 0.045); cc = C * 183 / 365
+    print(round(P, 2), round(cc, 2), round(P - cc, 2))
+
+# Letra (simple, año comercial) y strip (compuesto, año natural)
+print(1000 / (1 + (-0.00031) * 351 / 360))                 # 1000.30
+print(100 / 1.0144 ** (7 + 335 / 366))                     # 89.300
+
+# Convención 30/360 US (bono de Guatemala)
+def d360(y1, m1, d1, y2, m2, d2):
+    if d1 == 31: d1 = 30
+    if d2 == 31 and d1 == 30: d2 = 30
+    return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1)
+
+cc = 3.5625 * d360(2024, 12, 16, 2025, 4, 23) / d360(2024, 12, 16, 2025, 6, 16)
+print(cc, 104.725541 - cc)                                 # 2.513542 102.212
+</script>
+  </div>
+</section>
+<!-- ===================================================== TEMA 2 -->
+<section id="t2">
+  <div class="sec-head"><div class="eyebrow">Tema 2</div><h2>Estructura temporal de los tipos de interés (ETTI)</h2></div>
+  <p class="note">Idea que lo une todo: no existe «el» tipo de interés. En un mismo mercado y día se negocian tipos distintos según el plazo. El tipo cupón cero mide el precio «puro» del tiempo; los tipos forward se deducen de la ETTI y son la clave para entender por qué la curva tiene su forma.</p>
+
+  <div class="sub" id="t2-intro">
+    <h3>2.1 Por qué hay una estructura temporal</h3>
+    <p>Euríbor a 28-jun-2013 (oferta): 1 semana 0,094 %; 2 semanas 0,102; 3 semanas 0,112; 1 mes 0,123; 2 meses 0,176; 3 meses 0,218; 4 meses 0,257; 5 meses 0,293; 6 meses 0,335; 7 meses 0,370; 8 meses 0,400; 9 meses 0,435; 10 meses 0,463; 11 meses 0,495; 12 meses 0,527. En Deuda Pública (1-jul-2013) los tipos oscilaron del 0,5 % al plazo más corto al 5,177 % al más largo. Pero la forma ha sido muy dispar: el 31-dic-2002 el Euríbor era decreciente con el plazo, y la Deuda española en 1993 era decreciente y en 1997 tenía forma de «cuchara».</p>
+    <figure class="fig" id="f_formas"><div class="tl-scroll"></div><figcaption>Tres formas típicas: creciente, decreciente y «cuchara» (decreciente al principio y creciente después).</figcaption></figure>
+    <div class="card"><span class="tag">Definición 2.1 · tipo cupón cero (al contado)</span>
+      <p>Es la TIR anual de comprar hasta el vencimiento un bono cupón cero de la máxima calidad crediticia y liquidez con vencimiento en ese plazo:</p>
+      <div class="math">\[ P=\frac{PA_t}{(1+R_t)^t}\iff R_t=\Bigl(\frac{PA_t}{P}\Bigr)^{1/t}-1 \]</div>
+      <p class="note">Debe ser un cupón cero porque un bono con cupones devuelve parte de la inversión antes del vencimiento y su TIR es una media de rentabilidades de varios plazos. Debe ser de máxima calidad y liquidez para que el tipo no incluya primas de riesgo (en España, la Deuda Pública; también se usa el mercado de swaps, IRS, más líquido).</p></div>
+    <p><b>Definición 2.2.</b> La <b>ETTI</b> es la relación funcional, en un momento dado, entre los tipos al contado y los plazos.</p>
+    <h4>Ejemplo 2.1 (la ETTI que se usará en todo el tema)</h4>
+    <div class="tbl"><table class="mini"><thead><tr><th>Plazo</th><th>Precio P</th><th>Amortización PA</th><th>Ecuación</th><th>Tipo \(R_t\)</th></tr></thead><tbody>
+      <tr><td>1</td><td class="num">95,238</td><td class="num">100</td><td>95,238(1+R₁) = 100</td><td class="num">5,00 %</td></tr>
+      <tr><td>2</td><td class="num">93,450</td><td class="num">105</td><td>93,450(1+R₂)² = 105</td><td class="num">6,00 %</td></tr>
+      <tr><td>3</td><td class="num">89,408</td><td class="num">108</td><td>89,408(1+R₃)³ = 108</td><td class="num">6,50 %</td></tr>
+      <tr><td>4</td><td class="num">88,558</td><td class="num">115</td><td>88,558(1+R₄)⁴ = 115</td><td class="num">6,75 %</td></tr>
+      <tr><td>5</td><td class="num">89,751</td><td class="num">125</td><td>89,751(1+R₅)⁵ = 125</td><td class="num">6,85 %</td></tr></tbody></table></div>
+  </div>
+
+  <div class="sub" id="t2-valor">
+    <h3>2.2 Valoración de un bono con la ETTI y arbitraje</h3>
+    <p>Un bono con cupones se replica con una cartera de cupón cero (uno por cada flujo). Dos activos con los mismos flujos tienen el mismo precio (ausencia de arbitraje):</p>
+    <div class="math">\[ P=\frac{C}{1+R_1}+\frac{C}{(1+R_2)^2}+\dots+\frac{C+N}{(1+R_n)^n} \]</div>
+    <figure class="tl" data-tl="replica"><div class="tl-scroll"></div><figcaption><b>Ejemplo 3.1.</b> Bono a 4 años, cupón 4 %, N = 1.000 € con la ETTI del Ejemplo 2.1: \(P=\frac{40}{1,05}+\frac{40}{1,06^2}+\frac{40}{1,065^3}+\frac{1040}{1,0675^4}=907,68\) €.</figcaption></figure>
+    <p>Si el bono cotizase a 950 €: se emite el bono (se cobran 950 €) y se compra la cartera de 4 strips (907,68 €); los flujos de la cartera pagan el bono y se gana <b>42,32 €</b> sin riesgo. La presión vendedora sobre el bono y compradora sobre los strips cierra la diferencia. Si \(P<\) cartera, se hace la operación contraria.</p>
+  </div>
+
+  <div class="sub" id="t2-tir">
+    <h3>2.3 TIR y sesgo del cupón</h3>
+    <p>En la práctica se trabaja con un único tipo para el bono: la <b>TIR</b>, el tipo \(y\) que iguala el valor actual de los flujos con el precio: \(P=\sum \mathrm{CF}_t(1+y)^{-t}\). Hay relación biunívoca precio–TIR y es observable (el Boletín da la TIR). Pero no es criterio exclusivo de selección.</p>
+    <h4>Ejemplos 4.1 y 4.2 (ETTI del Ejemplo 2.1)</h4>
+    <div class="tbl"><table class="mini"><thead><tr><th>Bono a 5 años</th><th>Cupón</th><th>Precio con la ETTI</th><th>TIR</th></tr></thead><tbody>
+      <tr><td>Ej. 4.1</td><td class="num">5 %</td><td class="num">925,92 €</td><td class="num">6,797 %</td></tr>
+      <tr><td>Bono A (4.2)</td><td class="num">2,5 %</td><td class="num">821,96 €</td><td class="num">6,821 %</td></tr>
+      <tr><td>Bono B (4.2)</td><td class="num">7,5 %</td><td class="num">1.029,88 €</td><td class="num">6,776 %</td></tr>
+      <tr><td>Cupón cero a 5 años</td><td class="num">0 %</td><td class="num">89,751 (%)</td><td class="num">6,85 %</td></tr></tbody></table></div>
+    <p>Con la misma ETTI y sin arbitraje, tres bonos a cinco años tienen TIR distintas: el cupón cero (6,85 %), A (6,82 %) y B (6,77 %). Los bonos con cupones son carteras de cupón cero a 1, 2, …, 5 años y su TIR es una <b>media</b> de esas rentabilidades; con ETTI creciente la media es inferior a la del cupón cero, y menor cuanto más peso tengan los flujos cortos (B, con mayor cupón). Con ETTI decreciente todo sería al revés.</p>
+    <div class="card"><span class="tag">Definiciones 4.2 y 4.3</span>
+      <p><b>Sesgo del cupón</b>: TIR del bono menos TIR del cupón cero con el mismo vencimiento. Crece con el cupón y con la pendiente de la ETTI. <b>Curva de rentabilidad</b>: relación entre la TIR de los bonos negociados y su plazo; es una aproximación sesgada a la ETTI (los Gráficos 2, 4 y 5 del tema son curvas de rentabilidad).</p></div>
+    <div class="lab" id="lab-etti"><div class="lab-title">Laboratorio · ETTI, forwards y sesgo del cupón</div>
+      <div class="ctl"><label>Tipos R₁…Rₙ (%) separados por «;»<input id="e_R" type="text" value="5; 6; 6.5; 6.75; 6.85"></label><label>Cupón (%)<input id="e_c" type="number" value="5" step="0.5"></label><label>Plazo del bono<input id="e_n" type="number" value="5" min="2" max="10"></label></div>
+      <div class="tools"><button type="button" data-curva="navarro">Ej. 2.1 (creciente)</button><button type="button" data-curva="interb">Euríbor 28-jun-2013 (3, 6, 9, 12 m)</button><button type="button" data-curva="plana">Plana 5 %</button><button type="button" data-curva="decre">Decreciente</button><button type="button" data-curva="cuchara">Cuchara</button></div>
+      <div class="grid2"><div id="e_tab" class="tbl"></div><div class="stats" id="e_stats"></div></div>
+      <figure class="fig" id="e_fig"><div class="tl-scroll"></div><figcaption>Línea azul: ETTI (tipos al contado). Discontinua: forwards a un año \(F_{t-1,t}\). Verde: TIR de un bono con el cupón elegido: queda por debajo del cupón cero a su plazo cuando la curva es creciente (con 5 %, 6,797 % frente a 6,85 %).</figcaption></figure></div>
+  </div>
+
+  <div class="sub" id="t2-fwd">
+    <h3>2.4 Tipos de interés forward</h3>
+    <div class="card"><span class="tag">Definición 5.1 · forward \([t_1,t_2]\)</span>
+      <div class="math">\[ (1+R_{t_2})^{t_2}=(1+R_{t_1})^{t_1}\,(1+F_{t_1,t_2})^{t_2-t_1}\iff F_{t_1,t_2}=\left[\frac{(1+R_{t_2})^{t_2}}{(1+R_{t_1})^{t_1}}\right]^{\frac1{t_2-t_1}}-1 \]</div>
+      <p class="note">Es el tipo que debería regir en \(t_1\) para que da igual invertir hasta \(t_2\) que invertir hasta \(t_1\) y reinvertir al forward.</p></div>
+    <figure class="tl" data-tl="fwd"><div class="tl-scroll"></div><figcaption>Dos caminos con el mismo resultado final en \(t_2\).</figcaption></figure>
+    <p><b>Ejemplo 5.1.</b> Con la ETTI del Ejemplo 2.1: \((1,06)^2=(1,05)(1+F_{1,2})\Rightarrow F_{1,2}=7,01\,\%\) (7,00952 %). Los demás:</p>
+    <div class="tbl"><table class="mini"><thead><tr><th>Desde t=1</th><th>F₁,₂</th><th>F₁,₃</th><th>F₁,₄</th><th>F₁,₅</th><th>F₂,₃</th><th>F₃,₄</th><th>F₄,₅</th></tr></thead><tbody><tr><td>Forward (%)</td><td class="num">7,010</td><td class="num">7,258</td><td class="num">7,340</td><td class="num">7,318</td><td class="num">7,507</td><td class="num">7,504</td><td class="num">7,251</td></tr></tbody></table></div>
+    <p>\(F_{1,3}\) es el tipo a dos años vigente dentro de un año que hace indiferente comprar un cupón cero a 3 años o uno a 1 año y reinvertir en uno a 2 años. Con capitalización continua: \(f_{t_1,t_2}=\dfrac{r_{t_2}t_2-r_{t_1}t_1}{t_2-t_1}\).</p>
+  </div>
+
+  <div class="sub" id="t2-cert">
+    <h3>2.5 Forward y ETTI en ambiente de certidumbre</h3>
+    <p>Si los tipos futuros fuesen conocidos, el forward <b>debe coincidir</b> con el tipo futuro: \(F_{t_1,t_2}={}_{t_1}R_{t_2-t_1}\). Si no, hay arbitraje.</p>
+    <p><b>Ejemplo 6.1.</b> Con \(R_1=5\,\%\), \(R_2=6\,\%\) y \({}_1R_1=6,5\,\%\ne F_{1,2}=7,01\,\%\): A (invertir 2 años) da \(1.000.000\cdot1,06^2=1.123.600\) €; B (1 año y reinvertir) da \(1.000.000\cdot1,05\cdot1,065=1.118.250\) €. Se pide prestado un millón al 5 % (1 año) y al 6,5 % (refinanciación), se invierte en el cupón cero a 2 años y se gana \(1.123.600-1.118.250=5.350\) € sin riesgo. Con horizonte de 1 año: \(V_1^{A^*}=1.000.000\cdot1,06^2/1,065=1.055.023\) € frente a \(1.050.000\) €. La presión de mercado reduce \(F_{1,2}\) hasta igualarlo a \({}_1R_1\).</p>
+    <div class="card"><span class="tag">Media geométrica</span>
+      <div class="math">\[ (1+R_T)^T=(1+R_1)(1+F_{1,2})\cdots(1+F_{T-1,T})\Rightarrow 1+R_T=\bigl[(1+R_1)(1+{}_1R_1)\cdots(1+{}_{T-1}R_1)\bigr]^{1/T} \]</div>
+      <p class="note">En certidumbre el tipo a largo plazo es una media geométrica de los tipos a corto actuales y futuros. ETTI creciente ⇒ se anticipan subidas de los tipos a corto; decreciente ⇒ bajadas; plana ⇒ estabilidad.</p></div>
+    <p><b>Ejemplo 6.2.</b> Con la ETTI creciente del Ejemplo 2.1 se anticipa el tipo a un año: \({}_1R_1=7,01\,\%\), \({}_2R_1=7,51\,\%\), \({}_3R_1=7,50\,\%\), \({}_4R_1=7,25\,\%\). Y la ETTI de dentro de un año: \({}_1R_1=7,01\), \({}_1R_2=7,26\), \({}_1R_3=7,34\), \({}_1R_4=7,32\,\%\) (subida generalizada; el tipo a 5 años dentro de un año no se puede calcular porque exige \(R_6\)).</p>
+    <h4>Ejemplo 6.3: ¿conviene invertir a corto si los tipos van a subir?</h4>
+    <p>Inversor con 1.000.000 € y horizonte de un año. Bono A: cupón cero a 1 año; bono B: 3 años, cupón 5 %, N = 1.000. Precios: \(P_A=952,38\), \(P_B=961,36\). Dentro de un año B es un bono a dos años: con los tipos forward \({}_1R_1=7,0095\,\%\), \({}_1R_2=7,2580\,\%\), \(P_B^{(1)}=\frac{50}{1,0701}+\frac{1050}{1,0726^2}=959,43\) €. Resultados:</p>
+    <div class="tbl"><table class="mini"><thead><tr><th>Estrategia</th><th>Dinero (cupones)</th><th>Bonos</th><th>Total</th></tr></thead><tbody>
+      <tr><td>A (corto): 1.050 bonos</td><td class="num">1.050.000</td><td class="num">0</td><td class="num"><b>1.050.000</b></td></tr>
+      <tr><td>B (largo): 1.040,19 bonos</td><td class="num">52.010</td><td class="num">997.990</td><td class="num"><b>1.050.000</b></td></tr></tbody></table></div>
+    <p>Aunque se sabe que los tipos suben, <b>no se puede sacar partido</b>: ambos dan el tipo a un año (5 %). Lo relevante no son las subidas o bajadas sino las <b>desviaciones respecto a los forward</b>: si los tipos suben más que el forward, gana el corto; si suben menos (o bajan), el largo. Incluso si se espera que el tipo a 1 año suba del 5 % al 5,75 % y el de 2 años del 6 % al 7 %, conviene el largo (la subida es inferior al forward 7,01 % y 7,26 %).</p>
+    <div class="lab" id="lab-estrat"><div class="lab-title">Laboratorio · desviación sobre el forward</div>
+      <div class="ctl"><label>Desviación del tipo futuro sobre el forward (pb)<input id="x_dev" type="range" min="-150" max="150" step="5" value="0"></label></div>
+      <div class="stats" id="x_stats"></div><p class="note" id="x_msg"></p></div>
+  </div>
+
+  <div class="sub" id="t2-hip">
+    <h3>2.6 Hipótesis sobre la forma de la ETTI</h3>
+    <p>Al relajar la certidumbre aparecen tres explicaciones.</p>
+    <div class="grid3">
+      <div class="card"><span class="tag">Pura de las Expectativas (TPE)</span><div class="math">\[ F_{t,t+1}=E_0[{}_tR_1] \]</div><p class="note">El forward es predictor insesgado del tipo futuro. ETTI creciente = esperan subidas; decreciente = bajadas; plana = estabilidad. Todos los bonos esperan la misma rentabilidad para un horizonte dado.</p></div>
+      <div class="card"><span class="tag">Preferencia por la liquidez (TPL)</span><div class="math">\[ F_{t,t+1}=E_0[{}_tR_1]+L_t,\quad 0<L_1<L_2<\cdots \]</div><p class="note">El forward incluye una prima de riesgo positiva y creciente con el plazo: los agentes esperan tipos <b>menores</b> que el forward. Explica por qué la ETTI es creciente más a menudo. Los bonos largos esperan más rentabilidad.</p></div>
+      <div class="card"><span class="tag">Segmentación de mercados</span><p class="note">Cada plazo es un mercado casi independiente (aseguradoras, fondos de pensiones obligados a comprar largo). El tipo largo depende de oferta y demanda a ese plazo: una ETTI creciente no recoge expectativas de subida sino precios distintos en mercados distintos.</p></div>
+    </div>
+    <h4>Ejemplo 7.1 · Euríbor del 28 de junio de 2013</h4>
+    <p>Tipos simples ACT/360 de oferta: 3 m (94 días) 0,218 %; 6 m (185) 0,335 %; 9 m (273) 0,435 %; 12 m (367) 0,527 %. El vencimiento a 3 meses era el sábado 28-sep: se liquida el lunes 30-sep ⇒ 94 días. Equivalente compuesto:</p>
+    <div class="math">\[ (1+R_{n/365})^{n/365}=1+i\frac{n}{360}\Rightarrow R_{3m}=\Bigl(1+0{,}00218\cdot\tfrac{94}{360}\Bigr)^{365/94}-1=0{,}221\,\% \]</div>
+    <div class="tbl"><table class="mini"><thead><tr><th>Plazo</th><th>R compuesto</th><th>Forward desde 3 m</th></tr></thead><tbody>
+      <tr><td>3 meses</td><td class="num">0,221 %</td><td class="num">F₃ₘ,₆ₘ = 0,456 %</td></tr>
+      <tr><td>6 meses</td><td class="num">0,340 %</td><td class="num">F₃ₘ,₉ₘ = 0,549 %</td></tr>
+      <tr><td>9 meses</td><td class="num">0,441 %</td><td class="num">F₃ₘ,₁₂ₘ = 0,634 %</td></tr>
+      <tr><td>12 meses</td><td class="num">0,534 %</td><td class="num">—</td></tr></tbody></table></div>
+    <p>Con \(F_{3m,6m}=\bigl[\tfrac{(1+R_{185/365})^{185/365}}{(1+R_{94/365})^{94/365}}\bigr]^{365/(185-94)}-1\). Según la TPE se esperaba una subida (el tipo a 3 m del 0,221 % al 0,456 %). El 30-sep-2013 los tipos fueron 0,228 %, 0,345 % y 0,454 %: <b>prácticamente iguales</b> a los de tres meses antes, es decir, <b>inferiores</b> a lo anticipado por los forward; invertir a plazo largo habría rendido más. Esto es compatible con la TPL (prima positiva). La contrastación es siempre conjunta con cómo se forman las expectativas; la evidencia (Fama, Fama y Bliss, Campbell y Shiller, Freixas, Massot–Navarro–Nave) no es concluyente, aunque los forward tienen cierta capacidad predictiva, sobre todo a corto plazo.</p>
+    <p class="note">Con capitalización simple y año comercial el forward \(f\) cumple \((1+i_{t_2}t_2)=(1+i_{t_1}t_1)(1+f(t_2-t_1))\) con \(t=n/360\); es el que se compara directamente con un Euríbor futuro (Trabajo 1).</p>
+  </div>
+
+  <div class="sub" id="t2-cont">
+    <h3>2.7 Capitalización continua, forward instantáneo y función de descuento</h3>
+    <div class="tbl"><table class="plain"><thead><tr><th>Concepto</th><th>Fórmula</th></tr></thead><tbody>
+      <tr><td>Tipo continuo equivalente</td><td>\(r_T=\ln(1+R_T)\iff R_T=e^{r_T}-1\)</td></tr>
+      <tr><td>Tipo instantáneo</td><td>\(r_0=\lim_{T\to0}r_T\)</td></tr>
+      <tr><td>Factor de acumulación</td><td>\(A(0,T)=(1+R_T)^T=e^{r_TT}\)</td></tr>
+      <tr><td>Función de descuento</td><td>\(v(T)=(1+R_T)^{-T}=e^{-r_TT}\iff r_T=-\dfrac{\ln v(T)}{T}\)</td></tr>
+      <tr><td>Forward discreto / continuo</td><td>\(F_{t_1,t_2}\) de (7) ; \(f_{t_1,t_2}=\dfrac{r_{t_2}t_2-r_{t_1}t_1}{t_2-t_1}\)</td></tr>
+      <tr><td>Forward instantáneo</td><td>\(f(T)=\lim_{h\to0}f_{T,T+h}=-\dfrac{d\ln v(t)}{dt}\Big|_{t=T}\)</td></tr>
+      <tr><td>Descuento y forward</td><td>\(v(T)=e^{-\int_0^Tf(t)dt}\)</td></tr>
+      <tr><td>Tipo spot y forward</td><td>\(r_T=\dfrac1T\int_0^Tf(t)\,dt\)</td></tr></tbody></table></div>
+    <p class="note">El tipo al contado es la <b>media</b> de los forward instantáneos: si \(f\) crece, \(r_T\) queda por debajo de \(f(T)\) (como se ve en Nelson–Siegel y Svensson).</p>
+  </div>
+
+  <div class="codepair" data-file="Tema 2 · ETTI, forwards y Euríbor" data-src="complemento">
+<script type="text/x-r">
+R <- c(0.05, 0.06, 0.065, 0.0675, 0.0685)           # ETTI del ejemplo 2.1
+A <- function(k) (1 + R[k])^k
+fwd <- function(t1, t2) (A(t2) / A(t1))^(1 / (t2 - t1)) - 1
+
+# Ejemplo 3.1: precio del bono a 4 años con la ETTI
+sum(c(40, 40, 40, 1040) / (1 + R[1:4])^(1:4))       # 907.68
+
+# Ejemplo 4.1 y 4.2: precio y TIR de bonos a 5 años
+tir <- function(cf, P) uniroot(function(y) sum(cf / (1 + y)^seq_along(cf)) - P, c(0, 1))$root
+for (c in c(25, 50, 75)) {
+  cf <- c(rep(c, 4), 1000 + c); P <- sum(cf / (1 + R)^(1:5))
+  cat(c, round(P, 2), round(100 * tir(cf, P), 3), "\n")   # 821.96 6.821 | 925.92 6.797 | 1029.88 6.776
+}
+
+# Ejemplo 5.1: forwards
+sapply(2:5, function(b) fwd(1, b))                  # 0.0701 0.07258 0.0734 0.07318
+sapply(1:4, function(a) fwd(a, a + 1))              # 0.0701 0.07507 0.07504 0.07251
+
+# Ejemplo 6.3: valor del bono B dentro de un año si los tipos coinciden con los forward
+50 / (1 + fwd(1, 2)) + 1050 / (1 + fwd(1, 3))^2     # 959.43
+
+# Ejemplo 7.1: Euríbor 28-jun-2013 (simple ACT/360 -> compuesto equivalente y forward)
+n <- c(94, 185, 273, 367); i <- c(0.00218, 0.00335, 0.00435, 0.00527)
+Rc <- (1 + i * n / 360)^(365 / n) - 1               # 0.221 0.340 0.441 0.534 %
+F  <- function(a, b) (((1 + Rc[b])^(n[b]/365)) / ((1 + Rc[a])^(n[a]/365)))^(365 / (n[b] - n[a])) - 1
+c(F(1, 2), F(1, 3), F(1, 4))                        # 0.456 0.549 0.634 %
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy.optimize import brentq
+
+R = np.array([0.05, 0.06, 0.065, 0.0675, 0.0685])   # ETTI del ejemplo 2.1
+A = lambda k: (1 + R[k - 1]) ** k
+fwd = lambda t1, t2: (A(t2) / A(t1)) ** (1 / (t2 - t1)) - 1
+
+# Ejemplo 3.1
+print(np.sum(np.array([40, 40, 40, 1040]) / (1 + R[:4]) ** np.arange(1, 5)))   # 907.68
+
+# Ejemplo 4.1 y 4.2: precio y TIR de bonos a 5 años
+def tir(cf, P):
+    t = np.arange(1, len(cf) + 1)
+    return brentq(lambda y: np.sum(cf / (1 + y) ** t) - P, 0, 1)
+
+for c in (25, 50, 75):
+    cf = np.array([c] * 4 + [1000 + c], float); P = np.sum(cf / (1 + R) ** np.arange(1, 6))
+    print(c, round(P, 2), round(100 * tir(cf, P), 3))   # 821.96 6.821 | 925.92 6.797 | 1029.88 6.776
+
+# Ejemplo 5.1: forwards
+print([round(fwd(1, b) * 100, 3) for b in (2, 3, 4, 5)])
+print([round(fwd(a, a + 1) * 100, 3) for a in (1, 2, 3, 4)])
+
+# Ejemplo 6.3
+print(50 / (1 + fwd(1, 2)) + 1050 / (1 + fwd(1, 3)) ** 2)    # 959.43
+
+# Ejemplo 7.1: Euríbor 28-jun-2013
+n = np.array([94, 185, 273, 367]); i = np.array([0.00218, 0.00335, 0.00435, 0.00527])
+Rc = (1 + i * n / 360) ** (365 / n) - 1
+F = lambda a, b: (((1 + Rc[b]) ** (n[b] / 365)) / ((1 + Rc[a]) ** (n[a] / 365))) ** (365 / (n[b] - n[a])) - 1
+print(Rc * 100, [F(0, b) * 100 for b in (1, 2, 3)])     # 0.221 0.340 0.441 0.534 ; 0.456 0.549 0.634
+</script>
+  </div>
+</section>
+<!-- ===================================================== TEMA 3 -->
+<section id="t3">
+  <div class="sec-head"><div class="eyebrow">Tema 3</div><h2>Riesgo de variación de los tipos de interés</h2></div>
+  <p class="note">Idea que lo une todo: los flujos de un bono son fijos pero su precio no. La <b>duración</b> mide en un número cuánto cambia el precio ante una variación pequeña del tipo (y es también el plazo medio de recuperación); la <b>convexidad</b> corrige la aproximación; y igualando duración al horizonte (o al pasivo) se <b>inmuniza</b>.</p>
+
+  <div class="sub" id="t3-intro">
+    <h3>3.1 Sensibilidad del precio y evidencia empírica</h3>
+    <figure class="fig" id="f_AB"><div class="tl-scroll"></div><figcaption>Dos bonos con cupón 5 % valen 100 al 5 %. El A (30 años) cae y sube mucho más que el B (5 años) ante el mismo cambio del tipo (Fig. 1 del apunte).</figcaption></figure>
+    <div class="tbl"><table class="plain"><thead><tr><th>Evidencia</th><th>Dato del apunte</th><th>Lectura</th></tr></thead><tbody>
+      <tr><td>Boletín nº 204/205: ES0000012H58 (1,450 %, oct-2071) y ES0000012I32 (0,500 %, oct-2031), 18-oct-2021 vs 2022</td><td>ETTI desplazada al alza entre oct-2021 y sep-2022 (eje 0–46 años, −3 % a 5 %)</td><td>Mismo flujo de pagos, valoraciones muy distintas; el bono a 50 años es mucho más sensible. Ficha Refinitiv 2022: precio 46,80; duración 27,19; modificada 26,17; convexidad 1.026,39</td></tr>
+      <tr><td>España y Alemania: 24-jul-2012 vs 21-oct-2013</td><td>España: 5 años −450 pb, 10 años −325 pb, 30 años −240 pb. Alemania: +50, +60, +60 pb. Prima de riesgo 624 → 242 pb</td><td>Caída intensa de rentabilidades españolas: revalorización de la deuda emitida, más en los tramos cortos</td></tr>
+      <tr><td>Compra el 24-jul-2012 y venta en jul-2017</td><td>Bono a 10 años (31/01/2022, cupón 5,85): compra 91,823, venta 141,490 ⇒ rentabilidad 13,78 %. Bono a 30 años (30/07/2041, cupón 4,70): compra 71,373, venta 128,046 ⇒ 21,12 %</td><td>A mayor plazo, mayor ganancia cuando bajan los tipos. El 8-jul-2019 el bono 2041 cotizaba 176,694 %: 19,57 % anual desde 2012</td></tr>
+      <tr><td>Expansión, 12-mar-2015</td><td>CaixaBank acumulaba ≈ 1.000 M€ de plusvalías latentes en deuda pública al cierre de 2014</td><td>El riesgo de tipo se convierte en beneficios o pérdidas reales al vender</td></tr></tbody></table></div>
+  </div>
+
+  <div class="sub" id="t3-dur">
+    <h3>3.2 Elasticidad, duración de Macaulay y duración modificada</h3>
+    <p>Para un bono americano \(P=\sum_{t=1}^n \mathrm{CF}_t(1+R)^{-t}\). La <b>elasticidad</b> del precio respecto del factor \((1+R)\):</p>
+    <div class="math">\[ \varepsilon^{*}=\frac{dP/P}{dR/(1+R)}=\frac{dP}{dR}\frac{1+R}{P}=-\frac1P\sum_{t=1}^{n}t\,\frac{\mathrm{CF}_t}{(1+R)^{t}}=-D \]</div>
+    <div class="grid2">
+      <div class="card"><span class="tag">Duración de Macaulay</span><div class="math">\[ D=\sum_t t\,\omega_t,\qquad \omega_t=\frac{\mathrm{CF}_t(1+R)^{-t}}{P},\ \sum\omega_t=1 \]</div><p class="note">Plazo medio ponderado (en valor actual) de recuperación de la inversión.</p></div>
+      <div class="card"><span class="tag">Duración modificada y aproximación</span><div class="math">\[ D_M=\frac{D}{1+R},\qquad \frac{\Delta P}{P}\approx-D_M\,\Delta R \]</div><p class="note">Si \(D_M=4\), +1 pp de tipo ⇒ −4 % de precio. Aproximación local: la relación precio–tipo es convexa.</p></div>
+    </div>
+    <h4>Ejemplo 3.4 · bono 3 % a 5 años al 4 %</h4>
+    <p>\(P=\frac{30}{1,04}+\dots+\frac{1030}{1,04^5}=955{,}48\) €. Pesos \(\omega\): 0,0302; 0,0290; 0,0279; 0,0268; 0,8860. \(D=1\cdot0{,}0302+2\cdot0{,}0290+3\cdot0{,}0279+4\cdot0{,}0268+5\cdot0{,}8860=4{,}71\) años: cercana al plazo porque casi todo el valor está en el quinto año. \(D_M=4{,}71/1{,}04=4{,}53\).</p>
+    <h4>Boletín del 1-mar-2016 · bono 4,85 % 31.10.20</h4>
+    <p>Contratado el 1-mar-2016, valor 3-mar-2016; faltan 242 días para el primer cupón (plazo 0,661202). Rendimiento 0,5197 %.</p>
+    <div class="tbl"><table class="mini"><thead><tr><th>Fecha</th><th>Flujo</th><th>Plazo t</th><th>Valor actual</th><th>t · VA / P</th></tr></thead><tbody>
+      <tr><td>31/10/2016</td><td class="num">48,5</td><td class="num">0,661202</td><td class="num">48,3341</td><td class="num">0,026297</td></tr>
+      <tr><td>31/10/2017</td><td class="num">48,5</td><td class="num">1,661202</td><td class="num">48,0842</td><td class="num">0,065726</td></tr>
+      <tr><td>31/10/2018</td><td class="num">48,5</td><td class="num">2,661202</td><td class="num">47,8356</td><td class="num">0,104747</td></tr>
+      <tr><td>31/10/2019</td><td class="num">48,5</td><td class="num">3,661202</td><td class="num">47,5882</td><td class="num">0,143362</td></tr>
+      <tr><td>31/10/2020</td><td class="num">1048,5</td><td class="num">4,661202</td><td class="num">1023,4702</td><td class="num">3,925412</td></tr>
+      <tr><th>Total</th><td></td><td></td><td class="num"><b>P = 1.215,31</b></td><td class="num"><b>D = 4,2655</b></td></tr></tbody></table></div>
+    <p>\(D_M=4{,}2655/1{,}005197=4{,}24\). Si el tipo sube a 1,5197 % el precio pasa a 1.165,12 € (−4,13 %), que es lo que predice \(-D_M\cdot1\,\%=-4{,}24\,\%\).</p>
+    <div class="lab" id="lab-dur"><div class="lab-title">Laboratorio · duración, convexidad y aproximaciones</div>
+      <div class="ctl"><label>Cupón (%)<input id="r_c" type="number" value="3" step="0.25"></label><label>TIR (%)<input id="r_y" type="number" value="4" step="0.25"></label><label>Años<input id="r_n" type="number" value="5" min="1" max="60"></label><label>Fracción 1.er cupón τ<input id="r_tau" type="number" value="1" step="0.01" min="0.01" max="1"></label><label>Variación Δy (pb)<input id="r_dy" type="number" value="100" step="25"></label></div>
+      <div class="tools"><button type="button" data-dur="3,4,5,1">Ej. 3.4 (3 %, 4 %, 5 años)</button><button type="button" data-dur="4.85,0.5197,5,0.661202">Bono 4,85 31.10.20 (1-mar-2016)</button><button type="button" data-dur="1.45,3.9007,50,0.0301">España 1,45 % 2071 (Refinitiv)</button><button type="button" data-dur="0,4,10,1">Cupón cero a 10 años</button></div>
+      <div class="stats" id="r_stats"></div>
+      <figure class="fig" id="r_fig"><div class="tl-scroll"></div><figcaption>Azul: precio exacto. Gris discontinua: tangente (duración). Ámbar discontinua: parábola (duración + convexidad), mucho más cerca de la curva. Con el bono de 2071 la tangente falla enseguida: la convexidad es enorme.</figcaption></figure></div>
+  </div>
+
+  <div class="sub" id="t3-det">
+    <h3>3.3 De qué depende la duración</h3>
+    <ul class="tight"><li><b>Plazo</b>: crece con él; en un cupón cero \(D=n\); con cupones \(D<n\); tiende a la asíntota \(1+1/R\) (21 años con \(R=5\,\%\)), por abajo si \(c<R\) y superándola transitoriamente si \(c>R\).</li><li><b>Cupón</b>: a mayor cupón, menor duración (más valor llega antes).</li><li><b>TIR</b>: a mayor TIR, menor duración (los flujos lejanos pierden peso).</li></ul>
+    <figure class="fig" id="f_durplazo"><div class="tl-scroll"></div><figcaption>Duración frente al plazo con \(R=5\,\%\): cupón 3 % (azul) y cupón 8 % (ámbar); la discontinua es \(D=n\) (cupón cero).</figcaption></figure>
+    <div class="grid2"><figure class="fig" id="f_durcupon"><div class="tl-scroll"></div><figcaption>Duración y cupón (bonos de 5, 10 y 30 años, \(R=5\,\%\)).</figcaption></figure>
+    <figure class="fig" id="f_durtir"><div class="tl-scroll"></div><figcaption>Duración y TIR (cupón 5 %, bonos a 5, 10 y 30 años).</figcaption></figure></div>
+  </div>
+
+  <div class="sub" id="t3-conv">
+    <h3>3.4 Convexidad</h3>
+    <p>Desarrollando \(P(R+\Delta R)\) en serie de Taylor hasta el segundo orden:</p>
+    <div class="math">\[ \frac{\Delta P}{P}\approx-D_M\,\Delta R+\tfrac12\,C\,(\Delta R)^2,\qquad C=\frac{P''}{P}=\frac1P\sum_{t}\frac{t(t+1)\,\mathrm{CF}_t}{(1+R)^{t+2}} \]</div>
+    <p>La convexidad es siempre positiva: para igual duración, el bono con más convexidad sube más cuando bajan los tipos y cae menos cuando suben. Es el segundo término de la aproximación y el que hace que el precio exacto quede por encima de la tangente (ver el laboratorio).</p>
+  </div>
+
+  <div class="sub" id="t3-cartera">
+    <h3>3.5 Duración y valor del punto básico de una cartera</h3>
+    <div class="math">\[ D_p=\sum_{i}\omega_iD_i,\ \ \omega_i=\frac{N_iP_i}{V},\qquad \mathrm{VPB}=V\cdot\frac{D}{1+R}\cdot0{,}0001 \]</div>
+    <p class="note">La duración de la cartera es la media ponderada por valor de mercado solo bajo hipótesis sobre el movimiento de la ETTI (desplazamientos paralelos con tipo común).</p>
+    <p><b>Cartera 4.2</b> (nominal unitario 1.000 €, todo valorado al 3 %): 1.000 obligaciones a 10 años con cupón 4 % (\(P_A=1.085{,}30\); \(D_A=8{,}51\)), 500 letras a 1 año (\(P_B=970{,}87\); \(D_B=1\)), 1.200 bonos a 3 años con cupón 2 % (\(P_C=971{,}71\); \(D_C=2{,}94\)) y 750 cupón cero a 5 años (\(P_D=862{,}61\); \(D_D=5\)). Valor \(V=3.383.752{,}17\) € y \(D_p=4{,}84\) años. \(\mathrm{VPB}=3.383.752\cdot\frac{4{,}84}{1{,}03}\cdot10^{-4}=1.590{,}65\) € (el apunte escribe 3.783.752,17 por errata).</p>
+    <p><b>Cartera 4.3</b> (3-mar-2016): 10.000 bonos 4,85 31.10.20 (\(P=1.215{,}31\), \(D=4{,}27\), R = 0,5197 %), 15.000 obligaciones 5,85 31.01.22 (\(P=1.330{,}31\), \(D=5{,}62\), R = 0,7303 %) y 5.000.000 € nominales de cupón segregado 31.10.22 (\(P=92{,}661\,\%\), \(D=6{,}66\), R = 1,1508 %). \(V=36.290.787{,}91\) €, \(D_p=5{,}30\), tipo representativo (media ponderada) 0,71 %, \(\mathrm{VPB}=11.219{,}06\) €.</p>
+  </div>
+
+  <div class="sub" id="t3-reinv">
+    <h3>3.6 Riesgo de precio y riesgo de reinversión</h3>
+    <p>Una subida permanente de tipos baja el precio hoy pero permite reinvertir los cupones a más: con duración mayor que el horizonte domina el efecto precio (déficit); con duración menor domina la reinversión (superávit). Una bajada de tipos produce lo contrario. Para tener 1.000.000 € dentro de 4 años con el tipo al 7 %, hacen falta hoy \(V_0=1.000.000/1,07^4=762.895{,}21\) €. La <b>cartera C</b>, con duración igual al horizonte, compensa ambos efectos: es la idea de la inmunización.</p>
+  </div>
+
+  <div class="sub" id="t3-inm">
+    <h3>3.7 Inmunización: teorema y desplazamientos paralelos</h3>
+    <div class="card"><span class="tag">Teorema de la inmunización</span>
+      <p>Cartera con flujos \(C_i\) en \(t_i\), ETTI \(R_i\) y horizonte \(H\). Si los tipos pasan a \((1+R_i^{*})=(1+R_i)(1+\lambda)\):</p>
+      <div class="math">\[ V_H^{*}(\lambda)=\sum_iC_i(1+R_i)^{-t_i}(1+\lambda)^{H-t_i}(1+R_H)^H \]</div>
+      <p>Para que el valor final sea al menos el que habría sin cambio, \(V_H^{*}(\lambda)\) debe tener un mínimo en \(\lambda=0\):</p>
+      <div class="math">\[ \frac{dV_H^{*}}{d\lambda}\Big|_{0}=\sum_i(H-t_i)C_i(1+R_i)^{-t_i}(1+R_H)^H=0\iff H=\frac{\sum_it_iC_i(1+R_i)^{-t_i}}{\sum_iC_i(1+R_i)^{-t_i}}=D \]</div>
+      <p class="note">Condición de primer orden: <b>duración de la cartera = horizonte</b>. El mínimo exige además que la segunda derivada sea positiva (convexidad suficiente).</p></div>
+    <h4>Ejercicio: cartera inmunizada con bonos A (10 años) y C (2 años), horizonte 4 años</h4>
+    <p>ETTI plana al 10 %; bonos cupón cero de N = 1.000 a 10 (A), 4 (B) y 2 (C) años; presupuesto 1.000.000 €. Duración de la cartera \(=w\cdot10+(1-w)\cdot2=4\Rightarrow w=25\,\%\) en A. \(P_A=385{,}54\), \(P_C=826{,}45\). Se compran \(0{,}25\cdot10^6/385{,}54=648{,}44\) bonos A y \(0{,}75\cdot10^6/826{,}45=907{,}50\) bonos C (valor final sin cambio de tipos: \(10^6\cdot1,1^4=1.464.100\) €).</p>
+    <p><b>Variación no paralela</b> de la ETTI tras la inversión: \(R(t)=0{,}10+0{,}002\,t\). Valor nuevo de A y C: \(V_0^{*}=953.354\) € (−4,66 %), y valor final \(V_4^{*}=953.354\cdot(1+R_4^{*})^4=1.436.856\) € (<b>−27.244 €, −1,86 %</b> frente a 1.464.100). La cartera B (un solo cupón cero a 4 años): \(V_0^{*}=971.430\) € pero \(V_4=1.464.100\) € exactos: <b>perfectamente inmunizada</b> porque cobra en el horizonte, sea cual sea el cambio. Moraleja: la inmunización por duración protege solo frente a desplazamientos <i>paralelos</i> (\(\lambda\)); si cambia la pendiente, el riesgo de no paralelismo persiste.</p>
+    <div class="lab" id="lab-inm"><div class="lab-title">Laboratorio · inmunización con cupón cero y variaciones de la curva</div>
+      <div class="ctl"><label>Tipo plano R (%)<input id="i_R" type="number" value="10" step="0.5"></label><label>Horizonte H (años)<input id="i_H" type="number" value="4" min="2.5" max="9.5" step="0.5"></label><label>Salto paralelo a (puntos %)<input id="i_a" type="number" value="0" step="0.25"></label><label>Pendiente b (puntos % por año)<input id="i_b" type="number" value="0.2" step="0.05"></label></div>
+      <div class="tools"><button type="button" data-inm="0,0">Sin cambio</button><button type="button" data-inm="0,0.2">Ejercicio: R(t) = 0,10 + 0,002 t</button><button type="button" data-inm="1,0">Salto paralelo +1 pp</button></div>
+      <div class="stats" id="i_stats"></div>
+      <figure class="fig" id="i_fig"><div class="tl-scroll"></div><figcaption>Valor final de la cartera inmunizada frente a la variación paralela \(\lambda\) de la curva (con la pendiente elegida): tiene un mínimo en \(\lambda=0\) y nunca baja del objetivo punteado cuando la pendiente es cero.</figcaption></figure></div>
+  </div>
+
+  <div class="sub" id="t3-multi">
+    <h3>3.8 Inmunización múltiple</h3>
+    <p>Una entidad con pagos \(L_1,\dots,L_n\) en \(t_1,\dots,t_n\) y descuento \(\nu(t_i)\) necesita \(I_0=\sum L_i\nu(t_i)\) hoy. La cartera de activos \(A_j\) en \(t'_j\) debe cumplir <b>(1)</b> \(\sum A_j\nu(t'_j)=I_0\) y <b>(2)</b> \(D_A=D_L\), es decir \(\sum t_iL_i\nu(t_i)=\sum t'_jA_j\nu(t'_j)\). Además la convexidad de los activos debe superar la del pasivo (Redington: \(V_A=V_L\), \(D_A=D_L\), \(C_A>C_L\)).</p>
+    <p><b>Aplicación (1-ene-2016, ETTI del 4-ene-2016 con capitalización continua).</b> Pasivos con pagos netos entre ene-2016 y jul-2035: \(I_0=\sum L_ie^{-r_{t_i}t_i}=981.031{,}37\) € y \(D_L=2{,}618991\) años. Siete activos líquidos:</p>
+    <div class="tbl"><table class="mini"><thead><tr><th>Título</th><th>Cupón</th><th>Vencimiento</th><th>Precio medio</th><th>TIR</th><th>Duración</th></tr></thead><tbody>
+      <tr><td>(1) Letra ES0L01612099</td><td class="num">0</td><td class="num">09-12-2016</td><td class="num">100,092</td><td class="num">−0,10</td><td class="num">0,928959</td></tr>
+      <tr><td>(2) Bono ES00000124V5</td><td class="num">2,75</td><td class="num">30-04-2016</td><td class="num">108,124</td><td class="num">0,28</td><td class="num">3,170097</td></tr>
+      <tr><td>(3) Obl. ES00000121L2</td><td class="num">4,60</td><td class="num">30-07-2019</td><td class="num">115,085</td><td class="num">0,33</td><td class="num">3,333553</td></tr>
+      <tr><td>(4) Bono ES00000127H7</td><td class="num">1,15</td><td class="num">30-07-2020</td><td class="num">102,330</td><td class="num">0,63</td><td class="num">4,457681</td></tr>
+      <tr><td>(5) Obl. ES00000123B9</td><td class="num">5,50</td><td class="num">30-04-2021</td><td class="num">124,620</td><td class="num">0,76</td><td class="num">4,685038</td></tr>
+      <tr><td>(6) Obl. ES00000126Z1</td><td class="num">1,60</td><td class="num">30-04-2025</td><td class="num">99,979</td><td class="num">1,60</td><td class="num">8,640731</td></tr>
+      <tr><td>(7) Obl. ES00000127A2</td><td class="num">1,95</td><td class="num">30-07-2030</td><td class="num">96,435</td><td class="num">2,24</td><td class="num">12,677341</td></tr></tbody></table></div>
+    <p>Pesos \(x_h\) con \(\sum x_hD_h=D_L\), \(\sum x_h=1\), caja \(x_0=2{,}942087\,\%\) y mínimo del 5 % en cada título; entre las soluciones se elige la que minimiza la dispersión temporal de los flujos. Resultado: \(x_1=60{,}655\,\%\) (595.045 €; 5.944,98 letras), \(x_2=8{,}752\,\%\), \(x_3=7{,}651\,\%\), \(x_4=\dots=x_7=5\,\%\) (49.051,57 € cada uno). Se evalúa con desplazamientos paralelos \(\lambda=+1\,\%\) y \(\lambda=-0{,}5\,\%\): el valor de la cartera sigue de cerca al valor actual de los flujos. La protección <b>no es absoluta</b> (movimientos no paralelos, cambios grandes, cambio de flujos): la inmunización es una estrategia dinámica que se revisa y reajusta.</p>
+  </div>
+
+  <div class="codepair" data-file="Tema 3 · duración, convexidad, VPB e inmunización" data-src="complemento">
+<script type="text/x-r">
+dur <- function(cf, t, y) { pv <- cf / (1 + y)^t; P <- sum(pv)
+  c(P = P, D = sum(t * pv) / P, Dm = sum(t * pv) / P / (1 + y),
+    C = sum(t * (t + 1) * pv) / (1 + y)^2 / P) }
+
+# Ejemplo 3.4: 3 % a 5 años al 4 %
+dur(c(rep(30, 4), 1030), 1:5, 0.04)                   # P=955.48  D=4.71
+
+# Bono 4,85 31.10.20 (1-mar-2016): plazos no enteros
+t <- 0.661202186 + 0:4; cf <- c(rep(48.5, 4), 1048.5)
+dur(cf, t, 0.005197)                                   # P=1215.31 D=4.2655 Dm=4.24
+sum(cf / (1.015197)^t) / 1215.31 - 1                   # -0.0413
+
+# Aproximación de la variación del precio
+y <- 0.005197; dy <- 0.01; r <- dur(cf, t, y)
+c(exacto = sum(cf / (1 + y + dy)^t) - r["P"], dur = -r["Dm"] * r["P"] * dy,
+  dur_conv = -r["Dm"] * r["P"] * dy + 0.5 * r["C"] * r["P"] * dy^2)
+
+# Cartera 4.2 y valor del punto básico
+P <- c(1085.30, 970.87, 971.71, 862.61); D <- c(8.51, 1, 2.94, 5); N <- c(1000, 500, 1200, 750)
+V <- sum(N * P); Dp <- sum(N * P * D) / V
+c(V = V, Dp = Dp, VPB = V * Dp / 1.03 * 1e-4)         # 3383752.17  4.84  1590.65
+
+# Ejercicio de inmunización: bonos A (10), C (2), horizonte 4, ETTI R(t) = 0.10 + 0.002 t
+w <- (4 - 2) / (10 - 2); nA <- w * 1e6 / (1000 / 1.1^10); nC <- (1 - w) * 1e6 / (1000 / 1.1^2)
+Rn <- function(t) 0.10 + 0.002 * t
+V0 <- nA * 1000 / (1 + Rn(10))^10 + nC * 1000 / (1 + Rn(2))^2
+c(V0 = V0, VH = V0 * (1 + Rn(4))^4, objetivo = 1e6 * 1.1^4)   # 953354  1436856  1464100
+</script>
+<script type="text/x-py">
+import numpy as np
+
+def dur(cf, t, y):
+    cf, t = np.asarray(cf, float), np.asarray(t, float)
+    pv = cf / (1 + y) ** t; P = pv.sum()
+    D = (t * pv).sum() / P
+    return P, D, D / (1 + y), (t * (t + 1) * pv).sum() / (1 + y) ** 2 / P
+
+# Ejemplo 3.4
+print(dur([30] * 4 + [1030], range(1, 6), 0.04))        # P=955.48 D=4.71
+
+# Bono 4,85 31.10.20 (1-mar-2016)
+t = 0.661202186 + np.arange(5); cf = [48.5] * 4 + [1048.5]
+P, D, Dm, C = dur(cf, t, 0.005197); print(P, D, Dm)    # 1215.31 4.2655 4.24
+print(np.sum(np.array(cf) / 1.015197 ** t) / P - 1)    # -0.0413
+
+# Aproximaciones para dy = +100 pb
+y, dy = 0.005197, 0.01
+exacto = np.sum(np.array(cf) / (1 + y + dy) ** t) - P
+print(exacto, -Dm * P * dy, -Dm * P * dy + 0.5 * C * P * dy ** 2)
+
+# Cartera 4.2 y VPB
+P_ = np.array([1085.30, 970.87, 971.71, 862.61]); D_ = np.array([8.51, 1, 2.94, 5]); N_ = np.array([1000, 500, 1200, 750])
+V = (N_ * P_).sum(); Dp = (N_ * P_ * D_).sum() / V
+print(V, Dp, V * Dp / 1.03 * 1e-4)                      # 3383752.17 4.84 1590.65
+
+# Inmunización: bonos A (10), C (2), horizonte 4, ETTI R(t) = 0.10 + 0.002 t
+w = (4 - 2) / (10 - 2); nA = w * 1e6 / (1000 / 1.1 ** 10); nC = (1 - w) * 1e6 / (1000 / 1.1 ** 2)
+Rn = lambda t: 0.10 + 0.002 * t
+V0 = nA * 1000 / (1 + Rn(10)) ** 10 + nC * 1000 / (1 + Rn(2)) ** 2
+print(V0, V0 * (1 + Rn(4)) ** 4, 1e6 * 1.1 ** 4)        # 953354 1436856 1464100
+</script>
+  </div>
+</section>
+<!-- ===================================================== TEMA 4 -->
+<section id="t4">
+  <div class="sec-head"><div class="eyebrow">Tema 4</div><h2>Modelos de tipos de interés en tiempo continuo</h2></div>
+  <p class="note">Idea que lo une todo: se modela el tipo instantáneo \(r(t)\) como una ecuación diferencial estocástica; la ausencia de arbitraje entre bonos cupón cero de distintos vencimientos fija una ecuación en derivadas parciales cuya solución es la función de descuento. Vasicek y CIR son los dos modelos con solución cerrada.</p>
+
+  <div class="sub" id="t4-wiener">
+    <h3>4.1 De la caminata aleatoria al proceso de Wiener</h3>
+    <p>Riqueza \(W(t)=W(t-1)+\varepsilon_t\), \(\varepsilon_t\sim\) iid \(N(0,1)\). Si el periodo es \(\Delta t=1/n\) los incrementos son \(N(0,\Delta t)\) y para un periodo \(T=n\Delta t\): \(W(t+T)-W(t)\sim N(0,T)\) (esperanza 0, varianza \(T\), incrementos incorrelados). Un <b>proceso de Wiener</b> es el límite cuando \(\Delta t\to0\): \(dW\) tiene \(E[dW]=0\), \(\mathrm{Var}[dW]=dt\), \(E[dW(t_1)dW(t_2)]=0\); es continuo pero no diferenciable en ningún punto.</p>
+    <div class="grid3"><figure class="fig" id="f_wiener0"><div class="tl-scroll"></div><figcaption>Δt = 1 año</figcaption></figure><figure class="fig" id="f_wiener1"><div class="tl-scroll"></div><figcaption>Δt = 0,2</figcaption></figure><figure class="fig" id="f_wiener2"><div class="tl-scroll"></div><figcaption>Δt = 0,02</figcaption></figure></div>
+    <h4>Generalizaciones</h4>
+    <div class="card"><span class="tag">Browniano aritmético</span><div class="math">\[ dX=a\,dt+b\,dW\Rightarrow X(t+T)-X(t)\sim N(aT,\,b^2T) \]</div><p class="note">Ejemplo del apunte: \(X(0)=10\), \(a=2\), \(b=0{,}5\) con las mismas \(\varepsilon\) del Gráfico 1.</p></div>
+    <div class="card"><span class="tag">Difusión de Itô</span><div class="math">\[ dX=\alpha(X,t)\,dt+\sigma(X,t)\,dW,\qquad X(t+\Delta t)\approx X(t)+\alpha\Delta t+\sigma\sqrt{\Delta t}\,\varepsilon \]</div></div>
+    <div class="card"><span class="tag">Browniano geométrico</span><div class="math">\[ dX=\mu X\,dt+\sigma X\,dW,\quad E_t[X(t+T)]=X(t)e^{\mu T},\quad \mathrm{Var}_t=X(t)^2e^{2\mu T}(e^{\sigma^2T}-1) \]</div></div>
+  </div>
+
+  <div class="sub" id="t4-ito">
+    <h3>4.2 Lema de Itô</h3>
+    <div class="card"><p>Si \(dX=\alpha\,dt+\sigma\,dW\) e \(Y=f(X,t)\) con derivadas continuas:</p>
+      <div class="math">\[ dY=\Bigl[\frac{\partial f}{\partial X}\alpha+\frac{\partial f}{\partial t}+\frac12\frac{\partial^2f}{\partial X^2}\sigma^2\Bigr]dt+\frac{\partial f}{\partial X}\sigma\,dW \]</div></div>
+    <p><b>Ejemplo.</b> \(dS=\mu S\,dt+\sigma S\,dW\), \(Y=\ln S\): \(\partial Y/\partial S=1/S\), \(\partial^2Y/\partial S^2=-1/S^2\) ⇒ tendencia \(\mu-\tfrac12\sigma^2\), volatilidad \(\sigma\):</p>
+    <div class="math">\[ d\ln S=\bigl(\mu-\tfrac12\sigma^2\bigr)dt+\sigma\,dW,\qquad \ln S(t+T)-\ln S(t)\sim N\bigl((\mu-\tfrac12\sigma^2)T,\ \sigma^2T\bigr) \]</div>
+    <p>Luego \(S\) es lognormal. Ejercicio del apunte: obtener la EDE de \(Z=S(t)e^{\delta(T-t)}\) (aplicar Itô con \(\partial Z/\partial t=-\delta Z\): \(dZ=(\mu-\delta)Z\,dt+\sigma Z\,dW\)). <b>Barreras</b>: \(X_1\) es barrera natural si \(\sigma(X_1,t)=0\); absorbente si además \(\alpha(X_1,t)=0\); reflectante desde abajo (arriba) si \(\alpha<0\) (\(>0\)).</p>
+  </div>
+
+  <div class="sub" id="t4-mr">
+    <h3>4.3 Procesos con reversión a la media: Vasicek y CIR</h3>
+    <p>Con tipo instantáneo \(r(t)\): \(C(t+\Delta t)\approx C(t)[1+r(t)\Delta t]\).</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">Vasicek</span><div class="math">\[ dr=\kappa(\mu-r)dt+\sigma\,dW \]</div><div class="math">\[ E_0[r(t)]=\mu+(r_0-\mu)e^{-\kappa t},\ \ \mathrm{Var}_0[r(t)]=\tfrac{\sigma^2}{2\kappa}(1-e^{-2\kappa t}) \]</div><p class="note">\(r(t)\) normal: puede ser negativo. (El apunte escribe \(1-e^{-\kappa t}\) en la varianza; la expresión correcta de la solución es con \(2\kappa t\).)</p></div>
+      <div class="card"><span class="tag">Cox–Ingersoll–Ross</span><div class="math">\[ dr=\kappa(\mu-r)dt+\sigma\sqrt{r}\,dW \]</div><p class="note">Más tipo, más volatilidad. \(r=0\) es una barrera reflectante: <b>no hay tipos negativos</b> (con \(2\kappa\mu\ge\sigma^2\) no se alcanza). \(r(t)\) sigue una χ² no centrada.</p></div>
+    </div>
+    <p>\(\mu\): nivel al que tiende \(r\); \(\kappa\): intensidad de la reversión; \(\sigma\): volatilidad. Con \(\sigma=0\), \(r(t)=\mu+(r_0-\mu)e^{-\kappa t}\) (tres formas según \(r_0\lessgtr\mu\)).</p>
+    <figure class="fig" id="f_rev"><div class="tl-scroll"></div><figcaption>Reversión determinista a \(\mu=4\,\%\) desde 1 %, 4 % y 6 % con \(\kappa=0{,}8\).</figcaption></figure>
+  </div>
+
+  <div class="sub" id="t4-arb">
+    <h3>4.4 Función de descuento sin arbitraje</h3>
+    <ol class="walk">
+      <li>Sea \(dr=f(r,t)dt+g(r,t)dW\) y \(\nu(r,t,s)\) el precio en \(t\) de un cupón cero unitario que vence en \(s\). Por Itô: \(d\nu=\nu\mu\,dt+\nu\sigma\,dW\) con \(\mu=\frac1\nu[\nu_rf+\nu_t+\tfrac12\nu_{rr}g^2]\) y \(\sigma=\frac1\nu\nu_rg\).</li>
+      <li>Cartera \(V=\alpha_1\nu(s_1)+\alpha_2\nu(s_2)\). Se anula el riesgo si \(\alpha_1\nu_1\sigma_1+\alpha_2\nu_2\sigma_2=0\) (posiciones de signo contrario).</li>
+      <li>Sin riesgo ⇒ rinde el tipo sin riesgo: \(dV=rV\,dt\). Igualando se obtiene \(\dfrac{\mu_1-r}{\sigma_1}=\dfrac{\mu_2-r}{\sigma_2}=q(r,t)\) para todo vencimiento: la sobrerrentabilidad por unidad de riesgo es la misma. \(q\) es la <b>prima de riesgo</b>.</li>
+      <li>Sustituyendo: \(\;\nu_t+\tfrac12\nu_{rr}g^2+\nu_r\,[f-q\,g]-r\nu=0,\ \ \nu(r,s,s)=1\). Es una EDP cuya solución es la función de descuento.</li>
+      <li>Con \(f^{*}=f-qg\) se llega al mismo resultado simulando \(r\) con tendencia \(f^{*}\) y prima cero: <b>medida riesgo-neutral</b> (Girsanov).</li></ol>
+    <div class="grid2">
+      <div class="card"><span class="tag">Vasicek</span><div class="math">\[ \nu=e^{A(t,s)-r(t)B(t,s)},\ \ B=\frac{1-e^{-\kappa(s-t)}}{\kappa} \]</div><div class="math">\[ A=[B-(s-t)]\Bigl(\mu^{*}-\frac{\sigma^2}{2\kappa^2}\Bigr)-\frac{\sigma^2}{4\kappa}B^2 \]</div><p class="note">Con \(q\) constante, \(\kappa^{*}=\kappa\) y \(\mu^{*}\) incorpora la prima (en el apunte \(H=\mu+\sigma q/\kappa-\sigma^2/2\kappa^2\); el signo depende de la convención de \(q\)). Con \(q=0\), \(\mu^*=\mu\).</p></div>
+      <div class="card"><span class="tag">CIR</span><div class="math">\[ B=\frac{2(e^{\psi\tau}-1)}{(\kappa-\pi+\psi)(e^{\psi\tau}-1)+2\psi},\ \ \tau=s-t \]</div><div class="math">\[ A=\frac{2\kappa\mu}{\sigma^2}\ln\frac{2\psi\,e^{(\kappa-\pi+\psi)\tau/2}}{(\kappa-\pi+\psi)(e^{\psi\tau}-1)+2\psi},\ \ \psi=\sqrt{(\kappa-\pi)^2+2\sigma^2} \]</div><p class="note">\(q=\pi\sqrt r/\sigma\); riesgo-neutral: \(\kappa^{*}=\kappa+\pi\), \(\mu^{*}=\kappa\mu/(\kappa+\pi)\).</p></div>
+    </div>
+    <p>El tipo al contado implícito es \(r_T=-\tfrac1T\ln\nu=\dfrac{r_0B(0,T)-A(0,T)}{T}\): la ETTI del modelo.</p>
+    <div class="lab" id="lab-rates"><div class="lab-title">Laboratorio · Vasicek y CIR: ETTI implícita y trayectorias</div>
+      <div class="ctl"><label>Modelo<select id="m_mod"><option value="vas">Vasicek</option><option value="cir">CIR</option></select></label><label>κ<input id="m_k" type="number" value="0.5" step="0.1" min="0.05"></label><label>μ (%)<input id="m_mu" type="number" value="4" step="0.25"></label><label>σ (%)<input id="m_s" type="number" value="1" step="0.1"></label><label>r₀ (%)<input id="m_r0" type="number" value="1" step="0.25"></label><label>Prima q (Vas.) / π (CIR)<input id="m_q" type="number" value="0" step="0.05"></label></div>
+      <div class="stats" id="m_stats"></div>
+      <div class="grid2"><figure class="fig" id="m_fig1"><div class="tl-scroll"></div><figcaption>ETTI implícita \(r_T\) del modelo. Con \(r_0<\mu\) sale creciente, con \(r_0>\mu\) decreciente; la forma depende del nivel inicial y de \(\kappa\).</figcaption></figure>
+      <figure class="fig" id="m_fig2"><div class="tl-scroll"></div><figcaption>Ocho trayectorias de \(r(t)\) (discretización naïve semanal) y la media teórica (ámbar). En CIR no baja de 0.</figcaption></figure></div></div>
+  </div>
+
+  <div class="sub" id="t4-sim">
+    <h3>4.5 Valoración de derivados por simulación y opciones sobre bonos</h3>
+    <ol class="walk">
+      <li><b>Parámetros</b> bajo la medida riesgo-neutral \((\kappa^*,\mu^*,\sigma)\): (a) ajustando a la ETTI vigente (prima cero) o (b) estimando \(\sigma\) con una serie de tipos cortos y después \(\kappa^*,\mu^*\) con la ETTI. Por MCO o MCG sobre \(\nu\) o sobre \(r_T=-\ln\nu/T\).</li>
+      <li><b>Simular</b> \(r\): \(r(t)\approx r(t-\Delta t)+f^*\Delta t+g\sqrt{\Delta t}\,\varepsilon_t\), \(\varepsilon_t\sim N(0,1)\).</li>
+      <li>Con cada senda \(j=1..J\), valorar el cupón cero con \(\nu(r,t,s)\) (y un bono con cupones como cartera de cupones cero).</li>
+      <li>Flujo \(g(r(T))\) del derivado europeo en \(T\).</li>
+      <li>Valor \(V=E^*\!\bigl[e^{-\int_0^Tr\,dt}g(r(T))\bigr]\approx\frac1J\sum_je^{-\sum r_j(t_i)\Delta t}g(r_j(T))\) con error estándar \(\hat\sigma/\sqrt J\).</li></ol>
+    <p><b>Opción de compra</b> en \(T_1\) sobre un cupón cero que vence en \(T_2\), precio de ejercicio \(K\): fórmula cerrada en Vasicek, \(C=\nu(0,T_2)N(d_1)-K\nu(0,T_1)N(d_2)\), con \(d_1=\frac1{S}\ln\frac{\nu(0,T_2)}{K\nu(0,T_1)}+\frac S2\), \(d_2=d_1-S\), \(S=\frac1{\kappa^*}(1-e^{-\kappa^*(T_2-T_1)})\sqrt{\frac{\sigma^2}{2\kappa^*}(1-e^{-2\kappa^*T_1})}\). En CIR el precio es \(\nu(T_2)\chi^2(x_1;\vartheta,\lambda_1)-K\nu(T_1)\chi^2(x_2;\vartheta,\lambda_2)\) con \(\vartheta=4\kappa\mu/\sigma^2\) grados de libertad y \(\chi^2\) no centrada.</p>
+  </div>
+
+  <div class="codepair" data-file="Tema 4 · Vasicek y CIR" data-src="complemento">
+<script type="text/x-r">
+# ETTI de Vasicek y CIR (medida riesgo-neutral, prima 0)
+vas_r <- function(T, r0, kap, mu, sig) {
+  B <- (1 - exp(-kap * T)) / kap
+  A <- (B - T) * (mu - sig^2 / (2 * kap^2)) - sig^2 * B^2 / (4 * kap)
+  (B * r0 - A) / T }
+cir_r <- function(T, r0, kap, mu, sig, pi = 0) {
+  psi <- sqrt((kap - pi)^2 + 2 * sig^2); e <- exp(psi * T) - 1; den <- (kap - pi + psi) * e + 2 * psi
+  B <- 2 * e / den; A <- (2 * kap * mu / sig^2) * log(2 * psi * exp((kap - pi + psi) * T / 2) / den)
+  (B * r0 - A) / T }
+T <- c(1, 5, 10, 30)
+round(100 * vas_r(T, 0.01, 0.5, 0.04, 0.01), 3)
+round(100 * cir_r(T, 0.01, 0.5, 0.04, 0.05), 3)
+
+# Simulación naïve de r(t) y valoración Monte Carlo de un cupón cero a 5 años
+set.seed(1); J <- 20000; dt <- 1/52; N <- 5 * 52; kap <- 0.5; mu <- 0.04; sig <- 0.01
+r <- rep(0.01, J); I <- rep(0, J)
+for (i in 1:N) { I <- I + r * dt; r <- r + kap * (mu - r) * dt + sig * sqrt(dt) * rnorm(J) }
+c(MC = mean(exp(-I)), error = sd(exp(-I)) / sqrt(J), cerrado = exp(-5 * vas_r(5, 0.01, kap, mu, sig)))
+</script>
+<script type="text/x-py">
+import numpy as np
+
+def vas_r(T, r0, kap, mu, sig):
+    T = np.asarray(T, float); B = (1 - np.exp(-kap * T)) / kap
+    A = (B - T) * (mu - sig ** 2 / (2 * kap ** 2)) - sig ** 2 * B ** 2 / (4 * kap)
+    return (B * r0 - A) / T
+
+def cir_r(T, r0, kap, mu, sig, pi=0.0):
+    T = np.asarray(T, float); psi = np.sqrt((kap - pi) ** 2 + 2 * sig ** 2)
+    e = np.exp(psi * T) - 1; den = (kap - pi + psi) * e + 2 * psi
+    B = 2 * e / den; A = (2 * kap * mu / sig ** 2) * np.log(2 * psi * np.exp((kap - pi + psi) * T / 2) / den)
+    return (B * r0 - A) / T
+
+T = [1, 5, 10, 30]
+print(np.round(100 * vas_r(T, 0.01, 0.5, 0.04, 0.01), 3))
+print(np.round(100 * cir_r(T, 0.01, 0.5, 0.04, 0.05), 3))
+
+# Simulación naïve y valoración Monte Carlo de un cupón cero a 5 años
+rng = np.random.default_rng(1); J, dt, N = 20000, 1 / 52, 5 * 52
+kap, mu, sig = 0.5, 0.04, 0.01
+r = np.full(J, 0.01); I = np.zeros(J)
+for _ in range(N):
+    I += r * dt; r = r + kap * (mu - r) * dt + sig * np.sqrt(dt) * rng.standard_normal(J)
+v = np.exp(-I)
+print(v.mean(), v.std() / np.sqrt(J), np.exp(-5 * vas_r(5, 0.01, kap, mu, sig)))
+</script>
+  </div>
+</section>
+
+<!-- ===================================================== ANEXO -->
+<section id="anexo">
+  <div class="sec-head"><div class="eyebrow">Anexo I</div><h2>Estimación de la ETTI</h2></div>
+  <p class="note">Los tipos cupón cero no se observan: el mercado de cupón cero es poco líquido. Hay que <b>inferirlos</b> de los precios de bonos con cupones.</p>
+  <div class="sub" id="an-ej">
+    <h3>5.1 ¿Por qué hace falta estimarla? El bono del 31-ene-2008 y sus strips</h3>
+    <p>El 23-sep-2004 se negociaban a la vez el bono 6 % con vencimiento 31-ene-2008 y los strips de sus flujos. Con TIR media 2,93 % y fecha valor D+1 (primer cupón dentro de 0,3534 años), el precio bruto es
+    \(P=\frac{60}{1,0293^{0,3534}}+\frac{60}{1,0293^{1,3534}}+\frac{60}{1,0293^{2,3534}}+\frac{1060}{1,0293^{3,3534}}=1.135{,}30\) €. Con los tipos cupón cero de los strips (2,07 %; 2,41 %; 2,72 %; 3,00 %) el precio teórico es ≈ 1.134 € (el apunte: 1.134,39 €). La diferencia es «sustancial» y en teoría daría arbitraje, pero hay asincronía de datos y diferencias de liquidez. Los tipos cupón cero implícitos en el mercado de bonos <b>no son observables</b>.</p>
+  </div>
+  <div class="sub" id="an-boot">
+    <h3>5.2 Bootstrapping</h3>
+    <p>Con \(n\) bonos de vencimientos regulares \(1,\dots,n\) que pagan cupón solo en las fechas de vencimiento de los otros, el sistema \(P_j=\sum_{k\le j}C_j(1+R_k)^{-k}+N(1+R_j)^{-j}\) es triangular. Con \(X_i=(1+R_i)^{-i}\) queda lineal: \(\mathbf P=\mathbf M\mathbf X\Rightarrow\mathbf X=\mathbf M^{-1}\mathbf P\), con \(\mathbf M\) triangular inferior (filas: \(C_j,\dots,C_j,C_j+N\)). Se resuelve de corto a largo: \(X_1=P_1/(C_1+N)\), después \(X_2=(P_2-C_2X_1)/(C_2+N)\), etc. Solo da tipos para plazos \(1,\dots,n\) (interpolación para los intermedios). <b>Mercado de swaps</b>: la pata fija es un «bono» a la par con cupón = tipo del swap y precio = nocional, con plazos de 1 a 30 años: el bootstrapping es natural (con riesgo de contrapartida, pero muy líquido).</p>
+    <div class="lab" id="lab-boot"><div class="lab-title">Calculadora · bootstrapping de swaps a la par</div>
+      <div class="ctl"><label>Tipos swap 1…5 años (%) separados por «;»<input id="bt_s" type="text" value="2.0; 2.4; 2.7; 2.9; 3.0"></label></div>
+      <div class="stats" id="bt_stats"></div>
+      <p class="note">Para un swap a la par (precio 100, cupón \(s_j\)): \(X_j=\dfrac{1-s_j\sum_{k<j}X_k}{1+s_j}\), \(R_j=X_j^{-1/j}-1\).</p></div>
+  </div>
+  <div class="sub" id="an-func">
+    <h3>5.3 Aproximación funcional</h3>
+    <p>Se supone \(D(t)\approx f(t;\beta_0,\dots,\beta_m)\) con \(m+1<n\) parámetros. Condiciones deseables: \(f(0)=1\); \(f>0\) y \(f'<0\) en el rango de los vencimientos; \(\lim_{t\to\infty}f=0\); pocos parámetros e interpretables; y <b>lineal en los parámetros</b> si es posible. Estimación por mínimos cuadrados sobre los precios:</p>
+    <div class="math">\[ \min_{\beta}\ \sum_{j=1}^{n}\Bigl[P_j-\sum_{i}C_{j,i}\,f(t_{j,i};\beta)\Bigr]^2 \]</div>
+    <p><b>Problema de ponderación</b>: un mismo error de precio es mucho mayor en TIR para un bono corto que para uno largo (el error de precio ≈ duración × error de TIR). MCO castiga más los errores de los plazos largos y puede ajustar mal el tramo corto. Soluciones: (1) incluir precios de «bonos» de muy corto plazo (1 semana, 1 mes, 3 meses) derivados de repos o simultáneas; (2) <b>mínimos cuadrados generalizados</b> con ponderaciones inversas de la duración de Macaulay (se pesa \(e_j/D_j\)).</p>
+    <p><b>Ejercicio 1 del apunte:</b> \(D(t)\approx\beta_0+\beta_1t+\beta_2t^2+\beta_3t^3\). Ventajas: lineal en los parámetros (estimación cerrada). Inconvenientes: los polinomios no están acotados (no tienden a 0), pueden dar \(D\) no monótona o negativa, y no se puede extrapolar. Con \(\beta_0=1\) se cumple \(f(0)=1\).</p>
+    <div class="card"><span class="tag">Nelson y Siegel (1987): modelan el forward instantáneo</span>
+      <div class="math">\[ f(t,T)=\beta_0+\beta_1e^{-k(T-t)}+\beta_2\,k\,(T-t)\,e^{-k(T-t)} \]</div>
+      <div class="math">\[ r_T=\frac1T\int_0^Tf=\beta_0+(\beta_1+\beta_2)\frac{1-e^{-kT}}{kT}-\beta_2e^{-kT} \]</div>
+      <p class="note">\(\beta_0\): tipo a muy largo plazo (\(\lim_{T\to\infty}f\)). \(\beta_0+\beta_1=f(t,t)\): tipo a muy corto plazo (EONIA). \(-\beta_1\) es la pendiente (\(\beta_1>0\): decreciente). \(\beta_2\) y \(k\) fijan posición y tamaño de la joroba. Desventajas: no lineal en los parámetros, muy dependiente de los valores iniciales y a veces ajusta mal el tramo largo (forwards extremos o negativos).</p></div>
+    <div class="card"><span class="tag">Svensson: Nelson–Siegel + un término adicional</span>
+      <div class="math">\[ f(T)=\beta_0+\beta_1e^{-\kappa_1T}+\beta_2\kappa_1Te^{-\kappa_1T}+\beta_3\kappa_2Te^{-\kappa_2T} \]</div>
+      <div class="math">\[ r_T=\beta_0+(\beta_1+\beta_2)\frac{1-e^{-\kappa_1T}}{\kappa_1T}-\beta_2e^{-\kappa_1T}+\beta_3\frac{1-e^{-\kappa_2T}}{\kappa_2T}-\beta_3e^{-\kappa_2T} \]</div>
+      <p class="note">Seis parámetros, para mejorar el tramo largo con una segunda joroba. Ecuaciones extremadamente no lineales, mucha dependencia de los valores iniciales (Gimeno y Nave proponen algoritmos genéticos) y valle plano: parámetros débilmente identificados aunque la curva sí lo esté.</p></div>
+    <figure class="fig" id="f_svcomp"><div class="tl-scroll"></div><figcaption>Cargas de los factores de Svensson con \(\kappa=0{,}5\): el factor pendiente decae de 1 a 0; el de curvatura es cero en los extremos y máximo en plazo intermedio.</figcaption></figure>
+    <div class="lab" id="lab-sv"><div class="lab-title">Laboratorio · curva y forward de Svensson</div>
+      <div class="ctl"><label>β₀<input id="v_b0" type="number" value="0.05" step="0.005"></label><label>β₁<input id="v_b1" type="number" value="-0.025" step="0.005"></label><label>β₂<input id="v_b2" type="number" value="0.01" step="0.005"></label><label>β₃<input id="v_b3" type="number" value="-0.04" step="0.005"></label><label>κ₁<input id="v_k1" type="number" value="1.2" step="0.1" min="0.05"></label><label>κ₂<input id="v_k2" type="number" value="0.5" step="0.1" min="0.05"></label></div>
+      <div class="tools"><button type="button" data-sv="0.05,-0.025,0.01,-0.04,1.2,0.5">Valores iniciales sugeridos</button><button type="button" data-sv="0.05,-0.03,0.02,0,1,0.5">Nelson–Siegel (β₃=0)</button><button type="button" data-sv="0.04,0.02,-0.03,0.02,0.6,2">Curva con dos jorobas</button></div>
+      <div class="stats" id="v_stats"></div>
+      <figure class="fig" id="v_fig"><div class="tl-scroll"></div><figcaption>Azul: tipo al contado \(r_T\) (cap. continua). Ámbar discontinua: forward instantáneo \(f(T)\). El spot es la media del forward, así que el forward está por encima si la curva sube.</figcaption></figure></div>
+  </div>
+  <div class="sub" id="an-spl">
+    <h3>5.4 Métodos no paramétricos: splines cúbicas y Vasicek–Fong</h3>
+    <p>Una <b>spline cúbica</b> con \(n\) nudos internos \(\xi_1<\dots<\xi_n\) en \([\xi_0,\xi_{n+1}]\) es un polinomio cúbico a trozos de clase \(C^2\) (valor y primeras dos derivadas continuas en los nudos):</p>
+    <div class="math">\[ s(T)=a_0+a_1T+a_2T^2+a_3T^3+\frac1{3!}\sum_{p=1}^{n}b_p\,(T-\xi_p)_+^3,\qquad (x)_+=\max(x,0) \]</div>
+    <p>Número de parámetros \(n+4\). Se aplica a la función de descuento \(D(0,T)\), imponiendo \(D(0,0)=1\) (\(a_0=1\)). El precio es <b>lineal</b> en los parámetros ⇒ regresión (ponderada). \(C^2\) en \(D\) ⇒ forward \(f=-D'/D\) continuo y derivable, requisito de Ho–Lee (\(\theta(T)=\partial f/\partial T+\sigma^2(T-t)\)) o Hull–White. Problemas: elegir número y posición de nudos (más nudos = interpolación con forwards absurdos; Fernández-Rodríguez usa algoritmos genéticos); un polinomio no está acotado, no se puede extrapolar y da problemas en el tramo largo.</p>
+    <p><b>Vasicek y Fong (1982)</b>: splines <i>exponenciales</i>. Con \(X=1-e^{-\alpha(T-t)}\) y \(G(X)=D(t,T)\): \(G(0)=1\), \(\lim_{X\to1}G=0\); como \(D\approx e^{-\gamma(T-t)}\), \(G(X)\approx(1-X)^{\gamma/\alpha}\) (potencial, fácil de ajustar con polinomios), las ecuaciones siguen lineales en \(G\) y \(\alpha=\lim_{T\to\infty}f\) es el tipo largo. Entre nudos: \(D(t,T)=a_0+a_1e^{-\alpha(T-t)}+a_2e^{-2\alpha(T-t)}+a_3e^{-3\alpha(T-t)}\) con \(a_0+a_1+a_2+a_3=1\) en la primera función y \(a_0=0\) en la última.</p>
+  </div>
+  <div class="sub" id="an-trab">
+    <h3>5.5 Receta para estimar la ETTI con datos reales</h3>
+    <ol class="walk"><li>Fecha valor \(=\) contratación + D+1/D+2; precio ex-cupón medio (compra/venta).</li><li>Para cada bono: fechas de cupón (aniversarios del vencimiento), cupón corrido (ACT/ACT) y precio bruto; plazos \(t=\tau+k\).</li><li>TIR de mercado (raíz de la ecuación de precio) y duración \(D_j\).</li><li>Elegir modelo: Svensson (6 parámetros, no lineal) o spline (\(a_1,a_2,a_3,b_p\), lineal).</li><li>Minimizar \(\sum_j\bigl((\hat P_j-P_j)/D_j\bigr)^2\) (MCG con peso \(1/D\)); multiarranque y cotas para Svensson.</li><li>Representar la curva (tipo continuo \(r_T\) y anual equivalente \(e^{r_T}-1\)) junto a las TIR; comentar sesgo del cupón, ajuste, forwards y extrapolación.</li><li>Contrastes: otros pesos, nudos alternativos, validez de \(D>0\) y decreciente.</li></ol>
+    <p class="note">Los dos trabajos de evaluación continua (Euríbor y forwards; estimación de la ETTI del 11-sep-2026) se resuelven con exactamente estas herramientas; el desarrollo completo con datos, Python, Excel y LaTeX se guarda en local, en la carpeta de apuntes, y no se publica aquí.</p>
+  </div>
+  <div class="codepair" data-file="Anexo · bootstrapping, Svensson y splines" data-src="complemento">
+<script type="text/x-r">
+# Bootstrapping con swaps a la par (precio 100, cupón s_j): X_j = (1 - s_j * sum_{k<j} X_k) / (1 + s_j)
+s <- c(0.020, 0.024, 0.027, 0.029, 0.030)
+X <- numeric(5)
+for (j in 1:5) X[j] <- (1 - s[j] * sum(X[seq_len(j - 1)])) / (1 + s[j])
+R <- X^(-1 / (1:5)) - 1;  round(100 * R, 4)
+
+# Svensson: tipo continuo y forward instantáneo
+sv <- function(T, p) with(as.list(p), b0 + (b1 + b2) * (1 - exp(-k1 * T)) / (k1 * T) - b2 * exp(-k1 * T) +
+                                      b3 * (1 - exp(-k2 * T)) / (k2 * T) - b3 * exp(-k2 * T))
+svf <- function(T, p) with(as.list(p), b0 + b1 * exp(-k1 * T) + b2 * k1 * T * exp(-k1 * T) + b3 * k2 * T * exp(-k2 * T))
+p0 <- c(b0 = 0.05, b1 = -0.025, b2 = 0.01, b3 = -0.04, k1 = 1.2, k2 = 0.5)
+
+# Estimación con mínimos cuadrados no lineales ponderados por 1/duración
+# cfs: lista de data.frame(t, cf) por bono; P: precios brutos; D: duraciones
+ajuste_sv <- function(cfs, P, D, p0) {
+  res <- function(p) mapply(function(b, Pj, Dj) (sum(b$cf * exp(-sv(b$t, p) * b$t)) - Pj) / Dj, cfs, P, D)
+  optim(p0, function(p) sum(res(p)^2), method = "L-BFGS-B",
+        lower = c(0, -.1, -.1, -.1, .05, .05), upper = c(.2, .1, .1, .1, 10, 10))
+}
+
+# Splines cúbicas sobre D(t): regresión lineal ponderada (a0 = 1)
+base <- function(t, nudos) cbind(t, t^2, t^3, sapply(nudos, function(x) pmax(t - x, 0)^3))
+ajuste_spline <- function(cfs, P, D, nudos) {
+  A <- t(sapply(cfs, function(b) colSums(b$cf * base(b$t, nudos))))
+  c0 <- sapply(cfs, function(b) sum(b$cf))
+  lm.fit(A / D, (P - c0) / D)$coefficients                  # beta = (a1, a2, a3, b_1, ...)
+}
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy.optimize import least_squares
+
+# Bootstrapping con swaps a la par (precio 100, cupón s_j)
+s = np.array([0.020, 0.024, 0.027, 0.029, 0.030]); X = np.zeros(5)
+for j in range(5):
+    X[j] = (1 - s[j] * X[:j].sum()) / (1 + s[j])
+print(np.round(100 * (X ** (-1 / np.arange(1, 6)) - 1), 4))
+
+# Svensson
+def sv(T, p):
+    b0, b1, b2, b3, k1, k2 = p; T = np.asarray(T, float)
+    g1 = (1 - np.exp(-k1 * T)) / (k1 * T); g2 = (1 - np.exp(-k2 * T)) / (k2 * T)
+    return b0 + (b1 + b2) * g1 - b2 * np.exp(-k1 * T) + b3 * g2 - b3 * np.exp(-k2 * T)
+
+def svf(T, p):
+    b0, b1, b2, b3, k1, k2 = p; T = np.asarray(T, float)
+    return b0 + b1 * np.exp(-k1 * T) + b2 * k1 * T * np.exp(-k1 * T) + b3 * k2 * T * np.exp(-k2 * T)
+
+p0 = (0.05, -0.025, 0.01, -0.04, 1.2, 0.5)
+
+def ajuste_sv(bonos, p0=p0):
+    """bonos: lista de dicts con 't', 'cf' (arrays), 'P' (precio bruto) y 'D' (duración)."""
+    def res(p):
+        return [(np.sum(b["cf"] * np.exp(-sv(b["t"], p) * b["t"])) - b["P"]) / b["D"] for b in bonos]
+    lb = [0, -.1, -.1, -.1, .05, .05]; ub = [.2, .1, .1, .1, 10, 10]
+    return least_squares(res, p0, bounds=(lb, ub), x_scale=[.05, .05, .05, .05, 1, 1])
+
+# Splines cúbicas sobre D(t): regresión lineal ponderada (a0 = 1)
+def base(t, nudos):
+    t = np.asarray(t, float)
+    return np.vstack([t, t ** 2, t ** 3] + [np.maximum(t - x, 0) ** 3 for x in nudos])
+
+def ajuste_spline(bonos, nudos):
+    A = np.array([(b["cf"][None, :] * base(b["t"], nudos)).sum(axis=1) for b in bonos])
+    y = np.array([b["P"] - b["cf"].sum() for b in bonos]); w = np.array([1 / b["D"] for b in bonos])
+    beta, *_ = np.linalg.lstsq(A * w[:, None], y * w, rcond=None)
+    return beta
+</script>
+  </div>
+</section>
+<!-- ===================================================== FORMULARIO -->
+<section id="formulas">
+  <div class="sec-head"><div class="eyebrow">Consulta rápida</div><h2>Formulario completo</h2></div>
+  <div class="tbl"><table class="plain"><thead><tr><th>Tema</th><th>Concepto</th><th>Fórmula</th></tr></thead><tbody>
+    <tr><td>1</td><td>Precio de un bono</td><td>\(P=\sum_t \mathrm{CF}_t(1+R)^{-t}\); con plazos no enteros \(t=\tau+k\)</td></tr>
+    <tr><td>1</td><td>Posición respecto a la par</td><td>\(R<c\Rightarrow P>N\); \(R=c\Rightarrow P=N\); \(R>c\Rightarrow P<N\) (en cupón)</td></tr>
+    <tr><td>1</td><td>Valor entre cupones</td><td>\(V_t=V_0(1+R)^t\)</td></tr>
+    <tr><td>1</td><td>Cupón corrido y ex-cupón</td><td>\(\mathrm{CC}=C\,d/b\); \(P^*=P-\mathrm{CC}\)</td></tr>
+    <tr><td>1</td><td>Letra (corto plazo)</td><td>\(P=N/(1+i\,n/360)\)</td></tr>
+    <tr><td>1</td><td>Cupón cero largo plazo</td><td>\(P=N/(1+i)^n\)</td></tr>
+    <tr><td>1</td><td>Indexados</td><td>\(\mathrm{CI}=\mathrm{IR}/\text{base}\); liquidación \(=\text{cotiz.}\cdot\mathrm{CI}^*+\mathrm{CC}\); \((1+k)=(1+r)(1+\pi)\)</td></tr>
+    <tr><td>1</td><td>30/360 US</td><td>\(360\Delta Y+30\Delta M+\Delta D\)</td></tr>
+    <tr><td>2</td><td>Tipo cupón cero</td><td>\(R_t=(PA_t/P)^{1/t}-1\)</td></tr>
+    <tr><td>2</td><td>Precio con la ETTI</td><td>\(P=\sum \mathrm{CF}_t(1+R_t)^{-t}\)</td></tr>
+    <tr><td>2</td><td>Forward</td><td>\((1+R_{t_2})^{t_2}=(1+R_{t_1})^{t_1}(1+F_{t_1,t_2})^{t_2-t_1}\)</td></tr>
+    <tr><td>2</td><td>Certidumbre</td><td>\(F_{t_1,t_2}={}_{t_1}R_{t_2-t_1}\); \(1+R_T=[\prod(1+{}_iR_1)]^{1/T}\)</td></tr>
+    <tr><td>2</td><td>TPE / TPL</td><td>\(F=E_0[{}_tR_1]\) / \(F=E_0[{}_tR_1]+L_t\), \(0<L_1<L_2<\cdots\)</td></tr>
+    <tr><td>2</td><td>Simple ↔ compuesto</td><td>\((1+R)^{n/365}=1+i\,n/360\); forward simple \(f=\bigl[\frac{1+i_2n_2/360}{1+i_1n_1/360}-1\bigr]\frac{360}{n_2-n_1}\)</td></tr>
+    <tr><td>2</td><td>Continuo</td><td>\(r_T=\ln(1+R_T)\); \(v(T)=e^{-r_TT}\); \(f(T)=-\frac{d\ln v}{dT}\); \(r_T=\frac1T\int_0^Tf\)</td></tr>
+    <tr><td>3</td><td>Duración de Macaulay</td><td>\(D=\sum t\,\mathrm{CF}_t(1+R)^{-t}/P\)</td></tr>
+    <tr><td>3</td><td>Duración modificada</td><td>\(D_M=D/(1+R)\); \(\Delta P/P\approx-D_M\Delta R\)</td></tr>
+    <tr><td>3</td><td>Convexidad</td><td>\(C=\frac1P\sum t(t+1)\mathrm{CF}_t(1+R)^{-t-2}\); \(\Delta P/P\approx-D_M\Delta R+\tfrac12C\Delta R^2\)</td></tr>
+    <tr><td>3</td><td>Cartera y VPB</td><td>\(D_p=\sum\omega_iD_i\); \(\mathrm{VPB}=V\,D_M\cdot10^{-4}\)</td></tr>
+    <tr><td>3</td><td>Cupón cero</td><td>\(D=n\); asíntota de bonos con cupón \(1+1/R\)</td></tr>
+    <tr><td>3</td><td>Inmunización</td><td>\(V_A=V_L\), \(D_A=D_L\) (=H), \(C_A>C_L\)</td></tr>
+    <tr><td>4</td><td>Wiener / aritmético / geométrico</td><td>\(W(t+T)-W(t)\sim N(0,T)\); \(dX=a\,dt+b\,dW\); \(dX=\mu X\,dt+\sigma X\,dW\)</td></tr>
+    <tr><td>4</td><td>Itô</td><td>\(dY=[f_X\alpha+f_t+\tfrac12f_{XX}\sigma^2]dt+f_X\sigma\,dW\)</td></tr>
+    <tr><td>4</td><td>Vasicek / CIR</td><td>\(dr=\kappa(\mu-r)dt+\sigma\,dW\) / \(\ldots+\sigma\sqrt r\,dW\)</td></tr>
+    <tr><td>4</td><td>EDP de valoración</td><td>\(\nu_t+\tfrac12\nu_{rr}g^2+\nu_r(f-qg)-r\nu=0\), \(\nu(s,s)=1\)</td></tr>
+    <tr><td>Anexo</td><td>Nelson–Siegel</td><td>\(r_T=\beta_0+(\beta_1+\beta_2)\frac{1-e^{-kT}}{kT}-\beta_2e^{-kT}\)</td></tr>
+    <tr><td>Anexo</td><td>Svensson</td><td>NS + \(\beta_3\bigl[\frac{1-e^{-\kappa_2T}}{\kappa_2T}-e^{-\kappa_2T}\bigr]\)</td></tr>
+    <tr><td>Anexo</td><td>Spline cúbica</td><td>\(D(T)=1+a_1T+a_2T^2+a_3T^3+\sum b_p(T-\xi_p)_+^3\)</td></tr>
+    <tr><td>Anexo</td><td>MCG con peso 1/D</td><td>\(\min\sum\bigl[(\hat P_j-P_j)/D_j\bigr]^2\)</td></tr></tbody></table></div>
+</section>
+
+<section id="codigo">
+  <div class="sec-head"><div class="eyebrow">Para reproducirlo</div><h2>Código y calculadoras</h2></div>
+  <p>Cada tema tiene arriba su bloque de código con pestañas R y Python y un laboratorio interactivo. Lista de laboratorios: precio y tipo (<a href="#lab-bono">1</a>), cupón corrido en el tiempo (<a href="#lab-sierra">2</a>), convenciones de días (<a href="#lab-dias">3</a>), ETTI, forwards y sesgo del cupón (<a href="#lab-etti">4</a>), estrategias frente al forward (<a href="#lab-estrat">5</a>), duración y convexidad (<a href="#lab-dur">6</a>), inmunización (<a href="#lab-inm">7</a>), Vasicek y CIR (<a href="#lab-rates">8</a>), bootstrapping (<a href="#lab-boot">9</a>) y Svensson (<a href="#lab-sv">10</a>). En el atlas de Gedankenpalast, el nodo de Renta fija añade además una calculadora de bono y las fórmulas esenciales.</p>
+  <div class="callout tip"><h4>Consejo</h4><p>Para validar tu propio código, usa como pruebas los números de los apuntes: 964,54 (Ej. 1), 1.297,01 (Ej. 2), 907,68 (Ej. 3.1), 7,01 % (Ej. 5.1), 955,48 y 4,71 (Ej. 3.4), 1.215,31 y 4,2655 (bono 4,85), 1.590,65 € (VPB).</p></div>
+</section>
+
+<section id="preguntas">
+  <div class="sec-head"><div class="eyebrow">Práctica</div><h2>Preguntas posibles, resueltas</h2></div>
+  <div class="q"><span class="qn">P1</span><p class="stmt">Bono de 5 años, nominal 1.000 €, cupón 6 %, tipo de mercado 4 %. Precio, posición frente a la par y duración.</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>\(P=60\frac{1-1,04^{-5}}{0,04}+\frac{1000}{1,04^5}=267,11+821,93=1089,04\) € ⇒ sobre la par (\(c=6\,\%>R=4\,\%\)). Duración: \(\sum t\,PV_t/P\approx4,50\) años (menor que 5 por el cupón elevado). \(D_M=4,32\) ⇒ +1 pp ⇒ ≈ −4,3 %.</p></div></details></div>
+  <div class="q"><span class="qn">P2</span><p class="stmt">¿Por qué los bonos cotizan ex-cupón y qué ocurre con el precio al pagar el cupón?</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>El precio bruto crece con el tiempo como \(V_0(1+R)^t\), con saltos al pagar el cupón; el ex-cupón \(P^*=P-\mathrm{CC}\) elimina la discontinuidad y sus variaciones se deben solo al tipo. Ej.: bono 5,40 % 31.01.23: bruto 1.297,01, CC 4,72, ex-cupón 1.292,29. Al pagar el cupón, el precio bruto cae exactamente \(C\).</p></div></details></div>
+  <div class="q"><span class="qn">P3</span><p class="stmt">ETTI \(R_1=5\,\%\), \(R_2=6\,\%\), \(R_3=6{,}5\,\%\). Calcula \(F_{1,2}\), \(F_{2,3}\), \(F_{1,3}\) y el precio de un bono a 3 años con cupón 4 % (N = 1.000).</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>\(F_{1,2}=1,06^2/1,05-1=7,01\,\%\); \(F_{2,3}=1,065^3/1,06^2-1=7,51\,\%\); \(F_{1,3}=\sqrt{1,065^3/1,05}-1=7,26\,\%\). Precio: \(\frac{40}{1,05}+\frac{40}{1,06^2}+\frac{1040}{1,065^3}=38,10+35,60+860,95=934,66\) €.</p></div></details></div>
+  <div class="q"><span class="qn">P4</span><p class="stmt">Con ETTI creciente, ¿qué dicen la TPE y la TPL sobre los tipos futuros? ¿Qué estrategia conviene si se esperan subidas?</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>TPE: \(F=E_0[{}_tR_1]\) ⇒ se esperan subidas; TPL: \(F=E+L\) con \(L>0\) ⇒ los tipos esperados son menores que el forward, así que una curva creciente es compatible con tipos estables o a la baja. Estrategia: no importa que suban sino que suban <b>más o menos que el forward</b>: si suben más, conviene el corto; si suben menos, el largo (Ej. 6.3: ambas dan 1.050.000 € cuando los tipos igualan al forward).</p></div></details></div>
+  <div class="q"><span class="qn">P5</span><p class="stmt">¿Por qué la TIR del cupón cero a 5 años (6,85 %) es mayor que la de un bono con cupón a 5 años (6,797 %) con la misma ETTI?</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>El bono con cupones es una cartera de cupón cero a 1,…,5 años y su TIR es una media de las rentabilidades de esos plazos; como la curva es creciente, la media es menor que la del plazo de 5 años (sesgo del cupón). Cuanto mayor el cupón y la pendiente, mayor el sesgo: el de cupón 7,5 % (6,776 %) tiene menor TIR que el de 2,5 % (6,821 %).</p></div></details></div>
+  <div class="q"><span class="qn">P6</span><p class="stmt">Demuestra que inmunizar exige duración igual al horizonte.</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>Con \((1+R_i^*)=(1+R_i)(1+\lambda)\): \(V_H^*(\lambda)=\sum C_i(1+R_i)^{-t_i}(1+\lambda)^{H-t_i}(1+R_H)^H\). Imponer mínimo en \(\lambda=0\): \(V_H^{*\prime}(0)=\sum(H-t_i)C_i(1+R_i)^{-t_i}(1+R_H)^H=0\iff H\sum C_i(1+R_i)^{-t_i}=\sum t_iC_i(1+R_i)^{-t_i}\iff H=D\). Condición de segundo orden: \(V''>0\) (convexidad).</p></div></details></div>
+  <div class="q"><span class="qn">P7</span><p class="stmt">Cartera inmunizada de bonos cupón cero a 10 y 2 años para horizonte 4 con ETTI plana al 10 %. Pesos.</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>\(10w+2(1-w)=4\Rightarrow w=25\,\%\) en el de 10 años. Con 1.000.000 €: 250.000 € en A (648,44 bonos) y 750.000 € en C (907,50 bonos). Si la curva pasa a \(R(t)=0,10+0,002t\), el valor final es 1.436.856 € (−1,86 % frente a 1.464.100): no basta la duración con variaciones no paralelas; el cupón cero a 4 años sí garantiza 1.464.100 €.</p></div></details></div>
+  <div class="q"><span class="qn">P8</span><p class="stmt">Estimar una curva cupón cero con bonos con cupón: ¿qué problema tiene mínimos cuadrados sobre precios y cómo se resuelve?</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>Un mismo error de precio equivale a un error de TIR mucho mayor en bonos cortos (error de precio ≈ duración × error de TIR); MCO sobre precios sobre-penaliza los plazos largos y ajusta mal el corto. Se resuelve añadiendo bonos sintéticos de corto plazo o con MCG con ponderaciones \(1/D\) (minimizar \(\sum((\hat P-P)/D)^2\)).</p></div></details></div>
+  <div class="q"><span class="qn">P9</span><p class="stmt">Ventajas e inconvenientes de Nelson–Siegel, Svensson y splines cúbicas.</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>NS: 4 parámetros interpretables, curvatura con una joroba; no lineal y sensible a valores iniciales; tramo largo flojo. Svensson: 6 parámetros, segunda joroba, mejor tramo largo; muy no lineal y valle plano. Splines: lineales en los parámetros (regresión), flexibles y \(C^2\); elegir nudos, no acotadas, no extrapolables, forwards poco estables en el extremo largo.</p></div></details></div>
+  <div class="q"><span class="qn">P10</span><p class="stmt">Vasicek frente a CIR: diferencias y ETTI implícita.</p>
+    <details class="fc"><summary>Resolución</summary><div class="ans"><p>Vasicek: volatilidad constante, \(r\) normal (puede ser negativo). CIR: \(\sigma\sqrt r\), barrera reflectante en 0 (no negativos), \(r\) χ² no centrada. Ambos revierten a \(\mu\) con velocidad \(\kappa\) y dan \(\nu=e^{A-rB}\) ⇒ \(r_T=(rB-A)/T\); la forma de la curva depende de \(r_0\) frente a \(\mu\) y \(\kappa\).</p></div></details></div>
+</section>
+
+<section id="tarjetas">
+  <div class="sec-head"><div class="eyebrow">Autoevaluación</div><h2>Tarjetas</h2></div>
+  <div class="tools"><button type="button" id="openAll">Abrir todas</button><button type="button" id="closeAll">Cerrar todas</button></div>
+  <div id="cards" class="stack">
+    <details class="fc"><summary>Precio de un bono</summary><div class="ans"><div class="math">\[ P=\sum\mathrm{CF}_t(1+R)^{-t} \]</div><p>Relación inversa con el tipo. \(R<c\Rightarrow\) sobre la par.</p></div></details>
+    <details class="fc"><summary>Cupón corrido y ex-cupón</summary><div class="ans"><div class="math">\[ \mathrm{CC}=C\tfrac{d}{b},\ P^*=P-\mathrm{CC} \]</div><p>El ex-cupón es el que cotiza; el bruto es el que se paga.</p></div></details>
+    <details class="fc"><summary>Convención 30/360 US</summary><div class="ans"><p>\(360\Delta Y+30\Delta M+\Delta D\) con ajustes de día 31 y de febrero. Guatemala: 127/180 días ⇒ CC = 2,513541.</p></div></details>
+    <details class="fc"><summary>Bono indexado</summary><div class="ans"><p>Cupón \(=c_{real}\mathrm{CI}\); amortización \(N\max(\mathrm{CI},1)\); liquidación \(=\text{cotiz.}\cdot\mathrm{CI}^*+\mathrm{CC}\); la TIR del Boletín es real.</p></div></details>
+    <details class="fc"><summary>Definición de ETTI y tipo cupón cero</summary><div class="ans"><p>TIR de un cupón cero de máxima calidad y liquidez; la ETTI es la relación tipo–plazo.</p></div></details>
+    <details class="fc"><summary>Forward</summary><div class="ans"><div class="math">\[ F_{t_1,t_2}=\Bigl[\tfrac{(1+R_{t_2})^{t_2}}{(1+R_{t_1})^{t_1}}\Bigr]^{\frac1{t_2-t_1}}-1 \]</div><p>Con \(R_1=5\,\%,R_2=6\,\%\): 7,01 %.</p></div></details>
+    <details class="fc"><summary>Sesgo del cupón</summary><div class="ans"><p>TIR del bono − TIR del cupón cero al mismo vencimiento; crece con el cupón y con la pendiente (negativo si la curva es creciente).</p></div></details>
+    <details class="fc"><summary>TPE, TPL, segmentación</summary><div class="ans"><p>\(F=E\); \(F=E+L\) (\(L>0\) creciente); mercados independientes por plazo.</p></div></details>
+    <details class="fc"><summary>Duración y duración modificada</summary><div class="ans"><div class="math">\[ D=\sum t\,\omega_t,\ D_M=\frac{D}{1+R},\ \frac{\Delta P}P\approx-D_M\Delta R \]</div></div></details>
+    <details class="fc"><summary>Convexidad</summary><div class="ans"><div class="math">\[ \tfrac{\Delta P}{P}\approx-D_M\Delta R+\tfrac12C\Delta R^2 \]</div><p>Siempre positiva; ayuda cuando baja y cuando sube el tipo.</p></div></details>
+    <details class="fc"><summary>Valor del punto básico</summary><div class="ans"><p>\(V\cdot D/(1+R)\cdot10^{-4}\): 1.590,65 € para la cartera de 3,38 M€ con D = 4,84.</p></div></details>
+    <details class="fc"><summary>Inmunización de Redington</summary><div class="ans"><p>\(V_A=V_L\), \(D_A=D_L\), \(C_A>C_L\); protege frente a movimientos paralelos, no a cambios de pendiente.</p></div></details>
+    <details class="fc"><summary>Svensson y Nelson–Siegel</summary><div class="ans"><p>NS: \(\beta_0,\beta_1,\beta_2,k\). Svensson añade \(\beta_3,\kappa_2\). \(\beta_0\) largo plazo; \(\beta_0+\beta_1\) corto plazo.</p></div></details>
+    <details class="fc"><summary>Spline cúbica</summary><div class="ans"><p>Polinomio cúbico a trozos \(C^2\); \(n+4\) parámetros con \(n\) nudos; lineal en los parámetros.</p></div></details>
+    <details class="fc"><summary>Vasicek y CIR</summary><div class="ans"><p>\(dr=\kappa(\mu-r)dt+\sigma\,dW\) y \(+\sigma\sqrt r\,dW\); \(\nu=e^{A-rB}\).</p></div></details>
+    <details class="fc"><summary>Lema de Itô y lognormalidad</summary><div class="ans"><p>\(d\ln S=(\mu-\sigma^2/2)dt+\sigma\,dW\) ⇒ \(S\) lognormal.</p></div></details>
+  </div>
+</section>
+
+<section id="fuentes">
+  <div class="sec-head"><div class="eyebrow">Referencias</div><h2>Fuentes</h2></div>
+  <ul class="tight"><li>Torralba, M. (2026). <i>Tema I: Introducción a la valoración de títulos de renta fija</i> y <i>Tema III: Riesgo de variación de los tipos de interés</i>. Material docente original © E. Navarro Arribas, Universidad de Alcalá.</li>
+    <li>Navarro Arribas, E. <i>Tema 2: Estructura temporal de los tipos de interés</i>; <i>Anexo I: Métodos para la estimación de la ETTI</i>; <i>Teorema de la inmunización</i>; <i>Tipos de interés capitalizables continuamente</i>; <i>Notas sobre procesos estocásticos para la modelización del tipo de interés</i>.</li>
+    <li>Navarro, E. (2019). <i>Matemáticas de las operaciones financieras</i>. Ed. Pirámide.</li>
+    <li>Nelson y Siegel (1987), Svensson (1994), Vasicek (1977), Cox, Ingersoll y Ross (1985), Vasicek y Fong (1982), McCulloch (1971), Redington (1952).</li>
+    <li>Datos de ejemplo: Boletín del Mercado de Deuda Pública Anotada (BME/Banco de España), SENAF Deuda Pública, Refinitiv/LSEG.</li></ul>
+</section>
+<footer class="foot"><div>Guía elaborada para Gedankenpalast a partir de los apuntes de Renta fija y sus derivados (MUCAF, Universidad de Alcalá). Las cifras de los ejemplos se han recalculado; las erratas detectadas están señaladas.</div></footer>
+</div>
+<script>
+(function () {
+'use strict';
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const len = (s) => [...String(s)].length;
+
+  function drawTimeline(spec) {
+    const ticks = spec.ticks, n = ticks.length;
+    const flowTexts = [];
+    ticks.forEach(t => ['up', 'dn', 't', 'a', 'l'].forEach(k => { if (t[k] != null && !t.gap) flowTexts.push(t[k]); }));
+    const longest = Math.max(2, ...flowTexts.map(len));
+    const step = Math.max(spec.compact ? 44 : 54, Math.min(180, longest * 7.4 + 16));
+    const arrows = spec.arrows || [], marks = spec.marks || [], spans = spec.spans || [];
+    const hasUp = ticks.some(t => t.up != null), hasDn = ticks.some(t => t.dn != null);
+    const hasA = ticks.some(t => t.a != null), hasL = ticks.some(t => t.l != null), hasT = ticks.some(t => t.t != null);
+    const markChars = Math.max(0, ...marks.map(m => len(m.label)), ...arrows.map(a => len(a.label)), ...spans.map(s => len(s.label)));
+    let padX = Math.max(30, step / 2 + 4);
+    let width = padX * 2 + step * (n - 1);
+    const minWidth = markChars * 7.2 + 40;
+    if (width < minWidth) { padX += (minWidth - width) / 2; width = minWidth; }
+    width = Math.round(width);
+    const X = (i) => padX + step * i;
+
+    const out = [];
+    let y = 4;
+    const arrowY = arrows.map(() => { y += 32; return y - 6; });
+    const markY = marks.length ? (y += 18) : null;
+    const axisY = (y += hasUp ? 54 : 22);
+    const dnLabelY = axisY + 44;
+    const tY = (hasDn ? dnLabelY : axisY + 4) + 20;
+    y = hasT ? tY : tY - 16;
+    const aY = hasA ? (y += 16) : null;
+    const lY = hasL ? (y += 16) : null;
+    const spanY = spans.map(() => { y += 30; return y - 12; });
+    const height = Math.round(y + 10);
+
+    const clampX = (x, chars) => {
+      const w = chars * 7.2;
+      if (x - w / 2 < 2) return { x: 2, anchor: 'start' };
+      if (x + w / 2 > width - 2) return { x: width - 2, anchor: 'end' };
+      return { x, anchor: 'middle' };
+    };
+
+    out.push(`<line class="tl-axis" x1="${X(0) - 18}" y1="${axisY}" x2="${X(n - 1) + 18}" y2="${axisY}"/>`);
+    marks.forEach(m => {
+      const x = X(m.i);
+      const top = ticks[m.i].up != null ? axisY - 26 : markY + 6;
+      out.push(`<line class="tl-mark" x1="${x}" y1="${top}" x2="${x}" y2="${hasDn ? axisY + 30 : axisY + 10}"/>`);
+      const p = clampX(x, len(m.label));
+      out.push(`<text class="tl-marktxt" x="${p.x}" y="${markY}" text-anchor="${p.anchor}">${esc(m.label)}</text>`);
+    });
+    ticks.forEach((t, i) => {
+      const x = X(i);
+      if (t.gap) {
+        out.push(`<text class="tl-t" x="${x}" y="${axisY + 4}" text-anchor="middle">···</text>`);
+        if (t.up) out.push(`<text class="tl-txt tl-lbl-w" x="${x}" y="${axisY - 32}" text-anchor="middle">···</text>`);
+        if (t.dn) out.push(`<text class="tl-txt tl-lbl-w" x="${x}" y="${dnLabelY}" text-anchor="middle">···</text>`);
+        return;
+      }
+      out.push(`<line class="tl-tick" x1="${x}" y1="${axisY - 5}" x2="${x}" y2="${axisY + 5}"/>`);
+      if (t.up != null) {
+        const tone = t.ut || 'a';
+        if (tone === 'f') out.push(`<rect class="tl-f" x="${x - 5}" y="${axisY - 19}" width="10" height="10" transform="rotate(45 ${x} ${axisY - 14})"/>`);
+        else out.push(`<rect class="tl-${tone}" x="${x - 2}" y="${axisY - 24}" width="4" height="24"/>`);
+        out.push(`<text class="tl-txt ${t.uq ? 'tl-q' : 'tl-lbl-' + tone}" x="${x}" y="${axisY - 32}" text-anchor="middle">${esc(t.up)}</text>`);
+      }
+      if (t.dn != null) {
+        const tone = t.dt || 'p';
+        if (tone === 'f') out.push(`<rect class="tl-f" x="${x - 5}" y="${axisY + 9}" width="10" height="10" transform="rotate(45 ${x} ${axisY + 14})"/>`);
+        else out.push(`<rect class="tl-${tone}" x="${x - 2}" y="${axisY}" width="4" height="24"/>`);
+        out.push(`<text class="tl-txt ${t.dq ? 'tl-q' : 'tl-lbl-' + tone}" x="${x}" y="${dnLabelY}" text-anchor="middle">${esc(t.dn)}</text>`);
+      }
+      if (t.t != null) out.push(`<text class="tl-t" x="${x}" y="${tY}" text-anchor="middle">${esc(t.t)}</text>`);
+      if (t.a != null) out.push(`<text class="tl-age" x="${x}" y="${aY}" text-anchor="middle">${esc(t.a)}</text>`);
+      if (t.l != null) out.push(`<text class="tl-l" x="${x}" y="${lY}" text-anchor="middle">${esc(t.l)}</text>`);
+    });
+    arrows.forEach((a, k) => {
+      const yy = arrowY[k], x1 = X(a.from), x2 = X(a.to), dir = x2 > x1 ? 1 : -1, tone = a.tone || 'a';
+      out.push(`<line class="tl-line tl-${tone}" x1="${x1}" y1="${yy}" x2="${x2 - dir * 6}" y2="${yy}"/>`);
+      out.push(`<path class="tl-${tone}" d="M${x2} ${yy} l${-dir * 8} -4 l0 8 z"/>`);
+      out.push(`<circle class="tl-${tone}" cx="${x1}" cy="${yy}" r="2.5"/>`);
+      const p = clampX((x1 + x2) / 2, len(a.label));
+      out.push(`<text class="tl-txt tl-lbl-${tone}" x="${p.x}" y="${yy - 7}" text-anchor="${p.anchor}">${esc(a.label)}</text>`);
+    });
+    spans.forEach((s, k) => {
+      const yy = spanY[k], x1 = X(s.from), x2 = X(s.to), tone = s.tone || 'a';
+      out.push(`<path class="tl-line tl-${tone}" d="M${x1} ${yy - 5} V${yy} H${x2} V${yy - 5}"/>`);
+      const p = clampX((x1 + x2) / 2, len(s.label));
+      out.push(`<text class="tl-txt tl-lbl-${tone}" x="${p.x}" y="${yy + 15}" text-anchor="${p.anchor}">${esc(s.label)}</text>`);
+    });
+    return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(spec.aria || 'Línea temporal de flujos')}">${out.join('')}</svg>`;
+  }
+
+
+
+/* ====================== Utilidades ====================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const fmt = (v, d = 3) => Number.isFinite(v) ? v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–';
+const sum = (a) => a.reduce((s, v) => s + v, 0);
+const mean = (a) => sum(a) / a.length;
+const variance = (a) => { const m = mean(a); return sum(a.map(v => (v - m) ** 2)) / (a.length - 1); };
+const corr = (a, b) => { const ma = mean(a), mb = mean(b); let sab = 0, saa = 0, sbb = 0; for (let i = 0; i < a.length; i++) { const x = a[i] - ma, y = b[i] - mb; sab += x * y; saa += x * x; sbb += y * y; } return sab / Math.sqrt(saa * sbb); };
+const quantile = (arr, q) => { const s = [...arr].sort((x, y) => x - y); const pos = (s.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos); return s[lo] + (s[hi] - s[lo]) * (pos - lo); };
+const num = (id) => parseFloat($('#' + id).value);
+
+// Generador con semilla (mulberry32): solo para los laboratorios de esta página
+function rng(seed) {
+  let a = (seed | 0) >>> 0;
+  return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const gauss = (r) => { let u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); };
+const phi = (x) => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+function Phi(x) { const t = 1 / (1 + 0.2316419 * Math.abs(x)); const d = phi(x); const p = d * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))); return x >= 0 ? 1 - p : p; }
+function probit(p) { // Acklam
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  const pl = 0.02425;
+  let q, r;
+  if (p < pl) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  if (p > 1 - pl) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  q = p - 0.5; r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+function gammaFn(z) { // Lanczos
+  if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gammaFn(1 - z));
+  z -= 1;
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5;
+  return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+}
+
+/* ====================== Gráficos SVG genéricos ====================== */
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo; if (!(span > 0)) return [lo];
+  const raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), nm = raw / mag;
+  const step = (nm < 1.5 ? 1 : nm < 3 ? 2 : nm < 7 ? 5 : 10) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + step * 1e-6; v += step) out.push(+v.toPrecision(12));
+  return out;
+}
+const tickFmt = (v) => { const a = Math.abs(v); if (a >= 100000) return (v / 1000).toLocaleString('es-ES') + 'k'; return String(+v.toPrecision(4)).replace('.', ','); };
+
+function chart(o) {
+  const W = o.w || 520, H = o.h || 300;
+  const P = Object.assign({ l: 46, r: 12, t: 12, b: 36 }, o.pad || {});
+  const [x0, x1] = o.x, [y0, y1] = o.y;
+  const sx = (v) => P.l + (v - x0) / (x1 - x0) * (W - P.l - P.r);
+  const sy = (v) => H - P.b - (v - y0) / (y1 - y0) * (H - P.t - P.b);
+  chart.n = (chart.n || 0) + 1; const id = 'cl' + chart.n;
+  const out = [`<clipPath id="${id}"><rect x="${P.l}" y="${P.t}" width="${W - P.l - P.r}" height="${H - P.t - P.b}"/></clipPath>`];
+  const xt = o.xticks || niceTicks(x0, x1, o.nx || 6), yt = o.yticks || niceTicks(y0, y1, o.ny || 5);
+  if (!o.nogrid) {
+    xt.forEach(v => out.push(`<line class="gr" x1="${sx(v)}" y1="${P.t}" x2="${sx(v)}" y2="${H - P.b}"/>`));
+    yt.forEach(v => out.push(`<line class="gr" x1="${P.l}" y1="${sy(v)}" x2="${W - P.r}" y2="${sy(v)}"/>`));
+  }
+  if (o.zero !== false) {
+    if (x0 < 0 && x1 > 0) out.push(`<line class="ax" x1="${sx(0)}" y1="${P.t}" x2="${sx(0)}" y2="${H - P.b}" stroke-opacity=".35"/>`);
+    if (y0 < 0 && y1 > 0) out.push(`<line class="ax" x1="${P.l}" y1="${sy(0)}" x2="${W - P.r}" y2="${sy(0)}" stroke-opacity=".35"/>`);
+  }
+  out.push(`<line class="ax" x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}"/><line class="ax" x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${H - P.b}"/>`);
+  xt.forEach(v => out.push(`<text class="tx" x="${sx(v)}" y="${H - P.b + 14}" text-anchor="middle">${o.xfmt ? o.xfmt(v) : tickFmt(v)}</text>`));
+  yt.forEach(v => out.push(`<text class="tx" x="${P.l - 6}" y="${sy(v) + 4}" text-anchor="end">${o.yfmt ? o.yfmt(v) : tickFmt(v)}</text>`));
+  if (o.xl) out.push(`<text class="tx" x="${(P.l + W - P.r) / 2}" y="${H - 4}" text-anchor="middle">${o.xl}</text>`);
+  if (o.yl) out.push(`<text class="tx" transform="translate(11 ${(P.t + H - P.b) / 2}) rotate(-90)" text-anchor="middle">${o.yl}</text>`);
+
+  const body = [];
+  (o.items || []).forEach(it => {
+    const cls = it.cls || 's-a';
+    switch (it.k) {
+      case 'hist': {
+        const e = it.edges;
+        for (let i = 0; i < it.dens.length; i++) {
+          const xa = sx(e[i]), xb = sx(e[i + 1]), ya = sy(it.dens[i]);
+          body.push(`<rect class="${it.cls || 'f-a o50'}" x="${xa.toFixed(1)}" y="${ya.toFixed(1)}" width="${Math.max(0.5, xb - xa - 0.6).toFixed(1)}" height="${Math.max(0, sy(0) - ya).toFixed(1)}"/>`);
+        }
+        break;
+      }
+      case 'line': body.push(`<polyline class="ln ${it.thin ? 'thin' : ''} ${it.dash ? 'dash' : ''} ${cls}" points="${it.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1)).join(' ')}"/>`); break;
+      case 'area': body.push(`<polygon class="${it.cls || 'f-a o25'}" points="${it.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1)).join(' ')}"/>`); break;
+      case 'pts': { const r = it.r || 2; body.push(`<g class="${it.cls || 'f-a'}" fill-opacity="${it.op == null ? 0.6 : it.op}">${it.pts.map(p => `<circle cx="${sx(p[0]).toFixed(1)}" cy="${sy(p[1]).toFixed(1)}" r="${r}"/>`).join('')}</g>`); break; }
+      case 'hline': body.push(`<line class="ln thin ${it.dash === false ? '' : 'dash'} ${cls}" x1="${P.l}" y1="${sy(it.y)}" x2="${W - P.r}" y2="${sy(it.y)}"/>`); break;
+      case 'vline': body.push(`<line class="ln thin ${it.dash === false ? '' : 'dash'} ${cls}" x1="${sx(it.x)}" y1="${P.t}" x2="${sx(it.x)}" y2="${H - P.b}"/>`); break;
+      case 'seg': body.push(`<line class="ln thin ${it.dash ? 'dash' : ''} ${cls}" x1="${sx(it.a[0])}" y1="${sy(it.a[1])}" x2="${sx(it.b[0])}" y2="${sy(it.b[1])}"/>`); break;
+      case 'dot': body.push(`<circle class="${it.cls || 'f-ink'}" cx="${sx(it.p[0])}" cy="${sy(it.p[1])}" r="${it.r || 4}"/>`); break;
+      case 'rect': body.push(`<rect class="${it.cls || 'f-a o25'}" x="${sx(it.x)}" y="${sy(it.y + it.h)}" width="${sx(it.x + it.w) - sx(it.x)}" height="${sy(it.y) - sy(it.y + it.h)}"/>`); break;
+      case 'poly': body.push(`<polygon class="${it.cls || 'f-a o25'}" points="${it.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(p[1]).toFixed(1)).join(' ')}"/>`); break;
+      default: break;
+    }
+  });
+  out.push(`<g clip-path="url(#${id})">${body.join('')}</g>`);
+  (o.items || []).forEach(it => {
+    if (it.k === 'text') out.push(`<text class="tx-l ${it.cls || ''}" x="${sx(it.x) + (it.dx || 0)}" y="${sy(it.y) + (it.dy || 0)}" text-anchor="${it.anchor || 'start'}">${it.t}</text>`);
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || 'Gráfico')}">${out.join('')}</svg>`;
+}
+function histData(data, lo, hi, bins) {
+  const w = (hi - lo) / bins, c = new Array(bins).fill(0); let n = 0;
+  data.forEach(v => { if (v >= lo && v < hi) { c[Math.floor((v - lo) / w)]++; } n++; });
+  return { edges: Array.from({ length: bins + 1 }, (_, i) => lo + i * w), dens: c.map(k => k / (n * w)) };
+}
+const curvePts = (f, a, b, n = 200) => Array.from({ length: n + 1 }, (_, i) => { const x = a + (b - a) * i / n; return [x, f(x)]; });
+const setFig = (sel, html) => { const box = $(sel + ' .tl-scroll'); if (box) box.innerHTML = html; };
+
+/* ====================== Código: resaltado y copia ====================== */
+const R_RE = /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*(?:e[+-]?\d+)?L?\b)|(\b(?:function|if|else|for|while|repeat|break|next|return|TRUE|FALSE|NULL|NA|Inf|in|library|require)\b)|([A-Za-z_.][\w.]*)(?=\()|(<-|<<-|->|%[^%\s]*%|\|>)/gm;
+const PY_RE = /(#.*$)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+\.?\d*(?:e[+-]?\d+)?\b)|(\b(?:import|from|as|def|return|for|in|if|else|elif|while|with|True|False|None|lambda|and|or|not|break|continue|pass|print|assert|try|except|class)\b)|([A-Za-z_][\w]*)(?=\()|(==|!=|<=|>=|\*\*|@|\/\/)/gm;
+function highlight(code, re) {
+  let out = '', last = 0, m;
+  re.lastIndex = 0;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const t = esc(m[0]);
+    out += m[1] ? `<span class="c-com">${t}</span>` : m[2] ? `<span class="c-str">${t}</span>` : m[3] ? `<span class="c-num">${t}</span>` : m[4] ? `<span class="c-kw">${t}</span>` : m[5] ? `<span class="c-fn">${t}</span>` : `<span class="c-op">${t}</span>`;
+    last = m.index + m[0].length;
+    if (m[0].length === 0) re.lastIndex++;
+  }
+  return out + esc(code.slice(last));
+}
+let LANG = 'r';
+try { const v = localStorage.getItem('sim-lang'); if (v === 'r' || v === 'py') LANG = v; } catch (e) { /* sin almacenamiento */ }
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem('sim-lang', l); } catch (e) { /* sin almacenamiento */ }
+  $$('.code[data-pair]').forEach(box => {
+    $$('.code-tabs button', box).forEach(b => b.setAttribute('aria-selected', String(b.dataset.l === l)));
+    $$('pre', box).forEach(p => { p.hidden = p.dataset.l !== l; });
+  });
+}
+function mountCode() {
+  $$('div.codepair').forEach(pair => {
+    const get = t => { const s = pair.querySelector('script[type="text/x-' + t + '"]'); return s ? s.textContent.replace(/^\n+/, '').replace(/\s+$/, '') : ''; };
+    const codes = { r: get('r'), py: get('py') };
+    const src = pair.dataset.src === 'complemento' ? '<span class="badge">complemento</span>' : '<span class="badge">curso</span>';
+    const box = document.createElement('div');
+    box.className = 'code'; box.dataset.pair = '1';
+    box.innerHTML = '<div class="code-head"><span class="fname">' + esc(pair.dataset.file || 'script') + ' · ' + src + '</span>'
+      + '<span class="code-tabs" role="tablist"><button type="button" role="tab" data-l="r">R</button><button type="button" role="tab" data-l="py">Python</button></span>'
+      + '<button type="button" class="copy">Copiar</button></div>'
+      + '<pre data-l="r"><code>' + highlight(codes.r, R_RE) + '</code></pre><pre data-l="py"><code>' + highlight(codes.py, PY_RE) + '</code></pre>';
+    $$('.code-tabs button', box).forEach(b => b.addEventListener('click', () => setLang(b.dataset.l)));
+    box.querySelector('.copy').addEventListener('click', ev => {
+      const b = ev.currentTarget, code = codes[LANG];
+      const done = () => { b.textContent = '¡Copiado!'; setTimeout(() => { b.textContent = 'Copiar'; }, 1400); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done, () => fallbackCopy(code, done));
+      else fallbackCopy(code, done);
+    });
+    pair.replaceWith(box);
+  });
+  setLang(LANG);
+}
+function fallbackCopy(text, done) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch (e) { /* sin portapapeles */ }
+  document.body.removeChild(ta);
+}
+
+/* ====================== Líneas temporales ====================== */
+const TL = {
+  gcls: {
+    ticks: [
+      { t: 'i=0', up: '7', ut: 'w', l: 'semilla' },
+      { t: 'i=1', up: '6', ut: 'a', dn: '0,3750', dt: 'p' }, { t: 'i=2', up: '1', ut: 'a', dn: '0,0625', dt: 'p' },
+      { t: 'i=3', up: '8', ut: 'a', dn: '0,5000', dt: 'p' }, { t: 'i=4', up: '11', ut: 'a', dn: '0,6875', dt: 'p' },
+      { t: 'i=5', up: '10', ut: 'a', dn: '0,6250', dt: 'p' }, { t: 'i=6', up: '5', ut: 'a', dn: '0,3125', dt: 'p' },
+      { t: 'i=7', up: '12', ut: 'a', dn: '0,7500', dt: 'p' }, { gap: true, up: '···', dn: '···' },
+      { t: 'i=16', up: '7', ut: 'f', dn: '0,4375', dt: 'p' }
+    ],
+    marks: [{ i: 9, label: 'periodo 16: vuelve a la semilla' }],
+    arrows: [{ from: 0, to: 3, label: 'z ↦ (5z + 3) mod 16', tone: 'a' }]
+  },
+  forward: {
+    ticks: [
+      { t: 'paso 0', up: 'modelo nulo', ut: 'w', dn: 'AIC 2105,3', dt: 'f' },
+      { t: 'paso 1', up: '+ BonusMalus', ut: 'a', dn: 'AIC 1840,2', dt: 'f' },
+      { t: 'paso 2', up: '+ DrivAge', ut: 'a', dn: 'AIC 1795,6', dt: 'f' },
+      { t: 'paso 3', up: '+ Exposure', ut: 'a', dn: 'AIC 1788,9', dt: 'f' },
+      { t: 'paso 4', up: 'ninguna mejora', ut: 'w', dn: 'AIC 1788,9', dt: 'f' }
+    ],
+    marks: [{ i: 4, label: 'parar' }],
+    arrows: [{ from: 0, to: 3, label: 'cada paso: entra la variable que más baja el AIC', tone: 'a' }]
+  }
+};
+function mountTimelines() {
+  $$('figure.tl[data-tl]').forEach(fig => {
+    const spec = TL[fig.dataset.tl];
+    const box = fig.querySelector('.tl-scroll');
+    if (spec && box) box.innerHTML = drawTimeline(spec);
+  });
+}
+
+/* ====================== Renta fija: finanzas básicas ====================== */
+const pvSum = (cf, t, y) => cf.reduce((s, c, i) => s + c / Math.pow(1 + y, t[i]), 0);
+function irr(cf, t, P) {
+  let lo = -0.9, hi = 5;
+  for (let i = 0; i < 200; i++) { const m = (lo + hi) / 2; if (pvSum(cf, t, m) > P) lo = m; else hi = m; }
+  return (lo + hi) / 2;
+}
+const durMac = (cf, t, y) => { const P = pvSum(cf, t, y); return cf.reduce((s, c, i) => s + t[i] * c / Math.pow(1 + y, t[i]), 0) / P; };
+const convex = (cf, t, y) => { const P = pvSum(cf, t, y); return cf.reduce((s, c, i) => s + t[i] * (t[i] + 1) * c / Math.pow(1 + y, t[i] + 2), 0) / P; };
+function flowsOf(N, cPct, n, tau = 1) {            // tau = fracción hasta el primer cupón (1 = recién emitido)
+  const cf = [], t = [];
+  for (let k = 0; k < n; k++) { cf.push(N * cPct / 100 + (k === n - 1 ? N : 0)); t.push(tau + k); }
+  return { cf, t };
+}
+const pct = (v, d = 3) => fmt(v * 100, d) + ' %';
+const eur = (v, d = 2) => fmt(v, d) + ' €';
+const setStats = (id, rows) => { $('#' + id).innerHTML = rows.map(r => `<div><span>${r[0]}</span><b class="${r[2] || ''}">${r[1]}</b></div>`).join(''); };
+const typeset = (sel) => { if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise(sel ? [$(sel)] : undefined); };
+const bind = (ids, fn) => { ids.forEach(i => { const el = $('#' + i); if (el) { el.addEventListener('input', fn); el.addEventListener('change', fn); } }); };
+
+/* ====================== Líneas temporales de los ejemplos ====================== */
+Object.assign(TL, {
+  ej1: { ticks: [{ t: 't=0', up: '', ut: 'w', dn: 'P = 964,54', dt: 'p' }, { t: 't=1', up: '40', ut: 'a', dn: '38,10', dt: 'p' }, { t: 't=2', up: '40', ut: 'a', dn: '36,28', dt: 'p' }, { t: 't=3', up: '40', ut: 'a', dn: '34,55', dt: 'p' }, { t: 't=4', up: '1.040', ut: 'a', dn: '855,61', dt: 'p' }],
+    arrows: [{ from: 1, to: 4, label: 'cada flujo se descuenta al 5 %: (1,05)^−t', tone: 'a' }] },
+  ej2: { ticks: [{ t: '03/03/16', up: 'fecha valor', ut: 'w', dn: '', dt: 'p' }, { t: '31/01/17', up: '54', ut: 'a', dn: 't = 334/366', dt: 'f' }, { t: '31/01/18', up: '54', ut: 'a', dn: '1+334/366', dt: 'f' }, { t: '31/01/19', up: '54', ut: 'a', dn: '2+334/366', dt: 'f' }, { t: '31/01/20', up: '54', ut: 'a', dn: '3+334/366', dt: 'f' }, { t: '31/01/21', up: '54', ut: 'a', dn: '4+334/366', dt: 'f' }, { t: '31/01/22', up: '54', ut: 'a', dn: '5+334/366', dt: 'f' }, { t: '31/01/23', up: '1.054', ut: 'a', dn: '6+334/366', dt: 'f' }],
+    arrows: [{ from: 0, to: 1, label: '334 días de 366', tone: 'p' }] },
+  ej3: { ticks: [{ t: 'hoy', up: '', ut: 'w', dn: '' }, { t: '+182 d', up: 'C', ut: 'a', dn: '182/365', dt: 'f' }, { t: '+1 a', up: 'C', ut: 'a', dn: '1+182/365', dt: 'f' }, { t: '+2 a', up: 'C', ut: 'a', dn: '2+182/365', dt: 'f' }, { t: '+3 a', up: 'C+1000', ut: 'a', dn: '3+182/365', dt: 'f' }],
+    arrows: [{ from: 0, to: 1, label: 'faltan 182 días; pasaron 183 desde el último cupón', tone: 'p' }] },
+  gt: { ticks: [{ t: '21/04/25', up: 'contratación', ut: 'w' }, { t: '23/04/25', up: 'fecha valor', ut: 'p', dn: '127 días', dt: 'f' }, { t: '16/06/25', up: '3,5430', ut: 'a', dn: 'cupón (53 d)', dt: 'f' }, { t: '15/12/25', up: '3,5625', ut: 'a' }, { t: '15/06/26', up: '3,5625', ut: 'a' }, { t: '15/12/26', up: '3,5625', ut: 'a' }, { t: '15/06/27', up: '3,5625', ut: 'a' }, { t: '15/12/27', up: '103,5625', ut: 'a', dn: 'amortización', dt: 'p' }],
+    arrows: [{ from: 1, to: 2, label: 'cupón corrido = 3,5625 · 127/180', tone: 'p' }] },
+  replica: { ticks: [{ t: 't=0', up: 'compro 4 strips', ut: 'w', dn: '907,68 €', dt: 'p' }, { t: 't=1', up: '40', ut: 'a', dn: '38,10', dt: 'f' }, { t: 't=2', up: '40', ut: 'a', dn: '35,60', dt: 'f' }, { t: 't=3', up: '40', ut: 'a', dn: '33,07', dt: 'f' }, { t: 't=4', up: '1.040', ut: 'a', dn: '801,91', dt: 'f' }],
+    arrows: [{ from: 0, to: 4, label: 'cartera de 4 cupón cero = el bono: mismo flujo ⇒ mismo precio', tone: 'a' }] },
+  fwd: { ticks: [{ t: 't=0', up: '1', ut: 'w' }, { t: 't₁', up: '(1+R₁)^t₁', ut: 'a', dn: 'reinvierto al forward', dt: 'f' }, { t: 't₂', up: '(1+R₁)^t₁ (1+F)^(t₂−t₁)', ut: 'p', dn: '= (1+R₂)^t₂', dt: 'p' }],
+    arrows: [{ from: 0, to: 2, label: 'invertir hasta t₂ ≡ invertir hasta t₁ y reinvertir al forward', tone: 'a' }] },
+  sawtooth: { ticks: [{ t: 'emisión', up: 'V₀', ut: 'a' }, { t: '+¾ año', up: 'V₀·(1+R)^0,75', ut: 'a', dn: 'cupón corrido ≈ 0,75·C', dt: 'p' }, { t: 'pago cupón', up: 'cae C', ut: 'a', dn: 'salto = cupón', dt: 'f' }],
+    arrows: [] }
+});
+const FIG = {};
+
+/* ====================== Laboratorio: bono y precio ====================== */
+function labBono() {
+  const run = () => {
+    const c = num('b_c'), y = num('b_y') / 100, n = Math.max(1, Math.round(num('b_n'))), N = 1000;
+    const { cf, t } = flowsOf(N, c, n); const P = pvSum(cf, t, y);
+    const reg = c / 100 > y + 1e-12 ? 'por encima de la par' : c / 100 < y - 1e-12 ? 'por debajo de la par' : 'a la par';
+    setStats('b_stats', [['Precio P', eur(P)], ['% del nominal', fmt(P / 10, 3) + ' %'], ['Cotiza', reg, P > N + 1e-9 ? 'ok' : P < N - 1e-9 ? 'bad' : ''], ['¿Tipo R menor que el cupón?', (y < c / 100 ? 'sí ⇒ P > N' : 'no ⇒ P ≤ N')]]);
+    const f = (yy) => pvSum(cf, t, yy);
+    $('#b_fig .tl-scroll').innerHTML = chart({ w: 560, h: 300, pad: { l: 56 }, x: [0, 12], y: [Math.min(400, f(0.12) * 0.9), Math.max(f(0.0), 1400) * 1.02], xl: 'tipo de interés de valoración R (%)', yl: 'precio (€)', aria: 'Precio frente a tipo',
+      items: [{ k: 'line', pts: curvePts(x => f(x / 100), 0, 12), cls: 's-a' }, { k: 'hline', y: N, cls: 's-w' }, { k: 'vline', x: c, cls: 's-p' }, { k: 'dot', p: [y * 100, P], cls: 'f-p', r: 5 }, { k: 'text', x: c, y: Math.min(400, f(0.12) * 0.9), t: 'cupón ' + fmt(c, 2) + ' %', cls: 'tx-p', dx: 4, dy: -6 }] });
+  };
+  bind(['b_c', 'b_y', 'b_n'], run); run();
+}
+
+/* ====================== Laboratorio: cupón corrido y diente de sierra ====================== */
+function labSierra() {
+  const run = () => {
+    const c = num('s_c'), y = num('s_y') / 100, n = Math.max(2, Math.round(num('s_n'))), N = 1000, C = N * c / 100;
+    const dirty = (tt) => { let s = 0; for (let k = 1; k <= n; k++) { if (k > tt + 1e-12) s += (C + (k === n ? N : 0)) / Math.pow(1 + y, k - tt); } return s; };
+    const clean = (tt) => dirty(tt) - C * (tt - Math.floor(tt));
+    const pts = [], pc = [];
+    for (let k = 0; k < n; k++) { for (let j = 0; j <= 100; j++) { const tt = k + j / 100 * 0.9999; pts.push([tt, dirty(tt)]); pc.push([tt, clean(tt)]); } pts.push([NaN, NaN]); pc.push([NaN, NaN]); }
+    const seg = (a) => { const out = []; let cur = []; a.forEach(p => { if (Number.isNaN(p[0])) { out.push(cur); cur = []; } else cur.push(p); }); return out; };
+    const all = pts.filter(p => !Number.isNaN(p[0])).map(p => p[1]);
+    $('#s_fig .tl-scroll').innerHTML = chart({ w: 560, h: 310, pad: { l: 56 }, x: [0, n], y: [Math.min(...all) * 0.97, Math.max(...all) * 1.03], xl: 'años desde la emisión', yl: 'valor (€)', aria: 'Precio bruto y precio ex-cupón',
+      items: [...seg(pts).map(s => ({ k: 'line', pts: s, cls: 's-a' })), ...seg(pc).map(s => ({ k: 'line', pts: s, cls: 's-p', dash: true })), { k: 'hline', y: N, cls: 's-w' }] });
+    const t0 = 0.75;
+    setStats('s_stats', [['Precio bruto en t = 0,75', eur(dirty(t0))], ['Cupón corrido (lineal)', eur(C * t0)], ['Precio ex-cupón', eur(clean(t0))], ['Salto al pagar cupón', eur(C)]]);
+  };
+  bind(['s_c', 's_y', 's_n'], run); run();
+}
+
+/* ====================== Laboratorio: convenciones de días ====================== */
+const MD = (y, m) => new Date(y, m, 0).getDate();
+function d360us(a, b) {
+  let [y1, m1, d1] = a, [y2, m2, d2] = b;
+  const ultFeb = (y, m, d) => m === 2 && d === MD(y, 2);
+  const f1 = ultFeb(y1, m1, d1), f2 = ultFeb(y2, m2, d2);
+  if (f1 && f2) d2 = 30;
+  if (f1) d1 = 30;
+  if (d2 === 31 && (d1 === 30 || d1 === 31)) d2 = 30;
+  if (d1 === 31) d1 = 30;
+  return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
+}
+const parseD = (s) => { const m = String(s).match(/(\d+)\D+(\d+)\D+(\d+)/); return m ? [+m[3], +m[2], +m[1]] : null; };   // dd/mm/aaaa -> [a,m,d]
+const toUTC = (a) => Date.UTC(a[0], a[1] - 1, a[2]);
+const daysAct = (a, b) => Math.round((toUTC(b) - toUTC(a)) / 86400000);
+function labDias() {
+  const run = () => {
+    const l = parseD($('#d_last').value), v = parseD($('#d_val').value), nx = parseD($('#d_next').value), cpn = num('d_cup'), conv = $('#d_conv').value;
+    if (!l || !v || !nx) return;
+    let a, b, base = '';
+    if (conv === '30') { a = d360us(l, v); b = d360us(l, nx); base = '30/360 US'; }
+    else { a = daysAct(l, v); b = conv === 'act' ? daysAct(l, nx) : conv === '365' ? 365 : 360; base = conv === 'act' ? 'Actual/Actual' : conv === '365' ? 'Actual/365' : 'Actual/360'; }
+    const cc = cpn * a / b;
+    setStats('d_stats', [['Convención', base], ['Días desde el último cupón', String(a)], ['Denominador', String(b)], ['Cupón corrido', fmt(cc, 6) + ' %']]);
+    const P = num('d_dirty'); if (Number.isFinite(P)) setStats('d_stats2', [['Precio bruto', fmt(P, 6) + ' %'], ['Precio ex-cupón = bruto − cc', fmt(P - cc, 6) + ' %']]);
+  };
+  bind(['d_last', 'd_val', 'd_next', 'd_cup', 'd_conv', 'd_dirty'], run); run();
+}
+
+/* ====================== Laboratorio: ETTI, forwards, TIR y sesgo del cupón ====================== */
+const CURVAS = { navarro: [5, 6, 6.5, 6.75, 6.85], interb: [0.221, 0.340, 0.441, 0.534], plana: [5, 5, 5, 5, 5], decre: [7, 6.5, 6, 5.75, 5.6], cuchara: [4.2, 3.9, 3.8, 4.1, 4.5] };
+function labEtti() {
+  const run = () => {
+    const R = $('#e_R').value.split(/[;\s]+/).filter(Boolean).map(v => parseFloat(v.replace(',', '.')) / 100).filter(Number.isFinite);
+    if (R.length < 2) return;
+    const n = R.length, A = (k) => Math.pow(1 + R[k - 1], k);
+    const F = (a, b) => Math.pow(A(b) / A(a), 1 / (b - a)) - 1;
+    const rows = []; for (let k = 1; k < n; k++) rows.push(`<tr><td>F<sub>${k},${k + 1}</sub></td><td class="num">${pct(F(k, k + 1))}</td>${k + 2 <= n ? `<td class="num">F<sub>${k},${k + 2}</sub> = ${pct(F(k, k + 2))}</td>` : '<td></td>'}</tr>`);
+    $('#e_tab').innerHTML = `<table class="mini"><thead><tr><th>Plazo</th><th>R<sub>t</sub></th><th>F<sub>t−1,t</sub></th></tr></thead><tbody>${R.map((r, i) => `<tr><td>${i + 1}</td><td class="num">${pct(r)}</td><td class="num">${i ? pct(F(i, i + 1)) : '—'}</td></tr>`).join('')}</tbody></table>`;
+    const c = num('e_c'), m = Math.min(n, Math.max(2, Math.round(num('e_n'))));
+    const { cf, t } = flowsOf(100, c, m); const P = cf.reduce((s, x, i) => s + x / Math.pow(1 + R[i], i + 1), 0); const y = irr(cf, t, P);
+    setStats('e_stats', [['Precio con la ETTI (por 100)', fmt(P, 4)], ['TIR del bono', pct(y)], ['Cupón cero al mismo plazo', pct(R[m - 1])], ['Sesgo del cupón', fmt((y - R[m - 1]) * 1e4, 1) + ' pb', y < R[m - 1] ? 'bad' : 'ok']]);
+    const fw = R.map((_, i) => i === 0 ? R[0] : F(i, i + 1));
+    $('#e_fig .tl-scroll').innerHTML = chart({ w: 560, h: 300, x: [0, n + 0.3], y: [Math.min(...R, ...fw, y) * 100 - 0.6, Math.max(...R, ...fw, y) * 100 + 0.6], xl: 'plazo (años)', yl: 'tipo (%)', aria: 'ETTI y forwards',
+      items: [{ k: 'line', pts: [[0.001, R[0] * 100], ...R.map((r, i) => [i + 1, r * 100])], cls: 's-a' }, { k: 'pts', pts: R.map((r, i) => [i + 1, r * 100]), cls: 'f-a', r: 4, op: 1 },
+        { k: 'line', pts: fw.flatMap((f, i) => [[i, f * 100], [i + 1, f * 100]]), cls: 's-p', dash: true }, { k: 'hline', y: y * 100, cls: 's-ok' }, { k: 'text', x: n, y: y * 100, t: 'TIR del bono', cls: 'tx-ok', anchor: 'end', dy: -5 }] });
+  };
+  bind(['e_R', 'e_c', 'e_n'], run);
+  $$('[data-curva]').forEach(b => b.addEventListener('click', () => { $('#e_R').value = CURVAS[b.dataset.curva].join('; '); $('#e_n').value = Math.min(5, CURVAS[b.dataset.curva].length); run(); }));
+  run();
+}
+
+/* ====================== Laboratorio: estrategias de inversión (ambiente de certidumbre) ====================== */
+function labEstrat() {
+  const run = () => {
+    const dev = num('x_dev') / 10000;                            // desviación sobre el forward (pb), aplicada a 1R1 y 1R2
+    const R = [0.05, 0.06, 0.065], F12 = Math.pow(1.06 ** 2 / 1.05, 1) - 1, F13 = Math.pow(1.065 ** 3 / 1.05, 1 / 2) - 1;
+    const pB0 = 50 / 1.05 + 50 / 1.06 ** 2 + 1050 / 1.065 ** 3;
+    const pB1 = 50 / (1 + F12 + dev) + 1050 / Math.pow(1 + F13 + dev, 2);
+    const nB = 1e6 / pB0, resB = nB * (50 + pB1), resA = 1e6 * 1.05;
+    setStats('x_stats', [['Forward F₁,₂ / F₁,₃', pct(F12) + ' / ' + pct(F13)], ['Precio del bono B en t=1', eur(pB1)], ['Estrategia A (corto, 1 año)', eur(resA, 0)], ['Estrategia B (largo, 3 años)', eur(resB, 0), resB >= resA - 1e-6 ? 'ok' : 'bad']]);
+    $('#x_msg').textContent = Math.abs(dev) < 1e-9 ? 'Con los tipos futuros iguales a los forward, A y B dan exactamente 1.050.000 €: no hay estrategia que gane sin riesgo.' : dev > 0 ? 'Los tipos suben MÁS de lo que anticipan los forward: gana la inversión a corto.' : 'Los tipos suben menos de lo anticipado (o bajan): gana la inversión a largo.';
+  };
+  bind(['x_dev'], run); run();
+}
+
+/* ====================== Laboratorio: duración y convexidad ====================== */
+function labDur() {
+  const run = () => {
+    const c = num('r_c'), y = num('r_y') / 100, n = Math.max(1, Math.round(num('r_n'))), tau = Math.min(1, Math.max(0.01, num('r_tau'))), dy = num('r_dy') / 10000;
+    const { cf, t } = flowsOf(1000, c, n, tau);
+    const P = pvSum(cf, t, y), D = durMac(cf, t, y), Dm = D / (1 + y), C = convex(cf, t, y);
+    const ex = pvSum(cf, t, y + dy) - P, a1 = -Dm * P * dy, a2 = a1 + 0.5 * C * P * dy * dy;
+    setStats('r_stats', [['Precio P', eur(P)], ['Duración de Macaulay D', fmt(D, 4) + ' años'], ['Duración modificada', fmt(Dm, 4)], ['Convexidad C', fmt(C, 2)], ['Valor del punto básico', eur(Dm * P * 1e-4, 4)],
+      ['ΔP exacto', eur(ex)], ['ΔP con duración', eur(a1)], ['ΔP con duración + convexidad', eur(a2)]]);
+    const f = (yy) => pvSum(cf, t, yy), lo = Math.max(-0.01, y - 0.05), hi = y + 0.05;
+    const tang = (yy) => P + (-Dm * P) * (yy - y), par = (yy) => tang(yy) + 0.5 * C * P * (yy - y) ** 2;
+    const ys = [f(lo), f(hi), tang(lo), tang(hi)];
+    $('#r_fig .tl-scroll').innerHTML = chart({ w: 560, h: 310, pad: { l: 56 }, x: [lo * 100, hi * 100], y: [Math.min(...ys) * 0.95, Math.max(...ys) * 1.05], xl: 'tipo de interés (%)', yl: 'precio (€)', aria: 'Precio exacto, tangente y parábola',
+      items: [{ k: 'line', pts: curvePts(x => f(x / 100), lo * 100, hi * 100), cls: 's-a' }, { k: 'line', pts: curvePts(x => tang(x / 100), lo * 100, hi * 100), cls: 's-w', dash: true }, { k: 'line', pts: curvePts(x => par(x / 100), lo * 100, hi * 100), cls: 's-p', dash: true }, { k: 'dot', p: [y * 100, P], cls: 'f-ink', r: 5 }] });
+  };
+  bind(['r_c', 'r_y', 'r_n', 'r_tau', 'r_dy'], run);
+  $$('[data-dur]').forEach(b => b.addEventListener('click', () => { const [c, y, n, tau] = b.dataset.dur.split(',').map(Number); $('#r_c').value = c; $('#r_y').value = y; $('#r_n').value = n; $('#r_tau').value = tau; run(); }));
+  run();
+}
+
+/* ====================== Laboratorio: inmunización con cupón cero ====================== */
+function labInm() {
+  const run = () => {
+    const R0 = num('i_R') / 100, H = num('i_H'), a = num('i_a') / 100, b = num('i_b') / 100, N = 1000, B = 1e6, TL_ = 10, TC = 2;
+    const w = (H - TC) / (TL_ - TC);                           // peso en el bono largo para que la duración sea H
+    const pA = N / Math.pow(1 + R0, TL_), pC = N / Math.pow(1 + R0, TC), nA = w * B / pA, nC = (1 - w) * B / pC;
+    const Rn = (t, lam) => R0 + a + b * t + lam;               // curva tras el cambio: desplazamiento paralelo a + pendiente b·t + λ
+    const VH = (lam) => { const v0 = nA * N / Math.pow(1 + Rn(TL_, lam), TL_) + nC * N / Math.pow(1 + Rn(TC, lam), TC); return v0 * Math.pow(1 + Rn(H, lam), H); };
+    const VB = (lam) => { const pB = N / Math.pow(1 + Rn(H, lam), H), nB = B / (N / Math.pow(1 + R0, H)); return nB * pB * Math.pow(1 + Rn(H, lam), H); };
+    const target = B * Math.pow(1 + R0, H);
+    const v = VH(0);
+    setStats('i_stats', [['Peso en el bono a 10 años', pct(w, 2)], ['Nominales: 10 años / 2 años', fmt(nA, 1) + ' / ' + fmt(nC, 1)], ['Objetivo B·(1+R)^H', eur(target, 0)], ['Valor final de la cartera', eur(v, 0), v >= target - 1 ? 'ok' : 'bad'], ['Diferencia', eur(v - target, 0) + ' (' + fmt((v / target - 1) * 100, 2) + ' %)'], ['Bono cupón cero a H años', eur(VB(0), 0)]]);
+    const lo = -0.04, hi = 0.04;
+    const pts = curvePts(l => VH(l), lo, hi, 80), tg = [[lo, target], [hi, target]];
+    $('#i_fig .tl-scroll').innerHTML = chart({ w: 560, h: 300, pad: { l: 62 }, x: [lo * 100, hi * 100], y: [Math.min(...pts.map(p => p[1])) * 0.99, Math.max(...pts.map(p => p[1])) * 1.01], xl: 'variación λ de la curva (puntos %)', yl: 'valor en H (€)', aria: 'Valor final frente a la variación de tipos',
+      items: [{ k: 'line', pts: pts.map(p => [p[0] * 100, p[1]]), cls: 's-a' }, { k: 'line', pts: tg.map(p => [p[0] * 100, p[1]]), cls: 's-w', dash: true }, { k: 'dot', p: [0, VH(0)], cls: 'f-p', r: 5 }] });
+  };
+  bind(['i_R', 'i_H', 'i_a', 'i_b'], run);
+  $$('[data-inm]').forEach(b => b.addEventListener('click', () => { const [a, bb] = b.dataset.inm.split(',').map(Number); $('#i_a').value = a; $('#i_b').value = bb; run(); }));
+  run();
+}
+
+/* ====================== Laboratorio: Nelson–Siegel y Svensson ====================== */
+function svs(T, p) {
+  const [b0, b1, b2, b3, k1, k2] = p;
+  const g1 = (1 - Math.exp(-k1 * T)) / (k1 * T), g2 = (1 - Math.exp(-k2 * T)) / (k2 * T);
+  return b0 + (b1 + b2) * g1 - b2 * Math.exp(-k1 * T) + b3 * g2 - b3 * Math.exp(-k2 * T);
+}
+const svf = (T, p) => { const [b0, b1, b2, b3, k1, k2] = p; return b0 + b1 * Math.exp(-k1 * T) + b2 * k1 * T * Math.exp(-k1 * T) + b3 * k2 * T * Math.exp(-k2 * T); };
+function labSv() {
+  const run = () => {
+    const p = ['v_b0', 'v_b1', 'v_b2', 'v_b3', 'v_k1', 'v_k2'].map(num);
+    const T = [0.05, 1, 5, 10, 30];
+    setStats('v_stats', [['Tipo a muy corto plazo β₀+β₁', pct(p[0] + p[1], 2)], ['Tipo a muy largo plazo β₀', pct(p[0], 2)], ['r(1) / r(5) / r(10)', [1, 5, 10].map(x => fmt(svs(x, p) * 100, 2)).join(' / ') + ' %'], ['Forward f(1) / f(5) / f(10)', [1, 5, 10].map(x => fmt(svf(x, p) * 100, 2)).join(' / ') + ' %']]);
+    const rs = curvePts(x => svs(Math.max(x, 0.02), p) * 100, 0.02, 30, 240), fs = curvePts(x => svf(x, p) * 100, 0.02, 30, 240);
+    const all = [...rs, ...fs].map(q => q[1]);
+    $('#v_fig .tl-scroll').innerHTML = chart({ w: 560, h: 310, x: [0, 30], y: [Math.min(...all) - 0.3, Math.max(...all) + 0.3], xl: 'plazo T (años)', yl: 'tipo (%)', aria: 'Curva de Svensson',
+      items: [{ k: 'line', pts: rs, cls: 's-a' }, { k: 'line', pts: fs, cls: 's-p', dash: true }, { k: 'hline', y: p[0] * 100, cls: 's-w' }, { k: 'text', x: 30, y: p[0] * 100, t: 'β₀', cls: 'tx-w', anchor: 'end', dy: -5 }] });
+  };
+  bind(['v_b0', 'v_b1', 'v_b2', 'v_b3', 'v_k1', 'v_k2'], run);
+  $$('[data-sv]').forEach(b => b.addEventListener('click', () => { const v = b.dataset.sv.split(',').map(Number); ['v_b0', 'v_b1', 'v_b2', 'v_b3', 'v_k1', 'v_k2'].forEach((id, i) => { $('#' + id).value = v[i]; }); run(); }));
+  run();
+}
+
+/* ====================== Laboratorio: Vasicek y CIR ====================== */
+function labRates() {
+  const run = () => {
+    const kap = num('m_k'), mu = num('m_mu') / 100, sig = num('m_s') / 100, r0 = num('m_r0') / 100, mod = $('#m_mod').value, q = num('m_q');
+    const cir = mod === 'cir';
+    const sg = cir ? sig : sig;
+    // Medida riesgo-neutral. Vasicek: μ* = μ − qσ/κ (q = precio de mercado del riesgo, convención del apunte con q=0 por defecto). CIR: π = q (parámetro de prima).
+    let AB;
+    if (!cir) {
+      const mus = mu - q * sig / kap;
+      AB = (T) => { const B = (1 - Math.exp(-kap * T)) / kap; const A = (B - T) * (mus - sig * sig / (2 * kap * kap)) - sig * sig * B * B / (4 * kap); return { A, B }; };
+    } else {
+      const pi = q, psi = Math.sqrt((kap - pi) ** 2 + 2 * sig * sig);
+      AB = (T) => { const e = Math.exp(psi * T) - 1, den = (kap - pi + psi) * e + 2 * psi; const B = 2 * e / den; const A = (2 * kap * mu / (sig * sig)) * Math.log(2 * psi * Math.exp((kap - pi + psi) * T / 2) / den); return { A, B }; };
+    }
+    const rT = (T) => { const { A, B } = AB(T); return (B * r0 - A) / T; };
+    const Ts = [1, 5, 10, 30];
+    setStats('m_stats', [['r(1) / r(5) / r(10) / r(30)', Ts.map(x => fmt(rT(x) * 100, 2)).join(' / ') + ' %'], ['E[r(5)]', pct(mu + (r0 - mu) * Math.exp(-kap * 5), 2)], ['Desv. típica r(5)', cir ? '—' : pct(Math.sqrt(sig * sig / (2 * kap) * (1 - Math.exp(-2 * kap * 5))), 2)], ['Tipo a largo plazo (límite)', pct(rT(100), 2)]]);
+    $('#m_fig1 .tl-scroll').innerHTML = chart({ w: 560, h: 280, x: [0, 30], y: [Math.min(r0, rT(30), rT(0.1)) * 100 - 0.5, Math.max(r0, rT(30), rT(0.1)) * 100 + 0.5], xl: 'plazo T (años)', yl: 'tipo al contado (%)', aria: 'ETTI implícita del modelo',
+      items: [{ k: 'line', pts: curvePts(x => rT(Math.max(x, 0.02)) * 100, 0.02, 30, 150), cls: 's-a' }, { k: 'dot', p: [0.02, r0 * 100], cls: 'f-p', r: 4 }] });
+    const rg = rng(11), dt = 1 / 52, steps = 5 * 52, paths = [];
+    for (let j = 0; j < 8; j++) { let r = r0; const pth = [[0, r * 100]]; for (let i = 1; i <= steps; i++) { const z = gauss(rg); r = cir ? Math.max(0, r + kap * (mu - r) * dt + sig * Math.sqrt(Math.max(r, 0) * dt) * z) : r + kap * (mu - r) * dt + sig * Math.sqrt(dt) * z; pth.push([i * dt, r * 100]); } paths.push(pth); }
+    const all = paths.flat().map(p => p[1]);
+    $('#m_fig2 .tl-scroll').innerHTML = chart({ w: 560, h: 280, x: [0, 5], y: [Math.min(...all, mu * 100) - 0.3, Math.max(...all, mu * 100) + 0.3], xl: 'años', yl: 'r(t) (%)', aria: 'Trayectorias simuladas del tipo instantáneo',
+      items: [...paths.map(p => ({ k: 'line', pts: p, cls: 's-a', thin: true })), { k: 'line', pts: curvePts(x => (mu + (r0 - mu) * Math.exp(-kap * x)) * 100, 0, 5, 60), cls: 's-p' }, { k: 'hline', y: mu * 100, cls: 's-w' }] });
+  };
+  bind(['m_k', 'm_mu', 'm_s', 'm_r0', 'm_mod', 'm_q'], run); run();
+}
+
+/* ====================== Figuras estáticas de la guía ====================== */
+function figuras() {
+  // Evolución del precio con tipo constante en un cupón cero
+  const P0 = 100 / Math.pow(1.04, 10);
+  setFig('#f_zero', chart({ w: 560, h: 260, x: [0, 10], y: [60, 105], xl: 'años', yl: 'precio (% nominal)', aria: 'Precio de un cupón cero con tipo constante', items: [{ k: 'line', pts: curvePts(x => P0 * Math.pow(1.04, x), 0, 10), cls: 's-a' }, { k: 'hline', y: 100, cls: 's-w' }] }));
+  // Duración vs plazo
+  const dd = (c, y, n) => { const { cf, t } = flowsOf(100, c, n); return durMac(cf, t, y); };
+  setFig('#f_durplazo', chart({ w: 560, h: 280, x: [0, 100], y: [0, 24], xl: 'plazo hasta la amortización (años)', yl: 'duración (años)', aria: 'Duración frente a plazo', items: [
+    { k: 'line', pts: curvePts(x => x, 0, 24, 24).map(p => [p[0], p[1]]), cls: 's-w', dash: true }, { k: 'line', pts: Array.from({ length: 100 }, (_, i) => [i + 1, dd(3, 0.05, i + 1)]), cls: 's-a' }, { k: 'line', pts: Array.from({ length: 100 }, (_, i) => [i + 1, dd(8, 0.05, i + 1)]), cls: 's-p' },
+    { k: 'hline', y: 21, cls: 's-ok' }, { k: 'text', x: 100, y: 21, t: 'asíntota 1 + 1/R = 21', cls: 'tx-ok', anchor: 'end', dy: -5 }, { k: 'text', x: 60, y: dd(3, .05, 60), t: 'cupón 3 % < R', cls: 'tx-a', dy: 12 }, { k: 'text', x: 60, y: dd(8, .05, 60), t: 'cupón 8 % > R', cls: 'tx-p', dy: -8 }] }));
+  // Duración vs cupón
+  setFig('#f_durcupon', chart({ w: 560, h: 260, x: [0, 15], y: [0, 24], xl: 'cupón anual (%)', yl: 'duración (años)', aria: 'Duración frente a cupón', items: [5, 10, 30].map((n, i) => ({ k: 'line', pts: curvePts(c => dd(c, 0.05, n), 0, 15, 60), cls: ['s-a', 's-p', 's-ok'][i] })) }));
+  // Duración vs TIR
+  setFig('#f_durtir', chart({ w: 560, h: 260, x: [0.5, 25], y: [0, 16], xl: 'TIR (%)', yl: 'duración (años)', aria: 'Duración frente a TIR', items: [5, 10, 30].map((n, i) => ({ k: 'line', pts: curvePts(y => dd(5, y / 100, n), 0.5, 25, 60), cls: ['s-a', 's-p', 's-ok'][i] })) }));
+  // Sensibilidad precio bonos A y B
+  const bA = (y) => pvSum(flowsOf(100, 5, 30).cf, flowsOf(100, 5, 30).t, y), bB = (y) => pvSum(flowsOf(100, 5, 5).cf, flowsOf(100, 5, 5).t, y);
+  setFig('#f_AB', chart({ w: 560, h: 270, x: [1, 10], y: [40, 220], xl: 'tipo de interés (%)', yl: 'precio (% nominal)', aria: 'Precio de dos bonos frente al tipo', items: [{ k: 'line', pts: curvePts(x => bA(x / 100), 1, 10), cls: 's-a' }, { k: 'line', pts: curvePts(x => bB(x / 100), 1, 10), cls: 's-p' }, { k: 'dot', p: [5, 100], cls: 'f-ink', r: 4 }, { k: 'text', x: 1.4, y: bA(0.014), t: 'Bono A (30 años)', cls: 'tx-a', dy: 14 }, { k: 'text', x: 1.4, y: bB(0.014), t: 'Bono B (5 años)', cls: 'tx-p', dy: -8 }] }));
+  // ETTI creciente/decreciente/cuchara
+  setFig('#f_formas', chart({ w: 560, h: 260, x: [0, 10], y: [0, 9], xl: 'plazo (años)', yl: 'tipo (%)', aria: 'Formas de la ETTI', items: [{ k: 'line', pts: curvePts(x => 3 + 4.5 * (1 - Math.exp(-0.4 * x)), 0.02, 10), cls: 's-a' }, { k: 'line', pts: curvePts(x => 8 - 3.5 * (1 - Math.exp(-0.35 * x)), 0.02, 10), cls: 's-p' }, { k: 'line', pts: curvePts(x => 5.2 - 1.6 * Math.exp(-0.5 * x) * (1 + x * 0.1) + 0.0 * x + 0.35 * x * Math.exp(-0.08 * x) - 1.2, 0.02, 10), cls: 's-ok' }, { k: 'text', x: 9.6, y: 7.2, t: 'creciente', cls: 'tx-a', anchor: 'end', dy: -6 }, { k: 'text', x: 9.6, y: 4.9, t: 'decreciente', cls: 'tx-p', anchor: 'end', dy: 14 }, { k: 'text', x: 9.6, y: 4.6, t: 'cuchara', cls: 'tx-ok', anchor: 'end', dy: 30 }] }));
+  // Componentes de Svensson
+  const comp = (T, k) => [1, (1 - Math.exp(-k * T)) / (k * T), (1 - Math.exp(-k * T)) / (k * T) - Math.exp(-k * T)];
+  setFig('#f_svcomp', chart({ w: 560, h: 260, x: [0, 30], y: [-0.05, 1.05], xl: 'plazo T (años)', yl: 'peso del factor', aria: 'Factores de nivel, pendiente y curvatura', items: [{ k: 'hline', y: 1, cls: 's-w' }, { k: 'line', pts: curvePts(T => comp(Math.max(T, 0.02), 0.5)[1], 0.02, 30), cls: 's-a' }, { k: 'line', pts: curvePts(T => comp(Math.max(T, 0.02), 0.5)[2], 0.02, 30), cls: 's-p' }, { k: 'text', x: 1, y: 0.92, t: 'pendiente (1−e^−κT)/(κT)', cls: 'tx-a', dx: 10, dy: 0 }, { k: 'text', x: 8, y: 0.2, t: 'curvatura (…) − e^−κT', cls: 'tx-p', dy: -8 }] }));
+  // Brownianos
+  const rg = rng(5), dts = [1, 0.2, 0.02];
+  dts.forEach((dt, i) => { const r = rng(5); let w = 0; const pts = [[0, 0]]; for (let k = 1; k <= Math.round(5 / dt); k++) { w += gauss(r) * Math.sqrt(dt); pts.push([k * dt, w]); } setFig('#f_wiener' + i, chart({ w: 360, h: 190, x: [0, 5], y: [-3, 3], pad: { l: 30, b: 28 }, xl: 'Δt = ' + String(dt).replace('.', ','), aria: 'Proceso de Wiener', items: [{ k: 'line', pts, cls: 's-a', thin: true }] })); });
+  // Reversión a la media (determinista)
+  setFig('#f_rev', chart({ w: 560, h: 240, x: [0, 5], y: [0, 7], xl: 'años', yl: 'r(t) (%)', aria: 'Reversión a la media', items: [[1, 's-a'], [6, 's-p'], [4, 's-w']].map(([r0, c]) => ({ k: 'line', pts: curvePts(x => 4 + (r0 - 4) * Math.exp(-0.8 * x), 0, 5), cls: c })).concat([{ k: 'hline', y: 4, cls: 's-ok' }, { k: 'text', x: 5, y: 4, t: 'μ', cls: 'tx-ok', anchor: 'end', dy: -5 }]) }));
+}
+
+
+/* ====================== Calculadora: bootstrapping con swaps a la par ====================== */
+function labBoot() {
+  const run = () => {
+    const sw = $('#bt_s').value.split(/[;\s]+/).filter(Boolean).map(v => parseFloat(v.replace(',', '.')) / 100).filter(Number.isFinite);
+    const X = []; sw.forEach((s, j) => { X.push((1 - s * X.reduce((a, b) => a + b, 0)) / (1 + s)); });
+    const R = X.map((x, j) => Math.pow(x, -1 / (j + 1)) - 1);
+    $('#bt_stats').innerHTML = R.map((r, j) => `<div><span>Swap ${j + 1} a · factor X</span><b>${fmt(r * 100, 4)} %</b><span>X = ${fmt(X[j], 6)}</span></div>`).join('');
+  };
+  bind(['bt_s'], run); run();
+}
+
+/* ====================== Tarjetas ====================== */
+function mountCards() {
+  const a = $('#openAll'), b = $('#closeAll');
+  if (a) a.addEventListener('click', () => $$('#cards details').forEach(d => { d.open = true; }));
+  if (b) b.addEventListener('click', () => $$('#cards details').forEach(d => { d.open = false; }));
+}
+function init() {
+  mountCode(); mountTimelines(); figuras(); mountCards();
+  [labBono, labSierra, labDias, labEtti, labEstrat, labDur, labInm, labSv, labRates, labBoot].forEach(f => { try { f(); } catch (e) { console.error(f.name, e); } });
+  typeset();
+}
+init();
+
+})();
+</script>
+<script>if(window.top!==window)document.querySelectorAll('a[target="_top"]').forEach(function(a){a.style.display="none"});</script></body>
+</html>
