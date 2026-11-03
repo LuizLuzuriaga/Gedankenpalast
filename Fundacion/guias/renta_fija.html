@@ -248,7 +248,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
 <nav class="toc" aria-label="Índice">
   <div class="in">
     <a href="../" target="_top">← Gendanken Palast</a>
-    <a href="#mapa">Mapa</a><a href="#t1">Tema 1 · Bonos</a><a href="#t2">Tema 2 · ETTI</a><a href="#t3">Tema 3 · Duración</a><a href="#t4">Tema 4 · Continuo</a><a href="#anexo">Anexo · Estimación</a><a href="#formulas">Fórmulas</a><a href="#preguntas">Preguntas</a><a href="#tarjetas">Tarjetas</a>
+    <a href="#mapa">Mapa</a><a href="#t1">Tema 1 · Bonos</a><a href="#t2">Tema 2 · ETTI</a><a href="#t3">Tema 3 · Duración</a><a href="#t4">Tema 4 · Continuo</a><a href="#anexo">Anexo · Estimación</a><a href="#trabajos">Trabajos</a><a href="#formulas">Fórmulas</a><a href="#preguntas">Preguntas</a><a href="#tarjetas">Tarjetas</a>
   </div>
 </nav>
 <div class="wrap">
@@ -278,7 +278,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
       <tr><td><a href="#t3">Tema 3</a></td><td>Elasticidad, duración, convexidad, carteras, VPB, evidencia empírica, riesgo de reinversión, inmunización simple y múltiple, variaciones no paralelas</td><td>Ej. 3.4, bono 4,85 31.10.20, carteras 4.2 y 4.3, inmunización de 1-ene-2016, ejercicio de bonos A, B, C</td></tr>
       <tr><td><a href="#t4">Tema 4</a></td><td>Wiener, difusión de Itô, lema de Itô, Vasicek, CIR, ecuación de valoración, simulación y opciones sobre bonos</td><td>Deducciones paso a paso y laboratorio de trayectorias</td></tr>
       <tr><td><a href="#anexo">Anexo ETTI</a></td><td>Bootstrapping, aproximación funcional, Nelson–Siegel, Svensson, splines cúbicas, Vasicek–Fong, ponderaciones</td><td>Bono 31-ene-2008 frente a strips (23-sep-2004), método de estimación</td></tr>
-      <tr><td><a href="#formulas">Fórmulas</a>, <a href="#codigo">código</a>, <a href="#preguntas">preguntas</a></td><td>Formulario completo, código R y Python equivalente, preguntas de examen resueltas y tarjetas</td><td>—</td></tr>
+      <tr><td><a href="#trabajos">Trabajos</a>, <a href="#formulas">fórmulas</a>, <a href="#codigo">código</a>, <a href="#preguntas">preguntas</a></td><td>Formulario completo, código R y Python equivalente, preguntas de examen resueltas y tarjetas</td><td>—</td></tr>
     </tbody>
   </table></div>
   <div class="callout tip"><h4>Cómo usar la guía</h4>
@@ -1003,7 +1003,7 @@ print(v.mean(), v.std() / np.sqrt(J), np.exp(-5 * vas_r(5, 0.01, kap, mu, sig)))
   <div class="sub" id="an-trab">
     <h3>5.5 Receta para estimar la ETTI con datos reales</h3>
     <ol class="walk"><li>Fecha valor \(=\) contratación + D+1/D+2; precio ex-cupón medio (compra/venta).</li><li>Para cada bono: fechas de cupón (aniversarios del vencimiento), cupón corrido (ACT/ACT) y precio bruto; plazos \(t=\tau+k\).</li><li>TIR de mercado (raíz de la ecuación de precio) y duración \(D_j\).</li><li>Elegir modelo: Svensson (6 parámetros, no lineal) o spline (\(a_1,a_2,a_3,b_p\), lineal).</li><li>Minimizar \(\sum_j\bigl((\hat P_j-P_j)/D_j\bigr)^2\) (MCG con peso \(1/D\)); multiarranque y cotas para Svensson.</li><li>Representar la curva (tipo continuo \(r_T\) y anual equivalente \(e^{r_T}-1\)) junto a las TIR; comentar sesgo del cupón, ajuste, forwards y extrapolación.</li><li>Contrastes: otros pesos, nudos alternativos, validez de \(D>0\) y decreciente.</li></ol>
-    <p class="note">Los dos trabajos de evaluación continua (Euríbor y forwards; estimación de la ETTI del 11-sep-2026) se resuelven con exactamente estas herramientas; el desarrollo completo con datos, Python, Excel y LaTeX se guarda en local, en la carpeta de apuntes, y no se publica aquí.</p>
+    <p class="note">Los dos trabajos de evaluación continua (Euríbor y forwards; estimación de la ETTI del 11-sep-2026) se resuelven con exactamente estas herramientas; el desarrollo completo, con datos, Python, Excel y LaTeX, está en la <a href="#trabajos">sección de trabajos</a>.</p>
   </div>
   <div class="codepair" data-file="Anexo · bootstrapping, Svensson y splines" data-src="complemento">
 <script type="text/x-r">
@@ -1077,6 +1077,66 @@ def ajuste_spline(bonos, nudos):
 </script>
   </div>
 </section>
+<!-- ===================================================== TRABAJOS -->
+<section id="trabajos">
+  <div class="sec-head"><div class="eyebrow">Evaluación continua 2026-27</div><h2>Los dos trabajos, explicados</h2></div>
+  <style>img.fimg{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border-radius:6px;padding:6px;box-sizing:border-box}</style>
+  <p class="note">Cómo se resolvió cada trabajo, con las fórmulas de los temas, los resultados y su interpretación. Los documentos completos (PDF en LaTeX, libro de Excel con fórmulas y código Python) se descargan al final de cada trabajo. Autores: Andrés Otárola y Luiz Luzuriaga.</p>
+
+  <div class="sub" id="tr1">
+    <h3>Trabajo 1 · Euríbor, tipos forward y ETTI (20 %)</h3>
+    <div class="card"><span class="tag">Enunciado</span>
+      <p>Con el Euríbor a 1 semana y a 3, 6 y 12 meses del primer día hábil de cada trimestre entre octubre de 2024 y octubre de 2026 (9 fechas): (a) representar su evolución; (b) calcular y representar los forward \(F_{3/12;6/12}\) y \(F_{6/12;12/12}\); (c) representar la ETTI del 1-oct de 2024, 2025 y 2026; (d) interpretar con la Teoría Pura de las Expectativas y la Preferencia por la Liquidez.</p></div>
+    <h4>Método (el del Ejemplo 7.1 del Tema 2)</h4>
+    <ol class="walk">
+      <li><b>Plazos en días reales.</b> El vencimiento es la misma fecha más el plazo, trasladada al siguiente día hábil TARGET (festivos: 1 enero, Viernes Santo, Lunes de Pascua, 1 mayo, 25 y 26 dic.). Por ejemplo el 12 meses del 2-ene-2026 vence el sábado 2-ene-2027, se liquida el lunes 4-ene y \(n=367\) días.</li>
+      <li><b>Euríbor a compuesto.</b> Está en simple y ACT/360; el equivalente anual compuesto cumple \((1+R_n)^{n/365}=1+i\,n/360\).</li>
+      <li><b>Forward.</b> \(F_{n_1,n_2}=\bigl[(1+R_{n_2})^{n_2/365}/(1+R_{n_1})^{n_1/365}\bigr]^{365/(n_2-n_1)}-1\) y la versión simple \(f=\bigl[\frac{1+i_2n_2/360}{1+i_1n_1/360}-1\bigr]\frac{360}{n_2-n_1}\). Usan los mismos factores de descuento; el simple es el comparable con un Euríbor futuro.</li>
+      <li><b>Contraste ex post (d).</b> Como las fechas son trimestrales, el Euríbor 3 m observado tres meses después y el 6 m observado seis meses después están en la propia tabla: se compara cada forward con el tipo que luego se dio.</li></ol>
+    <figure class="fig"><img class="fimg" src="renta_fija_trabajos/t1_euribor.png" alt="Evolución del Euríbor" loading="lazy"><figcaption>(a) Euríbor: cae hasta mediados de 2025 (el 12 m del 2,749 % al 2,07 %), se estabiliza y vuelve a subir en 2026 hasta el 3,303 %.</figcaption></figure>
+    <div class="tbl"><table class="mini"><thead><tr><th>Fecha</th><th>F<sub>3/12;6/12</sub> comp.</th><th>F<sub>6/12;12/12</sub> comp.</th><th>f<sub>3/12;6/12</sub> simple</th><th>f<sub>6/12;12/12</sub> simple</th></tr></thead><tbody><tr><td>01/10/2024</td><td class='num'>2,974</td><td class='num'>2,418</td><td class='num'>2,900</td><td class='num'>2,371</td></tr><tr><td>02/01/2025</td><td class='num'>2,428</td><td class='num'>2,352</td><td class='num'>2,374</td><td class='num'>2,306</td></tr><tr><td>01/04/2025</td><td class='num'>2,333</td><td class='num'>2,262</td><td class='num'>2,281</td><td class='num'>2,219</td></tr><tr><td>01/07/2025</td><td class='num'>2,176</td><td class='num'>2,108</td><td class='num'>2,129</td><td class='num'>2,068</td></tr><tr><td>01/10/2025</td><td class='num'>2,180</td><td class='num'>2,350</td><td class='num'>2,133</td><td class='num'>2,304</td></tr><tr><td>02/01/2026</td><td class='num'>2,218</td><td class='num'>2,403</td><td class='num'>2,169</td><td class='num'>2,356</td></tr><tr><td>01/04/2026</td><td class='num'>2,953</td><td class='num'>3,234</td><td class='num'>2,881</td><td class='num'>3,164</td></tr><tr><td>01/07/2026</td><td class='num'>2,840</td><td class='num'>2,932</td><td class='num'>2,772</td><td class='num'>2,871</td></tr><tr><td>01/10/2026</td><td class='num'>3,612</td><td class='num'>3,588</td><td class='num'>3,515</td><td class='num'>3,508</td></tr></tbody></table></div>
+    <figure class="fig"><img class="fimg" src="renta_fija_trabajos/t1_forward.png" alt="Forwards" loading="lazy"><figcaption>(b) Los forward siguen el ciclo del Euríbor: de 2,97 % y 2,42 % en oct-2024 a 3,61 % y 3,59 % en oct-2026.</figcaption></figure>
+    <figure class="fig"><img class="fimg" src="renta_fija_trabajos/t1_etti.png" alt="ETTI" loading="lazy"><figcaption>(c) La ETTI pasa de decreciente (oct-2024) a ligeramente creciente (2025) y claramente creciente (2026).</figcaption></figure>
+    <h4>(d) Interpretación</h4>
+    <ul class="tight"><li><b>TPE</b> (\(F=E_0[{}_tR_1]\)): oct-2024, curva decreciente ⇒ se esperaba bajada (3 m del 3,34 % al 2,97 %). Oct-2025, ligeramente creciente ⇒ subida moderada. Oct-2026, empinada ⇒ subidas fuertes (3 m del 2,65 % al 3,61 %).</li>
+      <li><b>TPL</b> (\(F=E_0+L\), \(L>0\)): los tipos esperados son menores que el forward; la curva de 2025 es compatible con tipos estables y la subida esperada de 2026 sería menor que la del forward.</li></ul>
+    <div class="tbl"><table class="mini"><thead><tr><th>Fecha</th><th>f 3/12;6/12</th><th>Euríbor 3m en t+3m</th><th>Dif.</th><th>f 6/12;12/12</th><th>Euríbor 6m en t+6m</th><th>Dif.</th></tr></thead><tbody><tr><td>01/10/2024</td><td class='num'>2,900</td><td class='num'>2,736</td><td class='num'>0,164</td><td class='num'>2,371</td><td class='num'>2,309</td><td class='num'>0,062</td></tr><tr><td>02/01/2025</td><td class='num'>2,374</td><td class='num'>2,324</td><td class='num'>0,050</td><td class='num'>2,306</td><td class='num'>2,051</td><td class='num'>0,255</td></tr><tr><td>01/04/2025</td><td class='num'>2,281</td><td class='num'>1,961</td><td class='num'>0,320</td><td class='num'>2,219</td><td class='num'>2,079</td><td class='num'>0,140</td></tr><tr><td>01/07/2025</td><td class='num'>2,129</td><td class='num'>2,017</td><td class='num'>0,112</td><td class='num'>2,068</td><td class='num'>2,105</td><td class='num'>-0,037</td></tr><tr><td>01/10/2025</td><td class='num'>2,133</td><td class='num'>2,029</td><td class='num'>0,104</td><td class='num'>2,304</td><td class='num'>2,488</td><td class='num'>-0,184</td></tr><tr><td>02/01/2026</td><td class='num'>2,169</td><td class='num'>2,075</td><td class='num'>0,094</td><td class='num'>2,356</td><td class='num'>2,554</td><td class='num'>-0,198</td></tr><tr><td>01/04/2026</td><td class='num'>2,881</td><td class='num'>2,312</td><td class='num'>0,569</td><td class='num'>3,164</td><td class='num'>3,043</td><td class='num'>0,121</td></tr><tr><td>01/07/2026</td><td class='num'>2,772</td><td class='num'>2,589</td><td class='num'>0,183</td><td class='num'>2,871</td><td class='num'>–</td><td class='num'>–</td></tr><tr><td>01/10/2026</td><td class='num'>3,515</td><td class='num'>–</td><td class='num'>–</td><td class='num'>3,508</td><td class='num'>–</td><td class='num'>–</td></tr></tbody></table></div>
+    <p>El forward a 3 meses sobrestimó el tipo realizado en <b>8 de 8</b> casos (media 0,20 pp); a 6 meses, en 4 de 7 (media 0,02 pp). Un forward sesgado al alza es lo que predice la TPL y contradice la TPE pura; la evidencia es clara a 3 meses y débil a 6 (el ciclo alcista de 2026 no estaba anticipado en 2025). Con nueve observaciones no es un contraste estadístico.</p>
+    <div class="tools"><a href="renta_fija_trabajos/trabajo1.pdf"><button type="button">PDF del trabajo</button></a> <a href="renta_fija_trabajos/Trabajo1_Euribor_RentaFija.xlsx"><button type="button">Excel</button></a> <a href="renta_fija_trabajos/t1.py"><button type="button">Código Python</button></a> <a href="renta_fija_trabajos/trabajo1.tex"><button type="button">LaTeX</button></a></div>
+  </div>
+
+  <div class="sub" id="tr2">
+    <h3>Trabajo 2 · Estimación de la ETTI cupón cero del 11-sep-2026 (25 %)</h3>
+    <div class="card"><span class="tag">Enunciado</span>
+      <p>Con las cotizaciones de bonos y obligaciones del Estado del 11-sep-2026, estimar la ETTI cupón cero con Svensson o splines cúbicas, representar en un gráfico la curva y la TIR de los bonos usados, y comentar. Valores iniciales sugeridos: \(\beta_0=0{,}05\), \(\beta_1=-0{,}025\), \(\beta_2=0{,}01\), \(\beta_3=-0{,}04\), \(\kappa_1=1{,}2\), \(\kappa_2=0{,}5\).</p></div>
+    <h4>Método, paso a paso</h4>
+    <ol class="walk">
+      <li><b>Datos.</b> 57 títulos con cotización (la Obl. 4,000 % 10/2064 no cotiza). Precio ex-cupón \(P^*=\tfrac12(P_{compra}+P_{venta})\). Fecha valor 14-sep-2026 (D+1 hábil).</li>
+      <li><b>Flujos.</b> Cupones anuales en el aniversario del vencimiento; el fichero solo da mes y año, así que se toma el día habitual del Tesoro por mes (31/01, 30/03, 30/04, 31/05, 30/07, 31/10).</li>
+      <li><b>Precio bruto y plazos.</b> \(\mathrm{CC}=C\,d/b\) (ACT/ACT), \(P=P^*+\mathrm{CC}\), plazos \(t=\tau+k\) (Tema 1).</li>
+      <li><b>Control.</b> La TIR calculada con este método coincide con la publicada (media compra/venta) con 0,3 pb de error medio: valida fechas, cupón corrido y convención.</li>
+      <li><b>Modelo de Svensson</b> (fórmula del enunciado, capitalización continua) con precio teórico \(\hat P_j=\sum CF\,e^{-r(t)t}\), minimizando \(\sum_j\bigl((\hat P_j-P_j)/D_j\bigr)^2\) (peso \(1/D\) del Anexo I, para no sobre-penalizar los plazos largos). Multiarranque (6 inicios) y cotas \(\kappa\in[0{,}05;10]\), \(|\beta_{1,2,3}|\le0{,}1\).</li>
+      <li><b>Splines cúbicas</b> sobre \(D(0,T)=1+a_1T+a_2T^2+a_3T^3+\sum b_p(T-\xi_p)_+^3\) con nudos 1,5; 4; 8; 15 años: el precio es lineal en los parámetros ⇒ regresión ponderada.</li>
+      <li><b>Comparación</b> en TIR (la curva se expresa también como tipo anual equivalente \(e^{r}-1\) para compararla con la TIR) y comprobación de que \(D>0\) y decreciente.</li></ol>
+    <div class="grid2"><div class="tbl"><table class="mini"><thead><tr><th>Parámetro</th><th>Svensson</th></tr></thead><tbody><tr><td>β₀</td><td class='num'>0,04930</td></tr><tr><td>β₁</td><td class='num'>-0,02321</td></tr><tr><td>β₂</td><td class='num'>-0,01750</td></tr><tr><td>β₃</td><td class='num'>-0,04232</td></tr><tr><td>κ₁</td><td class='num'>3,04691</td></tr><tr><td>κ₂</td><td class='num'>0,46020</td></tr></tbody></table></div>
+    <div class="tbl"><table class="mini"><thead><tr><th></th><th>Svensson</th><th>Splines</th></tr></thead><tbody>
+      <tr><td>Parámetros</td><td class="num">6</td><td class="num">7</td></tr>
+      <tr><td>RMSE TIR (pb)</td><td class="num">3,92</td><td class="num">2,81</td></tr>
+      <tr><td>Error máx. TIR (pb)</td><td class="num">23,2</td><td class="num">10,6</td></tr>
+      <tr><td>RMSE precio</td><td class="num">0,380</td><td class="num">0,254</td></tr></tbody></table></div></div>
+    <figure class="fig"><img class="fimg" src="renta_fija_trabajos/t2_svensson.png" alt="Curva de Svensson y TIR" loading="lazy"><figcaption>Gráfico pedido: curva cupón cero de Svensson (punteada: cap. continua; continua: anual equivalente) y TIR de los 57 títulos.</figcaption></figure>
+    <figure class="fig"><img class="fimg" src="renta_fija_trabajos/t2_comparacion.png" alt="Svensson frente a splines" loading="lazy"><figcaption>Svensson frente a splines (líneas verticales: nudos).</figcaption></figure>
+    <div class="tbl"><table class="mini"><thead><tr><th>T (años)</th><th>Svensson r<sub>T</sub> %</th><th>Svensson f(T) %</th><th>Spline r<sub>T</sub> %</th><th>Spline f(T) %</th></tr></thead><tbody><tr><td>0.5</td><td class='num'>2,803</td><td class='num'>3,069</td><td class='num'>2,811</td><td class='num'>3,038</td></tr><tr><td>1</td><td class='num'>3,020</td><td class='num'>3,337</td><td class='num'>3,005</td><td class='num'>3,323</td></tr><tr><td>2</td><td class='num'>3,187</td><td class='num'>3,349</td><td class='num'>3,192</td><td class='num'>3,373</td></tr><tr><td>5</td><td class='num'>3,431</td><td class='num'>3,954</td><td class='num'>3,425</td><td class='num'>3,959</td></tr><tr><td>10</td><td class='num'>3,928</td><td class='num'>4,735</td><td class='num'>3,924</td><td class='num'>4,707</td></tr><tr><td>20</td><td class='num'>4,404</td><td class='num'>4,926</td><td class='num'>4,428</td><td class='num'>4,998</td></tr><tr><td>30</td><td class='num'>4,579</td><td class='num'>4,930</td><td class='num'>4,576</td><td class='num'>4,650</td></tr><tr><td>45</td><td class='num'>4,696</td><td class='num'>4,930</td><td class='num'>4,420</td><td class='num'>3,698</td></tr></tbody></table></div>
+    <h4>Comentario de los resultados</h4>
+    <ul class="tight"><li><b>Forma:</b> curva creciente y cóncava, de 2,62 % a 0,1 años a 4,70 % a 45 años (cap. continua), con asíntota \(\beta_0\) y forward asintótico ≈ 4,93 %. Bajo la TPE implica subidas de tipos; bajo la TPL parte de la pendiente es prima de plazo.</li>
+      <li><b>TIR frente a cupón cero:</b> la TIR es una media de tipos al contado ponderada por los flujos (sesgo del cupón), por eso no coincide con la curva; los puntos se reparten alrededor con 2,3 pb de error absoluto medio.</li>
+      <li><b>Svensson frente a splines:</b> la spline ajusta mejor en muestra pero su forward baja de más del 5 % a 20 años a 3,7 % a 45 años: los polinomios no están acotados y no extrapolan (Anexo I). Svensson da un tramo largo estable.</li>
+      <li><b>Identificación:</b> el valle de la función objetivo es casi plano y seis arranques dan tres combinaciones de parámetros distintas con costes casi idénticos; solo la curva es robusta, no cada \(\beta\).</li>
+      <li><b>Mayor residuo:</b> la Obl. 1,450 % 10/2071 (45 años, poco líquida): 23 pb.</li></ul>
+    <div class="tools"><a href="renta_fija_trabajos/trabajo2.pdf"><button type="button">PDF del trabajo</button></a> <a href="renta_fija_trabajos/Trabajo2_ETTI_RentaFija.xlsx"><button type="button">Excel</button></a> <a href="renta_fija_trabajos/t2core.py"><button type="button">t2core.py</button></a> <a href="renta_fija_trabajos/t2.py"><button type="button">t2.py</button></a> <a href="renta_fija_trabajos/trabajo2.tex"><button type="button">LaTeX</button></a></div>
+  </div>
+</section>
+
 <!-- ===================================================== FORMULARIO -->
 <section id="formulas">
   <div class="sec-head"><div class="eyebrow">Consulta rápida</div><h2>Formulario completo</h2></div>

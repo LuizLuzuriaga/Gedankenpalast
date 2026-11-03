@@ -1,0 +1,148 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[hidelinks]{hyperref}
+\lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,keywordstyle=\color{blue!60!black},commentstyle=\color{gray},frame=single,numbers=left,numberstyle=\tiny\color{gray},
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {·}{{$\cdot$}}1 {²}{{$^2$}}1 {→}{{$\to$}}1 {–}{{--}}1 {—}{{---}}1 {≥}{{$\ge$}}1}
+\captionsetup{font=small,labelfont=bf}
+\newcommand{\Fw}[2]{F_{#1;#2}}
+\title{\textbf{Primer trabajo de evaluación continua}\\[2pt]\large Renta Fija y sus Derivados -- Euribor, tipos forward y estructura temporal}
+\author{Andrés Otárola \and Luiz Luzuriaga}
+\date{Máster en Ciencias Actuariales y Financieras -- Universidad de Alcalá\\Curso 2026-27 \quad Profesor: Eliseo Navarro}
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent Se analiza la evolución del Euribor a una semana y a tres, seis y doce meses entre octubre de 2024 y octubre de 2026 (nueve observaciones trimestrales). Se calculan los tipos forward $\Fw{3/12}{6/12}$ y $\Fw{6/12}{12/12}$ con la convención del Tema~2 (capitalización simple y año comercial para el Euribor, tipos compuestos equivalentes y días reales), se representa la ETTI de los días 1 de octubre de 2024, 2025 y 2026 y se interpretan los resultados según la Teoría Pura de las Expectativas (TPE) y la Teoría de la Preferencia por la Liquidez (TPL), contrastando además cada forward con el tipo que después se observó.
+\end{abstract}
+
+\section{Datos y metodología}
+\subsection{Datos}
+La Tabla~\ref{tab:datos} recoge el Euribor (\%, base ACT/360, capitalización simple) en el primer día hábil de cada trimestre.
+\begin{table}[H]\centering\caption{Euribor observado (\%).}\label{tab:datos}
+\begin{tabular}{lcccc}\toprule Fecha & 1 semana & 3 meses & 6 meses & 12 meses\\\midrule
+01/10/2024 & 3{,}328 & 3{,}252 & 3{,}092 & 2{,}749 \\
+02/01/2025 & 2{,}911 & 2{,}736 & 2{,}562 & 2{,}448 \\
+01/04/2025 & 2{,}390 & 2{,}324 & 2{,}309 & 2{,}277 \\
+01/07/2025 & 1{,}902 & 1{,}961 & 2{,}051 & 2{,}070 \\
+01/10/2025 & 1{,}914 & 2{,}017 & 2{,}079 & 2{,}204 \\
+02/01/2026 & 1{,}891 & 2{,}029 & 2{,}105 & 2{,}245 \\
+01/04/2026 & 1{,}895 & 2{,}075 & 2{,}488 & 2{,}845 \\
+01/07/2026 & 2{,}135 & 2{,}312 & 2{,}554 & 2{,}727 \\
+01/10/2026 & 2{,}438 & 2{,}589 & 3{,}043 & 3{,}303 \\
+\bottomrule\end{tabular}\end{table}
+
+\subsection{Plazos en días reales}
+Como en el ejemplo 7.1 del Tema~2, el vencimiento de cada operación es la misma fecha del mes más el plazo, trasladado al siguiente día hábil del calendario TARGET (festivos: 1 de enero, Viernes Santo, Lunes de Pascua, 1 de mayo, 25 y 26 de diciembre). El número de días $n$ es el comprendido entre la fecha de la cotización y el vencimiento (Tabla~\ref{tab:dias} del Apéndice).
+
+\subsection{Tipo compuesto equivalente}
+El Euribor $i_n$ está expresado con capitalización simple y año comercial. El tipo anual compuesto equivalente $R_n$ (año natural) cumple
+\begin{equation}(1+R_n)^{n/365}=1+i_n\,\frac{n}{360}\quad\Longleftrightarrow\quad R_n=\Bigl(1+i_n\frac{n}{360}\Bigr)^{365/n}-1.\end{equation}
+Con ello la ETTI queda expresada en la misma base que las definiciones del Tema~2.
+
+\subsection{Tipos forward}
+Para $0<n_1<n_2$ el forward compuesto implícito entre $n_1$ y $n_2$ días es (fórmula (7) del Tema 2)
+\begin{equation}F_{n_1,n_2}=\left[\frac{(1+R_{n_2})^{n_2/365}}{(1+R_{n_1})^{n_1/365}}\right]^{\frac{365}{n_2-n_1}}-1 .\end{equation}
+Con capitalización simple y año comercial (nota 12 del Tema~2) el forward $f$ verifica $(1+i_{n_2}\tfrac{n_2}{360})=(1+i_{n_1}\tfrac{n_1}{360})(1+f\tfrac{n_2-n_1}{360})$, es decir
+\begin{equation}f_{n_1,n_2}=\Bigl[\frac{1+i_{n_2}n_2/360}{1+i_{n_1}n_1/360}-1\Bigr]\frac{360}{n_2-n_1}.\end{equation}
+Ambos usan los mismos factores de descuento y por tanto contienen la misma información; $f$ está expresado en la base del Euribor y es el comparable con un Euribor futuro observado, por lo que se usa en el contraste del apartado d). Se calculan $\Fw{3/12}{6/12}$ (tipo a tres meses dentro de tres meses) y $\Fw{6/12}{12/12}$ (tipo a seis meses dentro de seis meses).
+
+\section{Resultados}
+\subsection*{a) Evolución del Euribor}
+\begin{figure}[H]\centering\includegraphics[width=.92\textwidth]{fig_a_euribor.pdf}\caption{Euribor a 1 semana y a 3, 6 y 12 meses.}\label{fig:a}\end{figure}
+El Euribor cae con fuerza durante 2024-25: el doce meses pasa del 2,749\,\% (octubre de 2024) a mínimos en torno al 2,07\,\% en julio de 2025, y la semana pasa del 3,328\,\% al 1,902\,\%. Entre julio de 2025 y enero de 2026 los tipos se estabilizan cerca del 1,9--2,2\,\%. A partir de abril de 2026 se produce un cambio de ciclo: el doce meses sube del 2,245\,\% al 3,303\,\% y el seis meses del 2,105\,\% al 3,043\,\% en octubre de 2026, de modo que los plazos largos se separan de los cortos.
+
+\subsection*{b) Tipos forward}
+\begin{table}[H]\centering\caption{Tipos compuestos equivalentes $R_n$ (\%) y forwards (\%).}\label{tab:fw}
+\begin{tabular}{lcccc}\toprule Fecha & $F^{c}_{3/12;6/12}$ & $F^{c}_{6/12;12/12}$ & $f_{3/12;6/12}$ & $f_{6/12;12/12}$\\\midrule
+01/10/2024 & 2{,}974 & 2{,}418 & 2{,}900 & 2{,}371 \\
+02/01/2025 & 2{,}428 & 2{,}352 & 2{,}374 & 2{,}306 \\
+01/04/2025 & 2{,}333 & 2{,}262 & 2{,}281 & 2{,}219 \\
+01/07/2025 & 2{,}176 & 2{,}108 & 2{,}129 & 2{,}068 \\
+01/10/2025 & 2{,}180 & 2{,}350 & 2{,}133 & 2{,}304 \\
+02/01/2026 & 2{,}218 & 2{,}403 & 2{,}169 & 2{,}356 \\
+01/04/2026 & 2{,}953 & 3{,}234 & 2{,}881 & 3{,}164 \\
+01/07/2026 & 2{,}840 & 2{,}932 & 2{,}772 & 2{,}871 \\
+01/10/2026 & 3{,}612 & 3{,}588 & 3{,}515 & 3{,}508 \\
+\bottomrule\end{tabular}\end{table}
+\begin{figure}[H]\centering\includegraphics[width=.92\textwidth]{fig_b_forward.pdf}\caption{Evolución de $\Fw{3/12}{6/12}$ y $\Fw{6/12}{12/12}$ (compuesto anual equivalente).}\label{fig:b}\end{figure}
+Ambos forwards siguen el ciclo del Euribor: bajan desde el 2,97\,\% y el 2,42\,\% de octubre de 2024 hasta el 2,18\,\% y 2,11\,\% a mediados de 2025 y vuelven a subir hasta el 3,61\,\% y el 3,59\,\% en octubre de 2026. Cuando la curva está invertida (octubre de 2024) el forward a 6--12 meses es muy inferior al tipo a 6 meses (2,42\,\% frente a 3,16\,\%); cuando la curva se empina (2026) ocurre lo contrario y el forward supera claramente al tipo spot del mismo plazo.
+
+\subsection*{c) ETTI del 1 de octubre de 2024, 2025 y 2026}
+\begin{table}[H]\centering\caption{Tipos compuestos equivalentes $R_n$ (\%) por plazo.}\label{tab:R}
+\begin{tabular}{lcccc}\toprule Fecha & 1 semana & 3 meses & 6 meses & 12 meses\\\midrule
+01/10/2024 & 3{,}431 & 3{,}338 & 3{,}160 & 2{,}787 \\
+02/01/2025 & 2{,}995 & 2{,}803 & 2{,}615 & 2{,}482 \\
+01/04/2025 & 2{,}452 & 2{,}377 & 2{,}355 & 2{,}309 \\
+01/07/2025 & 1{,}947 & 2{,}003 & 2{,}090 & 2{,}099 \\
+01/10/2025 & 1{,}959 & 2{,}061 & 2{,}119 & 2{,}235 \\
+02/01/2026 & 1{,}935 & 2{,}073 & 2{,}146 & 2{,}276 \\
+01/04/2026 & 1{,}940 & 2{,}120 & 2{,}538 & 2{,}885 \\
+01/07/2026 & 2{,}188 & 2{,}365 & 2{,}606 & 2{,}765 \\
+01/10/2026 & 2{,}502 & 2{,}651 & 3{,}109 & 3{,}349 \\
+\bottomrule\end{tabular}\end{table}
+\begin{figure}[H]\centering\includegraphics[width=\textwidth]{fig_c_etti.pdf}\caption{ETTI del mercado interbancario (tipos compuestos anuales equivalentes).}\label{fig:c}\end{figure}
+\begin{itemize}
+\item \textbf{1/10/2024:} curva \emph{decreciente} (invertida): 3,43\,\% a una semana frente a 2,79\,\% a doce meses.
+\item \textbf{1/10/2025:} curva \emph{ligeramente creciente}: del 1,96\,\% al 2,24\,\%.
+\item \textbf{1/10/2026:} curva \emph{claramente creciente}: del 2,50\,\% al 3,35\,\%, con una pendiente de unos 85 puntos básicos entre una semana y doce meses.
+\end{itemize}
+
+\subsection*{d) Expectativas sobre los tipos de interés}
+\paragraph{Teoría Pura de las Expectativas.} Según la TPE, $F_{t,t+1}=E_0[{}_tR_1]$: la forma de la ETTI recoge exclusivamente las expectativas. En octubre de 2024 la curva decreciente indica que el mercado esperaba una bajada generalizada: el tipo a 3 meses debía pasar del 3,34\,\% al 2,97\,\% (forward) y el tipo a 6 meses del 3,16\,\% al 2,42\,\%. En octubre de 2025 la curva ligeramente creciente indica una subida moderada (el tres meses del 2,06\,\% al 2,18\,\% y el seis meses del 2,12\,\% al 2,35\,\%). En octubre de 2026 la pendiente es acusada y la TPE implica que el mercado descuenta subidas importantes: el tres meses del 2,65\,\% al 3,61\,\% y el seis meses del 3,11\,\% al 3,59\,\%.
+\paragraph{Teoría de la Preferencia por la Liquidez.} Según la TPL, $F_{t,t+1}=E_0[{}_tR_1]+L_t$ con $L_t>0$, así que los agentes esperan tipos \emph{inferiores} a los forward. La lectura cambia: la curva invertida de 2024 señala una bajada aún mayor que la implícita en los forward; la curva ligeramente creciente de 2025 es compatible con tipos estables o incluso a la baja, porque la pendiente puede explicarse por la prima de plazo; y en 2026 la subida esperada es menor que la que sugieren los forward, aunque la pendiente es tan pronunciada que, salvo primas muy elevadas, sigue implicando subidas.
+
+\paragraph{Contraste con lo ocurrido.} La Tabla~\ref{tab:ct} compara cada forward simple con el Euribor que se observó realmente al cabo de 3 o 6 meses (las observaciones son trimestrales, de modo que el dato está disponible en la tabla).
+\begin{table}[H]\centering\caption{Forward frente a tipo observado (\%) y diferencia (puntos porcentuales).}\label{tab:ct}
+\begin{tabular}{lcccccc}\toprule & $f_{3/12;6/12}$ & Euribor 3m en $t{+}3$m & Dif. & $f_{6/12;12/12}$ & Euribor 6m en $t{+}6$m & Dif.\\\midrule
+01/10/2024 & 2{,}900 & 2{,}736 & 0{,}164 & 2{,}371 & 2{,}309 & 0{,}062 \\
+02/01/2025 & 2{,}374 & 2{,}324 & 0{,}050 & 2{,}306 & 2{,}051 & 0{,}255 \\
+01/04/2025 & 2{,}281 & 1{,}961 & 0{,}320 & 2{,}219 & 2{,}079 & 0{,}140 \\
+01/07/2025 & 2{,}129 & 2{,}017 & 0{,}112 & 2{,}068 & 2{,}105 & -0{,}037 \\
+01/10/2025 & 2{,}133 & 2{,}029 & 0{,}104 & 2{,}304 & 2{,}488 & -0{,}184 \\
+02/01/2026 & 2{,}169 & 2{,}075 & 0{,}094 & 2{,}356 & 2{,}554 & -0{,}198 \\
+01/04/2026 & 2{,}881 & 2{,}312 & 0{,}569 & 3{,}164 & 3{,}043 & 0{,}121 \\
+01/07/2026 & 2{,}772 & 2{,}589 & 0{,}183 & 2{,}871 & -- & -- \\
+01/10/2026 & 3{,}515 & -- & -- & 3{,}508 & -- & -- \\
+\bottomrule\end{tabular}\end{table}
+\begin{figure}[H]\centering\includegraphics[width=.8\textwidth]{fig_d_contraste3.pdf}\caption{Forward $\Fw{3/12}{6/12}$ frente al Euribor a tres meses observado tres meses después.}\end{figure}
+\begin{figure}[H]\centering\includegraphics[width=.8\textwidth]{fig_d_contraste6.pdf}\caption{Forward $\Fw{6/12}{12/12}$ frente al Euribor a seis meses observado seis meses después.}\end{figure}
+El forward a tres meses sobrestimó el tipo realizado en los 8 de 8 casos disponibles, con una diferencia media de 0{,}20 puntos porcentuales; para el forward a seis meses la diferencia media es de 0{,}02 puntos y el signo es positivo en 4 de 7 casos. Un sesgo positivo del forward sobre el tipo realizado es lo que predice la TPL ($F-E[\cdot]=L>0$) y contradice la TPE pura, que exige diferencias de media nula; la evidencia es nítida a tres meses y mucho más débil a seis, donde el ciclo de 2026 (subida de tipos no anticipada por la curva de 2025) compensa la sobrestimación de 2024-25. Con solo nueve observaciones y una muestra tan dependiente del ciclo monetario no puede hablarse de contraste estadístico, y recuérdese que la comprobación es conjunta de la hipótesis y de cómo se forman las expectativas.
+
+\section{Conclusiones}
+\begin{enumerate}
+\item El Euribor describe un ciclo completo: bajada hasta mediados de 2025, estabilidad y cambio de tendencia en 2026 con aumento de la pendiente.
+\item La ETTI pasó de invertida (octubre de 2024) a ligeramente creciente (2025) y claramente creciente (2026); los forwards cuantifican esa expectativa: caídas esperadas en 2024 y subidas de más de 90 puntos básicos en el tres meses en 2026.
+\item Bajo la TPE los forwards son la previsión de los tipos; bajo la TPL son una previsión más una prima positiva, por lo que las subidas esperadas en 2025 y 2026 serían menores y las bajadas de 2024 mayores.
+\item Los datos disponibles favorecen la TPL a corto plazo (forward a tres meses por encima del tipo realizado en todos los casos), con evidencia débil a seis meses.
+\end{enumerate}
+
+\appendix
+\section{Plazos en días}
+\begin{table}[H]\centering\caption{Vencimientos y número de días $n$ (entre paréntesis).}\label{tab:dias}\footnotesize
+\begin{tabular}{lcccc}\toprule Fecha & 1 semana & 3 meses & 6 meses & 12 meses\\\midrule
+01/10/2024 & 08/10/2024 (7) & 02/01/2025 (93) & 01/04/2025 (182) & 01/10/2025 (365) \\
+02/01/2025 & 09/01/2025 (7) & 02/04/2025 (90) & 02/07/2025 (181) & 02/01/2026 (365) \\
+01/04/2025 & 08/04/2025 (7) & 01/07/2025 (91) & 01/10/2025 (183) & 01/04/2026 (365) \\
+01/07/2025 & 08/07/2025 (7) & 01/10/2025 (92) & 02/01/2026 (185) & 01/07/2026 (365) \\
+01/10/2025 & 08/10/2025 (7) & 02/01/2026 (93) & 01/04/2026 (182) & 01/10/2026 (365) \\
+02/01/2026 & 09/01/2026 (7) & 02/04/2026 (90) & 02/07/2026 (181) & 04/01/2027 (367) \\
+01/04/2026 & 08/04/2026 (7) & 01/07/2026 (91) & 01/10/2026 (183) & 01/04/2027 (365) \\
+01/07/2026 & 08/07/2026 (7) & 01/10/2026 (92) & 04/01/2027 (187) & 01/07/2027 (365) \\
+01/10/2026 & 08/10/2026 (7) & 04/01/2027 (95) & 01/04/2027 (182) & 01/10/2027 (365) \\
+\bottomrule\end{tabular}\end{table}
+
+\section{Código Python}
+El libro de cálculo \texttt{Trabajo1\_Euribor\_RentaFija.xlsx} contiene las mismas operaciones con fórmulas de Excel y los gráficos.
+\lstinputlisting[language=Python]{t1_listing.py}
+\end{document}
