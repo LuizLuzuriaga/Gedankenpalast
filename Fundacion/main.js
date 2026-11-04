@@ -1200,11 +1200,38 @@ function openGuide(src) {
     }
 }
 
+// El cambio de tamaño se anima (FLIP con la API de animaciones): se mide el panel antes y después y se interpola
+// left/width. Durante la animación el iframe conserva el ancho mayor para que la guía no se recomponga en cada
+// fotograma (eso era lo que hacía el cambio brusco y entrecortado); se recompone una sola vez al terminar.
+let guideFullAnim = null;
 function setGuideFull(on) {
+    const before = panel.getBoundingClientRect();
+    if (guideFullAnim) guideFullAnim.cancel();
     panel.classList.toggle('is-full', on);
     guideFull.textContent = on ? 'Volver al atlas' : 'Pantalla completa';
     guideFull.setAttribute('aria-pressed', String(on));
     if (!on) applyPanelWidth(panelWidth ? clampPanel(panelWidth) : '');
+    const after = panel.getBoundingClientRect();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !panel.animate || window.innerWidth <= 760
+        || (Math.abs(before.width - after.width) < 2 && Math.abs(before.left - after.left) < 2)) return;
+    const frozen = Math.ceil(Math.max(before.width, after.width));
+    guideFrame.style.width = frozen + 'px';   // el iframe ocupa todo el ancho del panel (margen negativo = relleno)
+    guideFrame.style.flex = 'none';
+    panel.style.overflow = 'hidden';
+    panel.style.willChange = 'left, width';
+    const release = () => {
+        guideFullAnim = null;
+        guideFrame.style.width = '';
+        guideFrame.style.flex = '';
+        panel.style.overflow = '';
+        panel.style.willChange = '';
+    };
+    guideFullAnim = panel.animate(
+        [{ left: before.left + 'px', width: before.width + 'px' }, { left: after.left + 'px', width: after.width + 'px' }],
+        { duration: 340, easing: 'cubic-bezier(0.22, 0.8, 0.24, 1)' });
+    guideFullAnim.onfinish = release;
+    guideFullAnim.oncancel = release;
+    setTimeout(() => { if (guideFullAnim && guideFullAnim.playState === 'finished') release(); }, 420); // red de seguridad
 }
 guideFull.addEventListener('click', () => setGuideFull(!panel.classList.contains('is-full')));
 
