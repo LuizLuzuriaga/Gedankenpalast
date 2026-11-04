@@ -152,6 +152,7 @@ html { scroll-behavior: smooth; }
     <a href="#mapa">Mapa</a>
     <a href="#t1">Tema 1</a>
     <a href="#t2">Tema 2</a>
+    <a href="#t3">Tema 3</a>
     <a href="#preguntas">Preguntas posibles</a>
     <a href="#calc">Calculadora</a>
     <a href="#tarjetas">Tarjetas</a>
@@ -162,7 +163,7 @@ html { scroll-behavior: smooth; }
 <header class="hero">
   <div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Pilar Requena</div>
   <h1>Previsión Social Complementaria</h1>
-  <p class="lede">Guía de estudio de los Temas 1 y 2: ciclo de vida, inflación, incertidumbre y sistemas de financiación. Cada apartado lleva su línea temporal de flujos y al final hay preguntas posibles resueltas.</p>
+  <p class="lede">Guía de estudio de los Temas 1, 2 y 3: ciclo de vida, inflación, incertidumbre, sistemas de financiación y valoración financiero-actuarial (modelo de mortalidad y modelos de múltiples estados). Cada apartado lleva su línea temporal de flujos y al final hay preguntas posibles resueltas.</p>
   <figure class="tl" data-tl="ciclo">
     <div class="tl-scroll"></div>
     <figcaption>El ciclo completo: se aporta \(S\) al inicio de cada año durante \(N\) años y se cobra \(C\) al inicio de cada año durante \(D\) años desde la jubilación \(x_r=x+N\).</figcaption>
@@ -188,6 +189,8 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t2-reparto">2.1 Reparto</a></td><td>PAYG = d·β, evolución de pasivos, cuota media escalonada</td><td>2, 9</td></tr>
       <tr><td><a href="#t2-capital">2.2–2.3 Cobertura y capitalización</a></td><td>Capital de cobertura, AL, NC, UAL, unidad de crédito proyectada</td><td>10</td></tr>
       <tr><td><a href="#t2-rent">Rentabilidad</a></td><td>Plan con unidades de cuenta, TIR y rendimiento absoluto</td><td>11</td></tr>
+      <tr><td><a href="#t3-mort">Repaso de mortalidad</a></td><td>\(S_x(t)\), \(\mu_x\), \({}_tp_x\), \({}_{t|u}q_x\), \(\mathring e_x\), \(e_x\), varianzas</td><td>14, 15, 16</td></tr>
+      <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), modelo general, múltiples decrementos</td><td>17</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -466,6 +469,143 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
+<section id="t3">
+  <div class="sec-head"><div class="eyebrow">Tema 3</div><h2>Valoración financiero-actuarial de un plan de pensiones</h2></div>
+  <style>
+    .t3fig svg{display:block;margin:0 auto;max-width:100%;height:auto}
+    .t3fig .bx{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
+    .t3fig .bx.a{stroke:var(--accent)} .t3fig .bx.p{stroke:var(--pres)}
+    .t3fig text{font-family:var(--font-data);font-size:12px;fill:var(--ink)}
+    .t3fig .sm{font-size:10.5px;fill:var(--muted)}
+    .t3fig .ar{stroke:var(--ink);stroke-width:1.4;fill:none}
+    .t3fig .hd{fill:var(--ink)}
+    .t3fig .ttl{font-weight:600;font-size:12.5px}
+    .t3fig .gr{stroke:var(--rule);fill:none} .t3fig .ax{stroke:var(--ink);stroke-opacity:.55;fill:none}
+    .t3fig .ln{fill:none;stroke:var(--accent);stroke-width:2} .t3fig .ln2{fill:none;stroke:var(--pres);stroke-width:2;stroke-dasharray:5 4}
+    .t3lab{border:1px dashed var(--accent);border-radius:6px;padding:14px 16px;display:grid;gap:12px;min-width:0}
+    .t3lab h4{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:500;font-family:var(--font-data)}
+    .t3pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    @media (max-width:640px){.t3pair{grid-template-columns:1fr}}
+  </style>
+  <p class="note">Índice del tema según las diapositivas: 3.1 Modelos de múltiples estados y múltiples decrementos · 3.2 Supervivencia de dos o más personas · 3.3 Valoración de las obligaciones del plan: métodos de coste actuarial · 3.4 Aleatoriedad de las obligaciones · 3.5 Valoración de los activos del plan · 3.6 Solvencia del plan. El material disponible desarrolla el apartado 3.1 y un repaso del modelo de mortalidad del curso anterior, que es la base de todo el tema; los apartados 3.2 a 3.6 se añadirán a esta guía cuando haya documentos.</p>
+
+  <div class="sub" id="t3-mort">
+    <h3>Repaso del modelo de mortalidad</h3>
+    <p>Todo el tema valora pagos que dependen de que una persona esté viva, inválida o fallecida. Para ello se modela el tiempo de vida futuro como variable aleatoria.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Símbolo</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>\(T_x\)</td><td>Tiempo de vida que le queda a una persona de edad \(x\); \(x+T_x\) es su edad al fallecimiento</td></tr>
+        <tr><td>\(F_x(t)={}_tq_x=\Pr[T_x\le t]\)</td><td>Función de distribución: probabilidad de no sobrevivir más allá de \(x+t\)</td></tr>
+        <tr><td>\(S_x(t)={}_tp_x=\Pr[T_x&gt;t]\)</td><td>Función de supervivencia: probabilidad de sobrevivir al menos \(t\) años. \(F_x+S_x=1\)</td></tr>
+        <tr><td>\(f_x(t)\)</td><td>Densidad de \(T_x\) (caso continuo): \(F_x(t)=\int_0^tf_x(s)\,ds\)</td></tr>
+        <tr><td>\(\mu_x\)</td><td>Fuerza instantánea de mortalidad a la edad \(x\)</td></tr>
+      </tbody></table></div>
+    <h4>De \(S_0\) a \(S_x\): probabilidad condicionada</h4>
+    <div class="card">
+      <div class="math">\[ F_x(t)=\Pr[T_0\le x+t\mid T_0&gt;x]=\frac{F_0(x+t)-F_0(x)}{S_0(x)}\ \Rightarrow\ S_x(t)=\frac{S_0(x+t)}{S_0(x)}\ \Rightarrow\ S_0(x+t)=S_0(x)\,S_x(t) \]</div>
+      <div class="math">\[ S_x(t+u)=\frac{S_0(x+t+u)}{S_0(x)}=\frac{S_0(x+t)}{S_0(x)}\cdot\frac{S_0(x+t+u)}{S_0(x+t)}\ \Rightarrow\ {}_{t+u}p_x={}_tp_x\cdot{}_up_{x+t} \]</div>
+      <p class="note">La supervivencia a \(t+u\) años es la de llegar a \(t\) por la de sobrevivir los \(u\) siguientes ya habiendo llegado a \(x+t\).</p>
+    </div>
+    <h4>Condiciones que debe cumplir una función de supervivencia</h4>
+    <ol class="tight">
+      <li>\(S_x(0)=1\).</li>
+      <li>\(\lim_{t\to\infty}S_x(t)=0\).</li>
+      <li>Decreciente en \(t\) y 4. diferenciable para \(t&gt;0\): \(\dfrac{dS_x(t)}{dt}\le0\).</li>
+      <li>\(\lim_{t\to\infty}t\,S_x(t)=0\) y 6. \(\lim_{t\to\infty}t^2S_x(t)=0\): aseguran que existen la media y la varianza de \(T_x\).</li>
+    </ol>
+    <h4>Fuerza instantánea de mortalidad</h4>
+    <div class="card">
+      <div class="math">\[ \mu_x=\lim_{dx\to0^+}\frac1{dx}\Pr[T_0\le x+dx\mid T_0&gt;x]=\lim_{dx\to0^+}\frac1{dx}\Bigl(1-\frac{S_0(x+dx)}{S_0(x)}\Bigr)=-\frac1{S_0(x)}\frac{dS_0(x)}{dx}=-\frac{d}{dx}\ln S_0(x)=\frac{f_0(x)}{S_0(x)} \]</div>
+      <p class="note">\(\mu_x\,dx\) es, para \(dx\) pequeño, la probabilidad de que quien ha alcanzado la edad \(x\) fallezca antes de \(x+dx\).</p>
+    </div>
+    <p>Fijado \(x\) y variable \(t\) (con \(d(x+t)=dt\)), usando \(S_0(x+t)=S_0(x)S_x(t)\):</p>
+    <div class="math">\[ \mu_{x+t}=-\frac1{S_0(x+t)}\frac{dS_0(x+t)}{dt}=-\frac1{S_x(t)}\frac{d}{dt}S_x(t)=\frac{f_x(t)}{S_x(t)}=\frac{f_x(t)}{1-F_x(t)} \]</div>
+    <h4>De la fuerza de mortalidad a la supervivencia</h4>
+    <div class="card">
+      <div class="math">\[ \int_0^y\mu_x\,dx=-\ln S_0(y)\ \Rightarrow\ S_0(y)=e^{-\int_0^y\mu_x\,dx},\qquad {}_tp_x=S_x(t)=e^{-\int_x^{x+t}\mu_r\,dr}=e^{-\int_0^t\mu_{x+u}\,du} \]</div>
+      <p class="note">(con \(S_0(0)=1\), \(\ln S_0(0)=0\), y el cambio \(u=r-x\)). Como nadie vive para siempre, \({}_tp_x\to0\) y por tanto \(\int_x^{\infty}\mu_r\,dr=\infty\). \(\mu\) describe por completo la distribución del tiempo de vida.</p>
+    </div>
+    <div class="math">\[ \frac{\partial}{\partial t}\,{}_tp_x=-\,{}_tp_x\,\mu_{x+t},\qquad f_x(t)={}_tp_x\,\mu_{x+t},\qquad {}_tq_x=\int_0^t{}_sp_x\,\mu_{x+s}\,ds \]</div>
+    <p>Estas relaciones permiten moverse entre \(F_x\), \(f_x\) y \(\mu_{x+t}\) en los dos sentidos: (1) partir de \(F_x(t)=1-{}_tp_x\), derivar para obtener \(f_x\) y de ahí \(\mu_{x+t}\); o (2) partir de \(\mu_{x+t}\), construir \({}_tp_x=e^{-\int\mu}\) y derivar para obtener \(f_x\). La tabla de mortalidad resume la distribución de la edad de fallecimiento.</p>
+    <h4>Notación actuarial internacional</h4>
+    <div class="math">\[ {}_tp_x=\Pr[T_x&gt;t],\quad {}_tq_x=\Pr[T_x\le t],\quad {}_tp_x+{}_tq_x=1,\quad p_x={}_1p_x,\quad q_x={}_1q_x,\quad {}_np_x=\prod_{i=0}^{n-1}(1-q_{x+i}) \]</div>
+    <div class="math">\[ {}_{t|u}q_x=\Pr[t&lt;T_x\le t+u]={}_{t+u}q_x-{}_tq_x={}_tp_x-{}_{t+u}p_x={}_tp_x\cdot{}_uq_{x+t},\qquad {}_tp_x=\frac{{}_{x+t}p_0}{{}_xp_0} \]</div>
+    <p class="note">\({}_{t|u}q_x\) es la probabilidad de fallecer entre \(t\) y \(t+u\) años (mortalidad diferida): sobrevivir \(t\) y luego fallecer en los \(u\) siguientes.</p>
+    <h4>Momentos de \(T_x\)</h4>
+    <div class="card">
+      <p>Esperanza de vida completa, integrando por partes (con \(\lim t\,{}_tp_x=0\)):</p>
+      <div class="math">\[ \mathring e_x=E[T_x]=\int_0^\infty t\,f_x(t)\,dt=\int_0^\infty t\,{}_tp_x\,\mu_{x+t}\,dt=-\Bigl[t\,{}_tp_x\Bigr]_0^\infty+\int_0^\infty{}_tp_x\,dt=\int_0^\infty{}_tp_x\,dt \]</div>
+      <div class="math">\[ E[T_x^2]=2\int_0^\infty t\,{}_tp_x\,dt,\qquad V[T_x]=2\int_0^\infty t\,{}_tp_x\,dt-\Bigl(\int_0^\infty{}_tp_x\,dt\Bigr)^2,\qquad SD[T_x]=\sqrt{V[T_x]} \]</div>
+      <p class="note">\(x+\mathring e_x\) es la edad esperada de fallecimiento.</p>
+    </div>
+    <h4>Vida futura entera (curtate future lifetime)</h4>
+    <div class="card">
+      <div class="math">\[ K_x=\lfloor T_x\rfloor,\qquad \Pr[K_x=k]=\Pr[k&lt;T_x\le k+1]={}_{k|}q_x={}_kp_x-{}_{k+1}p_x={}_kp_x\,q_{x+k},\quad k=0,1,2,\dots \]</div>
+      <div class="math">\[ e_x=E[K_x]=\sum_{k=0}^{\infty}k\,({}_kp_x-{}_{k+1}p_x)=\sum_{k=1}^{\infty}{}_kp_x \]</div>
+      <div class="math">\[ E[K_x^2]=\sum_{k=0}^\infty(2k+1)\,{}_{k+1}p_x=\sum_{k=1}^\infty(2k-1)\,{}_kp_x,\qquad Var(K_x)=\sum_{k=1}^{\infty}(2k-1)\,{}_kp_x-e_x^2 \]</div>
+      <p class="note">\(K_x\) es el número de años completos que vivirá en el futuro una persona de edad \(x\). \(e_x\) es la esperanza de vida «exacta» (curtate); es menor que \(\mathring e_x\) en torno a medio año.</p>
+    </div>
+    <div class="t3lab" id="t3-lab">
+      <h4>Laboratorio · de la fuerza de mortalidad a la esperanza de vida (complemento)</h4>
+      <p class="note">Las diapositivas no fijan una ley concreta; aquí se usa la de Makeham, \(\mu_{x}=A+B\,c^{x}\), para ver las relaciones anteriores con números: \({}_tp_x=\exp\{-At-B c^x(c^t-1)/\ln c\}\), \(f_x={}_tp_x\mu_{x+t}\), y las integrales de los momentos se calculan numéricamente.</p>
+      <div class="calc">
+        <label for="m_x">Edad x<input id="m_x" type="number" step="1" min="0" max="110" value="65"></label>
+        <label for="m_A">A<input id="m_A" type="number" step="any" value="0.0007"></label>
+        <label for="m_B">B<input id="m_B" type="number" step="any" value="0.00005"></label>
+        <label for="m_c">c<input id="m_c" type="number" step="any" value="1.1"></label>
+        <label for="m_t">Horizonte t (años)<input id="m_t" type="number" step="1" min="1" max="60" value="10"></label>
+        <label for="m_u">u (para mortalidad diferida)<input id="m_u" type="number" step="1" min="1" max="60" value="5"></label>
+      </div>
+      <div class="out" aria-live="polite">
+        <div><span>μ en x</span><b id="mo_mu">–</b></div>
+        <div><span>ₜpₓ (sobrevivir t años)</span><b id="mo_p">–</b></div>
+        <div><span>ₜ|ᵤqₓ (morir entre t y t+u)</span><b id="mo_d">–</b></div>
+        <div><span>Esperanza de vida completa e̊ₓ</span><b id="mo_e">–</b></div>
+        <div><span>Esperanza exacta eₓ = Σ ₖpₓ</span><b id="mo_k">–</b></div>
+        <div><span>Desv. típica de Tₓ</span><b id="mo_sd">–</b></div>
+        <div><span>Edad esperada de fallecimiento</span><b id="mo_a">–</b></div>
+        <div><span>Desv. típica de Kₓ</span><b id="mo_sk">–</b></div>
+      </div>
+      <div class="t3pair">
+        <figure class="t3fig" style="margin:0" id="mo_fig1"></figure>
+        <figure class="t3fig" style="margin:0" id="mo_fig2"></figure>
+      </div>
+      <p class="note">Izquierda: supervivencia \(S_x(t)\) (decreciente de 1 a 0). Derecha: densidad \(f_x(t)\) (azul) y fuerza de mortalidad \(\mu_{x+t}\) escalada (discontinua): \(f_x=S_x\,\mu_{x+t}\), de modo que \(\mu\) crece mientras la densidad se anula en edades muy altas.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="t3-ms">
+    <h3>3.1 Modelos de múltiples estados. Múltiples decrementos</h3>
+    <p>El diseño del modelo lo determinan los <b>beneficios de la póliza</b>. Se escoge el conjunto de estados en los que puede estar el asegurado y las transiciones entre ellos que desencadenan pagos (prestaciones) o cobros (primas).</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Prestaciones del seguro</th><th>Modelo</th><th>Estados y transiciones</th></tr></thead>
+      <tbody>
+        <tr><td>Seguro de vida: el pago en un plazo depende de que el asegurado esté vivo o muerto</td><td>1</td><td>Dos estados, no reversibles</td></tr>
+        <tr><td>Seguro temporal con mayor beneficio si el fallecimiento es por muerte accidental</td><td>2</td><td>Tres estados: la causa del fallecimiento determina la prestación, así que el modelo debe especificarla</td></tr>
+        <tr><td>Renta mientras haya invalidez permanente, pago único al producirse la invalidez, pago único por fallecimiento; primas mientras esté sano</td><td>3</td><td>La invalidez es permanente: una vez alcanzada no se puede volver al estado 0, solo pasar a fallecimiento</td></tr>
+        <tr><td>Seguro de ingresos por invalidez que paga durante los periodos de enfermedad (o un pago único por enfermedad y por fallecimiento); primas mientras esté sano</td><td>4</td><td>Sí se puede pasar de enfermo a sano (recuperarse): se puede entrar varias veces en un estado, con periodos de enfermedad alternados con periodos de salud</td></tr>
+      </tbody></table></div>
+    <figure class="t3fig" id="ms_fig" style="margin:0"></figure>
+    <p class="note" style="margin-top:-6px">Los cuatro modelos de las diapositivas. Las flechas son las transiciones posibles; en el modelo 4 la doble flecha entre sano y enfermo indica reversibilidad.</p>
+    <h4>El proceso estocástico \(Y(t)\)</h4>
+    <p>Las transiciones pueden ser en tiempo continuo (proceso estocástico en tiempo continuo) o transiciones observadas en intervalos discretos. Para cada \(x\ge0\), en el momento \(t=0\) (cuando el individuo tiene edad \(x\)) y para cada \(t\ge0\), se define una variable aleatoria \(Y(t)\) que toma como valores los estados \((0,1,2,\dots)\).</p>
+    <div class="card"><span class="tag">Modelo 1 · vivo–muerto</span>
+      <ul class="tight"><li>\(Y(t)=0\): el individuo de edad \(x\) en \(t=0\) está vivo a la edad \(x+t\).</li><li>\(Y(t)=1\): ha fallecido antes de alcanzar la edad \(x+t\).</li><li>\(\{Y(t)\}_{t\ge0}\) es un proceso estocástico en tiempo continuo (variables aleatorias indizadas por tiempo continuo); para todo \(t\), \(Y(t)\) es 0 ó 1.</li></ul>
+      <div class="math">\[ T_x=\max\{t:\ Y(t)=0\} \]</div>
+      <p class="note">Conecta con el modelo de mortalidad: con la función de distribución de \(T_x\) ya se puede calcular la prima del seguro y las demás cuantías asociadas.</p></div>
+    <div class="card"><span class="tag">Modelo 2 · muerte accidental</span>
+      <p>Tres estados, así que \(Y(t)\in\{0,1,2\}\): 0 vivo, 1 muerto por accidente, 2 muerto por otras causas. \(Y(t)=1\) significa que el individuo de edad \(x\) en \(t=0\) ha fallecido de forma accidental antes de alcanzar la edad \(x+t\).</p></div>
+    <div class="card"><span class="tag">Modelo general de múltiples estados</span>
+      <p>Sea \(\{0,1,\dots,m\}\) el conjunto finito de \(m+1\) estados. Son posibles transiciones instantáneas entre pares de estados seleccionados; los estados representan condiciones diferentes de un individuo. Para cada \(t\ge0\), \(Y(t)\) toma uno de los valores \(0,1,\dots,m\). El suceso \(Y(t)=i\) significa que el individuo está en el estado \(i\) a la edad \(x+t\), y \(\{Y(t)\}_{t\ge0}\) es un proceso estocástico en tiempo continuo.</p>
+      <p class="note">El modelo se aplica cuando la póliza contempla que el pago de beneficios o de primas dependa de que el individuo esté en un estado o del movimiento entre un par de estados.</p></div>
+    <h4>Complemento: fuerzas de transición en el modelo de múltiples decrementos</h4>
+    <p class="note">Esta parte no está en las diapositivas; es el desarrollo estándar que las completa. En el modelo 2 el estado 0 tiene dos salidas (causas de decremento), con fuerzas \(\mu^{(1)}_{x+t}\) (accidente) y \(\mu^{(2)}_{x+t}\) (otras causas).</p>
+    <div class="math">\[ \mu^{(\tau)}_{x+t}=\mu^{(1)}_{x+t}+\mu^{(2)}_{x+t},\qquad {}_tp^{00}_x=e^{-\int_0^t\mu^{(\tau)}_{x+u}du},\qquad \Pr[Y(t)=j]=\int_0^t{}_sp^{00}_x\,\mu^{(j)}_{x+s}\,ds\ \ (j=1,2) \]</div>
+    <p>Con una sola salida (\(m=1\)) se recupera el modelo de mortalidad: \(\mu^{(\tau)}=\mu\) y \({}_tp^{00}_x={}_tp_x\). Cuando hay reversibilidad (modelo 4) las probabilidades se obtienen resolviendo las ecuaciones diferenciales de Kolmogorov, porque la probabilidad de estar en un estado ya no es un producto de supervivencias.</p>
+  </div>
+</section>
+
 <section id="preguntas">
   <div class="sec-head"><div class="eyebrow">Para practicar</div><h2>Preguntas posibles</h2>
     <p class="note">Los resultados numéricos están calculados con flujos prepagables, como indican los enunciados.</p></div>
@@ -593,7 +733,7 @@ html { scroll-behavior: smooth; }
     <p class="stmt">Cada 20 de julio desde 2017 se aportan 6.000 € a un plan. Fondo disponible al jubilarse el 15/12/2025 con la participación a 150 €, y ecuaciones de la rentabilidad relativa y absoluta.</p>
     <figure class="tl" data-tl="ucuenta"><div class="tl-scroll"></div></figure>
     <p>Las participaciones de cada año son \(6.000/VL_t\), con un total de 593,877. El fondo final es 593,877 × 150 = 89.081,55 €.</p>
-    <div class="math">\[ 89.081{,}55=6.000\sum_{k=0}^{8}(1+R_m)^{k+\frac{148}{365}}\ \Rightarrow\ R_m=11{,}10\%;\qquad I=89.081{,}55-54.000=35.081{,}55\ € \]</div>
+    <div class="math">\[ 89.081{,}55=6.000\sum_{k=0}^{8}(1+R_m)^{k+\frac{148}{365}}\ \Rightarrow\ R_m=11{,}10\%;\qquad I=89.081{,}55-54.000=35.081{,}55\ 	ext{euros} \]</div>
     <p class="note">El exponente añade los 148 días entre el 20/07 y el 15/12. La solución de clase da 11,01 %, pero con ese tipo el fondo saldría 88.697,84 €; el valor que cuadra es 11,10 %.</p>
   </div>
 
@@ -611,6 +751,32 @@ html { scroll-behavior: smooth; }
     <figure class="tl" data-tl="real"><div class="tl-scroll"></div></figure>
     <div class="math">\[ S_t=S_0(1+\pi)^t,\qquad S^\pi_t=\frac{S_t}{(1+\pi)^t}=S_0;\qquad S_0\cdot VF(1,\pi,R,N)=C_N\cdot VA(1,\pi,R,D) \]</div>
     <p>Lo mismo con el salario y la pensión: \(W_t=W_0(1+\pi)^t\) y \(C_{N+j}=C_N(1+\pi)^j\). En términos reales todo es constante, y basta trabajar con la rentabilidad real \(R_\pi=(R-\pi)/(1+\pi)\).</p>
+  </div>
+
+  <div class="q" id="q14"><span class="qn">PREGUNTA 14 · TEORÍA</span>
+    <p class="stmt">Obtenga la fuerza instantánea de mortalidad \(\mu_x\) a partir de la función de supervivencia y demuestre que \(\mu_{x+t}=f_x(t)/S_x(t)\).</p>
+    <p>Por definición, \(\mu_x=\lim_{dx\to0^+}\frac1{dx}\Pr[T_0\le x+dx\mid T_0&gt;x]=\lim\frac1{dx}\bigl(1-\frac{S_0(x+dx)}{S_0(x)}\bigr)=-\frac1{S_0(x)}\frac{dS_0(x)}{dx}=-\frac{d}{dx}\ln S_0(x)\). Fijado \(x\) y usando \(S_0(x+t)=S_0(x)S_x(t)\):</p>
+    <div class="math">\[ \mu_{x+t}=-\frac1{S_0(x+t)}\frac{d}{dt}\bigl[S_0(x)S_x(t)\bigr]=-\frac1{S_x(t)}\frac{d}{dt}S_x(t)=\frac{f_x(t)}{S_x(t)}=\frac{f_x(t)}{1-F_x(t)} \]</div>
+    <p>Integrando, \({}_tp_x=e^{-\int_0^t\mu_{x+u}du}\); derivando, \(f_x(t)={}_tp_x\,\mu_{x+t}\).</p>
+  </div>
+
+  <div class="q" id="q15"><span class="qn">PREGUNTA 15 · PRÁCTICA</span>
+    <p class="stmt">Demuestre que la esperanza de vida completa es \(\mathring e_x=\int_0^\infty{}_tp_x\,dt\) y obtenga la varianza de \(T_x\).</p>
+    <p>Con \(f_x(t)=-\frac{d}{dt}{}_tp_x\) e integrando por partes, y como \(\lim_{t\to\infty}t\,{}_tp_x=0\):</p>
+    <div class="math">\[ E[T_x]=\int_0^\infty t\,f_x(t)\,dt=-\Bigl[t\,{}_tp_x\Bigr]_0^\infty+\int_0^\infty{}_tp_x\,dt=\int_0^\infty{}_tp_x\,dt \]</div>
+    <p>Igual con el segundo momento (usa \(\lim t^2\,{}_tp_x=0\)): \(E[T_x^2]=2\int_0^\infty t\,{}_tp_x\,dt\), luego \(V[T_x]=2\int_0^\infty t\,{}_tp_x\,dt-\bigl(\int_0^\infty{}_tp_x\,dt\bigr)^2\). Estas dos condiciones de límite son precisamente las condiciones 5 y 6 de una función de supervivencia.</p>
+  </div>
+
+  <div class="q" id="q16"><span class="qn">PREGUNTA 16 · PRÁCTICA</span>
+    <p class="stmt">Defina la vida futura entera \(K_x\), su función de probabilidad y su esperanza, y relaciónela con \(T_x\).</p>
+    <p>\(K_x=\lfloor T_x\rfloor\) es el número de años completos que vivirá en el futuro una persona de edad \(x\). Toma los valores \(k=0,1,2,\dots\) con</p>
+    <div class="math">\[ \Pr[K_x=k]=\Pr[k&lt;T_x\le k+1]={}_kp_x-{}_{k+1}p_x={}_kp_x\,q_{x+k},\qquad e_x=\sum_{k=0}^\infty k({}_kp_x-{}_{k+1}p_x)=\sum_{k=1}^\infty{}_kp_x \]</div>
+    <p>La suma se reordena porque cada \({}_kp_x\) aparece con coeficiente \(k-(k-1)=1\). \(e_x\) es la esperanza de vida exacta, análoga discreta de \(\mathring e_x=\int_0^\infty{}_tp_x\,dt\). Además \(Var(K_x)=\sum_{k\ge1}(2k-1)\,{}_kp_x-e_x^2\).</p>
+  </div>
+
+  <div class="q" id="q17"><span class="qn">PREGUNTA 17 · TEORÍA</span>
+    <p class="stmt">Describa los cuatro modelos de múltiples estados del tema e indique cuál permite volver a un estado anterior.</p>
+    <p><b>Modelo 1</b>, vivo (0) → muerto (1). <b>Modelo 2</b>, muerte accidental: vivo (0) → muerto por accidente (1) o muerto por otras causas (2); sirve para un seguro temporal con mayor beneficio por muerte accidental. <b>Modelo 3</b>, invalidez permanente: sano (0) → inválido (1) y ambos → muerto (2); la invalidez no se revierte, y permite una renta mientras haya invalidez, un pago único al invalidarse y otro por fallecimiento. <b>Modelo 4</b>, enfermedad–fallecimiento: sano (0) ⇄ enfermo (1), y ambos → muerto (2); es el único con transición de 1 a 0 (recuperación), así que se puede entrar varias veces en un estado, con periodos de enfermedad alternados con salud. En todos ellos el proceso \(Y(t)\) indica el estado a la edad \(x+t\), y los beneficios o primas dependen del estado o de la transición.</p>
   </div>
   </div>
 </section>
@@ -665,6 +831,14 @@ html { scroll-behavior: smooth; }
     <details class="fc"><summary>¿Qué es el capital de cobertura?</summary><div class="ans"><p>El valor actuarial de las pensiones de quienes se jubilan en el año, \(B_s\,l^s_{x+r}\,\ddot a_{x+r}\). Lo financian los activos de ese año.</p></div></details>
     <details class="fc"><summary>¿Qué es la UAL y cuándo hay excedente?</summary><div class="ans"><p>\(UAL_t=AL_t-F_t\), la obligación no cubierta por el fondo. Si es negativa, hay excedente actuarial.</p></div></details>
     <details class="fc"><summary>¿Por qué una ETTI creciente favorece al jubilado?</summary><div class="ans"><p>Porque en una renta larga pesan más los tipos largos. Si son más altos, el VA de la renta unitaria baja y, con el mismo capital, la renta es mayor.</p></div></details>
+    <details class="fc"><summary>Relación entre \(S_x(t)\), \(F_x(t)\) y \(f_x(t)\)</summary><div class="ans"><div class="math">\[ S_x(t)={}_tp_x=1-F_x(t),\quad f_x(t)=-\frac{d}{dt}S_x(t),\quad S_x(t)=\frac{S_0(x+t)}{S_0(x)} \]</div></div></details>
+    <details class="fc"><summary>Fuerza de mortalidad y supervivencia</summary><div class="ans"><div class="math">\[ \mu_{x+t}=\frac{f_x(t)}{S_x(t)}=-\frac{d}{dt}\ln S_x(t),\qquad {}_tp_x=e^{-\int_0^t\mu_{x+u}du} \]</div><p>\(f_x(t)={}_tp_x\,\mu_{x+t}\).</p></div></details>
+    <details class="fc"><summary>Condiciones de una función de supervivencia</summary><div class="ans"><p>\(S_x(0)=1\); \(S_x(\infty)=0\); decreciente y diferenciable; \(t\,S_x(t)\to0\) y \(t^2S_x(t)\to0\) (existen media y varianza).</p></div></details>
+    <details class="fc"><summary>Mortalidad diferida \({}_{t|u}q_x\)</summary><div class="ans"><div class="math">\[ {}_{t|u}q_x={}_tp_x-{}_{t+u}p_x={}_tp_x\cdot{}_uq_{x+t} \]</div><p>Sobrevivir \(t\) años y fallecer en los \(u\) siguientes.</p></div></details>
+    <details class="fc"><summary>Esperanza de vida completa y exacta</summary><div class="ans"><div class="math">\[ \mathring e_x=\int_0^\infty{}_tp_x\,dt,\qquad e_x=\sum_{k=1}^\infty{}_kp_x \]</div></div></details>
+    <details class="fc"><summary>Varianza de \(T_x\) y de \(K_x\)</summary><div class="ans"><div class="math">\[ V[T_x]=2\int_0^\infty t\,{}_tp_x\,dt-\mathring e_x^2,\qquad Var(K_x)=\sum_{k=1}^\infty(2k-1)\,{}_kp_x-e_x^2 \]</div></div></details>
+    <details class="fc"><summary>¿Cuántos estados tiene cada modelo y cuál es reversible?</summary><div class="ans"><p>Modelo 1: 2 (vivo, muerto). Modelo 2: 3 (vivo, muerto por accidente, muerto por otras causas). Modelo 3: 3 (sano, inválido, muerto), invalidez permanente. Modelo 4: 3 (sano, enfermo, muerto), reversible entre sano y enfermo.</p></div></details>
+    <details class="fc"><summary>¿Cuándo se usa un modelo de múltiples estados?</summary><div class="ans"><p>Cuando el pago de beneficios o de primas depende de que el individuo esté en un estado o de que pase de uno a otro: los beneficios de la póliza determinan el diseño del modelo.</p></div></details>
   </div>
 </section>
 </div>
@@ -1037,6 +1211,83 @@ html { scroll-behavior: smooth; }
   calc();
   $('openAll').addEventListener('click', () => document.querySelectorAll('#cards details').forEach(d => { d.open = true; }));
   $('closeAll').addEventListener('click', () => document.querySelectorAll('#cards details').forEach(d => { d.open = false; }));
+})();
+</script>
+<script>
+(function () {
+'use strict';
+const $ = (id) => document.getElementById(id);
+const fmt = (v, d = 4) => Number.isFinite(v) ? v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–';
+
+/* ---------- Diagramas de los cuatro modelos ---------- */
+function box(x, y, w, h, l1, l2, cls) {
+  return `<rect class="bx ${cls || ''}" x="${x}" y="${y}" width="${w}" height="${h}"/><text class="ttl" x="${x + w / 2}" y="${y + 20}" text-anchor="middle">${l1}</text><text x="${x + w / 2}" y="${y + 38}" text-anchor="middle">${l2}</text>`;
+}
+function arrow(x1, y1, x2, y2) {
+  const a = Math.atan2(y2 - y1, x2 - x1), s = 7;
+  const p = (ang, r) => `${(x2 - r * Math.cos(a - ang)).toFixed(1)},${(y2 - r * Math.sin(a - ang)).toFixed(1)}`;
+  return `<line class="ar" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><polygon class="hd" points="${x2},${y2} ${p(0.4, s)} ${p(-0.4, s)}"/>`;
+}
+function modelos() {
+  const o = [];
+  o.push(`<text class="ttl" x="16" y="22">Modelo 1 · Vivo–Muerto</text>`, box(16, 36, 90, 46, 'Vivo', '0'), box(170, 36, 90, 46, 'Muerto', '1'), arrow(106, 59, 168, 59));
+  o.push(`<text class="ttl" x="16" y="128">Modelo 2 · Muerte accidental</text>`, box(16, 170, 90, 46, 'Vivo', '0'), box(190, 138, 160, 46, 'Muerto: accidente', '1', 'p'), box(190, 204, 160, 46, 'Muerto: otras causas', '2', 'p'), arrow(106, 180, 188, 163), arrow(106, 206, 188, 224));
+  o.push(`<text class="ttl" x="400" y="22">Modelo 3 · Invalidez permanente</text>`, box(400, 36, 90, 46, 'Sano', '0'), box(560, 36, 90, 46, 'Inválido', '1'), box(480, 124, 90, 46, 'Muerto', '2', 'p'), arrow(490, 59, 558, 59), arrow(430, 82, 490, 122), arrow(620, 82, 560, 122));
+  o.push(`<text class="ttl" x="400" y="202">Modelo 4 · Enfermedad–Fallecimiento</text>`, box(400, 214, 90, 46, 'Sano', '0'), box(560, 214, 90, 46, 'Enfermo', '1'), box(480, 300, 90, 46, 'Muerto', '2', 'p'), arrow(490, 228, 558, 228), arrow(558, 248, 492, 248), arrow(430, 260, 490, 298), arrow(620, 260, 560, 298));
+  $('ms_fig').innerHTML = `<svg viewBox="0 0 680 360" width="680" height="360" role="img" aria-label="Los cuatro modelos de múltiples estados: vivo-muerto, muerte accidental, invalidez permanente y enfermedad-fallecimiento">${o.join('')}</svg>`;
+}
+
+/* ---------- Laboratorio de mortalidad (Makeham) ---------- */
+function simpson(f, a, b, n) {
+  n += n % 2; const h = (b - a) / n; let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += f(a + i * h) * (i % 2 ? 4 : 2);
+  return s * h / 3;
+}
+function plot(id, series, xmax, ymax, ylab) {
+  const W = 330, H = 220, P = { l: 40, r: 10, t: 10, b: 30 };
+  const sx = (v) => P.l + v / xmax * (W - P.l - P.r), sy = (v) => H - P.b - v / ymax * (H - P.t - P.b);
+  const o = [];
+  for (let i = 0; i <= 5; i++) { const gy = ymax * i / 5; o.push(`<line class="gr" x1="${P.l}" y1="${sy(gy)}" x2="${W - P.r}" y2="${sy(gy)}"/><text class="sm" x="${P.l - 5}" y="${sy(gy) + 4}" text-anchor="end">${(+gy.toPrecision(2)).toString().replace('.', ',')}</text>`); }
+  for (let i = 0; i <= 5; i++) { const gx = xmax * i / 5; o.push(`<text class="sm" x="${sx(gx)}" y="${H - P.b + 14}" text-anchor="middle">${Math.round(gx)}</text>`); }
+  o.push(`<line class="ax" x1="${P.l}" y1="${H - P.b}" x2="${W - P.r}" y2="${H - P.b}"/><line class="ax" x1="${P.l}" y1="${P.t}" x2="${P.l}" y2="${H - P.b}"/>`);
+  series.forEach(s => o.push(`<polyline class="${s.cls}" points="${s.pts.map(p => sx(p[0]).toFixed(1) + ',' + sy(Math.min(p[1], ymax)).toFixed(1)).join(' ')}"/>`));
+  o.push(`<text class="sm" x="${(P.l + W - P.r) / 2}" y="${H - 4}" text-anchor="middle">t (años)</text><text class="ttl" x="${P.l}" y="${P.t + 8}">${ylab}</text>`);
+  $(id).innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${ylab}">${o.join('')}</svg>`;
+}
+function lab() {
+  const g = (id) => parseFloat($(id).value);
+  const run = () => {
+    const x = g('m_x'), A = g('m_A'), B = g('m_B'), c = g('m_c'), t = g('m_t'), u = g('m_u');
+    if (![x, A, B, c, t, u].every(Number.isFinite) || c <= 1 || A < 0 || B < 0) return;
+    const lc = Math.log(c);
+    const mu = (a) => A + B * Math.pow(c, a);
+    const tp = (s) => Math.exp(-(A * s + B * Math.pow(c, x) * (Math.pow(c, s) - 1) / lc));
+    const f = (s) => tp(s) * mu(x + s);
+    const top = Math.max(1, 130 - x);                  // horizonte de integración: edad 130
+    const e0 = simpson(tp, 0, top, 2000);
+    const m2 = 2 * simpson((s) => s * tp(s), 0, top, 2000);
+    let ek = 0, ek2 = 0; for (let k = 1; k <= top; k++) { const p = tp(k); ek += p; ek2 += (2 * k - 1) * p; }
+    $('mo_mu').textContent = fmt(mu(x), 5);
+    $('mo_p').textContent = fmt(tp(t), 5);
+    $('mo_d').textContent = fmt(tp(t) - tp(t + u), 5);
+    $('mo_e').textContent = fmt(e0, 3) + ' años';
+    $('mo_k').textContent = fmt(ek, 3) + ' años';
+    $('mo_sd').textContent = fmt(Math.sqrt(Math.max(m2 - e0 * e0, 0)), 3);
+    $('mo_a').textContent = fmt(x + e0, 2);
+    $('mo_sk').textContent = fmt(Math.sqrt(Math.max(ek2 - ek * ek, 0)), 3);
+    const xm = Math.min(top, 60 + Math.max(0, 100 - x) / 2), N = 120;
+    const pts1 = Array.from({ length: N + 1 }, (_, i) => [xm * i / N, tp(xm * i / N)]);
+    const fmax = Math.max(...Array.from({ length: N + 1 }, (_, i) => f(xm * i / N)), 1e-9) * 1.1;
+    const pts2 = Array.from({ length: N + 1 }, (_, i) => [xm * i / N, f(xm * i / N)]);
+    const mscale = Math.max(...pts2.map(p => p[1])) / Math.max(mu(x + xm), 1e-9);
+    const pts3 = Array.from({ length: N + 1 }, (_, i) => [xm * i / N, mu(x + xm * i / N) * fmax / 1.1 / Math.max(mu(x + xm), 1e-9) * 0.9]);
+    plot('mo_fig1', [{ pts: pts1, cls: 'ln' }], xm, 1, 'S_x(t)');
+    plot('mo_fig2', [{ pts: pts2, cls: 'ln' }, { pts: pts3, cls: 'ln2' }], xm, fmax, 'f_x(t) y μ(x+t) escalada');
+  };
+  ['m_x', 'm_A', 'm_B', 'm_c', 'm_t', 'm_u'].forEach(id => $(id).addEventListener('input', run));
+  run();
+}
+modelos(); lab();
 })();
 </script>
 <script>if(window.top!==window)document.querySelectorAll('a[target="_top"]').forEach(function(a){a.style.display="none"});</script></body>

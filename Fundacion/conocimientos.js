@@ -340,7 +340,7 @@ print(np.mean((y_test - pred) ** 2))                # MSE fuera de muestra
                 id: 'idea',
                 title: 'Idea clave',
                 blocks: [
-                    { type: 'guide', text: 'Guía de estudio completa: líneas temporales de cada apartado, preguntas posibles resueltas, calculadora y tarjetas de repaso.' },
+                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 3: líneas temporales de cada apartado, repaso del modelo de mortalidad y modelos de múltiples estados (con laboratorio), preguntas posibles resueltas, calculadora y tarjetas de repaso.' },
                     { type: 'p', text: 'La previsión social busca que una persona mantenga, cuando deja de cobrar su salario, un nivel de vida parecido al de su etapa activa. El fundamento económico es la hipótesis del ciclo vital de Modigliani: se ahorra durante la vida laboral para consumir de forma estable durante toda la vida.' },
                     { type: 'list', title: 'Contingencias que cubre', items: [
                         'Jubilación, invalidez y fallecimiento: impiden o terminan la obtención de rentas del trabajo, por lo que el sistema debe dar rentas sustitutivas al trabajador o a sus beneficiarios.'
@@ -471,6 +471,8 @@ print(np.mean((y_test - pred) ** 2))                # MSE fuera de muestra
                         'Tema 1, epígrafes 1.4 y 1.5 (inflación e incertidumbre). Pilar Requena.',
                         'Tema 2. Análisis actuarial de los sistemas de financiación de la previsión social. Pilar Requena.',
                         'Tema 2. Casos prácticos 1 a 5. Curso 2026/27.',
+        'Tema 3. Valoración financiero-actuarial de un plan de pensiones (apartado 3.1, modelos de múltiples estados). Pilar Requena.',
+        'Tema 3. Repaso del modelo de mortalidad (curso anterior).',
                         'Ejercicios sesión 3: cálculo de rentabilidades.',
                         'Dickson, Hardy y Waters (2020). Actuarial Mathematics for Life Contingent Risks, 3ª ed. Cambridge University Press.',
                         'Milevsky (2006). The Calculus of Retirement Income. Cambridge University Press.',
