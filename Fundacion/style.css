@@ -1204,6 +1204,26 @@ body.scene-portada .agenda {
     --ag-inverse-text: #ffffff;
 }
 
+/* La guía a pantalla completa ocupa de verdad toda la ventana, por encima de la barra superior */
+.panel.is-full.is-guide {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    border-radius: 0;
+    z-index: 30;
+    padding-top: max(var(--pad), env(safe-area-inset-top));
+    padding-left: max(var(--pad), env(safe-area-inset-left));
+    padding-right: max(var(--pad), env(safe-area-inset-right));
+}
+
+.panel.is-full.is-guide .guide {
+    margin-left: calc(max(var(--pad), env(safe-area-inset-left)) * -1);
+    margin-right: calc(max(var(--pad), env(safe-area-inset-right)) * -1);
+    border-radius: 0;
+}
+
 /* Con el panel a pantalla completa la pestaña de la agenda no se le superpone */
 body:has(.panel.is-full:not([hidden])) .agenda {
     display: none;
