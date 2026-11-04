@@ -190,7 +190,7 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t2-capital">2.2–2.3 Cobertura y capitalización</a></td><td>Capital de cobertura, AL, NC, UAL, unidad de crédito proyectada</td><td>10</td></tr>
       <tr><td><a href="#t2-rent">Rentabilidad</a></td><td>Plan con unidades de cuenta, TIR y rendimiento absoluto</td><td>11</td></tr>
       <tr><td><a href="#t3-mort">Repaso de mortalidad</a></td><td>\(S_x(t)\), \(\mu_x\), \({}_tp_x\), \({}_{t|u}q_x\), \(\mathring e_x\), \(e_x\), varianzas</td><td>14, 15, 16</td></tr>
-      <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), modelo general, múltiples decrementos</td><td>17</td></tr>
+      <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), hipótesis de Markov, \(o(h)\) y diferenciabilidad, intensidades \(\mu^{ij}_x\), Chapman–Kolmogorov, ejemplo de clase</td><td>17, 18</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -599,6 +599,80 @@ html { scroll-behavior: smooth; }
     <div class="card"><span class="tag">Modelo general de múltiples estados</span>
       <p>Sea \(\{0,1,\dots,m\}\) el conjunto finito de \(m+1\) estados. Son posibles transiciones instantáneas entre pares de estados seleccionados; los estados representan condiciones diferentes de un individuo. Para cada \(t\ge0\), \(Y(t)\) toma uno de los valores \(0,1,\dots,m\). El suceso \(Y(t)=i\) significa que el individuo está en el estado \(i\) a la edad \(x+t\), y \(\{Y(t)\}_{t\ge0}\) es un proceso estocástico en tiempo continuo.</p>
       <p class="note">El modelo se aplica cuando la póliza contempla que el pago de beneficios o de primas dependa de que el individuo esté en un estado o del movimiento entre un par de estados.</p></div>
+    <h4>Hipótesis del modelo (clase del 04/11/2026)</h4>
+    <div class="card"><span class="tag">Hipótesis 1 · propiedad de Markov</span>
+      <p>Para cualesquiera estados \(i,j\) y momentos \(t\) y \(t+s\) con \(s\ge0\), la probabilidad condicional \(\Pr[Y(t+s)=j\mid Y(t)=i]\) <b>no depende de la información sobre el proceso anterior a \(t\)</b>, solo del estado en \(t\). El proceso \(\{Y(t)\}_{t\ge0}\) es de Markov: no tiene memoria, las probabilidades de eventos futuros dependen del presente y no de cómo se llegó a él.</p></div>
+    <div class="card"><span class="tag">Hipótesis 2 · dos transiciones son despreciables</span>
+      <p>Para cualquier intervalo de tiempo \(h&gt;0\), \(\Pr[\text{dos o más transiciones en el periodo }h]=o(h)\). Una función \(g(h)\) es \(o(h)\) si</p>
+      <div class="math">\[ \lim_{h\to0}\frac{g(h)}{h}=0, \]</div>
+      <p class="note">es decir, converge a 0 más rápido que \(h\). Para un intervalo \((t,t+h)\) muy pequeño, la probabilidad de dos o más transiciones es muy pequeña. La hipótesis es necesaria en los modelos 3 y 4 pero no en el 1 y el 2 (solo afecta a los estados que no son absorbentes: en los modelos 1 y 2 desde el estado 0 se sale una sola vez).</p></div>
+    <div class="card"><span class="tag">Hipótesis 3 · diferenciabilidad</span>
+      <p>Para todos los estados \(i,j\) y todas las edades \(x\ge0\), \({}_tp^{ij}_x\) es una función diferenciable de \(t\). De aquí se deduce que existe el límite que define la intensidad de transición, de modo que \(\mu^{ij}_x\) siempre existe (las transiciones imposibles toman el valor 0) y es una función acotada e integrable.</p></div>
+    <h4>Notación</h4>
+    <div class="math">\[ {}_tp^{ij}_x=\Pr[Y(x+t)=j\mid Y(x)=i] \]</div>
+    <p class="note">Probabilidad de que una vida de edad \(x\) que está ahora en el estado \(i\) esté en el estado \(j\) a la edad \(x+t\) (\(j\) puede ser \(i\) si no cambia de estado).</p>
+    <div class="math">\[ {}_tp^{\overline{ii}}_x=\Pr\bigl[Y(x+s)=i\ \ \forall s\in[0,t]\ \bigm|\ Y(x)=i\bigr] \]</div>
+    <p class="note">Probabilidad de que una vida de edad \(x\) en el estado \(i\) <b>permanezca</b> en \(i\) de forma continua entre \(x\) y \(x+t\). No es lo mismo que \({}_tp^{ii}_x\): esta última permite salir y volver (en el modelo 4 un sano puede enfermar y recuperarse), la de permanencia no.</p>
+    <div class="math">\[ \mu^{ij}_x=\lim_{h\to0^+}\frac{{}_hp^{ij}_x}{h},\quad i\ne j\qquad\Longleftrightarrow\qquad {}_hp^{ij}_x=h\,\mu^{ij}_x+o(h) \]</div>
+    <p class="note">\(\mu^{ij}_x\) es la <b>intensidad de transición</b> de \(i\) a \(j\) a la edad \(x\). Para \(h\) muy pequeño y positivo, \({}_hp^{ij}_x\approx h\,\mu^{ij}_x\) con \(i\ne j\).</p>
+    <h4>El modelo 1 (vivo–muerto) en esta notación</h4>
+    <div class="math">\[ {}_tp^{00}_x={}_tp_x,\qquad {}_tp^{01}_x={}_tq_x,\qquad {}_tp^{10}_x=0\ \ (\text{de muerto a vivo es imposible}),\qquad \mu^{01}_x=\mu_x \]</div>
+    <p class="note">Así el modelo de mortalidad del repaso es el caso particular del modelo de múltiples estados con un solo estado de salida; \(\mu_x\) es la fuerza de mortalidad.</p>
+    <div class="card"><span class="tag">Consecuencia de la hipótesis de Markov · ecuación de Chapman–Kolmogorov</span>
+      <div class="math">\[ {}_{s+t}p^{ij}_x=\sum_{k}{}_sp^{ik}_x\;{}_tp^{kj}_{x+s}\qquad\text{(se suma sobre todos los estados }k\text{)} \]</div>
+      <p class="note">Para ir de \(i\) a \(j\) en \(s+t\) años se pasa a los \(s\) años por algún estado \(k\) (probabilidad \({}_sp^{ik}_x\)) y desde allí, ya con edad \(x+s\), se llega a \(j\) en \(t\) años; como el proceso no tiene memoria, solo importa \(k\). Con un solo estado es el producto \({}_{s+t}p_x={}_sp_x\,{}_tp_{x+s}\) del modelo de mortalidad. Además, las probabilidades de cada fila suman 1: \(\sum_j{}_tp^{ij}_x=1\), y el estado de fallecimiento es absorbente (\({}_tp^{22}_x=1\)).</p></div>
+
+    <h4>Ejemplo de clase (modelo 4: 0 sano, 1 enfermo, 2 fallecido)</h4>
+    <p>Se conocen, para las edades 40 y 50, las probabilidades a 10 años:</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Edad inicial</th><th>\({}_{10}p^{00}\)</th><th>\({}_{10}p^{01}\)</th><th>\({}_{10}p^{11}\)</th><th>\({}_{10}p^{10}\)</th></tr></thead>
+      <tbody>
+        <tr><td>40</td><td class="num">0,93705</td><td class="num">0,01953</td><td class="num">0,70349</td><td class="num">0,23943</td></tr>
+        <tr><td>50</td><td class="num">0,83030</td><td class="num">0,06557</td><td class="num">0,81211</td><td class="num">0,06057</td></tr>
+      </tbody></table></div>
+    <p><b>Preguntas.</b> (a) Calcule \({}_{20}p^{00}_{40}\), \({}_{20}p^{10}_{40}\) y \({}_{20}p^{02}_{40}\). (b) Si la persona de 40 años (sana) fallece antes de los 60, ¿cuál es la probabilidad de que estuviese sana a los 50?</p>
+    <div class="card"><span class="tag">Paso previo · completar cada fila con el fallecimiento</span>
+      <p>Cada fila suma 1, así que las probabilidades que faltan son el complemento:</p>
+      <div class="math">\[ {}_{10}p^{02}={1-{}_{10}p^{00}-{}_{10}p^{01}},\qquad {}_{10}p^{12}=1-{}_{10}p^{11}-{}_{10}p^{10},\qquad {}_{10}p^{22}=1 \]</div>
+      <div class="tbl"><table class="mini">
+        <thead><tr><th>Edad</th><th>\({}_{10}p^{02}\)</th><th>\({}_{10}p^{12}\)</th></tr></thead>
+        <tbody>
+          <tr><td>40</td><td class="num">1 − 0,93705 − 0,01953 = 0,04342</td><td class="num">1 − 0,70349 − 0,23943 = 0,05708</td></tr>
+          <tr><td>50</td><td class="num">1 − 0,83030 − 0,06557 = 0,10413</td><td class="num">1 − 0,81211 − 0,06057 = 0,12732</td></tr>
+        </tbody></table></div></div>
+    <div class="card"><span class="tag">(a) Chapman–Kolmogorov con \(s=t=10\), de 40 a 50 y de 50 a 60</span>
+      <div class="math">\[ {}_{20}p^{00}_{40}={}_{10}p^{00}_{40}\,{}_{10}p^{00}_{50}+{}_{10}p^{01}_{40}\,{}_{10}p^{10}_{50}=0{,}93705\cdot0{,}83030+0{,}01953\cdot0{,}06057=0{,}77803+0{,}00118=\mathbf{0{,}77922} \]</div>
+      <div class="math">\[ {}_{20}p^{10}_{40}={}_{10}p^{10}_{40}\,{}_{10}p^{00}_{50}+{}_{10}p^{11}_{40}\,{}_{10}p^{10}_{50}=0{,}23943\cdot0{,}83030+0{,}70349\cdot0{,}06057=0{,}19880+0{,}04261=\mathbf{0{,}24141} \]</div>
+      <div class="math">\[ {}_{20}p^{02}_{40}={}_{10}p^{00}_{40}\,{}_{10}p^{02}_{50}+{}_{10}p^{01}_{40}\,{}_{10}p^{12}_{50}+{}_{10}p^{02}_{40}\,{}_{10}p^{22}_{50}=0{,}93705\cdot0{,}10413+0{,}01953\cdot0{,}12732+0{,}04342\cdot1=0{,}09758+0{,}00249+0{,}04342=\mathbf{0{,}14348} \]</div>
+      <p class="note">En cada suma hay un sumando por cada estado \(k\) en el que se puede estar a los 50 años: sano (0), enfermo (1) o ya fallecido (2). Comprobación: \({}_{20}p^{00}+{}_{20}p^{01}+{}_{20}p^{02}=0{,}77922+0{,}07934+0{,}14348=1\), con \({}_{20}p^{01}_{40}=0{,}93705\cdot0{,}06557+0{,}01953\cdot0{,}81211=0{,}06144+0{,}01586=0{,}07730\) (la suma da 1 salvo redondeo).</p></div>
+    <div class="card"><span class="tag">(b) Probabilidad condicionada: sano a los 50 sabiendo que muere antes de los 60</span>
+      <p>Como el fallecimiento es absorbente, «fallece antes de los 60» equivale a \(Y(20)=2\) partiendo de sano a los 40. Por Bayes:</p>
+      <div class="math">\[ \Pr[Y(10)=0\mid Y(20)=2]=\frac{\Pr[Y(10)=0,\ Y(20)=2]}{\Pr[Y(20)=2]}=\frac{{}_{10}p^{00}_{40}\,{}_{10}p^{02}_{50}}{{}_{20}p^{02}_{40}}=\frac{0{,}93705\cdot0{,}10413}{0{,}14348}=\frac{0{,}09758}{0{,}14348}=\mathbf{0{,}6801} \]</div>
+      <p class="note">El numerador solo contiene el camino «sano a los 50 y fallece entre los 50 y los 60». El denominador suma los tres caminos posibles (sano, enfermo o ya fallecido a los 50). Resultado: un <b>68,0 %</b>. Los otros caminos pesan \(0{,}00249/0{,}14348=1{,}7\,\%\) (enfermo a los 50) y \(0{,}04342/0{,}14348=30{,}3\,\%\) (ya fallecido antes de los 50). Se ha supuesto que a los 40 años está sano.</p></div>
+    <div class="t3lab" id="cl-lab">
+      <h4>Calculadora · Chapman–Kolmogorov a 20 años con tus propios datos</h4>
+      <div class="calc">
+        <label for="cl_a">₁₀p⁰⁰ (edad 40)<input id="cl_a" type="number" step="any" value="0.93705"></label>
+        <label for="cl_b">₁₀p⁰¹ (edad 40)<input id="cl_b" type="number" step="any" value="0.01953"></label>
+        <label for="cl_c">₁₀p¹¹ (edad 40)<input id="cl_c" type="number" step="any" value="0.70349"></label>
+        <label for="cl_d">₁₀p¹⁰ (edad 40)<input id="cl_d" type="number" step="any" value="0.23943"></label>
+        <label for="cl_e">₁₀p⁰⁰ (edad 50)<input id="cl_e" type="number" step="any" value="0.83030"></label>
+        <label for="cl_f">₁₀p⁰¹ (edad 50)<input id="cl_f" type="number" step="any" value="0.06557"></label>
+        <label for="cl_g">₁₀p¹¹ (edad 50)<input id="cl_g" type="number" step="any" value="0.81211"></label>
+        <label for="cl_h">₁₀p¹⁰ (edad 50)<input id="cl_h" type="number" step="any" value="0.06057"></label>
+      </div>
+      <div class="out" aria-live="polite">
+        <div><span>₂₀p⁰⁰₄₀</span><b id="cl_o1">–</b></div>
+        <div><span>₂₀p⁰¹₄₀</span><b id="cl_o2">–</b></div>
+        <div><span>₂₀p⁰²₄₀</span><b id="cl_o3">–</b></div>
+        <div><span>₂₀p¹⁰₄₀</span><b id="cl_o4">–</b></div>
+        <div><span>₂₀p¹¹₄₀</span><b id="cl_o5">–</b></div>
+        <div><span>₂₀p¹²₄₀</span><b id="cl_o6">–</b></div>
+        <div><span>Pr[sano a los 50 | muere antes de los 60]</span><b id="cl_o7">–</b></div>
+        <div><span>Pr[enfermo a los 50 | muere antes de los 60]</span><b id="cl_o8">–</b></div>
+      </div>
+      <p class="note">Las probabilidades de fallecimiento se completan solas para que cada fila sume 1. Los valores iniciales son los del ejemplo.</p>
+    </div>
     <h4>Complemento: fuerzas de transición en el modelo de múltiples decrementos</h4>
     <p class="note">Esta parte no está en las diapositivas; es el desarrollo estándar que las completa. En el modelo 2 el estado 0 tiene dos salidas (causas de decremento), con fuerzas \(\mu^{(1)}_{x+t}\) (accidente) y \(\mu^{(2)}_{x+t}\) (otras causas).</p>
     <div class="math">\[ \mu^{(\tau)}_{x+t}=\mu^{(1)}_{x+t}+\mu^{(2)}_{x+t},\qquad {}_tp^{00}_x=e^{-\int_0^t\mu^{(\tau)}_{x+u}du},\qquad \Pr[Y(t)=j]=\int_0^t{}_sp^{00}_x\,\mu^{(j)}_{x+s}\,ds\ \ (j=1,2) \]</div>
@@ -778,6 +852,15 @@ html { scroll-behavior: smooth; }
     <p class="stmt">Describa los cuatro modelos de múltiples estados del tema e indique cuál permite volver a un estado anterior.</p>
     <p><b>Modelo 1</b>, vivo (0) → muerto (1). <b>Modelo 2</b>, muerte accidental: vivo (0) → muerto por accidente (1) o muerto por otras causas (2); sirve para un seguro temporal con mayor beneficio por muerte accidental. <b>Modelo 3</b>, invalidez permanente: sano (0) → inválido (1) y ambos → muerto (2); la invalidez no se revierte, y permite una renta mientras haya invalidez, un pago único al invalidarse y otro por fallecimiento. <b>Modelo 4</b>, enfermedad–fallecimiento: sano (0) ⇄ enfermo (1), y ambos → muerto (2); es el único con transición de 1 a 0 (recuperación), así que se puede entrar varias veces en un estado, con periodos de enfermedad alternados con salud. En todos ellos el proceso \(Y(t)\) indica el estado a la edad \(x+t\), y los beneficios o primas dependen del estado o de la transición.</p>
   </div>
+
+  <div class="q" id="q18"><span class="qn">PREGUNTA 18 · PRÁCTICA</span>
+    <p class="stmt">Modelo 4 (0 sano, 1 enfermo, 2 fallecido). A 10 años: \({}_{10}p^{00}_{40}=0{,}93705\), \({}_{10}p^{01}_{40}=0{,}01953\), \({}_{10}p^{11}_{40}=0{,}70349\), \({}_{10}p^{10}_{40}=0{,}23943\) y \({}_{10}p^{00}_{50}=0{,}83030\), \({}_{10}p^{01}_{50}=0{,}06557\), \({}_{10}p^{11}_{50}=0{,}81211\), \({}_{10}p^{10}_{50}=0{,}06057\). Calcule \({}_{20}p^{00}_{40}\), \({}_{20}p^{10}_{40}\), \({}_{20}p^{02}_{40}\) y la probabilidad de que una persona sana de 40 años que fallece antes de los 60 estuviera sana a los 50.</p>
+    <p>Se usa la hipótesis de Markov (Chapman–Kolmogorov) y que cada fila suma 1 (\({}_{10}p^{02}_{40}=0{,}04342\), \({}_{10}p^{12}_{40}=0{,}05708\), \({}_{10}p^{02}_{50}=0{,}10413\), \({}_{10}p^{12}_{50}=0{,}12732\)):</p>
+    <div class="math">\[ {}_{20}p^{00}_{40}=0{,}93705\cdot0{,}83030+0{,}01953\cdot0{,}06057=0{,}77922 \]</div>
+    <div class="math">\[ {}_{20}p^{10}_{40}=0{,}23943\cdot0{,}83030+0{,}70349\cdot0{,}06057=0{,}24141 \]</div>
+    <div class="math">\[ {}_{20}p^{02}_{40}=0{,}93705\cdot0{,}10413+0{,}01953\cdot0{,}12732+0{,}04342=0{,}14348 \]</div>
+    <div class="math">\[ \Pr[Y(10)=0\mid Y(20)=2]=\frac{0{,}93705\cdot0{,}10413}{0{,}14348}=0{,}6801\approx68\,\% \]</div>
+  </div>
   </div>
 </section>
 
@@ -839,6 +922,10 @@ html { scroll-behavior: smooth; }
     <details class="fc"><summary>Varianza de \(T_x\) y de \(K_x\)</summary><div class="ans"><div class="math">\[ V[T_x]=2\int_0^\infty t\,{}_tp_x\,dt-\mathring e_x^2,\qquad Var(K_x)=\sum_{k=1}^\infty(2k-1)\,{}_kp_x-e_x^2 \]</div></div></details>
     <details class="fc"><summary>¿Cuántos estados tiene cada modelo y cuál es reversible?</summary><div class="ans"><p>Modelo 1: 2 (vivo, muerto). Modelo 2: 3 (vivo, muerto por accidente, muerto por otras causas). Modelo 3: 3 (sano, inválido, muerto), invalidez permanente. Modelo 4: 3 (sano, enfermo, muerto), reversible entre sano y enfermo.</p></div></details>
     <details class="fc"><summary>¿Cuándo se usa un modelo de múltiples estados?</summary><div class="ans"><p>Cuando el pago de beneficios o de primas depende de que el individuo esté en un estado o de que pase de uno a otro: los beneficios de la póliza determinan el diseño del modelo.</p></div></details>
+    <details class="fc"><summary>Hipótesis del modelo de múltiples estados</summary><div class="ans"><p>(1) Markov: \(\Pr[Y(t+s)=j\mid Y(t)=i]\) solo depende del estado en \(t\). (2) Dos o más transiciones en \(h\) tienen probabilidad \(o(h)\), con \(\lim g(h)/h=0\). (3) \({}_tp^{ij}_x\) es diferenciable en \(t\), luego \(\mu^{ij}_x\) existe, acotada e integrable.</p></div></details>
+    <details class="fc"><summary>Intensidad de transición \(\mu^{ij}_x\)</summary><div class="ans"><div class="math">\[ \mu^{ij}_x=\lim_{h\to0^+}\frac{{}_hp^{ij}_x}{h},\quad {}_hp^{ij}_x=h\,\mu^{ij}_x+o(h)\ (i\ne j) \]</div><p>En el modelo 1, \(\mu^{01}_x=\mu_x\), \({}_tp^{00}_x={}_tp_x\), \({}_tp^{01}_x={}_tq_x\), \({}_tp^{10}_x=0\).</p></div></details>
+    <details class="fc"><summary>\({}_tp^{ii}_x\) frente a \({}_tp^{\overline{ii}}_x\)</summary><div class="ans"><p>\({}_tp^{ii}_x\): estar en \(i\) a la edad \(x+t\) (puede haber salido y vuelto). \({}_tp^{\overline{ii}}_x\): permanecer en \(i\) de forma continua entre \(x\) y \(x+t\).</p></div></details>
+    <details class="fc"><summary>Chapman–Kolmogorov</summary><div class="ans"><div class="math">\[ {}_{s+t}p^{ij}_x=\sum_k{}_sp^{ik}_x\,{}_tp^{kj}_{x+s} \]</div><p>Consecuencia de la propiedad de Markov. Ejemplo de clase: \({}_{20}p^{00}_{40}=0{,}77922\), \({}_{20}p^{10}_{40}=0{,}24141\), \({}_{20}p^{02}_{40}=0{,}14348\); sano a los 50 sabiendo que muere antes de los 60: 68,0 %.</p></div></details>
   </div>
 </section>
 </div>
@@ -1288,6 +1375,22 @@ function lab() {
   run();
 }
 modelos(); lab();
+function clasePsc() {
+  const g = (id) => parseFloat(document.getElementById(id).value);
+  const out = (id, v) => { document.getElementById(id).textContent = Number.isFinite(v) ? v.toLocaleString('es-ES', { minimumFractionDigits: 5, maximumFractionDigits: 5 }) : '–'; };
+  const run = () => {
+    const [a, b, c, d, e, f, gg, h] = ['cl_a', 'cl_b', 'cl_c', 'cl_d', 'cl_e', 'cl_f', 'cl_g', 'cl_h'].map(g);
+    const A = { 0: [a, b, 1 - a - b], 1: [d, c, 1 - c - d], 2: [0, 0, 1] };   // desde 40: filas = estado inicial, columnas = estado a los 50
+    const B = { 0: [e, f, 1 - e - f], 1: [h, gg, 1 - gg - h], 2: [0, 0, 1] };   // desde 50
+    const P = (i, j) => [0, 1, 2].reduce((s, k) => s + A[i][k] * B[k][j], 0);
+    out('cl_o1', P(0, 0)); out('cl_o2', P(0, 1)); out('cl_o3', P(0, 2)); out('cl_o4', P(1, 0)); out('cl_o5', P(1, 1)); out('cl_o6', P(1, 2));
+    out('cl_o7', A[0][0] * B[0][2] / P(0, 2)); out('cl_o8', A[0][1] * B[1][2] / P(0, 2));
+  };
+  ['cl_a', 'cl_b', 'cl_c', 'cl_d', 'cl_e', 'cl_f', 'cl_g', 'cl_h'].forEach(id => document.getElementById(id).addEventListener('input', run));
+  run();
+}
+clasePsc();
+
 })();
 </script>
 <script>if(window.top!==window)document.querySelectorAll('a[target="_top"]').forEach(function(a){a.style.display="none"});</script></body>
