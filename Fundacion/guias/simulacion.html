@@ -242,6 +242,38 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
 
 .mini td.num, .mini th { text-align: center; }
 
+/* Cuestionario interactivo */
+.quiz { display: grid; gap: 14px; }
+.quiz-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.quiz-bar button, .quiz-nav button { font: inherit; font-size: 14px; padding: 6px 14px; border: 1px solid var(--rule); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.quiz-bar button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.quiz-bar .qz-prog { margin-left: auto; font-family: var(--font-data); font-size: 12.5px; color: var(--muted); }
+.qz-track { height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.qz-track i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .25s; }
+.qz-card { border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 6px 6px 0; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; }
+.qz-card .qn { font-family: var(--font-data); font-size: 12px; color: var(--accent); font-weight: 500; letter-spacing: .04em; }
+.qz-card .stmt { font-family: var(--font-display); font-size: 18px; margin: 0; }
+.qz-opts { display: grid; gap: 8px; }
+.qz-opt { display: grid; gap: 6px; text-align: left; font: inherit; font-size: 15px; line-height: 1.45; width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink); cursor: pointer; overflow-wrap: anywhere; }
+.qz-opt:hover:not(:disabled) { border-color: var(--accent); }
+.qz-opt:disabled { cursor: default; opacity: 1; color: var(--ink); }
+.qz-opt .row { display: flex; gap: 10px; }
+.qz-opt .lt { font-family: var(--font-data); color: var(--accent); flex: none; }
+.qz-opt .why { display: none; font-size: 14px; color: var(--muted); padding-left: 24px; }
+.qz-opt .why b { font-family: var(--font-data); font-size: 12px; letter-spacing: .04em; margin-right: 6px; }
+.qz-opt.show .why { display: block; }
+.qz-opt.ok { border-color: var(--ok); background: var(--ok-soft); }
+.qz-opt.ok .why b { color: var(--ok); }
+.qz-opt.bad { border-color: var(--unknown); background: color-mix(in srgb, var(--unknown) 12%, var(--surface)); }
+.qz-opt.bad .why b { color: var(--unknown); }
+.qz-opt.picked { outline: 2px solid var(--ink); outline-offset: 1px; }
+.qz-verdict { font-weight: 600; margin: 0; }
+.qz-verdict.ok { color: var(--ok); } .qz-verdict.bad { color: var(--unknown); }
+.quiz-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.quiz-nav button.main { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.qz-score { font-family: var(--font-display); font-size: 34px; margin: 0; }
+.qz-fails { display: grid; gap: 6px; font-size: 14.5px; padding-left: 18px; margin: 0; }
+
 </style>
 </head>
 <body>
@@ -255,6 +287,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--ink); padding-top: 1
     <a href="#preguntas">Preguntas posibles</a>
     <a href="#trampas">Trampas del código</a>
     <a href="#tarjetas">Tarjetas</a>
+    <a href="#test">Test</a>
     <a href="#examen" class="exam">Examen 11 nov</a>
   </div>
 </nav>
@@ -3097,6 +3130,13 @@ print({"OLS_in": mape_ols_in, "OLS_out": mape_ols_out,
   </div>
 </section>
 
+<!-- ===================================================== TEST -->
+<section id="test">
+  <div class="sec-head"><div class="eyebrow">Autoevaluación</div><h2>Test tipo examen</h2>
+    <p class="note">Dos cuestionarios de 20 preguntas con cuatro opciones. Al responder se explica por qué cada opción es correcta o incorrecta. Las opciones se barajan en cada intento.</p></div>
+  <div class="quiz" id="quiz"></div>
+</section>
+
 <footer class="foot">
   <div>Guía de estudio elaborada a partir del material de la asignatura <i>Simulación y modelos para el análisis de datos actuariales y financieros</i> (2026/27), Máster Universitario en Ciencias Actuariales y Financieras, Universidad de Alcalá.</div>
   <div>Diapositivas y scripts: © 2026 David Atance del Olmo, Departamento de Economía y Dirección de Empresas, Universidad de Alcalá, bajo licencia <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.es" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>. Los fragmentos de código marcados «curso» son adaptaciones de esos scripts; los marcados «complemento» son aportación de esta guía. Uso educativo, sin fines comerciales.</div>
@@ -4091,6 +4131,195 @@ function init() {
 }
 init();
 
+})();
+</script>
+<script>
+(function () {
+'use strict';
+const TESTS = [
+{ id: 't1', name: 'Test 1', qs: [
+['¿Cuál es la fórmula de recurrencia de un Generador Congruencial Lineal (GCL) para obtener Zi a partir de Zi-1 y la regla para transformarlo en una variable uniforme Ui ~ U(0,1)?',
+ ['Zi = (a * Zi-1 + c) mod m y Ui = Zi / m','Zi = (a * Zi-1 + c) / m y Ui = Zi * m','Zi = (a * Zi-1 - c) mod m y Ui = Zi','Zi = (a + c) mod m y Ui = Zi / a'],
+ ['El GCL genera la secuencia determinista con Zi = (a·Zi-1 + c) mod m y obtiene uniformes Ui ~ U(0,1) dividiendo Zi entre el módulo m.','Sustituye la operación módulo por una división y multiplica Zi por m en lugar de dividir entre m.','Cambia el signo del incremento c (resta en vez de suma) y no escala Zi entre m, así que Ui no quedaría en (0,1).','Omite la multiplicación por el valor anterior Zi-1 y divide erróneamente entre el multiplicador a.']],
+['Para garantizar un período máximo de longitud m en un GCL con incremento c > 0, ¿cuáles son las condiciones de Hull y Dobell?',
+ ['c y m son coprimos, a-1 es divisible por todos los factores primos de m, y si m es múltiplo de 4 entonces a-1 es múltiplo de 4','c y m deben ser ambos pares y a debe ser igual a m','a y c no deben tener divisores en común y m debe ser impar','c debe ser cero y a debe ser un número primo arbitrario'],
+ ['Las tres condiciones de Hull y Dobell (1962): c y m coprimos (sin divisores comunes distintos de 1), (a-1) divisible por cada factor primo de m, y (a-1) múltiplo de 4 si m lo es. Garantizan un período completo de longitud m.','Si c y m fueran pares tendrían al 2 como divisor común, violando la condición de ser coprimos.','La coprimicidad se exige entre c y m (no entre a y c), y m no tiene por qué ser impar.','Con c = 0 el generador es multiplicativo y su período máximo no puede alcanzar m.']],
+['¿Cuáles son los requisitos fundamentales que debe cumplir una secuencia de números pseudoaleatorios para ser válida en simulación estocástica actuarial?',
+ ['Uniformidad equiprobable en (0,1), independencia estadística entre valores, período largo antes de repetirse y rapidez computacional','Distribución Normal estándar, correlación positiva fija y período corto','Variabilidad nula, dependencia determinista lineal y simetría discreta','Asimetría positiva, varianza creciente e imposibilidad de fijar la semilla inicial'],
+ ['Un buen generador debe dar valores equiprobables (uniformidad), independientes entre sí, con período muy largo y cálculo rápido.','La base requerida es la uniforme U(0,1), no la Normal; se exige independencia (sin correlación) y período largo.','La variabilidad nula y la dependencia lineal destruyen la aleatoriedad y la independencia.','La distribución base es la uniforme plana y la semilla debe poder fijarse (set.seed()) para que el resultado sea reproducible.']],
+['Al aplicar el método de la transformada inversa a una Exponencial con F(x) = 1 - exp(-lambda·x), ¿cuál es la expresión para generar X a partir de U ~ U(0,1)?',
+ ['X = -(1 / lambda) * ln(1 - U)','X = lambda * ln(U)','X = exp(-lambda * U)','X = -lambda * ln(1 - U)'],
+ ['Igualando 1 - exp(-lambda·x) = U y despejando x con logaritmos se obtiene X = -(1/lambda)·ln(1 - U).','Multiplica por lambda en lugar de dividir entre -lambda y omite el complemento (1-U) dentro del logaritmo.','Es una transformación exponencial directa, no la función cuantil inversa.','Multiplica por lambda en lugar de dividir entre él.']],
+['Dadas la escala xm y el parámetro de forma alpha, ¿cuál es la transformada inversa para generar una Pareto con F(x) = 1 - (xm / x)^alpha?',
+ ['X = xm / (1 - U)^(1 / alpha)','X = xm * (1 - U)^alpha','X = (1 - U) / (xm^alpha)','X = alpha / (xm * (1 - U))'],
+ ['Igualando 1 - (xm/x)^alpha = U resulta (1-U) = (xm/x)^alpha; elevando a 1/alpha se llega a X = xm / (1 - U)^(1/alpha).','Multiplica por (1-U)^alpha en lugar de dividir entre (1-U)^(1/alpha).','Coloca mal la escala xm y el parámetro de forma alpha.','Intercambia el parámetro de forma alpha y altera la estructura de la escala.']],
+['¿Cuál es la función inversa cuantil para generar una Weibull con parámetros alpha y beta, con F(x) = 1 - exp(-(x/beta)^alpha)?',
+ ['X = beta * [-ln(1 - U)]^(1 / alpha)','X = alpha * [-ln(U)]^beta','X = beta / [-ln(1 - U)]^alpha','X = [-ln(1 - U)] / (beta * alpha)'],
+ ['De U = 1 - exp(-(x/beta)^alpha) sale (x/beta)^alpha = -ln(1-U), y por tanto X = beta·[-ln(1-U)]^(1/alpha).','Intercambia los parámetros alpha y beta y usa U en lugar de su complemento (1-U).','Divide entre el término logarítmico en lugar de multiplicarlo.','Elimina la potencia 1/alpha y altera el factor de escala beta.']],
+['¿Cómo genera el método de Box-Muller dos normales estándar independientes Z1 y Z2 a partir de U1, U2 ~ U(0,1)?',
+ ['Z1 = sqrt(-2*ln(U1))*cos(2*pi*U2) y Z2 = sqrt(-2*ln(U1))*sin(2*pi*U2)','Z1 = -2*ln(U1)*cos(U2) y Z2 = -2*ln(U1)*sin(U2)','Z1 = sqrt(U1)*cos(pi*U2) y Z2 = sqrt(U2)*sin(pi*U1)','Z1 = ln(U1+U2) y Z2 = exp(U1*U2)'],
+ ['Box-Muller (1958) pasa de coordenadas polares con radio R = sqrt(-2·ln U1) y ángulo 2π·U2 a cartesianas, y da el par independiente Z1 = R·cos(2πU2), Z2 = R·sin(2πU2).','Omite la raíz cuadrada del radio R y el factor 2π dentro del argumento trigonométrico.','Sustituye el logaritmo por una raíz simple de U1 y se olvida del factor 2 en el ángulo.','Son operaciones sin relación con el cambio a polares: no dan densidad Normal estándar ni independencia.']],
+['¿Cuál es la ventaja computacional del método polar de Marsaglia frente al de Box-Muller y cuál es su condición de aceptación?',
+ ['Evita calcular funciones trigonométricas y acepta puntos V1, V2 ~ U(-1,1) si W = V1^2 + V2^2 <= 1','Evita el uso de logaritmos y acepta solo si V1 + V2 > 1','Genera directamente distribuciones Poisson aceptando valores cuando W = 0','Es un método de inversión pura que no descarta ninguna observación'],
+ ['Marsaglia y Bray (1964) sustituyen senos y cosenos por un mecanismo de aceptación-rechazo dentro del círculo unidad: W = V1² + V2² <= 1.','Conserva el logaritmo ln(W) en la transformación final, y la condición de aceptación es W <= 1.','Está diseñado para normales (no Poisson), y P(W = 0) es nula en un medio continuo.','Es de aceptación-rechazo: se descartan los puntos fuera del círculo unidad (W > 1).']],
+['En la simulación de vectores normales multivariantes X ~ N(mu, Sigma), ¿qué propiedad debe cumplir Sigma y cómo actúa la matriz de Cholesky L?',
+ ['Sigma debe ser simétrica definida positiva y L es triangular inferior con Sigma = L·L^T, de modo que X = mu + L·Z con Z ~ N(0,I)','Sigma debe ser diagonal nula y L es cuadrada asimétrica con L + L^T = I','Sigma no requiere simetría y L se calcula invirtiendo la media mu','Sigma es la matriz de residuos y L transforma variables discretas por búsqueda secuencial'],
+ ['Cholesky exige Sigma simétrica y definida positiva para factorizarla como L·L^T; luego X = mu + L·Z da el vector correlacionado a partir de normales independientes Z.','Una Sigma diagonal nula no tendría varianzas ni covarianzas, y la factorización requiere L·L^T = Sigma.','Si no es definida positiva, los elementos diagonales de L no se pueden calcular en reales; además L depende de Sigma, no de la media.','Cholesky es álgebra matricial para modelos gaussianos multivariantes, no una búsqueda secuencial discreta.']],
+['¿Cuáles son los pasos del algoritmo NORTA (Normal To Anything) para generar un vector X con marginales no normales Fi y correlación R?',
+ ['1) Generar Z ~ N(0,I); 2) Inducir correlación con Cholesky Z_corr = L·Z; 3) Obtener uniformes dependientes U = Phi(Z_corr); 4) Aplicar X_i = Fi^-1(U_i)','1) Búsqueda secuencial; 2) Multiplicar por la media; 3) Filtrar por MAE; 4) Calcular regresión OLS','1) Generar Poisson; 2) Convertir a binarias; 3) Ajustar Ridge; 4) Calcular residuos','1) Generar uniformes independientes; 2) Sumar la constante 1; 3) Aplicar Box-Muller; 4) Elevar al cuadrado'],
+ ['NORTA (Cario y Nelson, 1997): normales independientes Z → correlación con Cholesky (Z_corr = L·Z) → uniformes dependientes con la CDF normal Phi → cuantil inversa de cada marginal, X_i = Fi^-1(U_i).','Mezcla la simulación multivariante con filtrado y regresión OLS, que no forman parte del algoritmo.','Incluye conteos y regularización lineal ajenos a NORTA.','Omite la inducción de correlación con Cholesky y la inversa final Fi^-1.']],
+['En el preprocesamiento de datos, ¿cuál es la definición correcta de un dato ausente de tipo MAR (Missing at Random)?',
+ ['La probabilidad de ausencia depende de otras variables observadas, pero no del propio valor ausente','La probabilidad de que falte es totalmente independiente de cualquier valor, observado o no','La causa de la ausencia está directamente relacionada con el valor de la propia variable que falta','Es un valor atípico causado por errores de medición en sensores de alta frecuencia'],
+ ['En MAR la probabilidad de que falte un dato está ligada a otras covariables observadas X (por ejemplo, menor tasa de respuesta en un grupo demográfico).','Eso es MCAR (Missing Completely at Random).','La dependencia del propio valor ausente Y es la definición de MNAR (Missing Not at Random).','Eso describe un valor atípico (outlier), no un mecanismo de ausencia.']],
+['¿Por qué en la práctica se prefiere el dummy coding (k-1 columnas binarias) al one-hot encoding (k columnas) en regresión lineal?',
+ ['Para evitar la colinealidad perfecta en la matriz de diseño: la suma de las k columnas binarias daría un vector idéntico al intercepto','Porque el one-hot incrementa la varianza del error irreducible hasta infinito','Porque el dummy coding requiere calcular la matriz de Cholesky en cada iteración','Porque las variables cualitativas solo pueden codificarse por orden alfabético entero'],
+ ['El dummy coding deja fuera una categoría de referencia (k-1 dummies) y evita la trampa de la variable dummy: colinealidad perfecta, que impide invertir X^T X en MCO.','La redundancia afecta a la invertibilidad de la matriz de diseño y a la estimabilidad, no a la varianza irreducible del ruido.','Codificar categorías no requiere Cholesky.','La codificación ordinal impone una jerarquía numérica injustificada y no es el motivo del dummy coding.']],
+['En la frecuencia de siniestros, ¿cómo se incorpora la exposición al riesgo E en el modelo lineal generalizado y qué coeficiente se le asigna?',
+ ['Como log(E) en la escala lineal, con coeficiente fijo igual a 1 (no se estima)','Se multiplica por el parámetro lambda de Ridge y se estima por OLS','Se penaliza con la norma l1 para reducir su peso a cero','Como variable polinómica cuadrática con intercepto nulo'],
+ ['La exposición entra como offset log(E) con coeficiente fijo 1, lo que garantiza proporcionalidad estricta con el riesgo expuesto.','El offset es un término conocido: su coeficiente no se estima ni se penaliza.','Anular el offset eliminaría la ponderación por el tiempo de exposición de la póliza.','Es un término fijo, no un polinomio con parámetros a estimar.']],
+['Al comparar AIC = -2l + 2p y BIC = -2l + p·ln(n), ¿cuál es la diferencia en la penalización de la complejidad cuando n >= 8?',
+ ['BIC penaliza más al multiplicar p por ln(n), y favorece modelos más parsimoniosos','AIC penaliza el número de observaciones n mientras que BIC solo evalúa el SSE dentro de muestra','Ambos aplican exactamente la misma penalización cuadrática sobre los coeficientes','AIC requiere p > n y BIC exige residuos no homocedásticos'],
+ ['Como ln(n) > 2 para todo n >= 8, la penalización p·ln(n) de BIC es más estricta que 2p de AIC, y BIC elige modelos más simples.','AIC incluye -2l y penaliza con 2p, independientemente de n.','Sus penalizaciones (2p frente a p·ln(n)) son distintas.','Ninguno exige p > n ni presupone heterocedasticidad.']],
+['¿Cuál es la restricción estructural del Backward Stepwise Selection que no afecta a Forward Stepwise?',
+ ['Backward necesita n > p para poder ajustar el modelo completo inicial','Forward exige variables categóricas y Backward solo continuas','Backward empieza sin predictores e incorpora variables de dos en dos','Forward requiere invertir la matriz de correlaciones con NORTA en cada paso'],
+ ['Backward arranca con las p variables, lo que exige n > p; Forward parte del modelo nulo y puede usarse en alta dimensión.','Ambos admiten covariables cuantitativas o cualitativas.','Empezar sin predictores es propio de Forward, y Backward elimina de una en una.','Forward evalúa con p-valores o AIC/BIC, sin simulación NORTA.']],
+['¿En qué consiste K-Fold Cross-Validation y cuál es el valor de K en Leave-One-Out (LOOCV)?',
+ ['Divide la muestra en K bloques disjuntos y promedia el error en los K pliegues de validación; en LOOCV, K = n','Divide los datos en 2 bloques fijos sin iterar; en LOOCV, K = 0','Entrena con el 100 % de los datos y valida sobre variables simuladas con Box-Muller','Evalúa solo el error dentro de muestra fijando K = p'],
+ ['K-Fold usa K-1 bloques para entrenar y 1 para validar, rotando; LOOCV es el caso extremo con K igual al número de observaciones n.','Dividir en 2 bloques sin rotar es el hold-out, y LOOCV fija K = n.','La CV usa datos empíricos no vistos en cada bloque, no datos sintéticos.','El objetivo es estimar la capacidad predictiva fuera de muestra, y K es el número de pliegues, no de predictores.']],
+['¿Qué caracteriza al estimador LASSO (Least Absolute Shrinkage and Selection Operator)?',
+ ['Incorpora una penalización l1, suma de |beta_j|, que puede forzar coeficientes exactamente a cero (esparsidad)','Añade una penalización cuadrática l2 que conserva todas las variables','No tiene hiperparámetro lambda y se calcula con una solución analítica cerrada','Aumenta la magnitud de los coeficientes para evitar la falta de ajuste'],
+ ['LASSO (Tibshirani, 1996) usa la norma l1, no diferenciable en el origen, que anula coeficientes y selecciona variables automáticamente.','La penalización l2 que mantiene todas las variables es Ridge.','LASSO necesita lambda > 0 y no tiene solución cerrada: se usan algoritmos numéricos como el descenso por coordenadas.','LASSO reduce (encoge) los coeficientes hacia cero para controlar la varianza y el sobreajuste.']],
+['¿Cuál es la expresión matricial del estimador Ridge y cómo reacciona ante multicolinealidad severa?',
+ ['beta_Ridge = (X^T X + lambda I)^-1 X^T Y; garantiza la invertibilidad y estabiliza las estimaciones','beta_Ridge = (X^T X)^-1 X^T Y - lambda, eliminando las covariables correlacionadas','beta_Ridge = X^T Y / lambda, sin necesidad de datos observados','beta_Ridge = (X X^T)^-1 lambda, que solo se resuelve si p > n'],
+ ['Ridge suma lambda·I a X^T X, así que la matriz siempre es invertible y las estimaciones son estables aunque haya multicolinealidad.','(X^T X)^-1 X^T Y es OLS; Ridge no resta lambda ni anula coeficientes.','Requiere la matriz de diseño X (n × p) y la identidad I.','La inversión es sobre X^T X (p × p) y vale tanto con n > p como con p > n.']],
+['En optimización restringida con p = 2, ¿cómo se explican las tangencias que dan coeficientes nulos en LASSO frente a Ridge?',
+ ['La región de LASSO es un diamante (norma l1) con vértices sobre los ejes; la de Ridge es un círculo (norma l2) sin esquinas','La restricción de Ridge es una hipérbola abierta y la de LASSO una recta inclinada sin intersección','LASSO genera una esfera tridimensional y Ridge un cuadrado no convexo','Ambas regiones son rectangulares y las tangencias son aleatorias'],
+ ['En p = 2, |b1| + |b2| <= s forma un diamante con vértices en los ejes; las elipses de nivel del SSE suelen tocarlo en un vértice, donde un beta_j vale 0. El círculo de Ridge no tiene vértices.','Ambas regiones son figuras convexas y acotadas centradas en el origen.','Con p = 2 las regiones son planas, y la norma l2 da contornos circulares suaves.','Las regiones difieren por las propiedades de las normas l1 y l2, y eso determina la esparsidad.']],
+['En Elastic Net, ¿cuál es la función objetivo penalizada y qué hacen los hiperparámetros (lambda, alpha)?',
+ ['Minimiza SSE + lambda·[(1-alpha)·l2 + alpha·l1]: lambda controla la intensidad global y alpha en [0,1] pondera Ridge (alpha=0) frente a LASSO (alpha=1)','Minimiza el MAE multiplicando alpha por el p-valor y fijando lambda en la media muestral','Con alpha=1 cancela la penalización l1 y el modelo es OLS sin intercepto','Aplica selección stepwise ajustando alpha con la prueba de Box-Muller'],
+ ['Elastic Net (Zou y Hastie, 2005) combina l2 y l1 con el parámetro alpha: selecciona grupos de variables correlacionadas y reduce la varianza a la vez.','La pérdida es el SSE (o log-verosimilitud) y (lambda, alpha) se calibran con validación cruzada en rejilla.','Con alpha = 1 la penalización es 100 % LASSO (l1), no OLS.','Es regularización continua, independiente del stepwise discreto y de la generación de normales.']]
+]},
+{ id: 't2', name: 'Test 2', qs: [
+['¿Cuál es la expresión obtenida con la transformada inversa para generar una Exponencial de parámetro lambda a partir de U ~ U(0,1)?',
+ ['X = -(1 / lambda) * ln(1 - U)','X = lambda * ln(1 - U)','X = exp(-lambda * U)','X = -lambda * ln(U)'],
+ ['Al resolver F(x) = 1 - exp(-lambda·x) = U y despejar x se obtiene X = -(1/lambda)·ln(1 - U).','Multiplica por lambda en lugar de dividir entre -lambda.','Es la evaluación directa de la acumulada, no la cuantil inversa.','Multiplica por lambda en vez de 1/lambda e ignora el complemento (1-U).']],
+['¿Cuál es la regla de actualización de un GCL y la condición de Hull y Dobell sobre c y m para el período máximo?',
+ ['Zi = (a * Zi-1 + c) mod m, con c y m coprimos (mcd(c, m) = 1)','Zi = (a * Zi-1 + c) / m, con c y m pares','Zi = (a * Zi-1 - c) mod m, con c múltiplo exacto de m','Zi = (a * Zi-1) mod m, con c mayor que m'],
+ ['El GCL genera enteros con Zi = (a·Zi-1 + c) mod m, y la primera condición de Hull y Dobell pide c y m primos entre sí para que el período llegue a m.','Cambia el módulo por una división y exige c y m pares, lo que les daría el divisor común 2 y violaría la coprimicidad.','Cambia la suma de c por una resta y exige c múltiplo de m: entonces c mod m = 0 y se anula la condición de período máximo.','Es un generador multiplicativo (c = 0), que no puede alcanzar período m.']],
+['¿Cuáles son los cuatro requisitos esenciales de un generador determinista de números pseudoaleatorios para ser óptimo en simulación actuarial?',
+ ['Distribución uniforme equiprobable U(0,1), independencia estadística, período extremadamente largo y alta eficiencia computacional','Distribución Normal estándar, correlación serial unitaria, período corto y cálculo iterativo manual','Varianza nula, asimetría discreta, imposibilidad de reproducir la semilla y solo valores enteros','Distribución de Poisson, heterocedasticidad, dependencia determinista lineal y ausencia de módulo'],
+ ['Los pseudoaleatorios deben ser uniformes en (0,1), independientes, no repetirse en períodos cortos y generarse rápido.','La base es la uniforme U(0,1) (no la Normal) y se exige independencia estricta (no correlación).','Debe ser reproducible con la semilla (set.seed()) y tener variabilidad uniforme.','La fuente fundamental es la uniforme continua y se requiere independencia, no dependencia determinista.']],
+['¿En qué se diferencia el Leave-One-Out (LOOCV) de un K-Fold estándar con K = 5 o K = 10?',
+ ['LOOCV fija K = n: entrena n modelos con n-1 observaciones y evalúa en 1 cada vez; reduce el sesgo pero sube el coste computacional y la varianza','LOOCV divide la muestra en 2 partes iguales y no itera','K-Fold con K = 5 evalúa solo en la muestra de entrenamiento, sin reservar validación','LOOCV sustituye las métricas de error por el AIC calculado en la muestra completa'],
+ ['LOOCV es el caso límite de K-Fold con K = n: ajusta n regresiones dejando fuera una observación cada vez. Es casi insesgado, pero costoso y con estimadores correlacionados de mayor varianza.','Dividir en 2 partes fijas es el hold-out.','K-Fold reserva en cada iteración un bloque (20 % con K = 5) solo para validar fuera de muestra.','LOOCV es una técnica empírica de remuestreo basada en errores de predicción fuera de muestra, no una aproximación con AIC.']],
+['¿Qué restricción operativa tiene el Backward Stepwise que no condiciona al Forward Stepwise?',
+ ['Backward requiere n > p para poder estimar el modelo completo inicial','Forward solo se puede usar si los datos son Poisson','Backward inicia el proceso sin ningún predictor','Forward exige eliminar antes todas las variables continuas'],
+ ['Backward parte del modelo saturado con las p variables, y necesita n > p para no tener matrices no invertibles. Forward arranca del modelo nulo y sirve incluso con p >= n.','Forward es aplicable a modelos lineales generales de cualquier naturaleza.','Arrancar sin predictores (modelo nulo) es propio de Forward.','Ambos procesan predictores continuos y cualitativos codificados.']],
+['¿Cómo actúa la penalización cuadrática l2 en Ridge y cuál es su expresión matricial?',
+ ['Añade lambda·sum(beta_j²); beta_Ridge = (X^T X + lambda I)^-1 X^T Y, que estabiliza la inversión ante multicolinealidad','Añade lambda·sum(|beta_j|) y anula coeficientes seleccionando variables','Cancela la matriz de diseño X y convierte los coeficientes en uniformes','Requiere X^T X singular y no admite calibrar lambda'],
+ ['Ridge usa la norma l2, que suma lambda a la diagonal de X^T X: (X^T X + lambda I) siempre es invertible y reduce la varianza de los coeficientes sin llevarlos a cero.','Esa es la penalización l1 de LASSO.','Conserva la matriz X y estima coeficientes deterministas penalizados.','Resuelve precisamente la singularidad de X^T X, y lambda se calibra con validación cruzada.']],
+['¿Cuál es la característica geométrica de la restricción l1 en LASSO y qué efecto tiene sobre los coeficientes?',
+ ['La región es un diamante con vértices en los ejes; las tangencias en ellos anulan coeficientes (esparsidad)','La región es una esfera lisa que nunca toca los ejes y deja los coeficientes intactos','Aumenta todos los coeficientes hasta infinito para eliminar el sesgo','Transforma las categóricas en componentes principales ortogonales'],
+ ['Con sum(|beta_j|) <= t la región tiene vértices sobre los ejes; la pérdida suele tocarla en ellos, y los coeficientes quedan exactamente en cero (selección de variables).','La región circular sin esquinas es la restricción l2 de Ridge.','LASSO encoge los coeficientes hacia cero para controlar el sobreajuste y la varianza.','LASSO es regularización penalizada, no reducción por componentes principales.']],
+['¿En qué consiste Elastic Net y cuál es el papel del parámetro de mezcla alpha?',
+ ['Combina l2 (Ridge) y l1 (LASSO) con (1-alpha)·l2 + alpha·l1; alpha en [0,1] alterna entre Ridge (0) y LASSO (1)','Sustituye mínimos cuadrados por una búsqueda secuencial y alpha es el número de pliegues de la CV','Anula la penalización con alpha = 0,5 y convierte el modelo en un GCL de período máximo','Exige p > n y alpha fija el factor de escala de la Pareto'],
+ ['Elastic Net une la gestión de variables multicolineales de Ridge y la selección de LASSO; alpha pondera el peso relativo de l1 y l2.','Alpha no es el número de pliegues (eso es K), sino el balance entre las penalizaciones l1 y l2.','Con alpha = 0,5 se aplica 50 % Ridge y 50 % LASSO; no anula la penalización ni tiene que ver con el GCL.','Es regularización lineal penalizada, no una transformación de la Pareto.']],
+['Al despejar X en la Pareto con F(x) = 1 - (xm / x)^alpha por inversión, ¿qué fórmula se obtiene?',
+ ['X = xm / (1 - U)^(1 / alpha)','X = xm * (1 - U)^alpha','X = (1 - U) / (xm^alpha)','X = xm / (1 - U)^alpha'],
+ ['De 1 - (xm/x)^alpha = U sale (xm/x)^alpha = 1-U, y despejando X = xm / (1-U)^(1/alpha).','Multiplica por el término potencial en vez de dividir entre (1-U)^(1/alpha).','Invierte la estructura del parámetro de escala xm.','Omite la inversa del parámetro de forma: usa alpha en lugar de 1/alpha.']],
+['Para una Weibull con F(x) = 1 - exp(-(x/beta)^alpha), ¿cuál es la función cuantil inversa para simularla?',
+ ['X = beta * [-ln(1 - U)]^(1 / alpha)','X = alpha * [-ln(U)]^beta','X = beta / [-ln(1 - U)]^alpha','X = [-ln(1 - U)] / (beta * alpha)'],
+ ['De U = 1 - exp(-(x/beta)^alpha) se tiene (x/beta)^alpha = -ln(1-U), luego X = beta·[-ln(1-U)]^(1/alpha).','Intercambia escala beta y forma alpha y omite el complemento (1-U).','Divide la escala entre el término logarítmico en lugar de multiplicarla.','Cambia la potencia 1/alpha por una división lineal.']],
+['¿Qué ecuaciones usa Box-Muller para convertir dos uniformes independientes U1, U2 ~ U(0,1) en dos normales estándar independientes Z1 y Z2?',
+ ['Z1 = sqrt(-2*ln(U1))*cos(2*pi*U2) y Z2 = sqrt(-2*ln(U1))*sin(2*pi*U2)','Z1 = -2*ln(U1)*cos(U2) y Z2 = -2*ln(U1)*sin(U2)','Z1 = sqrt(U1)*cos(pi*U2) y Z2 = sqrt(U2)*sin(pi*U1)','Z1 = ln(U1)*U2 y Z2 = exp(U2)*U1'],
+ ['Con coordenadas polares R = sqrt(-2·ln U1) y Theta = 2π·U2, Z1 = R·cos(Theta) y Z2 = R·sin(Theta) son N(0,1) e independientes.','Omite la raíz cuadrada del módulo R y el factor 2π en las funciones trigonométricas.','Usa la raíz directa de U1 sin el logaritmo de escala y se olvida del factor 2 en el ángulo.','No corresponden al cambio de variable a polares gaussianas.']],
+['¿Cuál es la ventaja fundamental del método polar de Marsaglia y Bray frente a Box-Muller directo?',
+ ['Evita calcular seno y coseno con un aceptación-rechazo sobre el círculo unidad, W = V1² + V2² <= 1','Evita el uso de logaritmos y raíces cuadradas','Genera enteros discretos sin necesidad de uniformes continuas','Permite simular variables con covarianza negativa fijada en -1'],
+ ['Marsaglia sustituye cos(2πU2) y sin(2πU2) por V1/sqrt(W) y V2/sqrt(W) tras aceptar puntos dentro del disco unidad, lo que acelera el cálculo.','Conserva la raíz cuadrada y el logaritmo natural: sqrt(-2·ln(W)/W).','Es un método para normales N(0,1) continuas.','Genera normales independientes (covarianza nula).']],
+['¿Qué requisito debe cumplir la matriz de varianzas-covarianzas Sigma para aplicar Cholesky en la generación de normales multivariantes?',
+ ['Ser simétrica y definida positiva, para descomponerla como Sigma = L·L^T con L triangular inferior','Ser asimétrica y singular con valores propios negativos','Ser diagonal con ceros en la diagonal principal','Ser rectangular n × p de rango 1'],
+ ['Cholesky pide Sigma simétrica y definida positiva (todos los valores propios > 0); así se calcula L y se transforman las normales independientes Z con X = mu + L·Z.','Si Sigma fuera singular o no definida positiva, la diagonal de L requeriría raíces de números negativos.','Con diagonal nula las variables no tendrían varianza.','Una matriz de varianzas-covarianzas de k variables es cuadrada, k × k.']],
+['¿Cuál es la secuencia de etapas del algoritmo NORTA para generar X con marginales no normales Fi y matriz de correlación R?',
+ ['1) Generar Z ~ N(0,I); 2) Inducir correlación Z_corr = L·Z; 3) Pasar a uniformes dependientes U = Phi(Z_corr); 4) X_i = Fi^-1(U_i)','1) Generar uniformes independientes; 2) Multiplicar por la media mu; 3) Aplicar dummy coding; 4) Filtrar por AIC','1) Generar Poisson; 2) Convertir a binarias; 3) Ajustar Ridge; 4) Calcular residuos','1) Generar con Box-Muller; 2) Aplicar selección Backward; 3) Restar la exposición log(E); 4) Elevar al cuadrado'],
+ ['NORTA genera normales independientes, induce la correlación con Cholesky, las lleva a uniformes con la acumulada normal Phi y aplica la cuantil inversa Fi^-1 de cada marginal.','Mezcla la simulación de dependencia con preprocesamiento y selección de modelos.','NORTA no usa modelos de conteo ni regularización.','Incorpora etapas arbitrarias ajenas a NORTA.']],
+['En el tratamiento de datos ausentes, ¿cuál es la definición de Missing Completely at Random (MCAR)?',
+ ['La probabilidad de que un dato falte es independiente tanto de los valores observados como de los no observados','La probabilidad de ausencia depende de otras covariables observadas, pero no del propio dato ausente','La ausencia está condicionada por el valor de la propia variable ausente','Es un error de codificación causado por la trampa de la variable dummy'],
+ ['En MCAR los datos ausentes son una muestra aleatoria simple del total: la ausencia no depende de ninguna variable, observada o no.','Esa descripción es la de MAR (Missing at Random).','La dependencia del propio valor ausente define MNAR (Missing Not at Random).','No tiene relación con la codificación de cualitativas ni con la colinealidad.']],
+['Al transformar una cualitativa de k categorías para una regresión lineal, ¿por qué se usa dummy coding (k-1 columnas) y no one-hot (k columnas)?',
+ ['Para evitar la colinealidad perfecta (trampa de la variable dummy): la suma de las k columnas daría un vector de unos y X^T X no sería invertible','Porque el one-hot altera el orden de los datos ausentes MAR','Porque el dummy coding fuerza que la penalización Elastic Net sea alpha = 0','Porque R solo admite variables binarias estrictas'],
+ ['Las k columnas junto con el intercepto son linealmente dependientes (su suma es el vector de unos), y eso impide invertir la matriz en mínimos cuadrados.','La trampa dummy es un problema matricial (rango incompleto), no del patrón de ausencia.','La codificación es independiente del hiperparámetro alpha de Elastic Net.','Es una exigencia del álgebra de la regresión lineal, no una limitación del software.']],
+['En un GLM Poisson para la frecuencia de siniestros, ¿cómo se introduce el tiempo o volumen de exposición al riesgo E?',
+ ['Como término de ajuste fijo (offset) log(E), con coeficiente fijado en 1 y sin estimar','Como covariable ordinaria cuyo beta se estima por MCO','Penalizándola con la norma l2 de Ridge','Multiplicándola por las uniformes U de Box-Muller'],
+ ['Como mu = E·lambda, con enlace logarítmico log(mu) = log(E) + X·beta. Por eso log(E) entra como offset con coeficiente 1, que garantiza la proporcionalidad con la exposición.','Si se estimara el coeficiente de log(E), se perdería la proporcionalidad directa con la exposición.','El offset no se penaliza ni se encoge.','El offset es una variable observada, no se multiplica por simulación estocástica.']],
+['Al comparar AIC y BIC, ¿cuál impone una penalización más fuerte sobre el número de parámetros p cuando n >= 8?',
+ ['BIC (p·ln(n)) penaliza más que AIC (2p), porque ln(n) > 2 para n >= 8, y favorece modelos más parsimoniosos','AIC penaliza más porque multiplica p por el logaritmo de la exposición','Ambos aplican la misma penalización 2p, independiente de n','BIC solo penaliza cuando p es mayor que n'],
+ ['Las penalizaciones son 2p (AIC) y p·ln(n) (BIC). Como ln(8) ≈ 2,079 > 2, desde n = 8 BIC penaliza más y elige modelos con menos variables.','AIC penaliza con 2p constante y no incluye n ni la exposición.','La penalización de BIC varía con el tamaño muestral n mediante ln(n).','BIC se aplica con cualquier n y penaliza la complejidad en todo modelo.']],
+['En la simulación por aceptación y rechazo, ¿qué condición deben cumplir la función propuesta g(x) y la constante c?',
+ ['Existe c >= 1 tal que c·g(x) >= f(x) para todo x del soporte de la densidad objetivo f(x)','c debe ser estrictamente menor que 0 y g(x) una constante nula','g(x) debe ser la derivada discreta de la Pareto','La probabilidad de aceptación debe ser exactamente 0 en todas las iteraciones'],
+ ['La envolvente c·g(x) debe cubrir a la densidad objetivo f(x) en todo el dominio; se acepta Y cuando U <= f(Y) / (c·g(Y)).','Con c < 0 o densidad nula se violan las propiedades de probabilidad y la cobertura c·g(x) >= f(x).','g(x) puede ser cualquier densidad (continua o discreta) fácil de simular.','Si la probabilidad de aceptación fuera 0, el algoritmo nunca generaría datos.']],
+['¿Qué ocurre con el período máximo de un generador congruencial multiplicativo (c = 0) frente a un GCL mixto (c > 0)?',
+ ['No puede alcanzar la longitud m: queda limitado a m - 1 (o m/4 si m es potencia de 2)','Aumenta hasta 2·m al eliminar c','Permite generar ceros sin detener la secuencia','Cumple automáticamente todas las condiciones de Hull y Dobell'],
+ ['Con c = 0, el valor Z = 0 es un punto fijo absorbente (0 mod m = 0), así que se excluye el estado cero. El período máximo baja a m - 1 (m primo) o m/4 (m = 2^e).','Quitar c reduce los estados alcanzables: no se puede llegar a m ni a 2m.','Si apareciera un cero, todos los valores siguientes serían 0 y la secuencia se destruiría.','Hull y Dobell exigen mcd(c, m) = 1, y con c = 0 es mcd(0, m) = m ≠ 1.']]
+]}
+];
+
+const root = document.getElementById('quiz');
+if (!root) return;
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const LET = ['A', 'B', 'C', 'D'];
+let cur = TESTS[0], order = [], idx = 0, answers = [], done = false;
+
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function start(t) {
+  cur = t; idx = 0; done = false; answers = new Array(t.qs.length).fill(null);
+  order = t.qs.map(() => shuffle([0, 1, 2, 3]));
+  render();
+}
+function bar(extra) {
+  return '<div class="quiz-bar">' + TESTS.map(t => '<button type="button" data-t="' + t.id + '" aria-pressed="' + (t.id === cur.id) + '">' + t.name + '</button>').join('') + (extra || '') + '</div>';
+}
+function render() {
+  if (done) return renderEnd();
+  const q = cur.qs[idx], ord = order[idx], ans = answers[idx], n = cur.qs.length;
+  const hits = answers.filter(a => a === 0).length;
+  let h = bar('<span class="qz-prog">Pregunta ' + (idx + 1) + ' de ' + n + ' · aciertos ' + hits + '</span>');
+  h += '<div class="qz-track"><i style="width:' + (idx / n * 100) + '%"></i></div>';
+  h += '<div class="qz-card"><span class="qn">' + esc(cur.name.toUpperCase()) + ' · PREGUNTA ' + (idx + 1) + '</span><p class="stmt">' + esc(q[0]) + '</p><div class="qz-opts">';
+  ord.forEach((orig, pos) => {
+    let cls = 'qz-opt';
+    if (ans !== null) cls += ' show ' + (orig === 0 ? 'ok' : 'bad') + (orig === ans ? ' picked' : '');
+    h += '<button type="button" class="' + cls + '" data-o="' + orig + '"' + (ans !== null ? ' disabled' : '') + '><span class="row"><span class="lt">' + LET[pos] + ')</span><span>' + esc(q[1][orig]) + '</span></span>'
+      + '<span class="why"><b>' + (orig === 0 ? 'CORRECTA' : 'INCORRECTA') + (orig === ans ? ' · TU RESPUESTA' : '') + '</b>' + esc(q[2][orig]) + '</span></button>';
+  });
+  h += '</div>';
+  if (ans !== null) h += '<p class="qz-verdict ' + (ans === 0 ? 'ok' : 'bad') + '">' + (ans === 0 ? '¡Correcto!' : 'Incorrecto. La respuesta correcta es la ' + LET[ord.indexOf(0)] + ').') + '</p>';
+  h += '</div><div class="quiz-nav">' + (ans !== null ? '<button type="button" class="main" data-next>' + (idx === n - 1 ? 'Ver resultado' : 'Siguiente →') + '</button>' : '') + '</div>';
+  root.innerHTML = h;
+}
+function renderEnd() {
+  const n = cur.qs.length, hits = answers.filter(a => a === 0).length;
+  const fails = cur.qs.map((q, i) => [q, i]).filter(([, i]) => answers[i] !== 0);
+  let h = bar() + '<div class="qz-card"><span class="qn">' + esc(cur.name.toUpperCase()) + ' · RESULTADO</span><p class="qz-score">' + hits + ' / ' + n + ' <span style="font-size:18px;color:var(--muted)">(' + Math.round(hits / n * 100) + ' %)</span></p>';
+  if (fails.length) {
+    h += '<p>Para repasar:</p><ol class="qz-fails">' + fails.map(([q, i]) => '<li>' + esc(q[0]) + '</li>').join('') + '</ol>';
+  } else h += '<p class="qz-verdict ok">Sin fallos.</p>';
+  h += '</div><div class="quiz-nav"><button type="button" class="main" data-retry>Repetir ' + esc(cur.name) + '</button>' + (fails.length ? '<button type="button" data-retry-fails>Repetir solo los fallos</button>' : '') + '</div>';
+  root.innerHTML = h;
+}
+root.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-t],[data-o],[data-next],[data-retry],[data-retry-fails]');
+  if (!t) return;
+  if (t.dataset.t) { start(TESTS.find(x => x.id === t.dataset.t)); return; }
+  if (t.hasAttribute('data-retry')) { start(TESTS.find(x => x.id === cur.id)); return; }
+  if (t.hasAttribute('data-retry-fails')) {
+    const keep = cur.qs.filter((q, i) => answers[i] !== 0);
+    cur = { id: cur.id, name: cur.name + ' (fallos)', qs: keep };
+    idx = 0; done = false; answers = new Array(keep.length).fill(null); order = keep.map(() => shuffle([0, 1, 2, 3])); render(); return;
+  }
+  if (t.dataset.o != null && answers[idx] === null) { answers[idx] = +t.dataset.o; render(); return; }
+  if (t.hasAttribute('data-next')) { if (idx === cur.qs.length - 1) done = true; else idx++; render(); root.scrollIntoView({ block: 'start' }); }
+});
+start(TESTS[0]);
 })();
 </script>
 <script>if(window.top!==window)document.querySelectorAll('a[target="_top"]').forEach(function(a){a.style.display="none"});</script></body>
