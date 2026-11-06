@@ -1688,9 +1688,25 @@ function updateCosmos(dt) {
     controls.autoRotate = state.orbitsOn && !state.selected && !paused && !state.transitioning;
 }
 
+// Con una guía abierta el cosmos no necesita 60 fps: se pausa si la guía está a pantalla completa o la pestaña
+// está oculta, y se baja a ~20 fps si la guía solo tapa parte de la escena. No se destruye ni se recrea nada
+// (escena, modelos, texturas y post-proceso siguen en memoria), así que al cerrar la guía se continúa en el acto.
+const GUIDE_FRAME_S = 1 / 20;
+let idleAccum = 0;
 function animate() {
     requestAnimationFrame(animate);
-    const dt = Math.min(clock.getDelta(), 0.05);
+    const raw = clock.getDelta();
+    const guideShown = !guide.hidden;
+    if (document.hidden || (guideShown && panel.classList.contains('is-full'))) { idleAccum = 0; return; }
+    let dt;
+    if (guideShown) {
+        idleAccum += raw;
+        if (idleAccum < GUIDE_FRAME_S) return;
+        dt = Math.min(idleAccum, 0.05);
+        idleAccum = 0;
+    } else {
+        dt = Math.min(raw, 0.05);
+    }
     const t = clock.elapsedTime;
 
     if (state.scene === 'portada') {
