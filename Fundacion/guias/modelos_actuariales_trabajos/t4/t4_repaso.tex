@@ -1,30 +1,120 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[spanish,es-tabla]{babel}
-\usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs,array,graphicx,float,xcolor,microtype,caption,enumitem,textcomp}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
 \newcommand{\euro}{\texteuro}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage[hidelinks]{hyperref}
-\captionsetup{font=small,labelfont=bf}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
 \newcommand{\VaR}{\mathrm{VaR}}
 \newcommand{\TVaR}{\mathrm{TVaR}}
-\title{\textbf{Tema 4 -- Preguntas de repaso}\\[2pt]\large Gesti\'on de capital y medidas coherentes de riesgo: VaR y TVaR}
-\author{Luiz Luzuriaga}
-\date{M\'aster en Ciencias Actuariales y Financieras -- Universidad de Alcal\'a\\
-Matem\'atica Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora\\ Curso 2026-27}
-\begin{document}
-\maketitle
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
 
-\section*{Pregunta 1 -- Los cuatro axiomas de Artzner y su papel en la gesti\'on de capital}
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 4: Preguntas de repaso}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas razonadas a las tres preguntas de repaso del tema. Tema 4 (Gestión de capital y medidas coherentes de riesgo: VaR y TVaR): Axiomas de Artzner, subaditividad del TVaR frente al VaR y su aplicación en Solvencia II y Basilea.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: VaR, TVaR, medidas coherentes, subaditividad, preguntas de repaso.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class work for Topic 4 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: review questions with actuarial reasoning and numerical evidence.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: VaR, TVaR, coherent risk measures, subadditivity, review questions.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Tema 4: Gestión de capital y medidas coherentes de riesgo: VaR y TVaR}
+\label{sec:tema4repaso}
+\noindent
+Respuestas razonadas a las tres preguntas de repaso del tema. Material de referencia: diapositivas del Tema 4 (Prof. Hugo González Riera).
+
+\subsection{Pregunta 1 -- Los cuatro axiomas de Artzner y su papel en la gesti\'on de capital}
 
 \noindent\textbf{Enunciado.} Enuncia los cuatro axiomas de Artzner y explica, con tus propias palabras, qu\'e papel juega cada uno en la gesti\'on de capital.
 
-\subsection*{Marco}
+\subsubsection*{Marco}
 $X$ representa una \emph{p\'erdida} (valores mayores son peor) y $\rho(X)$ el capital que se exige por ella. $\rho$ es \textbf{coherente} si cumple:
 
 \begin{enumerate}[leftmargin=*]
@@ -38,7 +128,7 @@ $X$ representa una \emph{p\'erdida} (valores mayores son peor) y $\rho(X)$ el ca
 \emph{Papel:} da significado de \emph{capital} a $\rho$: a\~nadir $c$ euros ciertos reduce el requerimiento exactamente en $c$. De aqu\'i, $\rho(X-\rho(X))=0$.
 \end{enumerate}
 
-\subsection*{Consecuencias \'utiles (todas se deducen de los cuatro axiomas)}
+\subsubsection*{Consecuencias \'utiles (todas se deducen de los cuatro axiomas)}
 \begin{itemize}[leftmargin=*,itemsep=2pt]
 \item $\rho(0)=0$ (homogeneidad con $\lambda=2$ sobre $0$) y $\rho(c)=c$: una p\'erdida cierta exige exactamente su importe.
 \item $\rho(X-\rho(X))=0$: aportar $\rho(X)$ en activos seguros vuelve aceptable la posici\'on.
@@ -47,7 +137,7 @@ $X$ representa una \emph{p\'erdida} (valores mayores son peor) y $\rho(X)$ el ca
 \item \textbf{Conjunto de aceptaci\'on:} $\mathcal A_\rho=\{X:\rho(X)\le0\}$ es un cono convexo y $\rho(X)=\inf\{m:X-m\in\mathcal A_\rho\}$. El criterio de Solvencia~II ($P(X>0)\le0{,}5\%$) define un conjunto que en general no es convexo: es la versi\'on geom\'etrica de que el VaR no es subaditivo.
 \end{itemize}
 
-\subsection*{Qu\'e medidas cumplen qu\'e}
+\subsubsection*{Qu\'e medidas cumplen qu\'e}
 \begin{center}
 \small
 \begin{tabular}{lcccc}
@@ -69,16 +159,16 @@ TVaR / ES & s\'i & s\'i & s\'i & s\'i\\
 
 \bigskip\hrule\bigskip
 
-\section*{Pregunta 2 -- Los dos bonos: VaR no subaditivo, TVaR s\'i}
+\subsection{Pregunta 2 -- Los dos bonos: VaR no subaditivo, TVaR s\'i}
 
 \noindent\textbf{Enunciado.} ?`Por qu\'e el ejemplo de los dos bonos independientes rompe la subaditividad del VaR pero no la del TVaR? Explica la intuici\'on sin repetir el c\'alculo completo.
 
-\subsection*{Intuici\'on}
+\subsubsection*{Intuici\'on}
 Cada bono (impago $2\%$, p\'erdida 100) tiene una probabilidad de p\'erdida \emph{inferior} a $1-p=2{,}5\%$. El VaR al 97,5\,\% mira solo \emph{si} la probabilidad de superar un umbral cabe en la cola de $2{,}5\%$, y para cada bono por separado la respuesta es s\'i: ``con $97{,}5\%$ de confianza, no pierdo nada'', de modo que $\VaR(A)=\VaR(B)=0$. Pero la cartera tiene al menos un impago con probabilidad $1-0{,}98^2=3{,}96\%>2{,}5\%$: el evento adverso \emph{cruza el umbral} al combinar, y el VaR de la cartera salta de $0$ a $100$ (efecto acantilado). El VaR es un solo punto de la distribuci\'on: ni ve que cada riesgo, aunque ``escondido'' bajo el percentil, es real, ni cu\'anto pierde la cartera m\'as all\'a del percentil.
 
 El TVaR \emph{promedia toda la cola}: $\TVaR_p=\frac1{1-p}\int_p^1\VaR_u\,du$. Cada bono tiene $\TVaR=80$ (con $2\%$ de probabilidad pierde 100, la cola de $2{,}5\%$ incluye esa masa); la cartera, $101{,}6$. Aporta lo que se pierde en la parte de la cola que s\'i se ve, y por eso no hay saltos.
 
-\subsection*{Por qu\'e es matem\'aticamente inevitable}
+\subsubsection*{Por qu\'e es matem\'aticamente inevitable}
 \begin{itemize}[leftmargin=*]
 \item \textbf{TVaR es subaditivo para cualquier dependencia.} Con la representaci\'on de Rockafellar--Uryasev, $\TVaR_p(Z)=\min_t\{t+\E[(Z-t)^+]/(1-p)\}$, y la desigualdad $(a+b)^+\le a^++b^+$:
 \[
@@ -89,7 +179,7 @@ No se usa independencia ni normalidad.
 \item \textbf{Cu\'ando el VaR s\'i es subaditivo:} Normal conjunta y, en general, distribuciones el\'ipticas con $p\ge50\%$: $\VaR_p=\mu+\sigma z_p$ y $\sigma(X+Y)\le\sigma_X+\sigma_Y$.
 \end{itemize}
 
-\subsection*{Con la correlaci\'on}
+\subsubsection*{Con la correlaci\'on}
 Con $P(A=1,B=1)=q^2+\rho\,q(1-q)$ y $\rho^*=\frac{2q-(1-p)-q^2}{q(1-q)}=0{,}745$:
 \begin{center}
 \small
@@ -113,11 +203,11 @@ Para $\rho<\rho^*$, $\VaR(A+B)=100>0=\VaR(A)+\VaR(B)$: no subaditivo, y adem\'as
 
 \bigskip\hrule\bigskip
 
-\section*{Pregunta 3 -- Consejo a un regulador: ?`migrar de VaR a TVaR?}
+\subsection{Pregunta 3 -- Consejo a un regulador: ?`migrar de VaR a TVaR?}
 
 \noindent\textbf{Enunciado.} Si tuvieras que aconsejar a un regulador de seguros sobre si migrar de VaR a TVaR, ?`qu\'e argumentos t\'ecnicos, pr\'acticos y de comparabilidad internacional le expondr\'ias?
 
-\subsection*{Argumentos a favor de migrar al TVaR / ES}
+\subsubsection*{Argumentos a favor de migrar al TVaR / ES}
 \begin{itemize}[leftmargin=*,itemsep=2pt]
 \item \textbf{Coherencia:} es subaditivo para cualquier dependencia; evita las se\~nales falsas de diversificaci\'on y el incentivo a fragmentar el grupo.
 \item \textbf{Sensibilidad a la cola:} el VaR a igual percentil no distingue una cola ligera de una catastr\'ofica. Dos carteras con el mismo VaR al 99,5\,\% pueden tener TVaR de $7{,}3$ y $25{,}4$ M\euro\ (ejemplo de una mezcla con catástrofe del $0{,}4\%$). El TVaR evita la ``optimizaci\'on de cola''.
@@ -125,7 +215,7 @@ Para $\rho<\rho^*$, $\VaR(A+B)=100>0=\VaR(A)+\VaR(B)$: no subaditivo, y adem\'as
 \item \textbf{Precedente:} Basilea sustituy\'o el VaR por el ES al 97,5\,\% (FRTB) tras la experiencia de 2008; el SST suizo usa ES al 99\,\%.
 \end{itemize}
 
-\subsection*{Argumentos a favor de mantener el VaR 99,5\,\%}
+\subsubsection*{Argumentos a favor de mantener el VaR 99,5\,\%}
 \begin{itemize}[leftmargin=*,itemsep=2pt]
 \item \textbf{Error de estimaci\'on.} El ES depende de la cola extrema, donde hay pocos datos; con una $t_4$, el error t\'ipico es del $21{,}2\%$ para el VaR 99,5\,\% y del $25{,}2\%$ para el ES 99\,\% con 250 observaciones ($9{,}0\%$ y $10{,}6\%$ con 2.000). En seguros, con un a\~no de horizonte y pasivos a muy largo plazo, los datos son mucho m\'as escasos que en una mesa de negociaci\'on con datos diarios.
 \item \textbf{Colas muy pesadas.} Con $\alpha\le1$ el ES no existe; con $\alpha$ cercano a 1 es enorme y muy inestable.
@@ -134,13 +224,13 @@ Para $\rho<\rho^*$, $\VaR(A+B)=100>0=\VaR(A)+\VaR(B)$: no subaditivo, y adem\'as
 \item \textbf{Comunicaci\'on y gobierno.} El VaR tiene una lectura directa (probabilidad de ruina del $0{,}5\%$, equivalente aproximado a un rating BBB).
 \end{itemize}
 
-\subsection*{Qu\'e nivel equivale a cu\'al}
+\subsubsection*{Qu\'e nivel equivale a cu\'al}
 No hay un nivel $p'$ universal con $\TVaR_{p'}=\VaR_{99{,}5\%}$: va del $98{,}7\%$ (Normal) al $98{,}4\%$ ($t_4$, Log-normal $\sigma=1$), $98{,}3\%$ (Pareto $\alpha=3$) y $98{,}0\%$ (Pareto $\alpha=2$). El cociente $\TVaR_{99\%}/\VaR_{99{,}5\%}$ va de $1{,}03$ (Normal) a $1{,}13$ ($t_4$) y $1{,}41$ (Pareto $\alpha=2$): pasar de VaR 99,5\,\% a ES 99\,\% (SST) endurece poco el capital con colas ligeras y mucho con colas pesadas.
 
-\subsection*{Comparabilidad internacional}
+\subsubsection*{Comparabilidad internacional}
 Solvencia~II: VaR 99,5\,\% a un a\~no; SST: ES 99\,\%; Basilea (FRTB): ES 97,5\,\% con horizontes de liquidez de 10 a 120 d\'ias; el \emph{Insurance Capital Standard} de la IAIS usa un VaR 99,5\,\%. Un cambio unilateral de la UE perjudicar\'ia la comparabilidad.
 
-\subsection*{Mi recomendaci\'on}
+\subsubsection*{Mi recomendaci\'on}
 \begin{enumerate}[leftmargin=*,itemsep=2pt]
 \item \textbf{No migrar de golpe}, sino \textbf{complementar}: mantener el VaR 99,5\,\% como medida de capital, y exigir en el ORSA y en modelos internos la comunicaci\'on del TVaR (por ejemplo, al 99\,\% y al 99,5\,\%) y an\'alisis de cola (\'indice de cola, escenarios extremos).
 \item \textbf{Controlar la optimizaci\'on de cola} con una prueba de coherencia: que el modelo interno informe del cociente TVaR/VaR y justifique valores an\'omalos.
@@ -148,7 +238,7 @@ Solvencia~II: VaR 99,5\,\% a un a\~no; SST: ES 99\,\%; Basilea (FRTB): ES 97,5\,
 \item \textbf{Vigilar la fragmentaci\'on:} supervisi\'on de grupo y reglas de aplicaci\'on que impidan beneficiarse de la falta de subaditividad.
 \end{enumerate}
 
-\subsection*{Referencias}
+\subsubsection*{Referencias}
 \begin{itemize}[leftmargin=*,itemsep=0pt]
 \item Artzner, P., Delbaen, F., Eber, J.-M. y Heath, D. (1999). Coherent measures of risk. \emph{Mathematical Finance}, 9(3).
 \item Acerbi, C. y Tasche, D. (2002). On the coherence of Expected Shortfall. \emph{Journal of Banking \& Finance}, 26(7).
@@ -157,4 +247,5 @@ Solvencia~II: VaR 99,5\,\% a un a\~no; SST: ES 99\,\%; Basilea (FRTB): ES 97,5\,
 \item Gneiting, T. (2011). Making and evaluating point forecasts. \emph{JASA}, 106.
 \item Basel Committee on Banking Supervision (2016). \emph{Minimum capital requirements for market risk}.
 \end{itemize}
+
 \end{document}

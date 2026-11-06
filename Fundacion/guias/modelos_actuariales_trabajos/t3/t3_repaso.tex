@@ -1,42 +1,133 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[spanish,es-tabla]{babel}
-\usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs,array,graphicx,float,xcolor,microtype,caption,enumitem,textcomp}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
 \newcommand{\euro}{\texteuro}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage[hidelinks]{hyperref}
-\captionsetup{font=small,labelfont=bf}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathrm{Var}}
 \newcommand{\Cov}{\mathrm{Cov}}
-\title{\textbf{Tema 3 -- Preguntas de repaso}\\[2pt]\large Modelo colectivo de riesgo: frecuencia, severidad y agregaci\'on}
-\author{Luiz Luzuriaga}
-\date{M\'aster en Ciencias Actuariales y Financieras -- Universidad de Alcal\'a\\
-Matem\'atica Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora\\ Curso 2026-27}
-\begin{document}
-\maketitle
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\TVaR}{\mathrm{TVaR}}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
 
-\section*{Pregunta 1 -- Por qu\'e $\Var(S)$ tiene dos t\'erminos}
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 3: Preguntas de repaso}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas razonadas a las tres preguntas de repaso del tema. Tema 3 (Modelo colectivo de riesgo): Frecuencia y severidad, recursión de Panjer y FFT, sobredispersión y colas pesadas.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: modelo colectivo, frecuencia, severidad, Panjer, preguntas de repaso.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class work for Topic 3 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: review questions with actuarial reasoning and numerical evidence.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: collective risk model, frequency, severity, Panjer, review questions.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Tema 3: Modelo colectivo de riesgo}
+\label{sec:tema3repaso}
+\noindent
+Respuestas razonadas a las tres preguntas de repaso del tema. Material de referencia: diapositivas del Tema 3 (Prof. Hugo González Riera).
+
+\subsection{Pregunta 1 -- Por qu\'e $\Var(S)$ tiene dos t\'erminos}
 
 \noindent\textbf{Enunciado.} Explica con tus propias palabras por qu\'e $\Var(S)$ tiene dos t\'erminos en el modelo colectivo ($\E[N]\Var(X)$ y $\Var(N)\E[X]^2$) y qu\'e mide cada uno.
 
-\subsection*{Derivaci\'on}
+\subsubsection*{Derivaci\'on}
 $S=\sum_{i=1}^NX_i$ con $N$ aleatorio, $X_i$ i.i.d. e independientes de $N$. La esperanza condicionada es $\E[S\mid N]=N\,\E[X]$ y la varianza condicionada $\Var(S\mid N)=N\,\Var(X)$ (suma de $N$ variables independientes). La f\'ormula de la varianza total da
 \[
 \Var(S)=\underbrace{\E\big[\Var(S\mid N)\big]}_{\E[N]\,\Var(X)}+\underbrace{\Var\big(\E[S\mid N]\big)}_{\Var(N)\,\E[X]^2},\qquad \E[S]=\E[N]\,\E[X].
 \]
 (F\'ormula de Wald; ambas pueden deducirse tambi\'en derivando $M_S(t)=M_N(\ln M_X(t))$.)
 
-\subsection*{Qu\'e mide cada t\'ermino}
+\subsubsection*{Qu\'e mide cada t\'ermino}
 \begin{itemize}[leftmargin=*]
 \item $\E[N]\Var(X)$ -- \textbf{riesgo de severidad (o de proceso)}: aun sabiendo exactamente cu\'antos siniestros habr\'a, el coste total fluct\'ua porque cada uno cuesta una cantidad distinta. Es la media de la varianza \emph{dentro} de cada n\'umero de siniestros.
 \item $\Var(N)\E[X]^2$ -- \textbf{riesgo de frecuencia}: aun si todos los siniestros costaran exactamente $\E[X]$, el total fluct\'ua porque cambia cu\'antos hay. Es la varianza de la media condicionada: se transmite al total escalada por el cuadrado del coste medio.
 \end{itemize}
 
-\subsection*{Con n\'umeros}
+\subsubsection*{Con n\'umeros}
 \begin{center}
 \begin{tabular}{lrrrr}
 \toprule
@@ -49,7 +140,7 @@ Hogar (BN(50; 3); Pareto(4; 3.000)) & $3{,}00\cdot10^{8}$ & $6{,}00\cdot10^{8}$ 
 \end{center}
 Aunque en la intuici\'on se tienda a pensar que el riesgo est\'a en la severidad, en ambas carteras dos tercios de la varianza vienen de la frecuencia. Con Poisson, $\Var(N)=\E[N]$ y $\Var(S)=\E[N]\,\E[X^2]$, de modo que el peso de la frecuencia es $\E[X]^2/\E[X^2]=1/(1+CV_X^2)$: con $CV_X^2=1/\alpha=0{,}5$ resulta $2/3$.
 
-\subsection*{Lo que ense\~na la descomposici\'on}
+\subsubsection*{Lo que ense\~na la descomposici\'on}
 La variaci\'on relativa es
 \[
 CV_S^2=\frac{\Var(S)}{\E[S]^2}=\frac{\Var(N)}{\E[N]^2}+\frac{CV_X^2}{\E[N]} .
@@ -60,25 +151,25 @@ El segundo sumando se diversifica al crecer la cartera ($\propto1/\E[N]$). El pr
 
 \bigskip\hrule\bigskip
 
-\section*{Pregunta 2 -- La Binomial Negativa como mezcla Poisson--Gamma}
+\subsection{Pregunta 2 -- La Binomial Negativa como mezcla Poisson--Gamma}
 
 \noindent\textbf{Enunciado.} ?`Por qu\'e la Binomial Negativa se interpreta como una mezcla Poisson--Gamma y qu\'e papel juega en la sobredispersi\'on observada en carteras reales?
 
-\subsection*{Demostraci\'on}
+\subsubsection*{Demostraci\'on}
 Sea $\Lambda\sim\text{Gamma}(r,\text{escala }\beta)$, con densidad $\lambda^{r-1}e^{-\lambda/\beta}/(\Gamma(r)\beta^r)$, y $N\mid\Lambda=\lambda\sim\text{Poisson}(\lambda)$. Entonces
 \[
 P(N=n)=\int_0^\infty\frac{e^{-\lambda}\lambda^n}{n!}\,\frac{\lambda^{r-1}e^{-\lambda/\beta}}{\Gamma(r)\beta^r}\,d\lambda=\frac{\Gamma(n+r)}{n!\,\Gamma(r)}\Big(\frac1{1+\beta}\Big)^{r}\Big(\frac{\beta}{1+\beta}\Big)^{n},
 \]
 que es exactamente la Binomial Negativa de las diapositivas. De forma equivalente, la funci\'on generatriz de probabilidades es $P_N(z)=\E\big[e^{\Lambda(z-1)}\big]=\big(1-\beta(z-1)\big)^{-r}$.
 
-\subsection*{Momentos y sobredispersi\'on}
+\subsubsection*{Momentos y sobredispersi\'on}
 Por la ley de la varianza total,
 \[
 \E[N]=\E[\Lambda]=r\beta,\qquad \Var(N)=\underbrace{\E[\Lambda]}_{\text{ruido de Poisson}}+\underbrace{\Var(\Lambda)}_{r\beta^2}=r\beta(1+\beta)>\E[N].
 \]
 La varianza supera a la media en exactamente la varianza de la tasa aleatoria; el \'indice de dispersi\'on es $\Var(N)/\E[N]=1+\beta$. Si la tasa fuera constante ($\Var\Lambda=0$) se recupera la Poisson, y $\text{BN}(r,\beta)\to\text{Poisson}(\lambda)$ cuando $\beta\to0$ y $r\to\infty$ con $r\beta=\lambda$.
 
-\subsection*{Papel en la pr\'actica}
+\subsubsection*{Papel en la pr\'actica}
 \begin{itemize}[leftmargin=*]
 \item \textbf{Heterogeneidad no observada.} En una cartera de Auto u Hogar los asegurados no tienen todos la misma tasa de siniestros; $\Lambda$ es la tasa del asegurado, que no se conoce. Observamos recuentos mezclados, que son sobredispersos aunque cada asegurado sea Poisson.
 \item \textbf{Correlaci\'on entre siniestros del mismo asegurado.} Un asegurado con muchos siniestros \emph{hoy} tiene una $\Lambda$ alta, y por tanto probablemente m\'as ma\~nana. Es la base matem\'atica de los sistemas bonus--malus y de la credibilidad.
@@ -86,25 +177,25 @@ La varianza supera a la media en exactamente la varianza de la tasa aleatoria; e
 \item \textbf{Diagn\'ostico de segmentaci\'on.} La sobredispersi\'on residual, una vez incluidas las variables tarifarias, indica heterogeneidad que no se est\'a explicando (oportunidad de mejorar la tarificaci\'on).
 \end{itemize}
 
-\subsection*{Efecto en el capital}
+\subsubsection*{Efecto en el capital}
 Como $\Var(S)$ contiene $\Var(N)\E[X]^2$, ignorar la sobredispersi\'on subestima el riesgo. En el Caso~2 de Hogar, con $\Var(N)=600$ en vez de $150$ (Poisson), $\Var(S)$ pasa de $4{,}5\cdot10^8$ a $9{,}0\cdot10^8$ y el VaR Normal 99,5\,\% de $204.642$ a $227.275$ \euro\ (el modelo Poisson quedar\'ia un $10\%$ corto).
 
 \paragraph{Conclusi\'on.} La BN es la distribuci\'on de un Poisson cuya tasa es aleatoria (Gamma): recoge la heterogeneidad y los factores comunes que producen una varianza mayor que la media, y esa varianza extra se paga en capital.
 
 \bigskip\hrule\bigskip
 
-\section*{Pregunta 3 -- Ajuste MLE con Pareto de $\alpha=1{,}8$}
+\subsection{Pregunta 3 -- Ajuste MLE con Pareto de $\alpha=1{,}8$}
 
 \noindent\textbf{Enunciado.} Si el ajuste MLE de severidad de una cartera arroja una Pareto con $\alpha=1{,}8$, ?`qu\'e implicaciones tiene para el c\'alculo del capital de solvencia y para la aproximaci\'on Normal Power?
 
-\subsection*{Qu\'e momentos existen}
+\subsubsection*{Qu\'e momentos existen}
 Para una Pareto (Lomax) de forma $\alpha$, $\E[X^k]<\infty$ si y solo si $k<\alpha$. Con $\alpha=1{,}8$:
 \begin{itemize}[leftmargin=*,itemsep=1pt]
 \item $\E[X]=\theta/(\alpha-1)=1{,}25\,\theta$ \textbf{existe} (se puede calcular la prima pura);
 \item $\Var(X)=\infty$ y $\mu_3(X)=\infty$ (\textbf{no existen}).
 \end{itemize}
 
-\subsection*{Consecuencias}
+\subsubsection*{Consecuencias}
 \begin{enumerate}[leftmargin=*]
 \item \textbf{La aproximaci\'on Normal no est\'a definida} (necesita $\Var(S)$) y \textbf{la Normal Power tampoco} (necesita $\mu_3$, que exige $\alpha>3$). No hay ``correcci\'on de asimetr\'ia'' que valga: ni siquiera tiene sentido el par\'ametro $\gamma_S$. Hay que usar Panjer, FFT o simulaci\'on, o bien teor\'ia de valores extremos.
 \item \textbf{La varianza muestral no converge.} Al simular Pareto de $\alpha=1{,}8$ (media 1.000), la varianza muestral crece con el tama\~no de la muestra: $3{,}7\cdot10^6$ con $n=100$, $3{,}2\cdot10^6$ con 1.000, $9{,}1\cdot10^6$ con 10.000 y $7{,}2\cdot10^7$ con 100.000. Cualquier ``desviaci\'on t\'ipica'' estimada con datos es inestable y depende de la mayor observaci\'on.
@@ -117,7 +208,7 @@ Con $\E[N]=150$, $\E[X]=1.000$ (as\'i $\theta=800$) y $p=99{,}5\%$: $VaR\approx8
 \item \textbf{El VaR deja de ser buena medida.} El TVaR existe ($\alpha>1$) pero es enorme respecto al VaR (con $\alpha=1{,}5$, $1{,}42$ M\euro\ frente a $0{,}63$ M\euro); el SST, basado en Expected Shortfall, exigir\'ia m\'as capital que Solvencia~II. Con $\alpha\le1$ ni la media existir\'ia.
 \end{enumerate}
 
-\subsection*{Qu\'e hacer}
+\subsubsection*{Qu\'e hacer}
 \begin{itemize}[leftmargin=*,itemsep=1pt]
 \item Contrastar el ajuste (gr\'afico $\log$--$\log$ de la cola, funci\'on de exceso medio lineal, estimador de Hill) y sustituir la Pareto global por una \emph{Pareto generalizada por encima de un umbral} (Tema~5).
 \item \textbf{Acotar la cola}: l\'imites de p\'oliza y reaseguro de exceso de p\'erdida, de modo que la severidad retenida tenga todos los momentos.
@@ -127,11 +218,12 @@ Con $\E[N]=150$, $\E[X]=1.000$ (as\'i $\theta=800$) y $p=99{,}5\%$: $VaR\approx8
 
 \paragraph{Conclusi\'on.} Con $\alpha=1{,}8$ el modelo ``media--varianza--asimetr\'ia'' deja de existir: la Normal y la Normal Power no son aplicables, el capital depende de un \'unico siniestro extremo y es muy sensible al par\'ametro. Se necesita c\'alculo num\'erico exacto o EVT, y reaseguro de cola.
 
-\subsection*{Referencias}
+\subsubsection*{Referencias}
 \begin{itemize}[leftmargin=*,itemsep=0pt]
 \item Klugman, S. A., Panjer, H. H. y Willmot, G. E. \emph{Loss Models: From Data to Decisions}. Wiley.
 \item Kaas, R., Goovaerts, M., Dhaene, J. y Denuit, M. (2008). \emph{Modern Actuarial Risk Theory} (2.\textordfeminine\ ed.). Springer.
 \item Panjer, H. H. (1981). Recursive evaluation of a family of compound distributions. \emph{ASTIN Bulletin}, 12.
 \item Embrechts, P., Kl\"uppelberg, C. y Mikosch, T. (1997). \emph{Modelling Extremal Events}. Springer.
 \end{itemize}
+
 \end{document}

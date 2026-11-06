@@ -1,27 +1,116 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[spanish,es-tabla]{babel}
-\usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs,array,graphicx,float,xcolor,microtype,caption,enumitem,textcomp}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
 \newcommand{\euro}{\texteuro}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage[hidelinks]{hyperref}
-\captionsetup{font=small,labelfont=bf}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathrm{Var}}
-\title{\textbf{Tema 3 -- Preguntas de debate}\\[2pt]\large Modelo colectivo de riesgo: frecuencia, severidad y agregaci\'on}
-\author{Luiz Luzuriaga}
-\date{M\'aster en Ciencias Actuariales y Financieras -- Universidad de Alcal\'a\\
-Matem\'atica Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora\\ Curso 2026-27}
-\begin{document}
-\maketitle
-\begin{abstract}\noindent
-Respuestas a las cuatro preguntas de debate con las carteras del tema: Auto (Poisson(1.200), Gamma(2; 450); $\E[S]=1{,}08$ M\euro, VaR Normal $1.178.355$, exacto $1.180.040$) y Hogar (BN(50; 3), Pareto(4; 3.000); $\E[S]=150.000$, VaR Normal $227.275$, exacto $238.300$). Las cifras exactas se obtienen con la recursi\'on de Panjer y con la FFT; las de simulaci\'on, con semilla fija.
-\end{abstract}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\TVaR}{\mathrm{TVaR}}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
 
-\section*{Debate 1 -- ?`C\'omo detectar sobredispersi\'on y decidir entre Poisson y Binomial Negativa?}
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 3: Preguntas de debate}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas argumentadas a las preguntas de debate del tema, con cifras de los casos prácticos. Tema 3 (Modelo colectivo de riesgo): Frecuencia y severidad, recursión de Panjer y FFT, sobredispersión y colas pesadas.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: modelo colectivo, frecuencia, severidad, Panjer, preguntas de debate.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class work for Topic 3 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: discussion questions with actuarial reasoning and numerical evidence.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: collective risk model, frequency, severity, Panjer, discussion questions.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Tema 3: Modelo colectivo de riesgo}
+\label{sec:tema3debate}
+\noindent
+Respuestas argumentadas a las preguntas de debate del tema, con cifras de los casos prácticos. Material de referencia: diapositivas del Tema 3 (Prof. Hugo González Riera).
+
+\subsection{Debate 1 -- ?`C\'omo detectar sobredispersi\'on y decidir entre Poisson y Binomial Negativa?}
 
 \paragraph{Tesis.} No basta con mirar un n\'umero: se combinan un diagn\'ostico descriptivo, un contraste formal y una comparaci\'on de modelos, y despu\'es se investiga \emph{por qu\'e} hay sobredispersi\'on.
 
@@ -77,7 +166,7 @@ La Poisson infravalora las colas de frecuencia (82 p\'olizas con 3 siniestros fr
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 2 -- Estructura de exceso de p\'erdida para Hogar}
+\subsection{Debate 2 -- Estructura de exceso de p\'erdida para Hogar}
 
 \paragraph{Tesis.} Un exceso de p\'erdida (XL) \emph{por riesgo} con prioridad entre $5.000$ y $10.000$ \euro\ (de 5 a 10 veces la severidad media) es la pieza principal; hay que completarlo con una cobertura de acumulaci\'on (cat XL o stop-loss) si hay riesgo de evento. Reduce la cola y el capital mucho m\'as de lo que reduce la asimetr\'ia.
 
@@ -117,7 +206,7 @@ La \emph{carga m\'axima rentable} es la carga del reasegurador para la cual el c
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 3 -- Riesgos de usar la Normal con una Pareto de cola muy pesada}
+\subsection{Debate 3 -- Riesgos de usar la Normal con una Pareto de cola muy pesada}
 
 \paragraph{Tesis.} Con $\alpha$ cercano a 1 la Normal no solo es imprecisa: es conceptualmente inaplicable, y el riesgo de usarla es subestimar el capital en un orden de magnitud y no saberlo.
 
@@ -158,7 +247,7 @@ La Normal ``ve'' un capital casi constante porque depende de $\Var(S)$, que apen
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 4 -- ?`Cu\'ando es preferible el modelo individual en una cartera grande de Generales?}
+\subsection{Debate 4 -- ?`Cu\'ando es preferible el modelo individual en una cartera grande de Generales?}
 
 \paragraph{Tesis.} El colectivo es el est\'andar en Generales por su agilidad y porque, con Poisson, es matem\'aticamente robusto a la heterogeneidad. Hay casos en los que el individual aporta algo que el colectivo no puede:
 
@@ -179,7 +268,7 @@ La Normal ``ve'' un capital casi constante porque depende de $\Var(S)$, que apen
 
 \paragraph{Conclusi\'on.} En una cartera grande de Generales el individual compensa cuando hay pocos riesgos grandes y distintos entre s\'i, severidad acotada por p\'oliza, un siniestro m\'aximo por p\'oliza o decisiones por riesgo; en el resto, el colectivo con Poisson (o BN) es exacto y mucho m\'as eficiente.
 
-\subsection*{Referencias}
+\subsubsection*{Referencias}
 \begin{itemize}[leftmargin=*,itemsep=0pt]
 \item Klugman, S. A., Panjer, H. H. y Willmot, G. E. \emph{Loss Models: From Data to Decisions}. Wiley.
 \item Cameron, A. C. y Trivedi, P. K. (2013). \emph{Regression Analysis of Count Data} (2.\textordfeminine\ ed.). Cambridge University Press.
@@ -187,4 +276,5 @@ La Normal ``ve'' un capital casi constante porque depende de $\Var(S)$, que apen
 \item Dutang, C., Goulet, V. y Pigeon, M. (2008). actuar: An R package for actuarial science. \emph{Journal of Statistical Software}, 25(7).
 \item Directiva 2009/138/CE (Solvencia~II) y Reglamento Delegado (UE) 2015/35.
 \end{itemize}
+
 \end{document}

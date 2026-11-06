@@ -1,27 +1,116 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[spanish,es-tabla]{babel}
-\usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs,array,graphicx,float,xcolor,microtype,caption,enumitem,textcomp}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
 \newcommand{\euro}{\texteuro}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage[hidelinks]{hyperref}
-\captionsetup{font=small,labelfont=bf}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathrm{Var}}
-\title{\textbf{Tema 2 -- Preguntas de debate}\\[2pt]\large Modelo individual del coste total de siniestralidad}
-\author{Luiz Luzuriaga}
-\date{M\'aster en Ciencias Actuariales y Financieras -- Universidad de Alcal\'a\\
-Matem\'atica Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora\\ Curso 2026-27}
-\begin{document}
-\maketitle
-\begin{abstract}\noindent
-Las cuatro preguntas de debate se razonan con las carteras del propio tema (Caso~1 de Vida con 1.000 p\'olizas, $\E[S]=610.000$, $SD=342.354$, VaR Normal $1.491.844$ \euro; VaR exacto $1.700.000$ \euro). Todas las cifras proceden de la hoja de c\'alculo y de los programas de Python y R que acompa\~nan al documento.
-\end{abstract}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\TVaR}{\mathrm{TVaR}}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
 
-\section*{Debate 1 -- Pandemia o cat\'astrofe que correlaciona las $X_i$}
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 2: Preguntas de debate}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas argumentadas a las preguntas de debate del tema, con cifras de los casos prácticos. Tema 2 (Modelo individual del coste total de siniestralidad): Suma de riesgos independientes póliza a póliza, aproximaciones de tres momentos y comparación con la distribución exacta.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: modelo individual, Normal Power, Gamma trasladada, preguntas de debate.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class work for Topic 2 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: discussion questions with actuarial reasoning and numerical evidence.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: individual risk model, Normal Power, shifted Gamma, discussion questions.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Tema 2: Modelo individual del coste total de siniestralidad}
+\label{sec:tema2debate}
+\noindent
+Respuestas argumentadas a las preguntas de debate del tema, con cifras de los casos prácticos. Material de referencia: diapositivas del Tema 2 (Prof. Hugo González Riera).
+
+\subsection{Debate 1 -- Pandemia o cat\'astrofe que correlaciona las $X_i$}
 
 \paragraph{Tesis.} El modelo individual deja de ser v\'alido, y lo hace de la peor manera posible: sigue dando un n\'umero, pero ese n\'umero ya no mide el riesgo. La independencia es la hip\'otesis que sostiene la diversificaci\'on.
 
@@ -48,7 +137,7 @@ Las cuatro preguntas de debate se razonan con las carteras del propio tema (Caso
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 2 -- Capital si sustituimos el modelo individual por el colectivo}
+\subsection{Debate 2 -- Capital si sustituimos el modelo individual por el colectivo}
 
 \paragraph{Tesis.} Con la misma cartera, el cambio de modelo en s\'i apenas mueve el capital cuando las probabilidades son peque\~nas; lo que lo mueve de verdad son los supuestos adicionales que permite el colectivo (varios siniestros por p\'oliza, sobredispersi\'on, severidad no acotada).
 
@@ -97,7 +186,7 @@ Una dispersi\'on moderada del n\'umero de siniestros (que representa incertidumb
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 3 -- Reaseguro, asimetr\'ia y fiabilidad de las aproximaciones}
+\subsection{Debate 3 -- Reaseguro, asimetr\'ia y fiabilidad de las aproximaciones}
 
 \paragraph{Tesis.} La pregunta sugiere que el reaseguro reduce la asimetr\'ia y que por eso las aproximaciones son m\'as fiables. Es cierto solo en parte, y los n\'umeros muestran un matiz importante: el reaseguro \emph{proporcional} no cambia $\gamma_S$, y el de \emph{exceso por riesgo} la reduce poco porque la asimetr\'ia de esta cartera viene de la baja frecuencia.
 
@@ -132,7 +221,7 @@ El exceso por riesgo reduce el capital (de $1,09$ a $0,54$ M\euro\ de capital so
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 4 -- Datos escasos de severidad en capitales elevados}
+\subsection{Debate 4 -- Datos escasos de severidad en capitales elevados}
 
 \paragraph{Tesis.} Aqu\'i el problema no es elegir entre dos f\'ormulas sino repartir el riesgo de modelo: con pocos datos, el individual tiene mucha varianza de estimaci\'on y el colectivo tiene sesgo. Lo habitual es combinarlos.
 
@@ -171,11 +260,12 @@ Uso en suscripci\'on & directo & indirecto\\
 
 \paragraph{Conclusi\'on.} Con pocos datos de capitales elevados, el compromiso es entre sesgo (colectivo) y varianza (individual). La respuesta profesional es h\'ibrida: individual para los pocos riesgos grandes que se conocen uno a uno, colectivo con credibilidad para el resto, y cuantificaci\'on expl\'icita de la incertidumbre de par\'ametros.
 
-\subsection*{Referencias}
+\subsubsection*{Referencias}
 \begin{itemize}[leftmargin=*,itemsep=0pt]
 \item Kaas, R., Goovaerts, M., Dhaene, J. y Denuit, M. (2008). \emph{Modern Actuarial Risk Theory} (2.\textordfeminine\ ed.). Springer.
 \item Klugman, S. A., Panjer, H. H. y Willmot, G. E. \emph{Loss Models: From Data to Decisions}. Wiley.
 \item B\"uhlmann, H. y Gisler, A. (2005). \emph{A Course in Credibility Theory and its Applications}. Springer.
 \item Directiva 2009/138/CE (Solvencia~II) y Reglamento Delegado (UE) 2015/35.
 \end{itemize}
+
 \end{document}

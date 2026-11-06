@@ -1,29 +1,116 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
-\usepackage[spanish,es-tabla]{babel}
-\usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs,array,graphicx,float,xcolor,microtype,caption,enumitem,textcomp}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
 \newcommand{\euro}{\texteuro}
-\usepackage[margin=2.5cm]{geometry}
-\usepackage[hidelinks]{hyperref}
-\captionsetup{font=small,labelfont=bf}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
 \newcommand{\VaR}{\mathrm{VaR}}
 \newcommand{\TVaR}{\mathrm{TVaR}}
-\title{\textbf{Tema 5 -- Preguntas de debate}\\[2pt]\large Teor\'ia de valores extremos y riesgos catastr\'oficos (POT / GPD)}
-\author{Luiz Luzuriaga}
-\date{M\'aster en Ciencias Actuariales y Financieras -- Universidad de Alcal\'a\\
-Matem\'atica Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora\\ Curso 2026-27}
-\begin{document}
-\maketitle
-\begin{abstract}\noindent
-Las cuatro preguntas se responden con el Caso~1 (terremoto: $n=2.000$, $T=40$ a\~nos, $u=10$ M\euro, $N_u=80$, $\hat\xi=0{,}35$, $\hat\sigma=6$; $\VaR_{99,5}=28{,}35$, $\TVaR_{99,5}=47{,}46$ M\euro, $\lambda_u=2$) y el Caso~2 (inundaci\'on: $u=5$, $N_u=60$, $T=30$, $\hat\xi=0{,}25$, $\hat\sigma=4$), con simulaciones y bootstrap propios en Python y R.
-\end{abstract}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
 
-\section*{Debate 1 -- Consecuencias de elegir el umbral demasiado bajo o demasiado alto}
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 5: Preguntas de debate}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas argumentadas a las preguntas de debate del tema, con cifras de los casos prácticos. Tema 5 (Teoría de valores extremos y riesgos catastróficos (POT / GPD)): Exceso sobre un umbral, distribución de Pareto generalizada, elección del umbral y paso de la severidad al capital anual.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: valores extremos, GPD, umbral, riesgo catastrófico, preguntas de debate.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class work for Topic 5 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: discussion questions with actuarial reasoning and numerical evidence.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: extreme value theory, GPD, threshold, catastrophe risk, discussion questions.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Tema 5: Teoría de valores extremos y riesgos catastróficos (POT / GPD)}
+\label{sec:tema5debate}
+\noindent
+Respuestas argumentadas a las preguntas de debate del tema, con cifras de los casos prácticos. Material de referencia: diapositivas del Tema 5 (Prof. Hugo González Riera).
+
+\subsection{Debate 1 -- Consecuencias de elegir el umbral demasiado bajo o demasiado alto}
 
 \paragraph{Tesis.} El umbral decide el equilibrio entre sesgo y varianza, y su efecto se amplifica al pasar de la severidad por evento al capital anual: el VaR de severidad es robusto al umbral, pero el TVaR y el SCR no.
 
@@ -67,7 +154,7 @@ Un error de $\pm0{,}07$ en $\hat\xi$ cambia el SCR en $-17\%/+20\%$.
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 2 -- Si $N_u=80$ y $60$ proviniesen de solo 15 a\~nos}
+\subsection{Debate 2 -- Si $N_u=80$ y $60$ proviniesen de solo 15 a\~nos}
 
 \paragraph{Tesis.} El cambio no es solo estad\'istico: la frecuencia $\lambda_u=N_u/T$ se multiplica y la extrapolaci\'on a 200 a\~nos pasa de $5$ a $13$ veces el historial.
 
@@ -113,7 +200,7 @@ Factor de extrapolaci\'on 200 a\~nos / historial & 5 & 13\\
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 3 -- Frecuencia creciente ($\approx25\%$ por d\'ecada) en el riesgo de inundaci\'on}
+\subsection{Debate 3 -- Frecuencia creciente ($\approx25\%$ por d\'ecada) en el riesgo de inundaci\'on}
 
 \paragraph{Tesis.} La tendencia debe entrar primero en la \textbf{frecuencia} $\lambda_u(t)$; la escala $\sigma$ y la forma $\xi$ solo si hay evidencia y base f\'isica; y separar exposici\'on de peligro.
 
@@ -150,7 +237,7 @@ Suponer estacionariedad infravalora $\lambda_u$ actual y el nivel 1-en-100 en un
 
 \bigskip\hrule\bigskip
 
-\section*{Debate 4 -- Papel de la EVT en el dise\~no de un programa XL por capas}
+\subsection{Debate 4 -- Papel de la EVT en el dise\~no de un programa XL por capas}
 
 \paragraph{Tesis.} La EVT aporta tres cosas: \emph{d\'onde} colocar las prioridades (periodos de retorno), \emph{cu\'anto} cuesta cada capa (prima pura con $\lambda_u$ y GPD) y \emph{cu\'anta incertidumbre} hay en cada precio, que crece con la altura de la capa.
 
@@ -186,7 +273,7 @@ Capa & Per. retorno del punto de ataque & P(contacto) & $\xi=0{,}25$ & $\xi=0{,}
 
 \paragraph{Conclusi\'on.} La EVT convierte la cola en precios y en un dise\~no explícito: prioridades por frecuencia, l\'imite por nivel de retorno y sensibilidad al par\'ametro de cola. Las capas altas dependen casi solo de $\hat\xi$ y por eso deben tarificarse con intervalo y con prudencia.
 
-\subsection*{Referencias}
+\subsubsection*{Referencias}
 \begin{itemize}[leftmargin=*,itemsep=0pt]
 \item Embrechts, P., Kl\"uppelberg, C. y Mikosch, T. (1997). \emph{Modelling Extremal Events for Insurance and Finance}. Springer.
 \item Albrecher, H., Beirlant, J. y Teugels, J. L. (2017). \emph{Reinsurance: Actuarial and Statistical Aspects}. Wiley.
@@ -195,4 +282,5 @@ Capa & Per. retorno del punto de ataque & P(contacto) & $\xi=0{,}25$ & $\xi=0{,}
 \item McNeil, A. J. (1997). Estimating the tails of loss severity distributions using extreme value theory. \emph{ASTIN Bulletin}, 27(1).
 \item Directiva 2009/138/CE (Solvencia~II), arts.~101 y 120--126.
 \end{itemize}
+
 \end{document}
