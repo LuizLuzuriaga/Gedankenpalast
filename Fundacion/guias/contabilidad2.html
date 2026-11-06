@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Guía de estudio de Contabilidad 2: clasificación y medición de instrumentos financieros bajo la NIIF 9, con clasificador interactivo y test con explicaciones.">
+<title>Contabilidad 2: instrumentos financieros</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3Cellipse cx='11' cy='9' rx='3.5' ry='2' fill='%232a2a2d' transform='rotate(-32 11 9)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+<style>
+/* Layout: una columna de lectura con menú de modos arriba; el test ocupa la pantalla (pregunta, opciones, puntos de avance) y los casos son fichas que se despliegan. */
+:root {
+  color-scheme: dark;
+  --bg: #000000; --surface: #111111; --ink: #f2f2f2; --muted: #b4b4b4; --rule: #2a2a2a;
+  --title: #d3e4fb; --accent: #9cc4f2; --accent-soft: #101c2e; --link: #7fb0e8;
+  --ok: #f3e5a0; --ok-soft: #211e0c; --bad: #f4968a; --bad-soft: #2b1512;
+  --warn: #f5b78d; --warn-soft: #291c11; --on-accent: #000000;
+  --font-display: "Computer Modern Serif", "Latin Modern Roman", "STIX Two Text", Georgia, "Times New Roman", serif;
+  --font-body: "Computer Modern Serif", "Latin Modern Roman", "STIX Two Text", Georgia, "Times New Roman", serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 18px; line-height: 1.7; }
+[hidden] { display: none !important; }
+p { margin: 0; }
+.wrap { max-width: 820px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left, 0px)) 64px; }
+a:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.back { display: inline-block; margin-top: 16px; color: var(--muted); text-decoration: none; font-size: 14px; }
+.back:hover { color: var(--accent); }
+header.hero { padding-block: 28px 8px; display: grid; gap: 12px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { font-family: var(--font-display); color: var(--title); font-weight: 700; font-size: clamp(30px, 6vw, 44px); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); color: var(--title); font-size: 26px; line-height: 1.2; margin: 0; }
+h3 { font-family: var(--font-display); color: var(--title); font-size: 20px; margin: 0; }
+.lede { color: var(--muted); max-width: 64ch; }
+.stats { display: flex; gap: 20px; flex-wrap: wrap; font-family: var(--font-data); font-size: 13px; color: var(--muted); }
+.stats b { color: var(--ink); font-weight: 500; }
+
+.modo { display: flex; gap: 8px; align-items: center; margin-block: 22px 14px; flex-wrap: wrap; }
+.modo span { font-size: 13px; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); color: var(--ink); padding: 8px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.menu { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.card { text-align: left; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; font: inherit; color: var(--ink); cursor: pointer; display: grid; gap: 4px; }
+.card:hover { border-color: var(--accent); }
+.card h4 { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: .02em; }
+.card p { color: var(--muted); font-size: 14px; }
+.card .n { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.titulo-grupo { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 26px 0 10px; }
+
+.barra { display: flex; align-items: center; gap: 12px; padding-block: 16px 8px; }
+.barra .txt { font-family: var(--font-data); font-size: 13px; color: var(--muted); flex: 1; }
+.btn { border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 9px 16px; font: inherit; font-size: 14px; cursor: pointer; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.pri { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.prog { height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+.pregunta { font-family: var(--font-display); font-size: 22px; line-height: 1.35; margin: 22px 0 16px; }
+.opts { display: grid; gap: 10px; }
+.opt { display: grid; grid-template-columns: 30px 1fr; gap: 10px; text-align: left; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; font: inherit; color: var(--ink); cursor: pointer; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt .l { font-family: var(--font-data); color: var(--muted); }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); }
+.opt.mal { border-color: var(--bad); background: var(--bad-soft); }
+.opt:disabled { cursor: default; }
+.fb { margin-top: 14px; padding: 12px 14px; border-radius: 10px; font-size: 15px; }
+.fb.ok { background: var(--ok-soft); color: var(--ok); } .fb.mal { background: var(--bad-soft); color: var(--bad); }
+.acciones { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.puntos { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 22px; }
+.puntos button { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--rule); background: var(--surface); color: var(--muted); font-family: var(--font-data); font-size: 11px; cursor: pointer; padding: 0; }
+.puntos button.resp { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.puntos button.ok { background: var(--ok-soft); border-color: var(--ok); } .puntos button.mal { background: var(--bad-soft); border-color: var(--bad); }
+.puntos button.act { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.resultado { display: grid; gap: 18px; padding-block: 20px; }
+.nota { font-family: var(--font-display); font-size: 64px; line-height: 1; font-weight: 700; }
+.nota small { font-size: 20px; color: var(--muted); font-weight: 500; }
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.cifras div { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; }
+.cifras b { display: block; font-family: var(--font-data); font-size: 22px; font-weight: 500; }
+.cifras span { font-size: 12px; color: var(--muted); }
+.cifras .c b { color: var(--ok); } .cifras .f b { color: var(--bad); }
+.formula { font-family: var(--font-data); font-size: 13px; color: var(--muted); background: var(--surface); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+.rev { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; }
+.rev h4 { margin: 0; font-size: 15px; font-weight: 600; }
+.rev .t { font-size: 14px; }
+.rev .t.ok { color: var(--ok); } .rev .t.mal { color: var(--bad); }
+
+.caso { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; margin-bottom: 14px; display: grid; gap: 10px; }
+.caso .num { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.caso .tema { font-size: 12px; color: var(--muted); }
+.caso .preg { font-weight: 600; }
+.caso ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.caso .nexam { font-size: 13px; color: var(--warn); background: var(--warn-soft); padding: 8px 12px; border-radius: 8px; }
+.caso .ref { font-size: 13px; color: var(--muted); }
+.caso textarea { width: 100%; box-sizing: border-box; min-height: 90px; border: 1px solid var(--rule); border-radius: 8px; padding: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: 15px; resize: vertical; }
+.caso .resp { border-left: 3px solid var(--accent); padding-left: 14px; display: grid; gap: 10px; font-size: 15px; }
+.fila { display: flex; gap: 8px; flex-wrap: wrap; }
+.vacio { color: var(--muted); font-size: 14px; font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .prog i { transition: none; } }
+
+/* Contabilidad 2: prosa por apartados, tablas, clasificador y test */
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 18px 6px; }
+.toc a { font-size: 13px; color: var(--muted); text-decoration: none; border: 1px solid var(--rule); border-radius: 999px; padding: 4px 12px; background: var(--surface); }
+.toc a:hover { color: var(--accent); border-color: var(--accent); }
+.sec { margin-top: 44px; display: grid; gap: 14px; scroll-margin-top: 16px; }
+.sec ul, .sec ol { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
+.pasos { counter-reset: p; list-style: none; padding-left: 0 !important; }
+.pasos li { counter-increment: p; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px 12px 48px; position: relative; }
+.pasos li::before { content: counter(p); position: absolute; left: 14px; top: 12px; font-family: var(--font-data); color: var(--accent); }
+.dos { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.caja { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; }
+.caja h4 { margin: 0 0 6px; font-size: 15px; color: var(--accent); }
+.caja ul { font-size: 15px; }
+.aviso { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 16px; }
+.formula .nota-f { font-size: 12px; }
+.tabla { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; }
+caption { text-align: left; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding-bottom: 6px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+thead th { color: var(--title); font-weight: 600; border-bottom: 1px solid var(--accent); }
+tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.clasif { display: grid; gap: 16px; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; }
+.q { display: grid; gap: 8px; }
+.qt { font-weight: 600; }
+.seg { flex-wrap: wrap; }
+.res { border: 1px solid var(--ok); background: var(--ok-soft); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+.res span { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.res b { font-size: 22px; color: var(--ok); font-family: var(--font-display); }
+.clasif .btn { justify-self: start; }
+.tq { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: grid; gap: 10px; }
+.tq .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.tq .opt { display: block; padding: 9px 14px; }
+.tq .n { font-family: var(--font-data); color: var(--accent); font-size: 13px; margin-right: 6px; }
+.tq .fb { margin: 0; }
+.fuentes { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" id="volver" href="../" target="_top">← Gendanken Palast</a>
+  <header class="hero">
+    <div class="eyebrow">MUCAF · Contabilidad 2</div>
+    <h1>Instrumentos financieros (NIIF 9)</h1>
+    <p class="lede">Cómo se clasifica un activo o un pasivo financiero, cómo se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG). Teoría por apartados, un clasificador interactivo y un test con explicación.</p>
+    <div class="stats"><span><b>10</b> apartados</span><span><b>1</b> clasificador</span><span><b>12</b> preguntas de test</span></div>
+  </header>
+
+  <nav class="toc" aria-label="Índice">
+    <a href="#clasificacion">1 · Clasificación</a><a href="#clasificador">2 · Clasificador</a><a href="#carteras">3 · Carteras y medición</a><a href="#coste">4 · Coste amortizado</a><a href="#reclas">5 · Reclasificaciones</a><a href="#pasivos">6 · Pasivos</a><a href="#derivados">7 · Derivados</a><a href="#deterioro">8 · Deterioro</a><a href="#test">9 · Test</a><a href="#examenes">10 · Exámenes</a>
+  </nav>
+
+  <section class="sec" id="clasificacion">
+    <h2>1 · Clasificación de activos financieros</h2>
+    <p>Tres decisiones, siempre en este orden:</p>
+    <ol class="pasos">
+      <li><b>Opción de designación.</b> ¿Se designó el instrumento a valor razonable (VR) con cambios en PyG para eliminar una asimetría contable? Si sí, esa es su cartera.</li>
+      <li><b>Test SPPI.</b> ¿Los flujos contractuales son solo pagos de principal e intereses sobre el principal pendiente? Si no, va a VR con cambios en PyG (o, en un instrumento de patrimonio no mantenido para negociar, a VR con cambios en ORG por elección).</li>
+      <li><b>Modelo de negocio.</b> Si pasa el SPPI: cobrar flujos contractuales → coste amortizado (CA); cobrar flujos y vender → VR con cambios en ORG; cualquier otro caso → VR con cambios en PyG.</li>
+    </ol>
+    <h3>Test SPPI</h3>
+    <p>El <b>principal</b> es el valor razonable al reconocimiento inicial. Los <b>intereses</b> compensan el valor temporal del dinero, el riesgo de crédito, el de liquidez, los costes de estructura y el margen de beneficio. Un préstamo que paga 50 de cupón por cada 1.000 y devuelve 1.050 al vencimiento lo pasa. Uno que paga un porcentaje del EBITDA de la compañía no: la remuneración depende de otra variable.</p>
+    <div class="dos">
+      <div class="caja"><h4>Pasan el SPPI</h4><ul><li>Tipos fijos y variables</li><li><i>Caps</i> y <i>floors</i></li><li>Tasas de mercado negativas</li><li>Valores emitidos al descuento y cupón cero</li><li>Activos con garantía de otros activos</li><li>Financiación devuelta con un número variable de acciones</li><li>Instrumentos perpetuos</li></ul></div>
+      <div class="caja"><h4>No lo pasan (típicamente)</h4><ul><li>Préstamo participativo con parte variable ligada al resultado</li><li>Bono convertible en acciones</li><li>CoCo con activación por capital regulatorio</li><li>Bonos de titulización: se analizan por transparencia (<i>look-through</i>) del fondo</li></ul></div>
+    </div>
+    <p class="aviso">El test SPPI se pasa <b>una sola vez</b>, en el reconocimiento inicial.</p>
+    <h3>Modelo de negocio</h3>
+    <ul>
+      <li><b>Cobrar flujos contractuales</b>: compatible con ventas por aumento del riesgo de crédito, por gestión de la concentración de riesgo o cercanas al vencimiento.</li>
+      <li><b>Cobrar flujos y vender</b>: se vende para gestionar la liquidez, casar duraciones de cartera o mantener un perfil de rendimiento por intereses.</li>
+      <li><b>Otros</b>: la entidad obtiene los flujos mediante la venta de los activos.</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="clasificador">
+    <h2>2 · Clasificador</h2>
+    <p>Responde a las preguntas y la guía te dice la cartera. Sirve para practicar el orden de las tres decisiones.</p>
+    <div class="clasif" id="clasif"></div>
+  </section>
+
+  <section class="sec" id="carteras">
+    <h2>3 · Carteras y medición</h2>
+    <div class="tabla"><table>
+      <caption>Instrumentos de deuda</caption>
+      <thead><tr><th></th><th>Coste amortizado</th><th>VR con cambios en PyG</th><th>VR con cambios en ORG</th></tr></thead>
+      <tbody>
+        <tr><th>Reconocimiento inicial</th><td>VR con costes de transacción</td><td>VR sin costes de transacción</td><td>VR con costes de transacción</td></tr>
+        <tr><th>Valoración posterior</th><td>Coste amortizado</td><td>VR, cambios al PyG</td><td>VR, cambios al ORG</td></tr>
+        <tr><th>Venta de la inversión</th><td>Resultado del ejercicio</td><td>No se reconoce resultado adicional</td><td>Resultado del ejercicio (se recicla el ORG)</td></tr>
+        <tr><th>Deterioro</th><td>Pérdida esperada</td><td>No procede</td><td>Pérdida esperada</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tabla"><table>
+      <caption>Instrumentos de patrimonio</caption>
+      <thead><tr><th></th><th>Criterio general</th><th>Opción de ORG</th></tr></thead>
+      <tbody>
+        <tr><th>Reconocimiento inicial</th><td>VR sin costes de transacción</td><td>VR con costes de transacción</td></tr>
+        <tr><th>Valoración posterior</th><td>VR, cambios al PyG</td><td>VR, cambios al ORG</td></tr>
+        <tr><th>Venta de la inversión</th><td>No se reconoce resultado adicional</td><td>No se reconoce resultado (el ORG no se recicla)</td></tr>
+        <tr><th>Deterioro</th><td>No procede</td><td>No procede</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><b>Coste amortizado</b>: SPPI y modelo de cobro de flujos contractuales.</li>
+      <li><b>VR con cambios en ORG</b>: SPPI y modelo mixto, o patrimonio no mantenido para negociar con elección irrevocable.</li>
+      <li><b>VR con cambios en PyG obligatorio</b>: mantenidos para negociar, gestionados conjuntamente a VR, derivados no de cobertura y deuda que no pasa el SPPI.</li>
+      <li><b>VR con cambios en PyG por designación</b>: elección irrevocable para eliminar o reducir una asimetría contable.</li>
+      <li><b>Derivados de cobertura</b> e <b>inversiones en dependientes, negocios conjuntos y asociadas</b>: fuera de esta clasificación.</li>
+    </ul>
+    <p class="aviso">Las acciones suelen ir a VR con cambios en PyG o, por opción, en ORG. Si se mantienen para negociar, VR con cambios en PyG es <b>obligatorio</b>.</p>
+  </section>
+
+  <section class="sec" id="coste">
+    <h2>4 · Coste amortizado y tipo de interés efectivo</h2>
+    <p>El coste amortizado devenga intereses con el <b>tipo de interés efectivo</b> (TIE): la tasa que iguala el valor inicial con el valor actual de los flujos futuros. En cada fecha es el valor anterior más los intereses devengados menos los cobros.</p>
+    <div class="formula">CA<sub>t</sub> = CA<sub>t−1</sub> · (1 + TIE) − F<sub>t</sub></div>
+    <p>Los exámenes lo piden como una <b>ficha contable</b> de la cartera, con columnas de TIR, fecha, valor, principal, intereses devengados no vencidos, diferencia entre coste amortizado y valor razonable, intereses, resultado de operaciones financieras (ROF) y patrimonio neto (PN).</p>
+  </section>
+
+  <section class="sec" id="reclas">
+    <h2>5 · Reclasificaciones</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>De</th><th>A</th><th>Efecto</th></tr></thead>
+      <tbody>
+        <tr><td>Coste amortizado</td><td>VR con cambios en PyG</td><td>La diferencia va a PyG y cambia el TIE</td></tr>
+        <tr><td>VR con cambios en PyG</td><td>Coste amortizado</td><td>Cambia el TIE: el último VR pasa a ser el primer valor a coste amortizado</td></tr>
+        <tr><td>Coste amortizado</td><td>VR con cambios en ORG</td><td>La diferencia va a ORG y no cambia el TIE</td></tr>
+        <tr><td>VR con cambios en ORG</td><td>Coste amortizado</td><td>No cambia el TIE: el ORG acumulado se cancela contra el importe en libros</td></tr>
+        <tr><td>VR con cambios en ORG</td><td>VR con cambios en PyG</td><td>Los cambios acumulados en ORG pasan a PyG</td></tr>
+        <tr><td>VR con cambios en PyG</td><td>VR con cambios en ORG</td><td>Los cambios de PyG no pasan a ORG</td></tr>
+      </tbody>
+    </table></div>
+    <p class="aviso">Solo se reclasifica cuando <b>cambia el modelo de negocio</b>. En un examen, comprobar si una decisión de vender los bonos (por ejemplo, tomada a 31.12.24) cambia el modelo de negocio es el paso clave.</p>
+  </section>
+
+  <section class="sec" id="pasivos">
+    <h2>6 · Pasivos financieros</h2>
+    <p>Un pasivo financiero es una obligación contractual de entregar efectivo u otro activo financiero, o de intercambiar instrumentos en condiciones potencialmente desfavorables. Ejemplos: deudas comerciales, emisión de bonos o pagarés y derivados con evolución desfavorable.</p>
+    <ul>
+      <li><b>Medición inicial</b>: valor razonable (sin evidencia en contra, el precio de la transacción), más los costes de transacción si después no se valora a VR.</li>
+      <li><b>Medición posterior</b>: coste amortizado con el método del interés efectivo, salvo derivados e híbridos, posiciones cortas de valores y títulos propios emitidos para recomprar a corto plazo, que van a VR.</li>
+      <li>Otras excepciones: pasivos por transferencias que no cumplen la baja, contratos de garantía financiera y préstamos con tipo inferior al de mercado.</li>
+      <li><b>Designación a VR con cambios en resultados</b>: si elimina o reduce asimetrías, si forma parte de una cartera gestionada por su valor razonable o si contiene un derivado implícito.</li>
+      <li>Cuando se mide a VR, el cambio atribuible al <b>riesgo de crédito propio</b> va a ORG (salvo que cree asimetría) y el resto a PyG.</li>
+    </ul>
+    <h3>Ejemplo: posición corta de valores</h3>
+    <p>Una entidad toma prestados 100.000 títulos de Endesa por un año, paga 1 € de alquiler por título y los vende a 22 €. Pasa a deber títulos, no dinero: el préstamo de valores es un pasivo a VR con cambios en PyG y el alquiler es un gasto financiero.</p>
+    <div class="formula">Debe: Bancos 2,2 M · Haber: Endesa (IFT) 2,2 M<br>Debe: Gastos financieros 100.000 · Haber: Acreedores por intereses 100.000</div>
+  </section>
+
+  <section class="sec" id="derivados">
+    <h2>7 · Derivados, híbridos y coberturas</h2>
+    <ul>
+      <li><b>Depósito estructurado</b>: un bono cupón cero con una prima ligada a un índice (S&amp;P 500, IBEX 35) es un contrato anfitrión más una <b>opción implícita</b>. Se segrega el derivado, o el conjunto se valora a VR si no se segrega.</li>
+      <li>La opción implícita se valora a mercado en cada cierre. El anfitrión devenga al tipo de pasivos de igual plazo en la fecha de emisión.</li>
+      <li><b>Swap de cobertura</b>: un bono a tipo fijo cubierto con un <i>swap</i> que cede fijo y recibe variable. El derivado se registra a VR y hay que ver qué parte del bono queda cubierta, desde la fecha de cobertura.</li>
+      <li><b>Derivado simétrico</b> (futuro, <i>swap</i>): valor inicial cero. <b>Asimétrico</b> (opción): la prima es un activo o un pasivo según el derecho o la obligación.</li>
+    </ul>
+  </section>
+
+  <section class="sec" id="deterioro">
+    <h2>8 · Deterioro por pérdida esperada</h2>
+    <p>La NIIF 9 sustituye la pérdida incurrida por la <b>pérdida esperada</b>. Se aplica a los activos a coste amortizado y a VR con cambios en ORG; no a los de VR con cambios en PyG ni a los instrumentos de patrimonio.</p>
+    <div class="formula">PE = PD × LGD × EAD<br><span class="nota-f">probabilidad de impago · pérdida en caso de impago · exposición</span></div>
+    <p>El bloque de la clase del 6/11/2026 queda así: <b>clasificación, coberturas contables y deterioro</b>, con IFRS 9 e IFRS 17 como marco.</p>
+  </section>
+
+  <section class="sec" id="test">
+    <h2>9 · Test</h2>
+    <p>Doce preguntas sobre clasificación y medición. Cada respuesta se corrige al momento con su explicación.</p>
+    <div id="quiz"></div>
+  </section>
+
+  <section class="sec" id="examenes">
+    <h2>10 · Qué cae en los exámenes</h2>
+    <div class="tabla"><table>
+      <thead><tr><th>Convocatoria</th><th>Temas de los enunciados</th></tr></thead>
+      <tbody>
+        <tr><td>1/2/2016</td><td>Bonos con swap de cobertura y ficha contable; depósito estructurado de un seguro de vida con riesgo de inversión para el tomador</td></tr>
+        <tr><td>Mayo 2020</td><td>Acciones con venta parcial y gastos de corretaje, inmueble de uso propio que pasa a disponible para la venta, títulos a VR con cambios en patrimonio, préstamo con cuotas constantes</td></tr>
+        <tr><td>24/1/2025</td><td>Bono cupón cero con prima ligada al S&amp;P 500, deuda pública a coste amortizado con decisión de venta, contrato de seguro con margen de servicio contractual</td></tr>
+        <tr><td>Resto</td><td>Exámenes de 2016 a 2019 y el superextraordinario, con soluciones</td></tr>
+      </tbody>
+    </table></div>
+    <p class="aviso"><b>IFRS 17 en el examen de 2025:</b> el pasivo del contrato es la mejor estimación de los flujos descontados (BEL) más el ajuste por riesgo no financiero (RA) más el margen de servicio contractual (CSM). Se pide el pasivo y el CSM al inicio y al cierre del primer año con prima 1.000, salidas esperadas 500, ajuste por riesgo 50 anuales y descuento al 6 %.</p>
+    <p class="fuentes">Fuentes: diapositivas de Instrumentos Financieros (clasificación de activos y de pasivos), exámenes de 2016 a 2025 y notas de la clase del 6/11/2026. Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá. NIIF 9.</p>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+if (window.parent !== window) $('volver').hidden = true;
+
+/* ---------- Clasificador ---------- */
+const PREG = [
+  { id: 'tipo', t: '¿Qué tipo de instrumento es?', o: [['deuda', 'Deuda (bono, préstamo concedido)'], ['pat', 'Patrimonio (acciones)']] },
+  { id: 'neg', t: '¿Se mantiene para negociar (venta a corto plazo)?', o: [['si', 'Sí'], ['no', 'No']], si: (r) => r.tipo === 'pat' },
+  { id: 'opc', t: 'En el reconocimiento inicial, ¿se eligió la opción irrevocable de VR con cambios en ORG?', o: [['si', 'Sí'], ['no', 'No']], si: (r) => r.tipo === 'pat' && r.neg === 'no' },
+  { id: 'des', t: '¿Se designó a VR con cambios en PyG para eliminar una asimetría contable?', o: [['si', 'Sí'], ['no', 'No']], si: (r) => r.tipo === 'deuda' },
+  { id: 'sppi', t: '¿Los flujos son solo principal e intereses (SPPI)?', o: [['si', 'Sí'], ['no', 'No']], si: (r) => r.tipo === 'deuda' && r.des === 'no' },
+  { id: 'mod', t: '¿Cuál es el modelo de negocio?', o: [['cobro', 'Cobrar flujos contractuales'], ['mixto', 'Cobrar flujos y vender'], ['otro', 'Otro (obtener flujos por la venta)']], si: (r) => r.tipo === 'deuda' && r.des === 'no' && r.sppi === 'si' }
+];
+function resultado(r) {
+  if (r.tipo === 'pat') {
+    if (r.neg === 'si') return ['VR con cambios en PyG (obligatorio)', 'Un instrumento de patrimonio mantenido para negociar siempre va a VR con cambios en PyG.'];
+    if (r.opc === 'si') return ['VR con cambios en ORG', 'Con la opción irrevocable, los cambios van al ORG y no se reciclan al vender. No hay deterioro.'];
+    return ['VR con cambios en PyG', 'Es el criterio general para patrimonio: cambios al PyG, sin deterioro.'];
+  }
+  if (r.des === 'si') return ['VR con cambios en PyG (designado)', 'La designación es irrevocable y se usa para eliminar o reducir una asimetría contable.'];
+  if (r.sppi === 'no') return ['VR con cambios en PyG (obligatorio)', 'Si no pasa el SPPI, no se mira el modelo de negocio.'];
+  if (r.mod === 'cobro') return ['Coste amortizado', 'SPPI más cobro de flujos contractuales. Hay deterioro por pérdida esperada.'];
+  if (r.mod === 'mixto') return ['VR con cambios en ORG', 'SPPI más cobro de flujos y venta. Hay deterioro por pérdida esperada y al vender el ORG se recicla a resultados.'];
+  return ['VR con cambios en PyG', 'Cualquier otro modelo de negocio va a VR con cambios en PyG.'];
+}
+const resp = {};
+function pintaClasif() {
+  const caja = $('clasif');
+  let h = '';
+  let fin = true;
+  for (const p of PREG) {
+    if (p.si && !p.si(resp)) { delete resp[p.id]; continue; }
+    h += `<div class="q"><p class="qt">${esc(p.t)}</p><div class="seg">` +
+      p.o.map(([v, l]) => `<button type="button" data-q="${p.id}" data-v="${v}" aria-pressed="${resp[p.id] === v}">${esc(l)}</button>`).join('') + '</div></div>';
+    if (!resp[p.id]) { fin = false; break; }
+  }
+  if (fin) { const [c, why] = resultado(resp); h += `<div class="res"><span>Cartera</span><b>${esc(c)}</b><p>${esc(why)}</p></div>`; }
+  h += '<button type="button" class="btn" id="reset">Empezar de nuevo</button>';
+  caja.innerHTML = h;
+}
+$('clasif').addEventListener('click', (e) => {
+  if (e.target.id === 'reset') { for (const k in resp) delete resp[k]; return pintaClasif(); }
+  const b = e.target.closest('button[data-q]');
+  if (!b) return;
+  resp[b.dataset.q] = b.dataset.v;
+  pintaClasif();
+});
+pintaClasif();
+
+/* ---------- Test ---------- */
+const TEST = [
+  { q: 'Un bono paga cupones fijos del 5 % y devuelve el nominal al vencimiento. ¿Pasa el test SPPI?', o: ['Sí', 'No'], a: 0, e: 'Principal más intereses sobre el principal pendiente: es el caso típico de SPPI. Los tipos fijos y variables pasan.' },
+  { q: 'Un préstamo participativo paga un 1 % fijo más un 2 % del resultado antes de impuestos del prestatario. ¿SPPI?', o: ['Sí', 'No'], a: 1, e: 'La parte variable depende del resultado del prestatario, que no es una compensación por el tiempo, el crédito o la liquidez. No pasa.' },
+  { q: 'Un crédito a Euribor + 1,25 % con un cap del 10 % y un floor del 2 %. ¿SPPI?', o: ['Sí', 'No'], a: 0, e: 'Los tipos variables, los caps y los floors pasan el test SPPI.' },
+  { q: 'Un bono convertible en acciones con cupón anual del 2 %. ¿SPPI?', o: ['Sí', 'No'], a: 1, e: 'La conversión en acciones expone a un riesgo de patrimonio que no es principal ni intereses. No pasa.' },
+  { q: 'Deuda que pasa el SPPI, mantenida para cobrar flujos y vender para casar duraciones de la cartera. ¿Cartera?', o: ['Coste amortizado', 'VR con cambios en ORG', 'VR con cambios en PyG'], a: 1, e: 'SPPI más modelo de cobrar flujos y vender: VR con cambios en ORG.' },
+  { q: 'Deuda que pasa el SPPI, mantenida para cobrar flujos, que se vende poco antes del vencimiento. ¿Cartera?', o: ['Coste amortizado', 'VR con cambios en ORG', 'VR con cambios en PyG'], a: 0, e: 'Las ventas cercanas al vencimiento, por aumento del riesgo de crédito o por gestión de la concentración son compatibles con el modelo de cobro de flujos.' },
+  { q: 'Acciones adquiridas para venderlas a corto plazo. ¿Cartera?', o: ['VR con cambios en ORG', 'VR con cambios en PyG'], a: 1, e: 'Mantenidos para negociar: VR con cambios en PyG de forma obligatoria.' },
+  { q: 'Acciones no mantenidas para negociar con la opción irrevocable de ORG. Al venderlas, ¿qué ocurre con el ORG acumulado?', o: ['Pasa a resultados', 'No se recicla'], a: 1, e: 'En patrimonio con opción de ORG la venta no reconoce resultado: el ORG no se recicla.' },
+  { q: '¿A qué activos se aplica el deterioro por pérdida esperada?', o: ['A todos', 'A coste amortizado y a VR con cambios en ORG', 'Solo a VR con cambios en PyG'], a: 1, e: 'En VR con cambios en PyG el cambio de valor ya está en resultados, y los instrumentos de patrimonio no se deterioran.' },
+  { q: 'Reclasificación de coste amortizado a VR con cambios en ORG. ¿Cambia el TIE?', o: ['Sí', 'No'], a: 1, e: 'La diferencia va a ORG y el tipo de interés efectivo no cambia.' },
+  { q: '¿Cómo se mide, como regla general, un pasivo financiero después del reconocimiento inicial?', o: ['A valor razonable', 'A coste amortizado'], a: 1, e: 'La regla general es coste amortizado con el interés efectivo. Los derivados, las posiciones cortas y los títulos propios para recomprar van a VR.' },
+  { q: 'Una opción implícita en un depósito estructurado ligada al S&P 500. ¿Cómo se valora el derivado en cada cierre?', o: ['A coste', 'A valor de mercado'], a: 1, e: 'La opción implícita se valora a mercado en cada cierre; el anfitrión devenga al tipo de pasivos de igual plazo en la emisión.' }
+];
+const ans = new Array(TEST.length).fill(null);
+function pintaTest() {
+  const aciertos = ans.filter((x, i) => x === TEST[i].a).length;
+  const hechas = ans.filter((x) => x !== null).length;
+  $('quiz').innerHTML = TEST.map((t, i) => {
+    const hecha = ans[i] !== null;
+    return `<div class="tq"><p class="qt"><span class="n">${i + 1}</span> ${esc(t.q)}</p><div class="opts">` +
+      t.o.map((o, j) => {
+        const cls = hecha ? (j === t.a ? ' ok' : j === ans[i] ? ' mal' : '') : '';
+        return `<button type="button" class="opt${cls}" data-i="${i}" data-j="${j}" ${hecha ? 'disabled' : ''}>${esc(o)}</button>`;
+      }).join('') + '</div>' +
+      (hecha ? `<p class="fb ${ans[i] === t.a ? 'ok' : 'mal'}">${ans[i] === t.a ? 'Correcto. ' : 'Incorrecto. '}${esc(t.e)}</p>` : '') + '</div>';
+  }).join('') +
+    `<div class="barra"><span class="txt">${hechas} de ${TEST.length} respondidas · ${aciertos} correctas</span><button type="button" class="btn" id="rtest">Reiniciar test</button></div>`;
+}
+$('quiz').addEventListener('click', (e) => {
+  if (e.target.id === 'rtest') { ans.fill(null); return pintaTest(); }
+  const b = e.target.closest('.opt');
+  if (!b || b.disabled) return;
+  ans[+b.dataset.i] = +b.dataset.j;
+  pintaTest();
+});
+pintaTest();
+</script>
+</body>
+</html>

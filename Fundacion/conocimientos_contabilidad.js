@@ -1,17 +1,18 @@
 /**
- * Gendanken Palast - Brazo de Contabilidad: temarios de Contabilidad 2 (instrumentos financieros, NIIF 9)
- * y de IFRS 17 (contratos de seguro). Contabilidad 1 sigue siendo `contabilidad_pgc` (PGC).
+ * Gendanken Palast - Contabilidad 2 (instrumentos financieros, NIIF 9). Contabilidad sigue siendo `contabilidad_pgc` (PGC).
  * Son resúmenes propios con las ideas de las diapositivas, la clase del 6/11/2026 y los enunciados de examen;
  * no reproducen el material. Se carga después de conocimientos_drive2.js.
  */
 
 Object.assign(KNOWLEDGE, {
     contabilidad2: {
+        guide: 'guias/contabilidad2.html',
         sections: [
             {
                 id: 'idea', title: 'Idea clave',
                 blocks: [
                     { type: 'p', text: 'Contabilidad 2 trata los <b>instrumentos financieros</b> bajo la <b>NIIF 9</b>: cómo se clasifica un activo o un pasivo, con qué criterio se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG).' },
+                    { type: 'guide', text: 'Guía de estudio de Contabilidad 2: clasificación y medición de instrumentos financieros, un clasificador interactivo de la NIIF 9, un test de doce preguntas con explicación y el repaso de los exámenes.' },
                     { type: 'callout', text: 'Tres decisiones, en este orden: <b>1)</b> ¿se usa la opción de designar a valor razonable con cambios en PyG? <b>2)</b> ¿el contrato paga solo principal e intereses (test SPPI)? <b>3)</b> ¿cuál es el modelo de negocio? Con eso sale la cartera.' }
                 ]
             },
@@ -134,49 +135,6 @@ Object.assign(KNOWLEDGE, {
                         'Exámenes de Contabilidad de operaciones financieras y del seguro (2016 a 2019), Elementos de contabilidad financiera (2020) y Contabilidad de entidades financieras y de seguro (2025).',
                         'Notas de la clase del 6/11/2026.',
                         'NIIF 9 Instrumentos financieros.'
-                    ] }
-                ]
-            }
-        ]
-    },
-
-    ifrs17: {
-        sections: [
-            {
-                id: 'idea', title: 'Idea clave',
-                blocks: [
-                    { type: 'p', text: 'La <b>IFRS 17</b> mide los contratos de seguro con una fotografía actual: los flujos futuros se estiman sin sesgo, se descuentan y se les añade un ajuste por riesgo no financiero. El beneficio esperado no se reconoce al emitir el contrato: queda en un <b>margen de servicio contractual</b> (CSM) que se libera a lo largo de la cobertura.' },
-                    { type: 'formula', tex: '\\text{Pasivo} = \\underbrace{\\text{BEL}}_{\\text{flujos descontados}} + \\underbrace{\\text{RA}}_{\\text{ajuste por riesgo}} + \\underbrace{\\text{CSM}}_{\\text{margen de servicio}}', label: 'Bloques de medición del grupo de contratos' }
-                ]
-            },
-            {
-                id: 'bloques', title: 'Los tres bloques',
-                blocks: [
-                    { type: 'list', items: [
-                        '<b>Mejor estimación de los flujos (BEL)</b>: entradas por primas y salidas por siniestros y gastos, ponderadas por probabilidad y descontadas con un tipo que refleje las características de los flujos.',
-                        '<b>Ajuste por riesgo no financiero (RA)</b>: la compensación que exige la aseguradora por soportar la incertidumbre sobre el importe y el calendario de los flujos.',
-                        '<b>Margen de servicio contractual (CSM)</b>: el beneficio aún no devengado. En el reconocimiento inicial se fija para que el contrato no genere ganancia el primer día; si el contrato es oneroso, la pérdida va a PyG de inmediato.'
-                    ] },
-                    { type: 'callout', text: 'En el ejemplo de examen de 2025 (prima 1.000, salidas esperadas 500, ajuste por riesgo 50 anuales, descuento al 6 %, cobertura de dos años) se pregunta qué pasivo por contrato y qué margen de servicio hay al inicio y al cierre del primer año, con hipótesis sin cambios.' }
-                ]
-            },
-            {
-                id: 'liberacion', title: 'Reconocimiento del resultado',
-                blocks: [
-                    { type: 'list', items: [
-                        'El CSM se libera según las <b>unidades de cobertura</b> prestadas en el periodo.',
-                        'El resultado del servicio de seguro recoge los ingresos por el servicio prestado menos los gastos por siniestros y costes incurridos; el efecto del descuento aparece como gasto o ingreso financiero del seguro.',
-                        'Con hipótesis sin cambios, el pasivo evoluciona por el devengo del descuento, la liberación del ajuste por riesgo y la liberación del CSM.'
-                    ] }
-                ]
-            },
-            {
-                id: 'conexiones', title: 'Conexiones',
-                blocks: [
-                    { type: 'p', text: 'La IFRS 17 comparte con Solvencia II la mejor estimación (BEL) y un margen de riesgo, pero su objetivo es contable. Vincula con Contabilidad 2 por la NIIF 9, que mide los activos que respaldan los contratos, y con la conciliación contable-actuarial de Contabilidad 1.' },
-                    { type: 'sources', items: [
-                        'NIIF 17 Contratos de seguro.',
-                        'Examen final de Contabilidad de entidades financieras y de seguro, 24 de enero de 2025. Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá.'
                     ] }
                 ]
             }

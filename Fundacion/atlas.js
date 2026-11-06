@@ -1,6 +1,6 @@
 /**
  * Gendanken Palast - Topología del atlas
- * Cinco cúmulos de conocimiento alrededor del Gran Atractor y los temas que orbitan cada uno.
+ * Cuatro cúmulos de conocimiento alrededor del Gran Atractor y los temas que orbitan cada uno.
  * Las metodologías de knowledgeData.js se añaden a su cúmulo en main.js (ver METHOD_CLUSTER).
  *
  * tools/build_cosmos_glb.py lee la línea de cada cúmulo con una expresión regular:
@@ -11,8 +11,7 @@ const CLUSTERS = [
     { id: 'act', name: 'Ciencias Actuariales', hue: '#f2b33d', center: [-215, -55, 150], radius: 95 },
     { id: 'ds', name: 'Data Science', hue: '#4cb3f0', center: [245, 105, -45], radius: 90 },
     { id: 'eco', name: 'Economía y Finanzas', hue: '#5cc98a', center: [-150, 150, -215], radius: 80 },
-    { id: 'mat', name: 'Matemáticas y Probabilidad', hue: '#e6e6e6', center: [170, -150, 175], radius: 80 },
-    { id: 'con', name: 'Contabilidad', hue: '#d98cf0', center: [30, 215, 200], radius: 62 }
+    { id: 'mat', name: 'Matemáticas y Probabilidad', hue: '#e6e6e6', center: [170, -150, 175], radius: 80 }
 ];
 
 // Lunas: temas que orbitan a otro tema en vez de al centro de su cúmulo
@@ -45,7 +44,24 @@ const TOPICS = [
     {
         id: 'act_solvencia', cluster: 'act', name: 'Solvencia II',
         desc: 'Régimen prudencial europeo para aseguradoras: Capital de Solvencia Obligatorio (SCR) por fórmula estándar o modelo interno, Pilar II (ORSA) y disciplina de mercado.',
-        related: ['act_gestion_riesgos', 'con_ifrs17', 'act_vida', 'act_no_vida']
+        related: ['act_gestion_riesgos', 'act_ifrs17', 'act_vida', 'act_no_vida']
+    },
+    {
+        id: 'act_ifrs17', cluster: 'act', name: 'IFRS 17',
+        desc: 'Norma contable de contratos de seguro: pasivos valorados con flujos descontados insesgados (BEL), Ajuste por Riesgo (RA) y Margen de Servicio Contractual (CSM).',
+        related: ['act_contabilidad', 'act_solvencia']
+    },
+    {
+        id: 'act_contabilidad', cluster: 'act', name: 'Contabilidad',
+        desc: 'Registro y presentación del balance y la cuenta técnica: devengo del margen de servicio, liberación de reservas técnicas y conciliación contable-actuarial.',
+        related: ['act_ifrs17', 'act_contabilidad2'],
+        knowledge: 'contabilidad_pgc'
+    },
+    {
+        id: 'act_contabilidad2', cluster: 'act', name: 'Contabilidad 2: instrumentos financieros',
+        desc: 'Instrumentos financieros bajo la NIIF 9: test SPPI y modelo de negocio, carteras (coste amortizado, valor razonable con cambios en PyG u ORG), reclasificaciones, pasivos financieros, derivados y coberturas, y deterioro por pérdida esperada.',
+        related: ['act_contabilidad', 'act_ifrs17', 'eco_renta_fija', 'eco_derivados'],
+        knowledge: 'contabilidad2'
     },
     {
         id: 'act_vida', cluster: 'act', name: 'Seguros de Vida',
@@ -62,7 +78,7 @@ const TOPICS = [
     {
         id: 'act_reserving', cluster: 'act', name: 'Reserving',
         desc: 'Cálculo de las provisiones técnicas de siniestros: siniestros pendientes y ocurridos no declarados (IBNR) a partir de triángulos de desarrollo, con métodos deterministas (Chain Ladder, Bornhuetter-Ferguson) y estocásticos (Mack, bootstrap) para medir su incertidumbre.',
-        related: ['act_no_vida', 'act_solvencia', 'con_ifrs17', 'chain_ladder']
+        related: ['act_no_vida', 'act_solvencia', 'act_ifrs17', 'chain_ladder']
     },
     {
         id: 'act_pensiones', cluster: 'act', name: 'Previsión social y pensiones',
@@ -85,9 +101,15 @@ const TOPICS = [
         knowledge: 'biometria'
     },
     {
+        id: 'act_derecho_seguro', cluster: 'act', name: 'Derecho del seguro',
+        desc: 'Ley de Contrato de Seguro, seguros de personas y de daños, responsabilidad civil y el sistema de supervisión y capital de Solvencia II con sus tres pilares, SCR y MCR.',
+        related: ['act_solvencia', 'act_no_vida', 'act_vida', 'eco_derecho_bancario'],
+        knowledge: 'derecho_seguro'
+    },
+    {
         id: 'act_erm', cluster: 'act', name: 'ERM y valor de la aseguradora',
         desc: 'Gestión integral de riesgos de una aseguradora de vida: valor intrínseco de mercado (MCEV), mejor estimación de las provisiones técnicas (BEL) e hipótesis de mortalidad, gastos y caída de cartera.',
-        related: ['act_solvencia', 'act_vida', 'act_gestion_riesgos', 'con_ifrs17', 'con_derecho_seguro'],
+        related: ['act_solvencia', 'act_vida', 'act_gestion_riesgos', 'act_ifrs17', 'act_derecho_seguro'],
         knowledge: 'erm_mcev'
     },
     {
@@ -105,7 +127,7 @@ const TOPICS = [
     {
         id: 'act_deontologia', cluster: 'act', name: 'Código deontológico',
         desc: 'Código de conducta del Instituto de Actuarios Españoles: ámbito, objetivos y seis principios (integridad, competencia, imparcialidad, obediencia, iniciativa y comunicación).',
-        related: ['act_gestion_riesgos', 'con_contabilidad1'],
+        related: ['act_gestion_riesgos', 'act_contabilidad'],
         knowledge: 'deontologia'
     },
 
@@ -195,7 +217,7 @@ const TOPICS = [
     {
         id: 'eco_fiscalidad', cluster: 'eco', name: 'Fiscalidad financiera',
         desc: 'Tributación de las operaciones y productos financieros en el IRPF y el Impuesto sobre Sociedades: cuentas, deuda, acciones, seguros, fondos, planes de pensiones, FATCA/CRS e IVA.',
-        related: ['act_pensiones', 'act_vida', 'con_contabilidad1', 'eco_renta_fija'],
+        related: ['act_pensiones', 'act_vida', 'act_contabilidad', 'eco_renta_fija'],
         knowledge: 'fiscalidad'
     },
 
@@ -223,6 +245,13 @@ const TOPICS = [
         desc: 'Inferencia causal de políticas y programas: resultados potenciales y contrafactual, aleatorización, regresión en discontinuidad, diferencias en diferencias, emparejamiento y variables instrumentales.',
         related: ['eco_econometria', 'ds_econometria', 'eco_tfg', 'ds_estadistica', 'eco_macro'],
         knowledge: 'evaluacion_impacto'
+    },
+
+    {
+        id: 'eco_derecho_bancario', cluster: 'eco', name: 'Derecho bancario',
+        desc: 'Derecho del mercado financiero: crisis de 2008 y respuesta regulatoria, Unión Bancaria (supervisión, resolución y garantía de depósitos), contratación bancaria, crédito documentario y titulización.',
+        related: ['act_solvencia', 'act_derecho_seguro', 'eco_macro', 'act_gestion_riesgos', 'eco_fiscalidad'],
+        knowledge: 'derecho_bancario'
     },
 
     // MATEMÁTICAS Y PROBABILIDAD
@@ -257,37 +286,5 @@ const TOPICS = [
         id: 'mat_optimizacion', cluster: 'mat', name: 'Optimización',
         desc: 'Programación lineal, cuadrática y convexa, condiciones de Karush-Kuhn-Tucker, descenso de gradiente y multiplicadores de Lagrange.',
         related: ['mat_calculo', 'ds_ml_supervisado', 'eco_micro']
-    },
-
-    // CONTABILIDAD
-    {
-        id: 'con_contabilidad1', cluster: 'con', name: 'Contabilidad 1',
-        desc: 'Registro y presentación del balance y la cuenta técnica: devengo del margen de servicio, liberación de reservas técnicas y conciliación contable-actuarial.',
-        related: ['con_contabilidad2', 'con_ifrs17', 'eco_fiscalidad'],
-        knowledge: 'contabilidad_pgc'
-    },
-    {
-        id: 'con_contabilidad2', cluster: 'con', name: 'Contabilidad 2',
-        desc: 'Instrumentos financieros bajo la NIIF 9: test SPPI y modelo de negocio, carteras (coste amortizado, valor razonable con cambios en PyG u ORG), reclasificaciones, pasivos financieros, derivados y coberturas, y deterioro por pérdida esperada.',
-        related: ['con_contabilidad1', 'con_ifrs17', 'eco_renta_fija', 'eco_derivados'],
-        knowledge: 'contabilidad2'
-    },
-    {
-        id: 'con_ifrs17', cluster: 'con', name: 'IFRS 17',
-        desc: 'Norma contable de contratos de seguro: pasivos valorados con flujos descontados insesgados (BEL), Ajuste por Riesgo (RA) y Margen de Servicio Contractual (CSM).',
-        related: ['con_contabilidad1', 'con_contabilidad2', 'act_solvencia', 'act_reserving'],
-        knowledge: 'ifrs17'
-    },
-    {
-        id: 'con_derecho_bancario', cluster: 'con', name: 'Derecho bancario',
-        desc: 'Derecho del mercado financiero: crisis de 2008 y respuesta regulatoria, Unión Bancaria (supervisión, resolución y garantía de depósitos), contratación bancaria, crédito documentario y titulización.',
-        related: ['act_solvencia', 'con_derecho_seguro', 'eco_macro', 'act_gestion_riesgos', 'eco_fiscalidad'],
-        knowledge: 'derecho_bancario'
-    },
-    {
-        id: 'con_derecho_seguro', cluster: 'con', name: 'Derecho del seguro',
-        desc: 'Ley de Contrato de Seguro, seguros de personas y de daños, responsabilidad civil y el sistema de supervisión y capital de Solvencia II con sus tres pilares, SCR y MCR.',
-        related: ['act_solvencia', 'act_no_vida', 'act_vida', 'con_derecho_bancario'],
-        knowledge: 'derecho_seguro'
     }
 ];
