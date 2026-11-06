@@ -126,7 +126,7 @@ def read_clusters():
             "center": np.array([float(v) for v in m.group(3).split(",")]),
             "radius": float(m.group(4)),
         })
-    assert len(clusters) == 4, f"Se esperaban 4 cúmulos en atlas.js, hay {len(clusters)}"
+    assert len(clusters) == 5, f"Se esperaban 5 cúmulos en atlas.js, hay {len(clusters)}"
     return clusters
 
 
