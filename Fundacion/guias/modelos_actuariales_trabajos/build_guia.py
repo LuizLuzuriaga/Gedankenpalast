@@ -17,7 +17,7 @@ CSS += """
 .tema-work .pend { color: var(--muted); font-family: var(--font-body); font-size: 14px; font-weight: 400; }
 .tools a { text-decoration: none; }
 .tools button.pri { background: var(--accent); color: var(--surface); }
-img.fimg { display:block; max-width:100%; height:auto; margin:0 auto; background:#fff; border-radius:6px; padding:6px; box-sizing:border-box; }
+img.fimg { display:block; max-width:100%; height:auto; margin:0 auto; background:#fff; filter:invert(1) hue-rotate(180deg); border-radius:6px; padding:6px; box-sizing:border-box; }
 .out-block { white-space: pre; overflow: auto; max-height: 360px; background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 14px; font-family: var(--font-data); font-size: 12px; line-height: 1.5; }
 .kind { font-family: var(--font-data); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--pres); }
 .nocode { font-size: 13px; color: var(--muted); }
@@ -149,7 +149,8 @@ def build():
 <meta name="description" content="Guía de Matemática Actuarial de la Estabilidad y Solvencia: utilidad, modelo individual y colectivo, medidas de riesgo y valores extremos, con trabajos resueltos en PDF, Excel, Python y R.">
 <title>Matemática actuarial de la solvencia (No Vida II)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
 <script>window.MathJax={{tex:{{inlineMath:[['\\\\(','\\\\)']],displayMath:[['\\\\[','\\\\]']]}},svg:{{fontCache:'global'}},options:{{enableMenu:false}}}};</script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
 <style>{CSS}</style></head><body>
