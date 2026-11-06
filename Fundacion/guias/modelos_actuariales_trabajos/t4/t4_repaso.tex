@@ -1,0 +1,160 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,graphicx,float,xcolor,microtype,caption,enumitem,textcomp}
+\newcommand{\euro}{\texteuro}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\captionsetup{font=small,labelfont=bf}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\TVaR}{\mathrm{TVaR}}
+\title{\textbf{Tema 4 -- Preguntas de repaso}\\[2pt]\large Gesti\'on de capital y medidas coherentes de riesgo: VaR y TVaR}
+\author{Luiz Luzuriaga}
+\date{M\'aster en Ciencias Actuariales y Financieras -- Universidad de Alcal\'a\\
+Matem\'atica Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora\\ Curso 2026-27}
+\begin{document}
+\maketitle
+
+\section*{Pregunta 1 -- Los cuatro axiomas de Artzner y su papel en la gesti\'on de capital}
+
+\noindent\textbf{Enunciado.} Enuncia los cuatro axiomas de Artzner y explica, con tus propias palabras, qu\'e papel juega cada uno en la gesti\'on de capital.
+
+\subsection*{Marco}
+$X$ representa una \emph{p\'erdida} (valores mayores son peor) y $\rho(X)$ el capital que se exige por ella. $\rho$ es \textbf{coherente} si cumple:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Monoton\'ia.} $X\le Y$ c.s. $\Rightarrow\rho(X)\le\rho(Y)$.\\
+\emph{Papel:} coherencia m\'inima de cualquier regla de capital: si una cartera pierde siempre al menos tanto como otra, no puede exigir menos. Sin ella, un comit\'e podr\'ia ``mejorar'' el capital empeorando la cartera. Contraejemplo: $\rho(X)=\E[X]+k\,\sigma(X)$ no es mon\'otona; con $Y=1$ constante y $X=1$ con probabilidad $99\%$ y $-99$ con $1\%$, $X\le Y$ pero $\rho(X)=0+9{,}95>1=\rho(Y)$.
+\item \textbf{Subaditividad.} $\rho(X+Y)\le\rho(X)+\rho(Y)$.\\
+\emph{Papel:} formaliza que \emph{diversificar no puede aumentar el capital}. Permite descentralizar (el capital de la entidad no excede la suma de sus unidades) y que la diferencia $\rho(X)+\rho(Y)-\rho(X+Y)\ge0$ sea el beneficio de diversificaci\'on. Si falla, el regulador incentiva la fragmentaci\'on en filiales.
+\item \textbf{Homogeneidad positiva.} $\rho(\lambda X)=\lambda\rho(X)$, $\lambda\ge0$.\\
+\emph{Papel:} el capital escala linealmente con el tama\~no de la posici\'on (sin descuentos ni penalizaciones por escala). Es el supuesto m\'as fuerte: ignora la iliquidez de las posiciones grandes, que algunas extensiones relajan. Con subaditividad, equivale a \emph{convexidad}.
+\item \textbf{Invariancia por traslaci\'on.} $\rho(X+c)=\rho(X)+c$.\\
+\emph{Papel:} da significado de \emph{capital} a $\rho$: a\~nadir $c$ euros ciertos reduce el requerimiento exactamente en $c$. De aqu\'i, $\rho(X-\rho(X))=0$.
+\end{enumerate}
+
+\subsection*{Consecuencias \'utiles (todas se deducen de los cuatro axiomas)}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item $\rho(0)=0$ (homogeneidad con $\lambda=2$ sobre $0$) y $\rho(c)=c$: una p\'erdida cierta exige exactamente su importe.
+\item $\rho(X-\rho(X))=0$: aportar $\rho(X)$ en activos seguros vuelve aceptable la posici\'on.
+\item \textbf{Estabilidad (Lipschitz).} Si $m=\|X-Y\|_\infty$, entonces $X\le Y+m$ y por monoton\'ia y traslaci\'on $\rho(X)\le\rho(Y)+m$; intercambiando, $|\rho(X)-\rho(Y)|\le m$. Un error de modelizaci\'on peque\~no no provoca un salto grande de capital.
+\item \textbf{Cotas:} $\mathrm{ess\,inf}\,X\le\rho(X)\le\mathrm{ess\,sup}\,X$.
+\item \textbf{Conjunto de aceptaci\'on:} $\mathcal A_\rho=\{X:\rho(X)\le0\}$ es un cono convexo y $\rho(X)=\inf\{m:X-m\in\mathcal A_\rho\}$. El criterio de Solvencia~II ($P(X>0)\le0{,}5\%$) define un conjunto que en general no es convexo: es la versi\'on geom\'etrica de que el VaR no es subaditivo.
+\end{itemize}
+
+\subsection*{Qu\'e medidas cumplen qu\'e}
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Medida & Monoton\'ia & Homog. & Traslaci\'on & Subaditividad\\
+\midrule
+$(1+\theta)\E[X]$ & s\'i & s\'i & \textbf{no} & s\'i\\
+$\E[X]+k\sigma(X)$ & \textbf{no} & s\'i & s\'i & s\'i\\
+Exponencial $\frac1a\ln\E[e^{aX}]$ & s\'i & \textbf{no} & s\'i & \textbf{no} (es convexa)\\
+$\mathrm{ess\,sup}\,X$ & s\'i & s\'i & s\'i & s\'i (coherente, pero in\'util)\\
+VaR & s\'i & s\'i & s\'i & \textbf{no en general}\\
+TVaR / ES & s\'i & s\'i & s\'i & s\'i\\
+\bottomrule
+\end{tabular}
+\end{center}
+(La medida del m\'aximo $\mathrm{ess\,sup}$ es coherente, pero exige capital igual a la p\'erdida m\'axima posible, lo que no sirve para gestionar.) El $\VaR_p$ cumple tres de los cuatro; el $\TVaR_p$, los cuatro.
+
+\paragraph{Conclusi\'on.} Monoton\'ia y traslaci\'on dan sentido a $\rho$ como capital; homogeneidad fija c\'omo escala; la subaditividad es el axioma discutido porque es el que ata el capital a la diversificaci\'on.
+
+\bigskip\hrule\bigskip
+
+\section*{Pregunta 2 -- Los dos bonos: VaR no subaditivo, TVaR s\'i}
+
+\noindent\textbf{Enunciado.} ?`Por qu\'e el ejemplo de los dos bonos independientes rompe la subaditividad del VaR pero no la del TVaR? Explica la intuici\'on sin repetir el c\'alculo completo.
+
+\subsection*{Intuici\'on}
+Cada bono (impago $2\%$, p\'erdida 100) tiene una probabilidad de p\'erdida \emph{inferior} a $1-p=2{,}5\%$. El VaR al 97,5\,\% mira solo \emph{si} la probabilidad de superar un umbral cabe en la cola de $2{,}5\%$, y para cada bono por separado la respuesta es s\'i: ``con $97{,}5\%$ de confianza, no pierdo nada'', de modo que $\VaR(A)=\VaR(B)=0$. Pero la cartera tiene al menos un impago con probabilidad $1-0{,}98^2=3{,}96\%>2{,}5\%$: el evento adverso \emph{cruza el umbral} al combinar, y el VaR de la cartera salta de $0$ a $100$ (efecto acantilado). El VaR es un solo punto de la distribuci\'on: ni ve que cada riesgo, aunque ``escondido'' bajo el percentil, es real, ni cu\'anto pierde la cartera m\'as all\'a del percentil.
+
+El TVaR \emph{promedia toda la cola}: $\TVaR_p=\frac1{1-p}\int_p^1\VaR_u\,du$. Cada bono tiene $\TVaR=80$ (con $2\%$ de probabilidad pierde 100, la cola de $2{,}5\%$ incluye esa masa); la cartera, $101{,}6$. Aporta lo que se pierde en la parte de la cola que s\'i se ve, y por eso no hay saltos.
+
+\subsection*{Por qu\'e es matem\'aticamente inevitable}
+\begin{itemize}[leftmargin=*]
+\item \textbf{TVaR es subaditivo para cualquier dependencia.} Con la representaci\'on de Rockafellar--Uryasev, $\TVaR_p(Z)=\min_t\{t+\E[(Z-t)^+]/(1-p)\}$, y la desigualdad $(a+b)^+\le a^++b^+$:
+\[
+\TVaR_p(X+Y)\le t_1+t_2+\frac{\E[(X-t_1)^+]+\E[(Y-t_2)^+]}{1-p}\xrightarrow{\,t_1=\VaR_p(X),\ t_2=\VaR_p(Y)\,}\TVaR_p(X)+\TVaR_p(Y).
+\]
+No se usa independencia ni normalidad.
+\item \textbf{El VaR depende de un cuantil y solo ve la cola desde el borde.} Para subaditividad se necesitar\'ia que la cola combinada se controle por las colas individuales, y el cuantil no lo garantiza cuando hay saltos (impagos, cat\'astrofes) o colas pesadas.
+\item \textbf{Cu\'ando el VaR s\'i es subaditivo:} Normal conjunta y, en general, distribuciones el\'ipticas con $p\ge50\%$: $\VaR_p=\mu+\sigma z_p$ y $\sigma(X+Y)\le\sigma_X+\sigma_Y$.
+\end{itemize}
+
+\subsection*{Con la correlaci\'on}
+Con $P(A=1,B=1)=q^2+\rho\,q(1-q)$ y $\rho^*=\frac{2q-(1-p)-q^2}{q(1-q)}=0{,}745$:
+\begin{center}
+\small
+\begin{tabular}{rrrrrrr}
+\toprule
+$\rho$ & $P(\text{ambos})$ & $P(S>0)$ & VaR $A{+}B$ & TVaR $A{+}B$ & VaR$_A$+VaR$_B$ & TVaR$_A$+TVaR$_B$\\
+\midrule
+0 & 0,04\,\% & 3,96\,\% & 100 & 101,6 & 0 & 160\\
+0,25 & 0,53\,\% & 3,47\,\% & 100 & 121,2 & 0 & 160\\
+0,50 & 1,02\,\% & 2,98\,\% & 100 & 140,8 & 0 & 160\\
+0,75 & 1,51\,\% & 2,49\,\% & 0 & 160 & 0 & 160\\
+1 & 2,00\,\% & 2,00\,\% & 0 & 160 & 0 & 160\\
+\bottomrule
+\end{tabular}
+\end{center}
+Para $\rho<\rho^*$, $\VaR(A+B)=100>0=\VaR(A)+\VaR(B)$: no subaditivo, y adem\'as el VaR \emph{cae} de golpe a $0$ cuando $\rho$ supera $\rho^*$ (discontinuidad), una conducta absurda: m\'as dependencia $\Rightarrow$ menos capital. El TVaR crece de forma continua con $\rho$ y no supera $160$, que es el caso de comonoton\'ia (los dos impagan a la vez; el TVaR es aditivo).
+
+\paragraph{Mismo mecanismo en el Caso~2 del banco.} Dos carteras de 50 M\euro\ con $q=1{,}5\%$ y $p=98\%$: $\VaR(A)=\VaR(B)=0<\VaR(A+B)=50$, mientras $\TVaR(A)=\TVaR(B)=37{,}5$ y $\TVaR(A+B)=50{,}56\le75$ (beneficio de diversificaci\'on de $24{,}4$ M\euro).
+
+\paragraph{Conclusi\'on.} El VaR mira un umbral de probabilidad y se puede ``cruzar'' al combinar riesgos; el TVaR promedia la cola y, por la desigualdad $(a+b)^+\le a^++b^+$, nunca excede la suma de las partes.
+
+\bigskip\hrule\bigskip
+
+\section*{Pregunta 3 -- Consejo a un regulador: ?`migrar de VaR a TVaR?}
+
+\noindent\textbf{Enunciado.} Si tuvieras que aconsejar a un regulador de seguros sobre si migrar de VaR a TVaR, ?`qu\'e argumentos t\'ecnicos, pr\'acticos y de comparabilidad internacional le expondr\'ias?
+
+\subsection*{Argumentos a favor de migrar al TVaR / ES}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Coherencia:} es subaditivo para cualquier dependencia; evita las se\~nales falsas de diversificaci\'on y el incentivo a fragmentar el grupo.
+\item \textbf{Sensibilidad a la cola:} el VaR a igual percentil no distingue una cola ligera de una catastr\'ofica. Dos carteras con el mismo VaR al 99,5\,\% pueden tener TVaR de $7{,}3$ y $25{,}4$ M\euro\ (ejemplo de una mezcla con catástrofe del $0{,}4\%$). El TVaR evita la ``optimizaci\'on de cola''.
+\item \textbf{Capital:} con la Normal, el TVaR al 99,5\,\% exige un $12{,}3\%$ m\'as de capital que el VaR; con una Log-normal de la misma media y varianza, un $16{,}1\%$ m\'as.
+\item \textbf{Precedente:} Basilea sustituy\'o el VaR por el ES al 97,5\,\% (FRTB) tras la experiencia de 2008; el SST suizo usa ES al 99\,\%.
+\end{itemize}
+
+\subsection*{Argumentos a favor de mantener el VaR 99,5\,\%}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Error de estimaci\'on.} El ES depende de la cola extrema, donde hay pocos datos; con una $t_4$, el error t\'ipico es del $21{,}2\%$ para el VaR 99,5\,\% y del $25{,}2\%$ para el ES 99\,\% con 250 observaciones ($9{,}0\%$ y $10{,}6\%$ con 2.000). En seguros, con un a\~no de horizonte y pasivos a muy largo plazo, los datos son mucho m\'as escasos que en una mesa de negociaci\'on con datos diarios.
+\item \textbf{Colas muy pesadas.} Con $\alpha\le1$ el ES no existe; con $\alpha$ cercano a 1 es enorme y muy inestable.
+\item \textbf{Contrastabilidad.} El VaR es \emph{elicitable} y se contrasta con tests de excesos; el ES no lo es por s\'i solo (s\'i conjuntamente con el VaR).
+\item \textbf{Comparabilidad y calibraci\'on.} Toda la f\'ormula est\'andar de Solvencia~II, las correlaciones, los modelos internos aprobados y las comparaciones entre grupos est\'an calibrados al VaR 99,5\,\%; cambiar la medida obliga a recalibrar todo. Y la ganancia en coherencia es limitada cuando las marginales son casi normales: con la Normal, el ES al 99\,\% es solo un $3{,}5\%$ mayor que el VaR al 99,5\,\%.
+\item \textbf{Comunicaci\'on y gobierno.} El VaR tiene una lectura directa (probabilidad de ruina del $0{,}5\%$, equivalente aproximado a un rating BBB).
+\end{itemize}
+
+\subsection*{Qu\'e nivel equivale a cu\'al}
+No hay un nivel $p'$ universal con $\TVaR_{p'}=\VaR_{99{,}5\%}$: va del $98{,}7\%$ (Normal) al $98{,}4\%$ ($t_4$, Log-normal $\sigma=1$), $98{,}3\%$ (Pareto $\alpha=3$) y $98{,}0\%$ (Pareto $\alpha=2$). El cociente $\TVaR_{99\%}/\VaR_{99{,}5\%}$ va de $1{,}03$ (Normal) a $1{,}13$ ($t_4$) y $1{,}41$ (Pareto $\alpha=2$): pasar de VaR 99,5\,\% a ES 99\,\% (SST) endurece poco el capital con colas ligeras y mucho con colas pesadas.
+
+\subsection*{Comparabilidad internacional}
+Solvencia~II: VaR 99,5\,\% a un a\~no; SST: ES 99\,\%; Basilea (FRTB): ES 97,5\,\% con horizontes de liquidez de 10 a 120 d\'ias; el \emph{Insurance Capital Standard} de la IAIS usa un VaR 99,5\,\%. Un cambio unilateral de la UE perjudicar\'ia la comparabilidad.
+
+\subsection*{Mi recomendaci\'on}
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{No migrar de golpe}, sino \textbf{complementar}: mantener el VaR 99,5\,\% como medida de capital, y exigir en el ORSA y en modelos internos la comunicaci\'on del TVaR (por ejemplo, al 99\,\% y al 99,5\,\%) y an\'alisis de cola (\'indice de cola, escenarios extremos).
+\item \textbf{Controlar la optimizaci\'on de cola} con una prueba de coherencia: que el modelo interno informe del cociente TVaR/VaR y justifique valores an\'omalos.
+\item \textbf{Estudio de impacto previo} para decidir si el TVaR 99\,\% (SST) es el objetivo a largo plazo, con calibraci\'on de la f\'ormula est\'andar y per\'iodo transitorio.
+\item \textbf{Vigilar la fragmentaci\'on:} supervisi\'on de grupo y reglas de aplicaci\'on que impidan beneficiarse de la falta de subaditividad.
+\end{enumerate}
+
+\subsection*{Referencias}
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+\item Artzner, P., Delbaen, F., Eber, J.-M. y Heath, D. (1999). Coherent measures of risk. \emph{Mathematical Finance}, 9(3).
+\item Acerbi, C. y Tasche, D. (2002). On the coherence of Expected Shortfall. \emph{Journal of Banking \& Finance}, 26(7).
+\item Rockafellar, R. T. y Uryasev, S. (2002). Conditional value-at-risk for general loss distributions. \emph{Journal of Banking \& Finance}, 26(7).
+\item McNeil, A. J., Frey, R. y Embrechts, P. \emph{Quantitative Risk Management}. Princeton University Press.
+\item Gneiting, T. (2011). Making and evaluating point forecasts. \emph{JASA}, 106.
+\item Basel Committee on Banking Supervision (2016). \emph{Minimum capital requirements for market risk}.
+\end{itemize}
+\end{document}

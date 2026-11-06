@@ -1,0 +1,58 @@
+Avisos:
+1: package 'actuar' was built under R version 4.5.3 
+2: package 'ggplot2' was built under R version 4.5.3 
+== (A) Panjer de la teoria ==
+f0 = 0.000137355  g0 = 0.006742576  masa hasta 15000 = 0.999999184
+E[S] = 2999.9872 (3000)  Var[S] = 2699917.47 (2.700.000)
+[1] 2800 5210 6010 7640 8290
+FFT: max|g_FFT - g_Panjer| = 2.82e-12
+actuar::aggregateDist VaR 99,5%: 8290 
+
+== (B) Caso 1 Auto ==
+E(S) = 1080000.0  Var = 1458010000  (teorico 1458000000)  asimetria = 0.0471
+        metodo    VaR995    capital capital_pct
+1       Normal 1178354.9  98354.864   9.1069318
+2 Normal Power 1180045.3 100045.333   9.2634567
+3 Exacta (FFT) 1180040.0 100040.000   9.2629630
+
+== (C) MLE Gamma vs Pareto ==
+Aviso:
+In densfun(x, parm[1], parm[2], ...) : Se han producido NaNs
+Gamma : forma = 2.058  escala = 410.4  logL = -3807.28  AIC = 7618.56
+Pareto: alpha = 2.64e+13  theta = 2.23e+16  logL = -3869.46  AIC = 7742.91
+Mejor ajuste por AIC: Gamma 
+Con MLE: E(S) = 1013571  SD = 35666  VaR 99,5% exacto = 1107000
+
+== (D) Caso 2 Hogar ==
+E(S) = 150000 Var = 900000000 SD = 30000 asimetria = 0.4000 SD/E = 0.200 (Caso 1: 0.035)
+Panjer(NB) vs FFT: max|dif| = 3.74e-11   TVaR 99,5% = 252671
+                metodo    VaR995 VaR_sobre_E_menos1_pct
+1               Normal 227274.88              51.516586
+2         Normal Power 238544.67              59.029782
+3         Exacta (FFT) 238300.00              58.866667
+4 Monte Carlo (20.000) 239085.49              59.390329
+
+== (E) Cuatro segmentos ==
+E = 1134500 Var = 1715435000 SD = 41418 asimetria = 0.0509  lambda total = 1200
+max|g_mezcla - g_producto| = 6.67e-18
+       metodo    VaR995
+       Normal 1241185.2
+ Normal Power 1243165.1
+ Exacta (FFT) 1243150.0
+
+== (F) Test de sobredispersion ==
+media = 0.1462 var = 0.1869 indice dispersion = 1.279 chi2 = 25571 p = 3.48e-145
+NB: r = 0.537 mu = 0.1462 | logL Poisson = -8937.1 logL NB = -8723.9 LR = 426.4 | AIC Poisson 17876.3 vs NB 17451.9
+
+== (G) Cola de la Pareto ==
+ alpha theta VaR_exacto VaR_sobre_E_menos1   Normal Normal_Power      TVaR
+   5.0  4000     234000          0.5600000 225097.7     234710.2  246694.8
+   4.0  3000     237750          0.5850000 227274.9     238544.7  252148.9
+   3.5  2500     241750          0.6116667 229392.4     243924.5  259126.9
+   3.0  2000     249750          0.6650000 233466.4           NA  275924.4
+   2.5  1500     269750          0.7983333 244642.0           NA  325118.0
+   2.0  1000     337500          1.2500000       NA           NA  505141.8
+   1.5   500     633750          3.2250000       NA           NA 1424418.2
+Aviso:
+Removed 419 rows containing missing values or values outside the scale range
+(`geom_line()`). 

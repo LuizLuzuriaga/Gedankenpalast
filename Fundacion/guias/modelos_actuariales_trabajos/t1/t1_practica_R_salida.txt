@@ -1,0 +1,27 @@
+Aviso:
+package 'ggplot2' was built under R version 4.5.3 
+
+== Caso 2: equivalente cierto y prima de riesgo por perfil ==
+            perfil        CE    EW     prima acepta
+1    Agresivo CRRA 10174.752 10250  75.24753   TRUE
+2    Moderado CRRA  9951.220 10250 298.78049  FALSE
+3 Conservador CRRA  9556.480 10250 693.51972  FALSE
+4    Agresivo CARA 10097.650 10250 152.34975   TRUE
+5    Moderado CARA  9810.296 10250 439.70433  FALSE
+6 Conservador CARA  9462.713 10250 787.28724  FALSE
+
+Umbral CRRA gamma* = 1.6676 | Umbral CARA alpha* = 0.000166
+Caso log (gamma = 1): CE = 10099.5, prima = 150.5
+
+Caso 1: P+ = 1188.92 | P- = 1083.46 | anchura = 105.46
+Recargo cedente = 18.9 % | recargo reasegurador = 8.3 % sobre E[X]=1000
+Limite alpha_R -> 0: P- -> 1000.00 ; anchura maxima = 188.92
+
+== Aproximacion de Arrow-Pratt frente a la prima exacta ==
+            perfil   prima   pi_AP error_AP_pct
+1    Agresivo CRRA  75.248  74.695  -7.3412e-01
+2    Moderado CRRA 298.780 298.780   2.4425e-13
+3 Conservador CRRA 693.520 746.951   7.7044e+00
+4    Agresivo CARA 152.350 153.125   5.0886e-01
+5    Moderado CARA 439.704 459.375   4.4736e+00
+6 Conservador CARA 787.287 918.750   1.6698e+01

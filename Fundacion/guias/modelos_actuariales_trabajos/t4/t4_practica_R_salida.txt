@@ -1,0 +1,73 @@
+Aviso:
+package 'ggplot2' was built under R version 4.5.3 
+== (A) Caso 1 Normal ==
+      p         VaR        TVaR      brecha TVaR_sobre_VaR TVaR_integral
+1 0.950 6315882.902 6650170.246 334287.3444  0.05292804659   6650167.572
+2 0.990 6861078.299 7132171.376 271093.0770  0.03951173055   7132168.845
+3 0.995 7060663.443 7313558.884 252895.4415  0.03581751821   7313556.408
+4 0.999 7472185.845 7693672.062 221486.2167  0.02964142238   7693669.701
+      TVaR_RU capital_VaR capital_TVaR extra_capital_pct
+1 6650170.246 1315882.902  1650170.246      25.404034360
+2 7132171.376 1861078.299  2132171.376      14.566451995
+3 7313558.884 2060663.443  2313558.884      12.272525256
+4 7693672.062 2472185.845  2693672.062       8.959124864
+
+== (B) Log-normal y t4 ==
+Log-normal: sigma_L^2 = 0.02528 sigma_L = 0.15899 mu_L = 15.41231
+99,5%: VaR = 7435977 TVaR = 7827963 | capital VaR = 2435977 capital TVaR = 2827963 (+16.1%)
+Frente a la Normal: capital VaR +18.2%  capital TVaR +22.2%
+ p   VaR_N  TVaR_N  VaR_LN TVaR_LN   VaR_t4  TVaR_t4
+ 1 6315883 6650170 6412917 6865759  6205955  6811817
+ 1 6861078 7132171 7146802 7551893  7119594  7953208
+ 1 7060663 7313559 7435977 7827963  7604469  8577865
+ 1 7472186 7693672 8069689 8440232  9057765 10479353
+ 1 7975213 8166784 8918121 9270433 12372958 14869003
+
+== (C) Bonos correlacionados ==
+   rho P_ambos_pct P_S_mayor0_pct VaR_AB VaR_suma TVaR_AB TVaR_suma   beneficio
+1 0.00        0.04           3.96    100        0   101.6       160 5.84000e+01
+2 0.25        0.53           3.47    100        0   121.2       160 3.88000e+01
+3 0.50        1.02           2.98    100        0   140.8       160 1.92000e+01
+4 0.75        1.51           2.49      0        0   160.0       160 1.42109e-13
+5 1.00        2.00           2.00      0        0   160.0       160 1.42109e-13
+umbral rho* = 0.7449 ; rango admisible [-0.0204, 1]
+Credito: VaR 0+0 = 0 < 50 | TVaR 37.5+37.5 = 75.0 >= 50.5625 (beneficio 24.44)
+
+== (D) Simulacion (PerformanceAnalytics) ==
+VaR 97,5%: historico 0.02927 | gaussiano 0.02955 | modificado (Cornish-Fisher) 0.05351 | ES historico 0.04235
+0,5*VaR(A)+0,5*VaR(B) = 0.0026 | VaR(Cartera) = 0.4998
+0,5*ES(A)+0,5*ES(B)   = 0.7597 | ES(Cartera)  = 0.5078
+En perdidas positivas: VaR suma ponderada = 0.0026 | VaR cartera = 0.4998 | ES suma ponderada = 0.7597 | ES cartera = 0.5078
+
+== (E) Contribuciones de Euler al TVaR ==
+sigma_S = 0.728 VaR = 6.875 TVaR = 7.105 k = 2.8919
+ linea TVaR_ind C_formula C_simulacion diversificacion
+     A    4.446     4.231        4.236          0.2145
+     B    3.157     2.874        2.872          0.2829
+   A+B    7.603     7.105        7.107          0.4974
+
+== (F) SCR: formula estandar frente a distribucion conjunta ==
+SCR agregado (formula): 142.8286 
+  sigma    copula SCR_A.99.5. SCR_B.99.5. formula.99.5. real.99.5. pct.99.5.
+1   0.2 gaussiana       64.02       51.41         91.58      88.04   -3.8643
+2   0.2   t, nu=4       63.86       51.06         91.19      94.49    3.6176
+3   0.2   t, nu=3       64.32       51.32         91.77      96.51    5.1706
+4   0.5 gaussiana      219.63      176.64        314.38     290.53   -7.5877
+5   0.5   t, nu=4      218.88      174.94        312.50     309.67   -0.9075
+6   0.5   t, nu=3      221.09      176.24        315.32     317.32    0.6364
+7   1.0 gaussiana      695.65      561.19        997.03     915.15   -8.2119
+8   1.0   t, nu=4      691.93      552.70        987.65     963.46   -2.4499
+9   1.0   t, nu=3      702.93      559.20       1001.68     994.06   -0.7600
+
+== (G) Error de muestreo: VaR 99,5% y ES 99% de una t4 ==
+Valores verdaderos: VaR 99,5% = 3.2556  ES 99% = 3.6915
+    n VaR_medio error_VaR_pct ES_medio error_ES_pct
+  250     3.041        21.957    3.402        25.43
+ 2000     3.231         8.985    3.681        10.55
+       distribucion p_equiv ES99_sobre_VaR995
+             Normal  0.9870             1.035
+        t4 escalada  0.9845             1.134
+ Log-normal s=0,159  0.9867             1.016
+     Log-normal s=1  0.9845             1.159
+    Pareto I alfa=3  0.9831             1.190
+    Pareto I alfa=2  0.9801             1.412

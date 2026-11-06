@@ -1395,5 +1395,34 @@ print(eq, 2 * eq, abs(2 * eq) < 1)` } }
                 ]
             }
         ]
+    },
+
+    // ------------------------------------------------------------------
+    modelos_actuariales: {
+        guide: 'guias/modelos_actuariales.html',
+        sections: [
+            {
+                id: 'idea', title: 'Idea clave',
+                blocks: [
+                    { type: 'p', text: 'Del comportamiento ante el riesgo a la cola extrema: cinco temas que van de la utilidad esperada al capital de solvencia. La siniestralidad total se describe póliza a póliza (modelo individual) o por frecuencia y severidad (modelo colectivo), se mide con VaR y TVaR y se extrapola en la cola con valores extremos.' },
+                    { type: 'guide', text: 'Guía de estudio con los cinco temas explicados y, por cada uno, tres bloques de trabajos: preguntas de repaso (PDF en LaTeX), preguntas de debate (PDF en LaTeX) y el ejercicio práctico resuelto en Excel, Python (cuaderno .ipynb) y R, con todos los archivos descargables.' },
+                    { type: 'list', title: 'El programa', items: [
+                        '<b>Tema 1. Utilidad y decisiones bajo riesgo</b>: Arrow-Pratt, CARA/CRRA, equivalente cierto, prima de riesgo y reaseguro óptimo.',
+                        '<b>Tema 2. Modelo individual</b>: media, varianza y asimetría de la suma de pólizas; Normal, Gamma trasladada y Normal Power frente a la distribución exacta.',
+                        '<b>Tema 3. Modelo colectivo</b>: Poisson y Binomial Negativa, severidades Gamma, Log-normal y Pareto, recursión de Panjer y FFT.',
+                        '<b>Tema 4. Medidas coherentes</b>: axiomas de Artzner, VaR frente a TVaR, subaditividad, asignación de Euler y Solvencia II frente a Basilea.',
+                        '<b>Tema 5. Valores extremos</b>: POT y GPD, elección del umbral, niveles de retorno, SCR anual y capas de reaseguro.'
+                    ] }
+                ]
+            },
+            {
+                id: 'fuentes', title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Matemática Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora (MUCAF, Universidad de Alcalá). Transparencias de los Temas 1 a 5 y notas de clase. Prof. Hugo González Riera.'
+                    ] }
+                ]
+            }
+        ]
     }
 });

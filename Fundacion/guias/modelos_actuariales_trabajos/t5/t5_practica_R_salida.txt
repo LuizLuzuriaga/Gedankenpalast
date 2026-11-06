@@ -1,0 +1,55 @@
+Avisos:
+1: package 'actuar' was built under R version 4.5.3 
+2: package 'ggplot2' was built under R version 4.5.3 
+n = 2000  mediana = 2.81  p95 = 11.70  maximo = 63.59  siguiente = 57.51
+Verdad: xi = 0.3333  VaR 99,5% = 27.85  TVaR 99,5% = 42.67
+
+== (A) Casos 1 y 2 ==
+Terremoto: VaR 28.352 TVaR 47.465 brecha 19.113 (+67.4%) | retorno 100 a 102.36 200 a 132.43
+Inundacion: VaR 15.909 TVaR 24.878 brecha 8.970 (+56.4%) | retorno 100 a 49.17 200 a 60.55
+      p    VaR   TVaR TVaR_VaR brecha
+1 0.970 11.816 22.025   1.8640 10.209
+2 0.990 20.706 35.701   1.7242 14.995
+3 0.995 28.352 47.465   1.6741 19.113
+4 0.999 55.203 88.773   1.6081 33.571
+
+== (B) Sensibilidad al umbral ==
+Hubo 11 avisos (use warnings() para verlos)
+    u  Nu  lam_u      xi    xi_inf xi_sup  sigma sigma_star VaR995 TVaR995
+  5.0 495 12.375 0.25202  0.143127 0.3609  3.365     2.1048  27.34   39.37
+  7.5 251  6.275 0.26866  0.113061 0.4243  3.897     1.8816  27.47   40.14
+ 10.0 137  3.425 0.26154  0.053996 0.4691  4.665     2.0500  27.53   40.06
+ 12.5  81  2.025 0.27788 -0.008285 0.5640  5.315     1.8419  27.58   40.74
+ 15.0  54  1.350 0.38802 -0.043628 0.8197  5.064    -0.7562  27.06   42.98
+ 20.0  23  0.575 0.06425 -0.435544 0.5640 10.193     8.9083  28.72   40.21
+
+== (C) MLE en u = 10 ==
+Nu = 137  lambda_u = 3.42  xi = 0.2615 (EE 0.1059)  sigma = 4.6654 (EE 0.6262)  logL = -383.836
+VaR 99,5% = 27.53 (Wald [23.16; 31.90])  TVaR 99,5% = 40.06
+Perfil de xi (95%): [0.09; 0.50]
+Hubo 50 o más avisos (use warnings() para ver los primeros 50)
+Bootstrap parametrico (B=1000), IC 95%:
+         [,1]  [,2]  [,3]
+2.5%  0.02465 23.50 29.75
+97.5% 0.46768 32.44 57.18
+PWM: xi = 0.256 sigma = 4.684 VaR = 27.45 | Hill (k=137): xi = 0.411 VaR = 29.17 | Pickands (k=34): xi = 0.163 | verdad: xi = 0.333
+
+== (E) SCR anual por simulacion ==
+                                     E   VaR   SCR OEP200
+Poisson (lambda=2)                38.5 187.3 148.8  133.3
+Bin. Negativa (var = 2,5 media)   38.4 255.0 216.6  132.6
+Poisson + incertidumbre xi, sigma 39.3 207.3 168.0  154.8
+VaR 99,5% de severidad por evento = 28.35 M (19% del SCR simulado)
+
+== (F) Capa 40 xs 20 ==
+       xi perdida_evento EL_anual P_contacto  P_agot prima_tecnica    ROL
+[1,] 0.25          2.541    5.082     0.3914 0.02189         7.671 0.1918
+[2,] 0.35          3.201    6.401     0.4161 0.03965         9.482 0.2371
+[3,] 0.45          3.880    7.761     0.4382 0.06077        11.298 0.2824
+
+== (G) Censura ==
+Avisos:
+1: In log(z) : Se han producido NaNs
+2: In log(z) : Se han producido NaNs
+Datos completos: xi = 0.262 VaR = 27.53 | topados (7 en 30): ingenuo xi = 0.019 VaR = 24.63 | censurado xi = 0.236 VaR = 27.11
+Hubo 35 avisos (use warnings() para verlos)

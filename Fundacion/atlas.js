@@ -33,7 +33,8 @@ const TOPICS = [
     {
         id: 'act_gestion_riesgos', cluster: 'act', name: 'Gestión de riesgos',
         desc: 'Identificación, medición y control de exposiciones financieras y biométricas: métricas de cola como el Valor en Riesgo (VaR) y el Expected Shortfall (TVaR), pruebas de estrés y escenarios extremos.',
-        related: ['act_solvencia', 'eco_macro', 'mat_probabilidad']
+        related: ['act_solvencia', 'eco_macro', 'mat_probabilidad'],
+        knowledge: 'modelos_actuariales'
     },
     {
         id: 'act_solvencia', cluster: 'act', name: 'Solvencia II',
