@@ -33,7 +33,12 @@ const TOPICS = [
     {
         id: 'act_gestion_riesgos', cluster: 'act', name: 'Gestión de riesgos',
         desc: 'Identificación, medición y control de exposiciones financieras y biométricas: métricas de cola como el Valor en Riesgo (VaR) y el Expected Shortfall (TVaR), pruebas de estrés y escenarios extremos.',
-        related: ['act_solvencia', 'eco_macro', 'mat_probabilidad'],
+        related: ['act_solvencia', 'eco_macro', 'mat_probabilidad']
+    },
+    {
+        id: 'act_mat_estabilidad_solvencia', cluster: 'act', name: 'Matemática Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora (Matemática No Vida II)',
+        desc: 'Teoría del riesgo para la solvencia: utilidad y reaseguro, modelo individual y colectivo del coste total, medidas coherentes (VaR y TVaR) y valores extremos para riesgos catastróficos.',
+        related: ['act_gestion_riesgos', 'act_solvencia', 'act_no_vida', 'mat_probabilidad'],
         knowledge: 'modelos_actuariales'
     },
     {

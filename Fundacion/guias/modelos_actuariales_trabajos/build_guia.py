@@ -147,7 +147,7 @@ def build():
     doc = f'''<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Guía de Matemática Actuarial de la Estabilidad y Solvencia: utilidad, modelo individual y colectivo, medidas de riesgo y valores extremos, con trabajos resueltos en PDF, Excel, Python y R.">
-<title>Matemática actuarial de la solvencia</title>
+<title>Matemática actuarial de la solvencia (No Vida II)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,700;1,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <script>window.MathJax={{tex:{{inlineMath:[['\\\\(','\\\\)']],displayMath:[['\\\\[','\\\\]']]}},svg:{{fontCache:'global'}},options:{{enableMenu:false}}}};</script>
@@ -155,7 +155,8 @@ def build():
 <style>{CSS}</style></head><body>
 <nav class="toc" aria-label="Índice"><div class="in"><a href="../" target="_top">← Gendanken Palast</a><a href="#mapa">Mapa</a>{nav}<a href="#trabajos">Trabajos</a><a href="#tr-repaso">Repaso</a><a href="#tr-debate">Debate</a><a href="#tr-practica">Prácticos</a></div></nav>
 <div class="wrap"><header class="hero"><div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Hugo González Riera</div>
-<h1>Matemática actuarial de la estabilidad y solvencia</h1>
+<h1>Matemática Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora</h1>
+<div class="eyebrow">(Matemática No Vida II)</div>
 <p class="lede">Guía de estudio de los cinco temas del bloque de teoría del riesgo: utilidad y reaseguro, modelo individual, modelo colectivo, medidas de riesgo coherentes y valores extremos. Cada tema se explica y se acompaña de las respuestas a las preguntas de repaso y debate y del ejercicio práctico en Excel, Python y R.</p>
 <div class="hero-meta"><span class="chip">Trabajos de <b>Luiz Luzuriaga</b></span><span class="src">PDF en LaTeX · Excel · Python · R</span></div></header>
 {body}
