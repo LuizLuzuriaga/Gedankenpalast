@@ -54,8 +54,14 @@ const TOPICS = [
     {
         id: 'act_contabilidad', cluster: 'act', name: 'Contabilidad',
         desc: 'Registro y presentación del balance y la cuenta técnica: devengo del margen de servicio, liberación de reservas técnicas y conciliación contable-actuarial.',
-        related: ['act_ifrs17'],
+        related: ['act_ifrs17', 'act_contabilidad2'],
         knowledge: 'contabilidad_pgc'
+    },
+    {
+        id: 'act_contabilidad2', cluster: 'act', name: 'Contabilidad 2: instrumentos financieros',
+        desc: 'Instrumentos financieros bajo la NIIF 9: test SPPI y modelo de negocio, carteras (coste amortizado, valor razonable con cambios en PyG u ORG), reclasificaciones, pasivos financieros, derivados y coberturas, y deterioro por pérdida esperada.',
+        related: ['act_contabilidad', 'act_ifrs17', 'eco_renta_fija', 'eco_derivados'],
+        knowledge: 'contabilidad2'
     },
     {
         id: 'act_vida', cluster: 'act', name: 'Seguros de Vida',
