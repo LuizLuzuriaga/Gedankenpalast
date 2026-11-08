@@ -139,6 +139,76 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .tq .n { font-family: var(--font-data); color: var(--accent); font-size: 13px; margin-right: 6px; }
 .tq .fb { margin: 0; }
 .fuentes { font-size: 13px; color: var(--muted); }
+
+/* Exámenes resueltos */
+:root { --org: #c8b4f0; --org-soft: #1a1426; }
+.marco { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
+.marco b { color: var(--ink); }
+.tag { display: inline-block; font-family: var(--font-data); font-size: 11px; letter-spacing: .02em; border-radius: 6px; padding: 1px 7px; border: 1px solid; vertical-align: 1px; white-space: nowrap; }
+.tA { color: var(--accent); border-color: #2a4f85; background: var(--accent-soft); }
+.tP { color: var(--warn); border-color: #5a3a1c; background: var(--warn-soft); }
+.tO { color: var(--org); border-color: #4a3a6b; background: var(--org-soft); }
+.tR { color: var(--ok); border-color: #5a5224; background: var(--ok-soft); }
+.ex-resumen { font-family: var(--font-data); font-size: 13px; color: var(--muted); }
+.ex-filtros { display: flex; flex-wrap: wrap; gap: 8px; }
+.ex-filtros button { border: 1px solid var(--rule); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+.ex-filtros button:hover { border-color: var(--accent); }
+.ex-filtros button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.exam { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; margin-bottom: 12px; }
+.exam > summary { cursor: pointer; padding: 14px 16px; display: grid; gap: 2px; list-style: none; }
+.exam > summary::-webkit-details-marker { display: none; }
+.exam > summary:hover { background: #151515; border-radius: 14px; }
+.ex-fecha { font-family: var(--font-display); font-size: 20px; color: var(--title); }
+.ex-meta { font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.exam[open] > summary { border-bottom: 1px solid var(--rule); }
+.exam-body { padding: 14px 16px 16px; display: grid; gap: 12px; }
+.archivos { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.archivos li { display: flex; gap: 8px; flex-wrap: wrap; }
+.archivos .rol { font-family: var(--font-data); color: var(--accent); }
+.ej { border: 1px solid var(--rule); border-radius: 12px; background: var(--bg); }
+.ej > summary { cursor: pointer; padding: 11px 14px; list-style: none; display: grid; gap: 4px; }
+.ej > summary::-webkit-details-marker { display: none; }
+.ej-t { font-weight: 600; }
+.ej-n { font-family: var(--font-data); font-size: 12px; color: var(--accent); margin-right: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 12px; border: 1px solid var(--rule); border-radius: 999px; padding: 1px 10px; color: var(--muted); }
+.chip.of { color: var(--ok); border-color: #5a5224; }
+.chip.pr { color: var(--warn); border-color: #5a3a1c; }
+.ej-body { padding: 4px 14px 16px; display: grid; gap: 12px; }
+.enun { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 10px 14px; font-size: 16px; }
+.enun h4, .paso h4 { margin: 0 0 4px; font-size: 14px; letter-spacing: .02em; }
+.supu { font-size: 14px; color: var(--warn); background: var(--warn-soft); border-radius: 8px; padding: 8px 14px; }
+.supu ul { margin: 4px 0 0; padding-left: 20px; }
+.ej-ctl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ej-prog { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.paso { display: grid; gap: 8px; padding: 12px 0 4px; border-top: 1px solid var(--rule); }
+.paso h4 { display: flex; gap: 8px; align-items: baseline; color: var(--title); font-size: 17px; }
+.paso .pn { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.paso > p { font-size: 16px; }
+.asiento { border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); overflow-x: auto; }
+.as-h { display: flex; gap: 10px; align-items: baseline; padding: 8px 12px; border-bottom: 1px solid var(--rule); font-size: 14px; }
+.as-f { font-family: var(--font-data); font-size: 12px; color: var(--accent); }
+.as-t { width: 100%; border-collapse: collapse; font-size: 14px; }
+.as-t td { padding: 5px 12px; border-bottom: 1px solid #1c1c1c; vertical-align: top; }
+.as-t td.num { text-align: right; font-family: var(--font-data); font-size: 13px; white-space: nowrap; width: 1%; }
+.as-t tr.hab td.cta { padding-left: 34px; }
+.as-t th { text-align: right; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 4px 12px; }
+.as-t th:first-child { text-align: left; }
+.as-n { padding: 6px 12px; font-size: 13px; color: var(--muted); border-top: 1px solid #1c1c1c; }
+.as-flow { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; background: #0b0b0b; }
+.fl { font-family: var(--font-data); font-size: 12px; border-radius: 6px; padding: 2px 8px; border: 1px solid; }
+.fl.pos { color: var(--ok); border-color: #5a5224; } .fl.neg { color: var(--bad); border-color: #6b2b24; } .fl.neu { color: var(--muted); border-color: var(--rule); }
+.claves { background: var(--accent-soft); border: 1px solid #2a4f85; border-radius: 10px; padding: 10px 14px; font-size: 15px; }
+.claves ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 2px; }
+.ex-vacio { color: var(--muted); font-style: italic; }
+@media (max-width: 520px) {
+  .as-t td, .as-t th { padding: 5px 8px; }
+  .as-t tr.hab td.cta { padding-left: 18px; }
+  .as-t td.num { font-size: 12px; }
+  .as-h, .as-n, .as-flow { padding-left: 8px; padding-right: 8px; }
+  .exam > summary, .exam-body { padding-left: 12px; padding-right: 12px; }
+  .ej-body { padding-left: 10px; padding-right: 10px; }
+}
 </style>
 </head>
 <body>
@@ -147,8 +217,8 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
   <header class="hero">
     <div class="eyebrow">MUCAF · Contabilidad 2</div>
     <h1>Instrumentos financieros (NIIF 9)</h1>
-    <p class="lede">Cómo se clasifica un activo o un pasivo financiero, cómo se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG). Teoría por apartados, un clasificador interactivo y un test con explicación.</p>
-    <div class="stats"><span><b>10</b> apartados</span><span><b>1</b> clasificador</span><span><b>12</b> preguntas de test</span></div>
+    <p class="lede">Cómo se clasifica un activo o un pasivo financiero, cómo se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG). Teoría por apartados, un clasificador interactivo, un test con explicación y los exámenes resueltos con sus asientos.</p>
+    <div class="stats"><span><b>10</b> apartados</span><span><b>1</b> clasificador</span><span><b>12</b> preguntas de test</span><span><b>9</b> exámenes resueltos</span></div>
   </header>
 
   <nav class="toc" aria-label="Índice">
@@ -164,7 +234,7 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
       <li><b>Modelo de negocio.</b> Si pasa el SPPI: cobrar flujos contractuales → coste amortizado (CA); cobrar flujos y vender → VR con cambios en ORG; cualquier otro caso → VR con cambios en PyG.</li>
     </ol>
     <h3>Test SPPI</h3>
-    <p>El <b>principal</b> es el valor razonable al reconocimiento inicial. Los <b>intereses</b> compensan el valor temporal del dinero, el riesgo de crédito, el de liquidez, los costes de estructura y el margen de beneficio. Un préstamo que paga 50 de cupón por cada 1.000 y devuelve 1.050 al vencimiento lo pasa. Uno que paga un porcentaje del EBITDA de la compañía no: la remuneración depende de otra variable.</p>
+    <p>El <b>principal</b> es el valor razonable al reconocimiento inicial. Los <b>intereses</b> compensan el valor temporal del dinero, el riesgo de crédito, el de liquidez, los costes de estructura y el margen de beneficio. Los contratos que producen solo eso son, básicamente, la renta fija y los préstamos. Un préstamo en el que pagas 1.000 y recibes cupones de 50 hasta el vencimiento, donde te devuelven 1.050, lo pasa. Uno que paga un porcentaje del EBITDA de la compañía no: la remuneración depende de otra variable.</p>
     <div class="dos">
       <div class="caja"><h4>Pasan el SPPI</h4><ul><li>Tipos fijos y variables</li><li><i>Caps</i> y <i>floors</i></li><li>Tasas de mercado negativas</li><li>Valores emitidos al descuento y cupón cero</li><li>Activos con garantía de otros activos</li><li>Financiación devuelta con un número variable de acciones</li><li>Instrumentos perpetuos</li></ul></div>
       <div class="caja"><h4>No lo pasan (típicamente)</h4><ul><li>Préstamo participativo con parte variable ligada al resultado</li><li>Bono convertible en acciones</li><li>CoCo con activación por capital regulatorio</li><li>Bonos de titulización: se analizan por transparencia (<i>look-through</i>) del fondo</li></ul></div>
@@ -278,21 +348,20 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
   </section>
 
   <section class="sec" id="examenes">
-    <h2>10 · Qué cae en los exámenes</h2>
-    <div class="tabla"><table>
-      <thead><tr><th>Convocatoria</th><th>Temas de los enunciados</th></tr></thead>
-      <tbody>
-        <tr><td>1/2/2016</td><td>Bonos con swap de cobertura y ficha contable; depósito estructurado de un seguro de vida con riesgo de inversión para el tomador</td></tr>
-        <tr><td>Mayo 2020</td><td>Acciones con venta parcial y gastos de corretaje, inmueble de uso propio que pasa a disponible para la venta, títulos a VR con cambios en patrimonio, préstamo con cuotas constantes</td></tr>
-        <tr><td>24/1/2025</td><td>Bono cupón cero con prima ligada al S&amp;P 500, deuda pública a coste amortizado con decisión de venta, contrato de seguro con margen de servicio contractual</td></tr>
-        <tr><td>Resto</td><td>Exámenes de 2016 a 2019 y el superextraordinario, con soluciones</td></tr>
-      </tbody>
-    </table></div>
-    <p class="aviso"><b>IFRS 17 en el examen de 2025:</b> el pasivo del contrato es la mejor estimación de los flujos descontados (BEL) más el ajuste por riesgo no financiero (RA) más el margen de servicio contractual (CSM). Se pide el pasivo y el CSM al inicio y al cierre del primer año con prima 1.000, salidas esperadas 500, ajuste por riesgo 50 anuales y descuento al 6 %.</p>
-    <p class="fuentes">Fuentes: diapositivas de Instrumentos Financieros (clasificación de activos y de pasivos), exámenes de 2016 a 2025 y notas de la clase del 6/11/2026. Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá. NIIF 9.</p>
+    <h2>10 · Exámenes resueltos</h2>
+    <p>Todas las convocatorias de tu carpeta de Contabilidad, ejercicio por ejercicio. Cada uno se puede resolver <b>paso a paso</b>: primero el enunciado, después cada paso con sus cálculos y con los <b>asientos contables</b> que dicen qué se mueve y hacia dónde (activo, pasivo, patrimonio neto o cuenta de resultados).</p>
+    <div class="marco">
+      <p><b>Cómo leer los asientos.</b> Cada línea lleva una etiqueta: <span class="tag tA">Activo</span> <span class="tag tP">Pasivo</span> <span class="tag tO">ORG / PN</span> <span class="tag tR">PyG</span>. Las cuentas del Debe van a la izquierda y las del Haber, con una «a» delante, a la derecha. Debajo de cada asiento verás el efecto neto en balance, en patrimonio y en resultados.</p>
+      <p><b>Terminología.</b> Los exámenes de 2016 a 2019 usan la norma anterior (NIC 39 y PGC): «disponible para la venta» equivale hoy a valor razonable con cambios en ORG, y la cartera con modelo de cobro de flujos, a coste amortizado. ROF es el resultado de operaciones financieras, que va a la cuenta de pérdidas y ganancias.</p>
+    </div>
+    <div class="ex-resumen" id="exResumen"></div>
+    <div class="ex-filtros" id="exFiltros" role="group" aria-label="Filtrar por tema"></div>
+    <div id="exLista"></div>
+    <p class="fuentes">Fuentes: enunciados, soluciones y hojas de cálculo de las convocatorias de Contabilidad de tu carpeta (Contabilidad2), diapositivas de Instrumentos Financieros y notas de la clase del 6/11/2026. Máster U. en Ciencias Actuariales y Financieras, Universidad de Alcalá.</p>
   </section>
 </div>
 
+<script src="contabilidad2_examenes.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -381,6 +450,102 @@ $('quiz').addEventListener('click', (e) => {
   pintaTest();
 });
 pintaTest();
+
+/* ---------- Exámenes resueltos ---------- */
+const fmt = (x) => { const [e, d] = Math.abs(x).toFixed(2).split('.'); return (x < 0 ? '−' : '') + e.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + d; };
+const CATS = [
+  ['Coberturas', /cobertur/i],
+  ['Derivados e híbridos', /derivad|compuesto/i],
+  ['Morosidad y deterioro', /moros|deterior|adjudic/i],
+  ['Acciones y ORG', /acciones|ORG/i],
+  ['Seguros e IFRS 17', /seguro|IFRS/i],
+  ['Clasificación y valoración', /clasific|coste amortizado|renta fija|pasivos|inmovilizado/i]
+];
+const catsDe = (t) => CATS.filter(([, re]) => re.test(t)).map(([n]) => n);
+const TIPO = { A: ['Activo', 'tA'], P: ['Pasivo', 'tP'], O: ['ORG / PN', 'tO'], R: ['PyG', 'tR'] };
+const esFigura = (v) => /^[−+-]?\d[\d.,]*\s*(%|€)?(\s*\(total\))?$/.test(String(v).trim());
+
+function pintaTabla(t) {
+  const num = t.head.map((_, i) => t.rows.every((r) => r[i] === '' || r[i] === '—' || esFigura(r[i])));
+  const c = (i) => (num[i] && i > 0 ? ' class="num"' : '');
+  return `<div class="tabla"><table><caption>${esc(t.cap)}</caption><thead><tr>${t.head.map((h, i) => `<th${c(i)}>${esc(h)}</th>`).join('')}</tr></thead><tbody>${t.rows.map((r) => `<tr>${r.map((x, i) => (i === 0 ? `<th>${esc(x)}</th>` : `<td${c(i)}>${esc(x)}</td>`)).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function pintaAsiento(a) {
+  const imp = { A: 0, P: 0, O: 0, R: 0 };
+  const soloActivo = a.l.every((l) => l[1] === 'A');
+  a.l.forEach(([, t, d, h]) => { imp[t] += t === 'A' ? d - h : h - d; });
+  const filas = a.l.map(([c, t, d, h]) => `<tr class="${h && !d ? 'hab' : 'deb'}"><td class="cta">${h && !d ? 'a ' : ''}<span class="tag ${TIPO[t][1]}">${TIPO[t][0]}</span> ${esc(c)}</td><td class="num">${d ? fmt(d) : ''}</td><td class="num">${h ? fmt(h) : ''}</td></tr>`).join('');
+  const etq = { A: 'Activo', P: 'Pasivo', O: 'ORG / PN', R: 'Resultado (PyG)' };
+  const chips = ['A', 'P', 'O', 'R'].filter((k) => Math.abs(imp[k]) > 0.005).map((k) => {
+    const v = imp[k]; const cl = k === 'R' ? (v > 0 ? 'pos' : 'neg') : 'neu';
+    return `<span class="fl ${cl}">${etq[k]} ${v > 0 ? '+' : '−'}${fmt(Math.abs(v)).replace('−', '')}</span>`;
+  });
+  if (soloActivo && !chips.length) chips.push('<span class="fl neu">Solo cambia la composición del activo</span>');
+  return `<div class="asiento"><div class="as-h"><span class="as-f">${esc(a.f)}</span><b>${esc(a.t)}</b></div>
+    <table class="as-t"><thead><tr><th>Cuenta</th><th>Debe</th><th>Haber</th></tr></thead><tbody>${filas}</tbody></table>
+    ${a.n ? `<div class="as-n">${esc(a.n)}</div>` : ''}<div class="as-flow">${chips.join('')}</div></div>`;
+}
+function pintaPaso(p, i) {
+  return `<div class="paso" hidden><h4><span class="pn">Paso ${i + 1}</span>${esc(p.t)}</h4>${p.p ? `<p>${esc(p.p)}</p>` : ''}${p.tabla ? pintaTabla(p.tabla) : ''}${(p.a || []).map(pintaAsiento).join('')}</div>`;
+}
+function pintaEjercicio(x) {
+  const cats = catsDe(x.tema);
+  const sup = (x.supuestos && x.supuestos.length) || (x.avisos && x.avisos.length)
+    ? `<div class="supu"><b>${x.supuestos ? 'Supuestos de esta resolución' : 'Ojo'}</b><ul>${(x.supuestos || []).concat(x.avisos || []).map((s) => `<li>${esc(s)}</li>`).join('')}</ul></div>` : '';
+  return `<details class="ej" data-cats="${esc(cats.join('|'))}"><summary><span class="ej-t"><span class="ej-n">Ejercicio ${x.n}</span>${esc(x.titulo)}</span>
+    <span class="chips"><span class="chip">${esc(x.tema)}</span><span class="chip ${x.origen === 'oficial' ? 'of' : 'pr'}">${x.origen === 'oficial' ? 'Solución oficial' : 'Resolución propia (sin solución en tus archivos)'}</span></span></summary>
+    <div class="ej-body"><div class="enun"><h4>Enunciado</h4><p>${esc(x.enunciado)}</p></div>${sup}
+      <div class="ej-ctl"><button type="button" class="btn pri" data-act="next">Resolver paso a paso</button><button type="button" class="btn" data-act="all">Ver toda la resolución</button><button type="button" class="btn" data-act="reset" hidden>Ocultar resolución</button><span class="ej-prog"></span></div>
+      ${x.pasos.map(pintaPaso).join('')}
+      <div class="claves" hidden><b>Para recordar</b><ul>${(x.claves || []).map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div></div></details>`;
+}
+let catSel = '';
+function pintaExamenes() {
+  const cont = $('exLista');
+  const lista = EXAMENES.map((e) => {
+    const ejs = e.ejercicios.filter((x) => !catSel || catsDe(x.tema).includes(catSel));
+    if (!ejs.length) return '';
+    return `<details class="exam"${catSel ? ' open' : ''}><summary><span class="ex-fecha">${esc(e.fechaTxt)}</span>
+      <span class="ex-meta"><span>${esc(e.tipo)}</span><span>${esc(e.titulo)}</span><span>${ejs.length} ${ejs.length === 1 ? 'ejercicio' : 'ejercicios'}</span></span></summary>
+      <div class="exam-body"><ul class="archivos">${e.archivos.map(([n, r]) => `<li><span class="rol">${esc(r)}</span><span>${esc(n)}</span></li>`).join('')}</ul>
+      ${e.aviso ? `<div class="supu">${esc(e.aviso)}</div>` : ''}${ejs.map(pintaEjercicio).join('')}</div></details>`;
+  }).join('');
+  cont.innerHTML = lista || '<p class="ex-vacio">Ningún ejercicio con ese tema.</p>';
+}
+function pintaFiltros() {
+  const nombres = ['Todos'].concat(CATS.map(([n]) => n));
+  $('exFiltros').innerHTML = nombres.map((n) => `<button type="button" data-cat="${n === 'Todos' ? '' : esc(n)}" aria-pressed="${(n === 'Todos' ? '' : n) === catSel}">${esc(n)}</button>`).join('');
+}
+function actualizaEj(ej) {
+  const pasos = ej.querySelectorAll('.paso'); const vis = [...pasos].filter((p) => !p.hidden).length;
+  const next = ej.querySelector('[data-act="next"]'); const reset = ej.querySelector('[data-act="reset"]');
+  next.textContent = vis === 0 ? 'Resolver paso a paso' : vis < pasos.length ? 'Siguiente paso' : 'Resolución completa';
+  next.disabled = vis === pasos.length;
+  reset.hidden = vis === 0;
+  ej.querySelector('.ej-prog').textContent = vis ? `Paso ${vis} de ${pasos.length}` : '';
+  ej.querySelector('.claves').hidden = vis < pasos.length || !ej.querySelector('.claves li');
+}
+if (typeof EXAMENES !== 'undefined') {
+  const nEj = EXAMENES.reduce((s, e) => s + e.ejercicios.length, 0);
+  const nAs = EXAMENES.reduce((s, e) => s + e.ejercicios.reduce((t, x) => t + x.pasos.reduce((u, p) => u + (p.a ? p.a.length : 0), 0), 0), 0);
+  $('exResumen').textContent = `${EXAMENES.length} convocatorias · ${nEj} ejercicios · ${nAs} asientos explicados`;
+  pintaFiltros(); pintaExamenes();
+  $('exFiltros').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-cat]'); if (!b) return;
+    catSel = b.dataset.cat; pintaFiltros(); pintaExamenes();
+  });
+  $('exLista').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const ej = b.closest('.ej'); const pasos = [...ej.querySelectorAll('.paso')];
+    if (b.dataset.act === 'next') { const p = pasos.find((q) => q.hidden); if (p) { p.hidden = false; p.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } }
+    if (b.dataset.act === 'all') pasos.forEach((q) => { q.hidden = false; });
+    if (b.dataset.act === 'reset') pasos.forEach((q) => { q.hidden = true; });
+    actualizaEj(ej);
+  });
+  document.querySelectorAll('#exLista .ej').forEach(actualizaEj);
+} else {
+  $('exLista').innerHTML = '<p class="ex-vacio">No se han podido cargar los exámenes.</p>';
+}
 </script>
 </body>
 </html>
