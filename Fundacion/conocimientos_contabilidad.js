@@ -12,7 +12,7 @@ Object.assign(KNOWLEDGE, {
                 id: 'idea', title: 'Idea clave',
                 blocks: [
                     { type: 'p', text: 'Contabilidad 2 trata los <b>instrumentos financieros</b> bajo la <b>NIIF 9</b>: cómo se clasifica un activo o un pasivo, con qué criterio se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG).' },
-                    { type: 'guide', text: 'Guía de estudio de Contabilidad 2: clasificación y medición de instrumentos financieros, un clasificador interactivo de la NIIF 9, un test de doce preguntas con explicación y el repaso de los exámenes.' },
+                    { type: 'guide', text: 'Guía de estudio de Contabilidad 2: clasificación y medición de instrumentos financieros, un clasificador interactivo de la NIIF 9, un test de doce preguntas con explicación y los nueve exámenes de tu carpeta resueltos ejercicio por ejercicio, con sus asientos contables.' },
                     { type: 'callout', text: 'Tres decisiones, en este orden: <b>1)</b> ¿se usa la opción de designar a valor razonable con cambios en PyG? <b>2)</b> ¿el contrato paga solo principal e intereses (test SPPI)? <b>3)</b> ¿cuál es el modelo de negocio? Con eso sale la cartera.' }
                 ]
             },
