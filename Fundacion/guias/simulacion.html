@@ -312,6 +312,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--line); padding-top: 
       <tr><td><a href="#t2-med">2.3 Medidas</a></td><td>SSE, MSE, RMSE, MAE, MAPE, R², AIC, BIC</td><td>Tema 2. Medidas validación.R</td><td>10</td></tr>
       <tr><td><a href="#t2-step">2.4 Stepwise</a></td><td>Forward, backward y mixto con <code>step()</code></td><td>Tema 2. Forward.R</td><td>11</td></tr>
       <tr><td><a href="#t2-cv">2.5 Validación cruzada</a></td><td>Hold-out, K-fold, LOOCV; ejercicio de 20 folds</td><td>Tema 2. Cross-Validation.R · Enunciado…sol23.10.26.R</td><td>12</td></tr>
+      <tr><td><a href="#t2-clave">2.6 Ejercicio clave</a></td><td>LogCuota de principio a fin: preprocesar, dummies, <code>step</code>, bandas y 20-fold CV; bucles del profesor frente a librerías</td><td>Enunciado…sol30.10.26.R</td><td>9–12</td></tr>
       <tr><td><a href="#t3-prob">3.1 El problema</a></td><td>Error reducible, sobreajuste, sesgo–varianza</td><td>—</td><td>13</td></tr>
       <tr><td><a href="#t3-ridge">3.2 Ridge</a></td><td>Penalización \(\ell_2\), solución cerrada, geometría</td><td>Tema 3. Ridge_*.R</td><td>14</td></tr>
       <tr><td><a href="#t3-lasso">3.3 LASSO</a></td><td>Penalización \(\ell_1\), umbralización suave, esparsidad</td><td>Tema 3. Lasso_*.R · LASSO_glmnet.R</td><td>14</td></tr>
@@ -2172,6 +2173,7 @@ print(np.sqrt((e1**2).mean()))               # RMSE-LOOCV;  np.abs(e1).mean() se
       <li><b>Comparar modelos:</b> el que tenga menor error medio de CV generaliza mejor, aunque dentro de muestra su \(R^2\) sea inferior.</li>
     </ol>
     <h4>Ejercicio entregable (23-oct-2026): LogCuota con 20-fold CV</h4>
+    <p class="note">La solución completa del profesor (30-10-26), con explicación apartado por apartado y alternativas con librería, está en <a href="#t2-clave">2.6 Ejercicio clave del Tema 2</a>.</p>
     <p>Enunciado: modelizar \(\log(\text{Cuota})\) de una cartera de autos con (1) preprocesamiento y justificación de los NA; (2) interacciones y dummies indicando la categoría de referencia; (3) OLS completo y Forward/Backward con AIC/BIC, comparando si dan el mismo modelo; (4) predicción de LogCuota frente a la Edad con bandas de confianza al 95 %; (5) <b>20-fold CV</b> comparando <code>LogCuota ~ 1 + Edad</code> con el modelo seleccionado en SSE, MSE, MAPE y \(R^2\).</p>
     <div class="codepair" data-file="Apartados 4 y 5 del ejercicio (completados)" data-src="complemento">
 <script type="text/x-r">
@@ -2258,6 +2260,590 @@ print(pd.DataFrame({"Simple": cv_medidas("LogCuota ~ Edad", auto232), "Propuesto
       <li><b>20-fold CV agrupado:</b> se concatenan las 20 predicciones fuera de muestra y se calculan las medidas sobre todas. Cada fila se predice exactamente una vez con un modelo que no la vio.</li>
       <li><b>\(R^2\) fuera de muestra</b> \(=1-\mathrm{SSE}_{cv}/\mathrm{SST}\) puede ser menor que el \(R^2\) de entrenamiento e incluso negativo si el modelo predice peor que la media.</li>
     </ol>
+  </div>
+  <!-- ---------- 2.6 -->
+  <div class="sub" id="t2-clave">
+    <h3>2.6 Ejercicio clave del Tema 2: LogCuota, apartado por apartado</h3>
+    <p>Es el script más importante del tema (<code>EnunciadoEjercicio_Tema2_sol30.10.26.R</code>) porque reúne todo lo visto: preprocesamiento, dummies, <code>lm</code>, <code>step</code>, bandas de confianza y validación cruzada. El profesor lo resuelve de forma muy manual, con <code>for</code> y matrices pre-reservadas. Aquí se recorre en el mismo orden y, donde un bucle se puede sustituir por una librería, se enseña las dos formas: <b>«cómo lo hace el profesor»</b> (etiqueta <span class="pill">curso</span>) y <b>«alternativa con librería»</b> (etiqueta <span class="pill p">complemento</span>). Las dos dan los mismos resultados; lo manual sirve para entender qué ocurre y lo corto para trabajar rápido.</p>
+    <div class="callout key">
+      <h4>Antes de empezar: dos cosas que el script no dice</h4>
+      <p><b>1. <code>Cuota</code> es una trampa.</b> <code>LogCuota</code> es el logaritmo de <code>Cuota</code> y el script mete <code>Cuota</code> entre los predictores. Es normal que entre siempre y que sea con diferencia la variable más importante (quitarla más que duplica la suma de cuadrados residual: de 3 451 a 7 698). Un modelo así predice bien por construcción, no porque entienda el riesgo. Si el enunciado lo permite, se debería quitar.</p>
+      <p><b>2. Las categorías de referencia no son las más frecuentes.</b> Las dummies que el profesor borra a mano (<code>ZonaUrbana</code>, <code>GeneroM</code>, <code>EstadoSTATE 17</code>, <code>ClaseF71</code>, el último tramo de <code>BM</code> y <code>Ant&gt;20</code>) son la <i>última</i> categoría de cada factor, que es la que <code>lm(-1 + .)</code> devuelve con <code>NA</code> por colinealidad perfecta. Con ese criterio da lo mismo cuál sea la referencia: el ajuste y las predicciones no cambian, solo la interpretación de los coeficientes.</p>
+    </div>
+
+    <h4>Apartado 1. Preprocesamiento</h4>
+    <p><i>Enunciado:</i> (a) contar los NA por variable y su porcentaje; (b) justificar el tratamiento de cada tipo de variable.</p>
+    <div class="codepair" data-file="Ejercicio clave · apartado 1 (sol. 30-10-26, condensado)" data-src="curso">
+<script type="text/x-r">
+load(file = "EjercicioTema2.RData")                         # data.frame auto232
+colSums(is.na(auto232))                                      # NA por variable
+colSums(is.na(auto232)) / length(auto232$Estado)             # porcentaje
+
+sum(duplicated(auto232))                                     # filas duplicadas
+auto232 <- auto232[!duplicated(auto232), ]
+
+na_fila <- rowSums(is.na(auto232))                           # NA por individuo
+auto232 <- auto232[na_fila < 4, ]                            # 4 de 10 variables (40 %): fuera
+
+hist(auto232$Cuota, breaks = 20, col = "lightblue")          # primero se mira la distribución
+auto232[is.na(auto232$Cuota), ]$Cuota <- mean(auto232$Cuota, na.rm = T)
+auto232[is.na(auto232$LogCuota), ]$LogCuota <- log(auto232[is.na(auto232$LogCuota), ]$Cuota)
+
+# Variables enteras: moda (o media redondeada), para no inventar decimales
+auto232[is.na(auto232$Ant), ]$Ant <- as.numeric(names(sort(table(auto232$Ant), decreasing = TRUE))[1])
+auto232[is.na(auto232$CV_vehi), ]$CV_vehi <- round(mean(auto232$CV_vehi, na.rm = T))
+auto232[is.na(auto232$BM), ]$BM <- as.numeric(names(sort(table(auto232$BM), decreasing = TRUE))[1])
+auto232[is.na(auto232$Valor), ]$Valor <- mean(auto232$Valor, na.rm = T)
+auto232[is.na(auto232$Zona), ]$Zona <- names(sort(table(auto232$Zona), decreasing = TRUE))[1]
+colSums(is.na(auto232))                                      # comprobación: todo a 0
+</script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import pyreadr
+
+auto232 = pyreadr.read_r("EjercicioTema2.RData")["auto232"]   # DataFrame auto232
+print(auto232.isna().sum())                                   # NA por variable
+print(auto232.isna().mean())                                  # porcentaje
+
+print(auto232.duplicated().sum())                             # filas duplicadas
+auto232 = auto232.drop_duplicates()
+
+na_fila = auto232.isna().sum(axis=1)                          # NA por individuo
+auto232 = auto232[na_fila < 4].copy()                         # 4 de 10 variables (40 %): fuera
+
+auto232["Cuota"] = auto232["Cuota"].fillna(auto232["Cuota"].mean())
+auto232["LogCuota"] = auto232["LogCuota"].fillna(np.log(auto232["Cuota"]))
+
+# Variables enteras: moda (o media redondeada), para no inventar decimales
+auto232["Ant"] = auto232["Ant"].fillna(auto232["Ant"].mode()[0])
+auto232["CV_vehi"] = auto232["CV_vehi"].fillna(round(auto232["CV_vehi"].mean()))
+auto232["BM"] = auto232["BM"].fillna(auto232["BM"].mode()[0])
+auto232["Valor"] = auto232["Valor"].fillna(auto232["Valor"].mean())
+auto232["Zona"] = auto232["Zona"].fillna(auto232["Zona"].mode()[0])
+print(auto232.isna().sum())                                   # comprobación: todo a 0
+</script>
+</div>
+    <ol class="walk">
+      <li><b>Diagnóstico primero.</b> Hay 15 filas duplicadas y, en las variables con NA, entre un 0,07 y un 0,22 % de datos ausentes: muy pocos. El profesor lo resume así: «hay varias opciones, todas son correctas si la estrategia tiene sentido».</li>
+      <li><b>Eliminar solo al individuo con 4 de 10 datos.</b> Es la regla de «filas con demasiados NA»: se pierde 1 fila de 6 807.</li>
+      <li><b>Qué estadístico va a cada variable.</b> <code>Cuota</code> y <code>Valor</code> son continuas: media (tras mirar el histograma). <code>Ant</code>, <code>BM</code> y <code>CV_vehi</code> son enteras: moda o media redondeada. <code>Zona</code> es categórica: moda. <code>LogCuota</code> no se imputa con un estadístico: se recalcula como \(\log(\texttt{Cuota})\), porque es una función exacta de otra columna.</li>
+      <li><b>Comprobar siempre al final</b> que no queda ningún NA.</li>
+    </ol>
+    <div class="callout tip">
+      <h4>Alternativa con librería: un solo encadenado en lugar de un bloque por columna</h4>
+      <p>El profesor repite el mismo patrón («mirar, calcular el estadístico, asignar, comprobar») una vez por variable. Con <code>dplyr</code> + <code>tidyr::replace_na()</code> es una sola instrucción por tipo de variable y no hay que escribir <code>auto232[is.na(...), ]$x</code>. Para los duplicados, <code>janitor::get_dupes()</code> los muestra <i>junto con su original</i> (por eso salen 30 filas aunque sobren 15). Si los NA fueran muchos, <code>mice</code> (van Buuren y Groothuis-Oudshoorn, <i>J. Stat. Softw.</i> 2011) imputa varias veces con ecuaciones encadenadas, y en Python <code>KNNImputer</code> / <code>IterativeImputer</code> de <code>scikit-learn</code> (Pedregosa et al., JMLR 2011) hacen lo equivalente. Para un diagnóstico más visual de NA existe <code>naniar</code> (Tierney y Cook, <i>J. Stat. Softw.</i> 2023), y para KNN en R <code>VIM::kNN()</code> (Kowarik y Templ, 2016); ambos no se han probado aquí.</p>
+    </div>
+    <div class="codepair" data-file="Alternativa con librería · apartado 1" data-src="complemento">
+<script type="text/x-r">
+library(mice); library(dplyr); library(tidyr); library(janitor)   # dplyr al final: su filter() manda
+bruto <- local({ load("EjercicioTema2.RData"); auto232 })   # copia aparte, sin pisar auto232
+
+resumen_na <- bruto |>                                     # NA y % por variable en una tabla
+  summarise(across(everything(), list(n = ~ sum(is.na(.x)), pct = ~ 100 * mean(is.na(.x))))) |>
+  pivot_longer(everything(), names_to = c("Variable", ".value"), names_pattern = "(.*)_(n|pct)")
+resumen_na
+get_dupes(bruto)                                           # duplicados con su original
+
+moda   <- function(x) as.numeric(names(which.max(table(x))))   # alternativa: DescTools::Mode()
+moda_f <- function(x) names(which.max(table(x)))
+
+limpio <- bruto |>
+  distinct() |>                                              # quita duplicados
+  filter(rowSums(is.na(across(everything()))) < 4) |>        # quita filas con 4 o más NA
+  mutate(Cuota    = replace_na(Cuota, mean(Cuota, na.rm = TRUE)),
+         LogCuota = coalesce(LogCuota, log(Cuota)),
+         across(c(Ant, BM), ~ replace_na(.x, moda(.x))),
+         CV_vehi  = replace_na(CV_vehi, round(mean(CV_vehi, na.rm = TRUE))),
+         Valor    = replace_na(Valor, mean(Valor, na.rm = TRUE)),
+         Zona     = coalesce(Zona, factor(moda_f(Zona), levels = levels(Zona))))
+colSums(is.na(limpio))
+
+# Si hubiera muchos NA: imputación múltiple por ecuaciones encadenadas (predictive mean matching)
+imp <- mice(bruto |> distinct() |> filter(rowSums(is.na(across(everything()))) < 4),
+            m = 5, method = "pmm", seed = 2026, printFlag = FALSE)
+completo_mice <- complete(imp)                               # uno de los 5 conjuntos imputados
+</script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+import pyreadr
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401  (necesario para activarlo)
+from sklearn.impute import KNNImputer, IterativeImputer
+
+bruto = pyreadr.read_r("EjercicioTema2.RData")["auto232"]       # copia aparte, sin pisar auto232
+
+resumen_na = bruto.isna().agg(["sum", "mean"]).T.rename(columns={"sum": "n", "mean": "pct"})
+resumen_na["pct"] *= 100                                      # NA y % por variable en una tabla
+print(resumen_na.round(2))
+print(bruto[bruto.duplicated(keep=False)])                # duplicados con su original
+
+limpio = (bruto.drop_duplicates()
+          .loc[lambda d: d.isna().sum(axis=1) < 4]            # quita filas con 4 o más NA
+          .assign(Cuota=lambda d: d["Cuota"].fillna(d["Cuota"].mean())))
+limpio = limpio.assign(LogCuota=limpio["LogCuota"].fillna(np.log(limpio["Cuota"])))
+limpio = limpio.fillna({"Ant": limpio["Ant"].mode()[0], "BM": limpio["BM"].mode()[0],
+                        "CV_vehi": round(limpio["CV_vehi"].mean()), "Valor": limpio["Valor"].mean(),
+                        "Zona": limpio["Zona"].mode()[0]})
+print(limpio.isna().sum().sum())                              # 0
+
+# Si hubiera muchos NA: KNN o imputación múltiple sobre las numéricas
+num = bruto.drop_duplicates().select_dtypes("number")
+knn = pd.DataFrame(KNNImputer(n_neighbors=5).fit_transform(num), columns=num.columns)
+mice = pd.DataFrame(IterativeImputer(random_state=2026).fit_transform(num), columns=num.columns)
+</script>
+</div>
+    <ol class="walk">
+      <li><b><code>replace_na()</code> y <code>fillna()</code></b> aplican el estadístico solo a los huecos, dentro de una única instrucción. <code>coalesce()</code> rellena <code>LogCuota</code> con \(\log(\texttt{Cuota})\) donde falte.</li>
+      <li><b>El estadístico se calcula antes de imputar.</b> En <code>mutate()</code> las columnas se actualizan en orden: <code>Cuota</code> ya está imputada cuando se calcula <code>LogCuota</code>, que es lo que se quiere.</li>
+      <li><b><code>mice</code> frente a imputar con un único valor.</b> Un solo valor por columna encoge la varianza; <code>mice</code> devuelve varios conjuntos (<code>m = 5</code>) para recoger la incertidumbre de la imputación. Con 0,2 % de NA no compensa, pero es lo que se usaría con muchos.</li>
+    </ol>
+
+    <h4>Apartado 2. Dicotomización e interacciones</h4>
+    <p><i>Enunciado:</i> (a) evaluar interacciones entre variables explicativas; (b) codificar las categóricas con dummies indicando la categoría de referencia.</p>
+    <div class="codepair" data-file="Ejercicio clave · apartado 2 (sol. 30-10-26, condensado)" data-src="curso">
+<script type="text/x-r">
+# Decisión por variable: Estado, Clase, Genero y Zona -> dicotómicas; Edad, Cuota -> no tocar;
+# Ant -> por grupos 0, 1, 2, 3, 4-9, 10-15, 16-20, >20; BM -> 5 grupos (quintiles)
+dummies_estado <- model.matrix(~ Estado - 1, data = auto232)    # una columna por categoría
+dummies_clase  <- model.matrix(~ Clase  - 1, data = auto232)
+dummies_genero <- model.matrix(~ Genero - 1, data = auto232)
+dummies_zona   <- model.matrix(~ Zona   - 1, data = auto232)
+
+auto232$Ant_grupo <- cut(auto232$Ant, breaks = c(-Inf, 0, 1, 2, 3, 9, 15, 20, Inf),
+                         labels = c("0", "1", "2", "3", "4-9", "10-15", "16-20", ">20"))
+dummies_ant <- model.matrix(~ Ant_grupo - 1, data = auto232)
+auto232$BM_grupo <- cut(auto232$BM, breaks = quantile(auto232$BM, probs = seq(0, 1, 0.2), na.rm = TRUE),
+                        include.lowest = TRUE)
+dummies_BM <- model.matrix(~ BM_grupo - 1, data = auto232)
+
+auto232 <- cbind.data.frame(auto232, dummies_ant, dummies_BM, dummies_clase,
+                            dummies_estado, dummies_genero, dummies_zona)
+auto232$Ant <- NULL; auto232$BM <- NULL; auto232$Clase <- NULL; auto232$Estado <- NULL
+auto232$Genero <- NULL; auto232$Zona <- NULL; auto232$BM_grupo <- NULL; auto232$Ant_grupo <- NULL
+
+modelo <- lm(LogCuota ~ -1 + ., data = auto232)                 # todas las dummies, sin intercepto
+summary(modelo)                                                 # coeficientes NA = colineales
+auto232$ZonaUrbana <- NULL; auto232$GeneroM <- NULL; auto232$`EstadoSTATE 17` <- NULL
+auto232$ClaseF71 <- NULL; auto232$`BM_grupo(97,150]` <- NULL; auto232$`Ant_grupo>20` <- NULL
+
+# Interacciones y términos no lineales
+auto232$potenciaEdad <- auto232$CV_vehi * auto232$Edad
+auto232$Edad2        <- auto232$Edad^2
+auto232$EdadGenero   <- auto232$Edad * auto232$GeneroF
+modelo <- lm(LogCuota ~ 1 + ., data = auto232)                  # modelo completo, ya con intercepto
+</script>
+<script type="text/x-py">
+import numpy as np
+import pandas as pd
+
+cats = ["Estado", "Clase", "Genero", "Zona", "Ant_grupo", "BM_grupo"]
+auto232["Ant_grupo"] = pd.cut(auto232["Ant"], [-np.inf, 0, 1, 2, 3, 9, 15, 20, np.inf],
+                              labels=["0", "1", "2", "3", "4-9", "10-15", "16-20", ">20"])
+auto232["BM_grupo"] = pd.qcut(auto232["BM"], 5, duplicates="drop")           # 5 grupos (quintiles)
+auto232 = auto232.drop(columns=["Ant", "BM"])
+# El profesor deja todas las dummies y borra a mano las que lm devuelve con NA:
+# la última categoría de cada factor (ZonaUrbana, GeneroM, EstadoSTATE 17, ClaseF71...)
+ultima = {c: auto232[c].astype("category").cat.categories[-1] for c in cats}
+auto232 = pd.get_dummies(auto232, columns=cats, dtype=int)                    # una columna por categoría
+auto232 = auto232.drop(columns=[f"{c}_{v}" for c, v in ultima.items()])
+auto232.columns = auto232.columns.str.replace(r"\W+", "_", regex=True)       # nombres sin espacios ni símbolos
+
+# Interacciones y términos no lineales
+auto232["potenciaEdad"] = auto232["CV_vehi"] * auto232["Edad"]
+auto232["Edad2"] = auto232["Edad"] ** 2
+auto232["EdadGenero"] = auto232["Edad"] * auto232["Genero_F"]
+print(auto232.shape)
+</script>
+</div>
+    <ol class="walk">
+      <li><b>Cada variable recibe una decisión explícita</b> (qué dicotomizar, qué no tocar, qué agrupar). La antigüedad se agrupa porque lo que importa son los primeros años de póliza; <code>BM</code> se agrupa en quintiles para tener grupos de igual tamaño.</li>
+      <li><b><code>model.matrix(~ x - 1)</code></b> crea una columna por categoría. Si se dejan <i>todas</i> las de un factor (más el intercepto) hay colinealidad perfecta, y por eso el profesor ajusta con <code>-1</code> y después borra las que <code>lm</code> marca con NA.</li>
+      <li><b>Interacciones probadas:</b> potencia × edad, edad², edad × género. Es una evaluación: se incluyen, se ajusta y se mira qué sobrevive en el <code>step</code> del apartado 3 (en el resultado queda <code>Edad2</code>, no las otras).</li>
+      <li><b>Hay riesgo en descartar por correlación.</b> Quitar una variable por correlación mayor que 0,8 puede eliminar información útil; conviene ver antes el modelo.</li>
+    </ol>
+    <div class="callout tip">
+      <h4>Alternativa con librería: dummies y referencia en una sola llamada</h4>
+      <p>Seis <code>model.matrix</code>, un <code>cbind.data.frame</code>, ocho <code>$x &lt;- NULL</code> y otros seis para las referencias se reducen a una llamada de <code>fastDummies::dummy_cols()</code> con <code>remove_most_frequent_dummy = TRUE</code> (la referencia es la categoría más frecuente, que además estabiliza los errores estándar) y <code>remove_selected_columns = TRUE</code> (borra el factor original). <code>janitor::clean_names()</code> limpia los nombres con espacios. Las interacciones no hace falta crearlas como columnas si se usan en la fórmula: <code>I(Edad^2)</code> y <code>CV_vehi:Edad</code>. En Python, <code>pd.get_dummies(..., drop_first=True)</code> toma como referencia la <i>primera</i> categoría; si se ordenan antes por frecuencia, la primera es la más frecuente.</p>
+    </div>
+    <div class="codepair" data-file="Alternativa con librería · apartado 2" data-src="complemento">
+<script type="text/x-r">
+library(fastDummies); library(janitor)
+
+dat <- limpio |>
+  mutate(Ant_grupo = cut(Ant, breaks = c(-Inf, 0, 1, 2, 3, 9, 15, 20, Inf),
+                         labels = c("0", "1", "2", "3", "4-9", "10-15", "16-20", ">20")),
+         BM_grupo  = cut(BM, breaks = quantile(BM, probs = seq(0, 1, 0.2)), include.lowest = TRUE),
+         Edad2 = Edad^2, potenciaEdad = CV_vehi * Edad) |>
+  select(-Ant, -BM) |>
+  dummy_cols(select_columns = c("Estado", "Clase", "Genero", "Zona", "Ant_grupo", "BM_grupo"),
+             remove_most_frequent_dummy = TRUE,               # referencia = categoría más frecuente
+             remove_selected_columns = TRUE) |>               # borra el factor original
+  clean_names()                                               # nombres sin espacios ni símbolos
+dim(dat)                                                      # 6807 filas, 50 columnas
+</script>
+<script type="text/x-py">
+cats = ["Estado", "Clase", "Genero", "Zona", "Ant_grupo", "BM_grupo"]
+dat = limpio.assign(
+    Ant_grupo=pd.cut(limpio["Ant"], [-np.inf, 0, 1, 2, 3, 9, 15, 20, np.inf],
+                     labels=["0", "1", "2", "3", "4-9", "10-15", "16-20", ">20"]),
+    BM_grupo=pd.qcut(limpio["BM"], 5, duplicates="drop").astype(str),
+    Edad2=limpio["Edad"] ** 2, potenciaEdad=limpio["CV_vehi"] * limpio["Edad"]).drop(columns=["Ant", "BM"])
+for c in cats:   # primera categoría = la más frecuente, que drop_first usa como referencia
+    dat[c] = pd.Categorical(dat[c].astype(str), categories=dat[c].astype(str).value_counts().index)
+dat = pd.get_dummies(dat, columns=cats, drop_first=True, dtype=int)
+dat.columns = dat.columns.str.replace(r"\W+", "_", regex=True)
+print(dat.shape)                                              # (6807, 50)
+</script>
+</div>
+    <ol class="walk">
+      <li><b>Qué referencia conviene.</b> El ajuste da lo mismo con cualquier referencia (las predicciones no cambian); lo que cambia es la lectura de cada coeficiente, que es «diferencia respecto a la categoría de referencia». Con la más frecuente, esa lectura es la más natural («respecto al caso típico»).</li>
+      <li><b>Cuántas columnas esperar.</b> Con \(k\) niveles hay \(k-1\) dummies. Aquí salen 50 columnas: 7 numéricas (la respuesta, <code>Cuota</code>, <code>Edad</code>, <code>CV_vehi</code>, <code>Valor</code>, <code>Edad2</code> y <code>potenciaEdad</code>) y 43 dummies.</li>
+    </ol>
+
+    <h4>Apartado 3. Selección de variables (forward y backward) y comparación</h4>
+    <p><i>Enunciado:</i> (a) ajustar el modelo OLS completo; (b) aplicar forward y backward stepwise con AIC/BIC; (c) comparar si dan el mismo modelo.</p>
+    <div class="codepair" data-file="Ejercicio clave · apartado 3 (sol. 30-10-26, condensado)" data-src="curso">
+<script type="text/x-r">
+modelo2 <- lm(LogCuota ~ 1 + Cuota + `EstadoSTATE 03` + `EstadoSTATE 04` + `EstadoSTATE 07` + GeneroF,
+              data = auto232)                                 # modelo "elegido por nosotros"
+
+modelo_nulo <- lm(LogCuota ~ +1, data = auto232)              # solo la constante
+modelo_for <- step(modelo_nulo, scope = formula(modelo),
+                   k = 2,           # k = 2: AIC.  Para BIC: k = log(n)
+                   trace = 1,       # muestra el paso a paso
+                   direction = "forward")
+modelo_back <- step(modelo, k = 2, trace = 1, direction = "backward")
+
+# Comparación: tres data.frame (coeficientes y p-valores) y dos merge
+sum_for <- coef(summary(modelo_for))
+df_for <- data.frame(Variable = rownames(sum_for), Coef_Forward = sum_for[, "Estimate"],
+                     Pval_Forward = sum_for[, "Pr(>|t|)"])
+sum_back <- coef(summary(modelo_back))
+df_back <- data.frame(Variable = rownames(sum_back), Coef_Backward = sum_back[, "Estimate"],
+                      Pval_Backward = sum_back[, "Pr(>|t|)"])
+sum_mod <- coef(summary(modelo2))
+df_mod <- data.frame(Variable = rownames(sum_mod), Coef_Mod = sum_mod[, "Estimate"],
+                     Pval_Mod = sum_mod[, "Pr(>|t|)"])
+df_comparativa <- merge(df_for, df_back, by = "Variable", all = TRUE)
+df_comparativa <- merge(df_comparativa, df_mod, by = "Variable", all = TRUE)
+df_comparativa
+</script>
+<script type="text/x-py">
+import statsmodels.formula.api as smf
+
+y = "LogCuota"
+def criterio(terminos, datos, k=2):
+    """AIC (k=2) o BIC (k=log n): -2 logL + k·(parámetros)."""
+    f = y + " ~ " + (" + ".join(terminos) if terminos else "1")
+    m = smf.ols(f, datos).fit()
+    return -2 * m.llf + k * (m.df_model + 1), m
+
+def step(datos, inicial, candidatas, direccion="forward", k=2):
+    """Equivalente de step() de R (misma función del apartado 2.4)."""
+    actual = list(inicial)
+    mejor, _ = criterio(actual, datos, k)
+    while True:
+        propuestas = []
+        if direccion in ("forward", "both"):
+            propuestas += [(actual + [t]) for t in candidatas if t not in actual]
+        if direccion in ("backward", "both"):
+            propuestas += [[x for x in actual if x != t] for t in actual]
+        if not propuestas:
+            break
+        v, p = min(((criterio(p, datos, k)[0], p) for p in propuestas), key=lambda t: t[0])
+        if v < mejor - 1e-9:
+            mejor, actual = v, p
+        else:
+            break
+    return actual
+
+cand = [c for c in auto232.columns if c != y]
+t_for = step(auto232, [], cand, "forward")                        # parte del modelo nulo
+t_back = step(auto232, cand, cand, "backward")                    # parte del modelo completo
+t_mod = ["Cuota", "Estado_STATE_03", "Estado_STATE_04", "Estado_STATE_07", "Genero_F"]
+
+def tabla(terminos, nombre):
+    m = smf.ols(y + " ~ " + " + ".join(terminos), auto232).fit()
+    return pd.DataFrame({"Variable": m.params.index, f"Coef_{nombre}": m.params.values,
+                         f"Pval_{nombre}": m.pvalues.values})
+df_comparativa = (tabla(t_for, "Forward").merge(tabla(t_back, "Backward"), on="Variable", how="outer")
+                  .merge(tabla(t_mod, "Mod"), on="Variable", how="outer"))
+print(df_comparativa.round(4))
+</script>
+</div>
+    <ol class="walk">
+      <li><b><code>step()</code> con el modelo nulo y <code>scope</code></b> hace forward: parte de la constante y puede añadir cualquier término del modelo completo. Con <code>direction = "backward"</code> parte del completo y va quitando.</li>
+      <li><b>El comentario del script dice BIC, pero <code>k = 2</code> es AIC.</b> El BIC es <code>k = log(n)</code> y penaliza más, por lo que suele dejar un modelo más pequeño.</li>
+      <li><b>¿Dan el mismo modelo?</b> Casi, pero no exactamente. Forward añade <code>EstadoSTATE 10</code> y <code>ClaseC7</code>; backward conserva <code>ClaseC72</code>, <code>EstadoSTATE 04</code>, <code>07</code> y <code>15</code>. Ambos quedan en un RMSE fuera de muestra de 0,7095, así que la diferencia es de variables marginales. El camino importa: forward y backward no tienen por qué converger al mismo óptimo.</li>
+      <li><b>La tabla comparativa</b> pone cada variable en una fila y las columnas de cada modelo al lado; los <code>NA</code> indican «no está en ese modelo».</li>
+    </ol>
+    <div class="callout tip">
+      <h4>Alternativa con librería: la comparativa en una tubería con <code>broom</code></h4>
+      <p>Tres <code>data.frame</code> y dos <code>merge</code> (uno por modelo) pasan a ser <code>map(tidy)</code> + <code>bind_rows(.id =)</code> + <code>pivot_wider()</code>, que crece sola si se añade un cuarto modelo. <code>broom::tidy()</code> (Robinson) devuelve estimación, error estándar, estadístico y p-valor de cualquier modelo en una tabla. Con <code>modelsummary::modelsummary()</code> (Arel-Bundock, <i>J. Stat. Softw.</i> 2022) sale directamente la tabla de presentación, aunque no se ha probado aquí. El <code>step()</code> de R se deja tal cual: es la función de referencia (<code>stats::step</code>, basada en Venables y Ripley), y en Python ninguna librería mayoritaria hace stepwise por AIC (<code>SequentialFeatureSelector</code> de <code>scikit-learn</code> usa la puntuación de validación cruzada), por eso se mantiene la función propia del apartado 2.4. En Python la tabla se arma con <code>summary_col</code> de <code>statsmodels</code> (Seabold y Perktold, 2010).</p>
+    </div>
+    <div class="codepair" data-file="Alternativa con librería · apartado 3" data-src="complemento">
+<script type="text/x-r">
+library(purrr); library(tidyr); library(broom)
+
+completo <- lm(log_cuota ~ ., data = dat)
+nulo     <- lm(log_cuota ~ 1, data = dat)
+m_for  <- step(nulo, scope = formula(completo), direction = "forward",  trace = 0)
+m_back <- step(completo,                          direction = "backward", trace = 0)
+# BIC: añadir k = log(nrow(dat))
+
+comparativa <- list(Forward = m_for, Backward = m_back) |>
+  map(tidy) |>                                               # coef, error, estadístico y p-valor
+  bind_rows(.id = "Modelo") |>
+  select(Modelo, term, estimate, p.value) |>
+  pivot_wider(names_from = Modelo, values_from = c(estimate, p.value))
+comparativa
+</script>
+<script type="text/x-py">
+from statsmodels.iolib.summary2 import summary_col
+
+cand = [c for c in dat.columns if c != y]
+fwd = step(dat, [], cand, "forward")                            # función step() del bloque anterior
+bwd = step(dat, cand, cand, "backward")
+print(set(fwd) ^ set(bwd))                                      # variables en las que difieren
+
+m_fwd = smf.ols(y + " ~ " + " + ".join(fwd), dat).fit()
+m_bwd = smf.ols(y + " ~ " + " + ".join(bwd), dat).fit()
+print(summary_col([m_fwd, m_bwd], model_names=["Forward", "Backward"], stars=True))   # tabla comparativa
+</script>
+</div>
+
+    <h4>Apartado 4. Predicción frente a la edad, con bandas de confianza</h4>
+    <p><i>Enunciado:</i> (a) representar la LogCuota real frente a la estimada según la edad; (b) añadir bandas de confianza al 95 %.</p>
+    <div class="codepair" data-file="Ejercicio clave · apartado 4 (sol. 30-10-26, condensado)" data-src="curso">
+<script type="text/x-r">
+auto232$modelo_for  <- fitted(modelo_for)
+auto232$modelo_back <- fitted(modelo_back)
+
+edades <- sort(unique(auto232$Edad))
+coste_real <- matrix(NA, nrow = length(edades), ncol = 1)    # una matriz por serie...
+coste_forw <- matrix(NA, nrow = length(edades), ncol = 1)
+coste_back <- matrix(NA, nrow = length(edades), ncol = 1)
+for (i in 1:length(edades)) {                                # ...y un bucle que promedia cada edad
+  coste_real[i, ] <- mean(auto232[auto232$Edad == edades[i], ]$LogCuota)
+  coste_forw[i, ] <- mean(auto232[auto232$Edad == edades[i], ]$modelo_for)
+  coste_back[i, ] <- mean(auto232[auto232$Edad == edades[i], ]$modelo_back)
+}
+plot(edades, coste_real, type = "p", pch = 19, col = "blue", xlab = "edades", ylab = "logCuota")
+lines(edades, coste_forw, col = "red", lwd = 2, lty = 1)
+lines(edades, coste_back, col = "green", lwd = 2, lty = 2)
+legend("topleft", c("Real", "forward", "backward"), col = c("blue", "red", "green"),
+       pch = c(19, NA, NA), lty = c(NA, 1, 2), lwd = 2, cex = 0.8)
+
+# (b) Bandas: se predice con intervalo y se vuelve a promediar por edad con otro bucle
+back_in <- predict(modelo_back, interval = "confidence", level = 0.95)
+auto232$modelo_back_low <- back_in[, "lwr"]
+auto232$modelo_back_upp <- back_in[, "upr"]
+coste_back_low <- matrix(NA, nrow = length(edades), ncol = 1)
+coste_back_upp <- matrix(NA, nrow = length(edades), ncol = 1)
+for (i in 1:length(edades)) {
+  coste_back_low[i, ] <- mean(auto232[auto232$Edad == edades[i], ]$modelo_back_low)
+  coste_back_upp[i, ] <- mean(auto232[auto232$Edad == edades[i], ]$modelo_back_upp)
+}
+plot(edades, coste_real, type = "p", pch = 19, col = "blue", xlab = "edades", ylab = "logCuota",
+     main = "Intervalo - Backward")
+lines(edades, coste_back, col = "red", lwd = 2)
+lines(edades, coste_back_low, col = "red4", lwd = 2)
+lines(edades, coste_back_upp, col = "red4", lwd = 2)
+</script>
+<script type="text/x-py">
+import matplotlib.pyplot as plt
+
+m_for = smf.ols(y + " ~ " + " + ".join(t_for), auto232).fit()
+m_back = smf.ols(y + " ~ " + " + ".join(t_back), auto232).fit()
+auto232["modelo_for"] = m_for.fittedvalues
+auto232["modelo_back"] = m_back.fittedvalues
+
+edades = np.sort(auto232["Edad"].unique())
+coste_real, coste_forw, coste_back = [], [], []
+for e in edades:                                                 # un bucle que promedia cada edad
+    sub = auto232[auto232["Edad"] == e]
+    coste_real.append(sub["LogCuota"].mean())
+    coste_forw.append(sub["modelo_for"].mean())
+    coste_back.append(sub["modelo_back"].mean())
+plt.plot(edades, coste_real, "o", color="blue", label="Real")
+plt.plot(edades, coste_forw, "r-", lw=2, label="forward")
+plt.plot(edades, coste_back, "g--", lw=2, label="backward")
+plt.xlabel("edades"); plt.ylabel("logCuota"); plt.legend(); plt.show()
+
+# (b) Bandas: se predice con intervalo y se vuelve a promediar por edad con otro bucle
+sf = m_back.get_prediction(auto232).summary_frame(alpha=0.05)
+auto232["modelo_back_low"] = sf["mean_ci_lower"].values
+auto232["modelo_back_upp"] = sf["mean_ci_upper"].values
+coste_low, coste_upp = [], []
+for e in edades:
+    sub = auto232[auto232["Edad"] == e]
+    coste_low.append(sub["modelo_back_low"].mean())
+    coste_upp.append(sub["modelo_back_upp"].mean())
+plt.plot(edades, coste_real, "o", color="blue")
+plt.plot(edades, coste_back, "r-", lw=2)
+plt.plot(edades, coste_low, color="darkred"); plt.plot(edades, coste_upp, color="darkred")
+plt.title("Intervalo - Backward"); plt.show()
+</script>
+</div>
+    <ol class="walk">
+      <li><b>Qué se dibuja.</b> No son las pólizas individuales, sino la media de la LogCuota <i>real</i> y de la <i>ajustada</i> para cada edad. Si la línea del modelo sigue a los puntos, el modelo capta bien el efecto de la edad.</li>
+      <li><b>La banda es para la media</b> (<code>interval = "confidence"</code>), por eso es estrecha. Para un asegurado concreto se usaría <code>"prediction"</code>, que incluye el ruido y es mucho más ancha.</li>
+      <li><b>Dos errores del script a no copiar.</b> En el cálculo de las bandas, el vector <code>coste_back_low</code> se rellena con <code>modelo_for_low</code> (y viceversa), es decir, las bandas de forward y backward están intercambiadas. Y el segundo gráfico se titula «Backward» cuando dibuja forward. Aquí se corrige: cada banda sale de su modelo.</li>
+      <li><b>Los <code>i &lt;- 1</code> y <code>k &lt;- 1</code> previos a cada bucle sobran:</b> el propio <code>for</code> los inicializa.</li>
+    </ol>
+    <div class="callout tip">
+      <h4>Alternativa con librería: un <code>group_by</code> en lugar de matrices y bucles</h4>
+      <p>Cada serie necesitaba su matriz, su bucle y su <code>lines()</code>. Con <code>dplyr</code>, <code>group_by(Edad) |&gt; summarise(across(...))</code> calcula todas las medias por edad de una vez, y <code>ggplot2</code> (Wickham) dibuja la banda con <code>geom_ribbon()</code>. En Python es <code>groupby("Edad").mean()</code>. La predicción con intervalo se une al data.frame con <code>bind_cols()</code> (R) o <code>concat</code> (Python). Si se quiere el efecto marginal de la edad con el resto de variables fijas en un valor típico, el paquete <code>ggeffects</code> (Lüdecke, <i>JOSS</i> 2018) lo hace con <code>ggpredict(modelo, "edad")</code>; no está probado aquí.</p>
+    </div>
+    <div class="codepair" data-file="Alternativa con librería · apartado 4" data-src="complemento">
+<script type="text/x-r">
+library(dplyr); library(ggplot2)
+
+por_edad <- dat |>
+  bind_cols(as_tibble(predict(m_back, interval = "confidence", level = 0.95))) |>   # fit, lwr, upr
+  group_by(edad) |>
+  summarise(real = mean(log_cuota), ajustado = mean(fit), low = mean(lwr), upp = mean(upr))
+
+ggplot(por_edad, aes(edad)) +
+  geom_ribbon(aes(ymin = low, ymax = upp), fill = "red", alpha = 0.2) +   # banda de confianza 95 %
+  geom_line(aes(y = ajustado), colour = "red", linewidth = 1) +
+  geom_point(aes(y = real), colour = "blue") +
+  labs(x = "edades", y = "logCuota", title = "Intervalo - Backward")
+</script>
+<script type="text/x-py">
+sf = m_bwd.get_prediction(dat).summary_frame(alpha=0.05)
+por_edad = (pd.concat([dat[["Edad", y]], sf[["mean", "mean_ci_lower", "mean_ci_upper"]]], axis=1)
+            .groupby("Edad").mean())                             # todas las medias por edad de una vez
+
+fig, ax = plt.subplots()
+ax.fill_between(por_edad.index, por_edad["mean_ci_lower"], por_edad["mean_ci_upper"], color="red", alpha=0.2)
+ax.plot(por_edad.index, por_edad["mean"], "r-", lw=2)
+ax.plot(por_edad.index, por_edad[y], "o", color="blue")
+ax.set_xlabel("edades"); ax.set_ylabel("logCuota"); ax.set_title("Intervalo - Backward")
+plt.show()
+</script>
+</div>
+
+    <h4>Apartado 5. Capacidad predictiva con 20-fold CV</h4>
+    <p><i>Enunciado:</i> (a) validación cruzada con \(K=20\); (b) comparar el modelo simple <code>LogCuota ~ 1 + Edad</code> con el propuesto; (c) calcular SSE, MSE, MAPE y \(R^2\) fuera de muestra.</p>
+    <div class="codepair" data-file="Ejercicio clave · apartado 5 (sol. 30-10-26, condensado)" data-src="curso">
+<script type="text/x-r">
+set.seed(2026)
+K <- 20
+folds <- sample(rep(1:K, length.out = length(auto232$Edad)))     # a cada fila, un fold
+
+RMSE_in_forw  <- numeric(K); RMSE_in_back  <- numeric(K); RMSE_in_cte  <- numeric(K)
+RMSE_out_forw <- numeric(K); RMSE_out_back <- numeric(K); RMSE_out_cte <- numeric(K)
+
+for (k in 1:K) {
+  train <- auto232[folds != k, ]
+  test  <- auto232[folds == k, ]
+  mod_f <- lm(formula(modelo_for),  data = train)       # se reajusta en el fold (nombres nuevos para no
+  mod_b <- lm(formula(modelo_back), data = train)       # pisar modelo_for / modelo_back)
+  mod_c <- lm(LogCuota ~ +1, data = train)
+  pred_forw <- predict(mod_f, newdata = test)
+  pred_back <- predict(mod_b, newdata = test)
+  pred_cte  <- predict(mod_c, newdata = test)
+  RMSE_in_forw[k]  <- sqrt(mean((train$LogCuota - fitted.values(mod_f))^2))
+  RMSE_in_back[k]  <- sqrt(mean((train$LogCuota - fitted.values(mod_b))^2))
+  RMSE_in_cte[k]   <- sqrt(mean((train$LogCuota - fitted.values(mod_c))^2))
+  RMSE_out_forw[k] <- sqrt(mean((test$LogCuota - pred_forw)^2))
+  RMSE_out_back[k] <- sqrt(mean((test$LogCuota - pred_back)^2))
+  RMSE_out_cte[k]  <- sqrt(mean((test$LogCuota - pred_cte)^2))
+}
+dentro <- data.frame(forward = mean(RMSE_in_forw),  backward = mean(RMSE_in_back),  cte = mean(RMSE_in_cte))
+fuera  <- data.frame(forward = mean(RMSE_out_forw), backward = mean(RMSE_out_back), cte = mean(RMSE_out_cte))
+dentro; fuera
+</script>
+<script type="text/x-py">
+from sklearn.model_selection import KFold
+
+K = 20
+kf = KFold(n_splits=K, shuffle=True, random_state=2026)
+rmse_in = {"forward": [], "backward": [], "cte": []}
+rmse_out = {"forward": [], "backward": [], "cte": []}
+formulas = {"forward": y + " ~ " + " + ".join(t_for), "backward": y + " ~ " + " + ".join(t_back), "cte": y + " ~ 1"}
+
+for train_idx, test_idx in kf.split(auto232):                    # un fold por vuelta
+    train, test = auto232.iloc[train_idx], auto232.iloc[test_idx]
+    for nombre, f in formulas.items():
+        m = smf.ols(f, train).fit()
+        rmse_in[nombre].append(np.sqrt(np.mean((train[y] - m.fittedvalues) ** 2)))
+        rmse_out[nombre].append(np.sqrt(np.mean((test[y] - m.predict(test)) ** 2)))
+print(pd.DataFrame(rmse_in).mean()); print(pd.DataFrame(rmse_out).mean())
+</script>
+</div>
+    <ol class="walk">
+      <li><b>Folds:</b> <code>rep(1:K, length.out = n)</code> más <code>sample</code> reparte las filas en 20 bloques casi iguales. Cada fila se predice una vez con un modelo que no la vio.</li>
+      <li><b>Se ajusta de nuevo en cada fold.</b> Lo que se valida es el <i>procedimiento</i> con una fórmula ya fijada. Importante: la selección de variables se hizo con todos los datos, así que la estimación fuera de muestra es algo optimista.</li>
+      <li><b>Qué calcula el script y qué pide el enunciado.</b> El script guarda el RMSE de cada fold y lo promedia (dentro y fuera de muestra). Eso permite comparar modelos, pero <b>no calcula</b> SSE, MAPE ni \(R^2\), que son las medidas del apartado (c). Su comparación sale así: el modelo constante tiene un RMSE de 1,069 frente a 0,709–0,711 de los demás.</li>
+      <li><b>El «modelo simple» del enunciado es <code>LogCuota ~ 1 + Edad</code></b>, mientras que el script usa el modelo solo con la constante (<code>cte</code>). En la alternativa se usa el del enunciado.</li>
+    </ol>
+    <div class="callout tip">
+      <h4>Alternativa con librería: el bucle y los seis vectores <code>RMSE_*</code> desaparecen</h4>
+      <p><code>rsample::vfold_cv()</code> (tidymodels, Kuhn y Wickham) construye los 20 folds, y <code>yardstick</code> da las medidas con funciones ya validadas: <code>rmse_vec()</code>, <code>mape_vec()</code> y <code>rsq_trad_vec()</code>. <b>Ojo:</b> en <code>yardstick</code>, <code>rsq()</code> es el cuadrado de la correlación entre real y predicho; el \(R^2\) que pide el enunciado (\(1-\mathrm{SSE}/\mathrm{SST}\)) es <code>rsq_trad()</code>. En Python, <code>cross_val_predict</code> con <code>KFold</code> devuelve la predicción fuera de muestra de cada fila de una vez, y <code>sklearn.metrics</code> calcula MSE, MAPE (devuelve una fracción, no un porcentaje) y \(R^2\). SSE se calcula a mano, porque ninguna de las dos librerías lo incluye.</p>
+    </div>
+    <div class="codepair" data-file="Alternativa con librería · apartado 5" data-src="complemento">
+<script type="text/x-r">
+library(rsample); library(yardstick); library(purrr)
+
+set.seed(2026)
+cv <- vfold_cv(dat, v = 20)                                      # los 20 folds
+
+pred_cv <- function(formula) {                                   # predicción fuera de muestra de cada fila
+  cv |>
+    mutate(p = map(splits, \(s) tibble(real = assessment(s)$log_cuota,
+                                       pred = predict(lm(formula, data = analysis(s)), assessment(s))))) |>
+    pull(p) |> bind_rows()
+}
+medidas <- function(p) p |>
+  summarise(SSE = sum((real - pred)^2), MSE = mean((real - pred)^2),
+            MAPE = mape_vec(real, pred),                         # en %
+            R2 = rsq_trad_vec(real, pred))                       # 1 - SSE/SST (no rsq(), que es cor^2)
+
+bind_rows(Simple   = medidas(pred_cv(log_cuota ~ 1 + edad)),
+          Forward  = medidas(pred_cv(formula(m_for))),
+          Backward = medidas(pred_cv(formula(m_back))), .id = "Modelo")
+</script>
+<script type="text/x-py">
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import KFold, cross_val_predict
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error, r2_score
+
+cv = KFold(n_splits=20, shuffle=True, random_state=2026)
+
+def medidas(columnas):
+    pred = cross_val_predict(LinearRegression(), dat[columnas], dat[y], cv=cv)   # predicción fuera de muestra
+    real = dat[y]
+    return {"SSE": ((real - pred) ** 2).sum(), "MSE": mean_squared_error(real, pred),
+            "MAPE": 100 * mean_absolute_percentage_error(real, pred),              # fracción -> %
+            "R2": r2_score(real, pred)}                                            # 1 - SSE/SST
+
+print(pd.DataFrame({"Simple": medidas(["Edad"]), "Forward": medidas(fwd), "Backward": medidas(bwd)}).T)
+</script>
+</div>
+    <ol class="walk">
+      <li><b>Resultado.</b> El modelo simple (<code>1 + Edad</code>) apenas explica nada fuera de muestra (\(R^2\approx 0{,}0007\)). Forward y backward alcanzan \(R^2\approx 0{,}55\), MAPE ≈ 8,1 % y MSE ≈ 0,52, prácticamente idénticos entre sí. Que estén tan cerca de lo que ya daban dentro de muestra indica que no hay sobreajuste.</li>
+      <li><b>Pero recuerda el aviso inicial:</b> casi todo ese poder predictivo lo aporta <code>Cuota</code>, que es la propia respuesta sin transformar. Para un ejercicio real convendría repetir la validación sin ella.</li>
+    </ol>
+
+    <div class="callout key">
+      <h4>Resumen: qué se cambia por qué (y qué no se toca)</h4>
+      <div class="tbl"><table class="plain mini">
+        <thead><tr><th>El profesor hace</th><th>R (alternativa)</th><th>Python (alternativa)</th></tr></thead>
+        <tbody>
+          <tr><td>Un bloque de imputación por columna</td><td><code>dplyr::mutate()</code> + <code>tidyr::replace_na()</code>; <code>mice</code> si hay muchos NA</td><td><code>fillna({...})</code>; <code>KNNImputer</code>, <code>IterativeImputer</code> (scikit-learn)</td></tr>
+          <tr><td>Mostrar duplicados a mano</td><td><code>janitor::get_dupes()</code> + <code>distinct()</code></td><td><code>duplicated(keep=False)</code> + <code>drop_duplicates()</code></td></tr>
+          <tr><td>6 <code>model.matrix</code> + <code>cbind</code> + 14 <code>$x &lt;- NULL</code></td><td><code>fastDummies::dummy_cols(remove_most_frequent_dummy = TRUE)</code></td><td><code>pd.get_dummies(drop_first=True)</code></td></tr>
+          <tr><td>3 data.frame + 2 <code>merge</code> para comparar</td><td><code>map(tidy)</code> + <code>bind_rows()</code> + <code>pivot_wider()</code></td><td><code>summary_col()</code> (statsmodels)</td></tr>
+          <tr><td>Matrices + <code>for</code> para medias por edad</td><td><code>group_by(Edad) |&gt; summarise()</code> + <code>geom_ribbon()</code></td><td><code>groupby("Edad").mean()</code> + <code>fill_between()</code></td></tr>
+          <tr><td><code>for</code> de 20 folds con 6 vectores <code>RMSE_*</code></td><td><code>rsample::vfold_cv()</code> + <code>yardstick</code> (<code>rsq_trad_vec</code>)</td><td><code>KFold</code> + <code>cross_val_predict</code> + <code>sklearn.metrics</code></td></tr>
+          <tr><td><code>step()</code>, <code>lm()</code>, <code>plot(modelo)</code></td><td>se mantienen (ya son un solo comando)</td><td><code>smf.ols</code>; <code>step()</code> es función propia (no hay librería estándar)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Las librerías elegidas son las de uso más extendido y con publicación de referencia (tidyverse, Wickham et al., <i>JOSS</i> 2019; scikit-learn, JMLR 2011; statsmodels, 2010). <code>naniar</code>, <code>VIM</code>, <code>DescTools</code>, <code>modelsummary</code>, <code>ggeffects</code> y <code>caret</code> se citan como opciones válidas pero no se han ejecutado aquí; el código de los bloques sí se ha ejecutado de principio a fin con R 4.5 y Python 3.11 sobre <code>EjercicioTema2.RData</code>.</p>
+    </div>
   </div>
 </section>
 
