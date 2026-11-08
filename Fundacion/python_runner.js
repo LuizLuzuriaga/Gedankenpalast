@@ -88,16 +88,13 @@ def __figuras_gp():
         }
     }
 
-    // En el atlas hay panelBody; las guías sueltas usan py_guias.js y solo necesitan ejecutar().
-    if (typeof panelBody !== 'undefined') {
-        panelBody.addEventListener('click', (e) => {
-            const py = e.target.closest('.run-py');
-            if (!py) return;
-            const cont = py.closest('.kb-code');
-            const bloque = cont.querySelector('.code-block[data-lang="python"]');
-            if (bloque) correr(cont, bloque.textContent);
-        });
-    }
+    panelBody.addEventListener('click', (e) => {
+        const py = e.target.closest('.run-py');
+        if (!py) return;
+        const cont = py.closest('.kb-code');
+        const bloque = cont.querySelector('.code-block[data-lang="python"]');
+        if (bloque) correr(cont, bloque.textContent);
+    });
 
     return { ejecutar };
 })();
