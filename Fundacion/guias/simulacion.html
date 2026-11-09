@@ -4255,13 +4255,13 @@ const FIG = {
     x = 220;
     out.push(`<text class="tx-b" x="${x}" y="14">K-fold, K = 5</text>`);
     for (let r = 0; r < 5; r++) { for (let c = 0; c < 5; c++) out.push(cell(x + c * 24, 26 + r * 22, 22, 18, c === r)); out.push(`<text class="tx" x="${x + 5 * 24 + 4}" y="${26 + r * 22 + 13}">h=${r + 1}</text>`); }
-    out.push(`<text class="tx" x="${x}" y="150">cada bloque valida una vez; CV = media de las 5 medidas</text>`);
-    x = 520;
+    out.push(`<text class="tx" x="${x}" y="152">cada bloque valida una vez;</text><text class="tx" x="${x}" y="168">CV = media de las 5 medidas</text>`);
+    x = 470;
     out.push(`<text class="tx-b" x="${x}" y="14">LOOCV (n = 8)</text>`);
     for (let r = 0; r < 8; r++) { for (let c = 0; c < 8; c++) out.push(cell(x + c * 16, 26 + r * 14, 14, 11, c === r)); }
-    out.push(`<text class="tx" x="${x}" y="150">una observación valida; n ajustes</text>`);
+    out.push(`<text class="tx" x="${x}" y="152">una observación valida;</text><text class="tx" x="${x}" y="168">n ajustes</text>`);
     out.push(`<g><rect class="f-as s-a" x="8" y="108" width="14" height="10" rx="2" stroke-opacity=".55"/><text class="tx" x="28" y="117">entrenamiento</text><rect class="f-ps s-p" x="108" y="108" width="14" height="10" rx="2" stroke-opacity=".55"/><text class="tx" x="128" y="117">validación</text></g>`);
-    return `<svg style="max-width:none" width="680" height="162" viewBox="0 0 680 162" role="img" aria-label="Esquemas de validación cruzada">${out.join('')}</svg>`;
+    return `<svg style="max-width:none" width="620" height="178" viewBox="0 0 620 178" role="img" aria-label="Esquemas de validación cruzada">${out.join('')}</svg>`;
   },
   t3flujo: () => flow({
     aria: 'Ridge, LASSO y Elastic Net',
