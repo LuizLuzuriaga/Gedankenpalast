@@ -1856,13 +1856,3 @@ body.scene-portada .ag-error {
 @media (prefers-reduced-motion: reduce) {
     .topic-label.has-event:not(.is-selected) { animation: none; }
 }
-
-/* Ejecutor de Python de los bloques de código */
-.kb-run { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
-.kb-run .control:disabled { opacity: 0.5; cursor: progress; }
-.lab-status { color: var(--muted); font-size: var(--fs-small); }
-.run-out { margin: 10px 0 0; padding: 12px 14px; border-radius: var(--radius-inner); background: var(--ground); white-space: pre-wrap; font-size: 13px; overflow-x: auto; }
-.run-out[hidden] { display: none; }
-.run-out.is-error { color: #ff9b9b; }
-.run-figs { display: grid; gap: 10px; margin-top: 10px; }
-.run-fig { width: 100%; height: auto; border-radius: var(--radius-inner); background: #fff; }
