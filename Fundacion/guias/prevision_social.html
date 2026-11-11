@@ -147,7 +147,7 @@ html { scroll-behavior: smooth; }
 <header class="hero">
   <div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Pilar Requena</div>
   <h1>Previsión Social Complementaria</h1>
-  <p class="lede">Guía de estudio de los Temas 1, 2 y 3: ciclo de vida, inflación, incertidumbre, sistemas de financiación y valoración financiero-actuarial (modelo de mortalidad y modelos de múltiples estados). Cada apartado lleva su línea temporal de flujos y al final hay preguntas posibles resueltas.</p>
+  <p class="lede">Guía de estudio de los Temas 1, 2 y 3: ciclo de vida, inflación, incertidumbre, sistemas de financiación y valoración financiero-actuarial (modelo de mortalidad y modelos de múltiples estados, con los ejercicios 3 a 8 resueltos). Cada apartado lleva su línea temporal de flujos y al final hay preguntas posibles resueltas.</p>
   <figure class="tl" data-tl="ciclo">
     <div class="tl-scroll"></div>
     <figcaption>El ciclo completo: se aporta \(S\) al inicio de cada año durante \(N\) años y se cobra \(C\) al inicio de cada año durante \(D\) años desde la jubilación \(x_r=x+N\).</figcaption>
@@ -175,6 +175,7 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t2-rent">Rentabilidad</a></td><td>Plan con unidades de cuenta, TIR y rendimiento absoluto</td><td>11</td></tr>
       <tr><td><a href="#t3-mort">Repaso de mortalidad</a></td><td>\(S_x(t)\), \(\mu_x\), \({}_tp_x\), \({}_{t|u}q_x\), \(\mathring e_x\), \(e_x\), varianzas</td><td>14, 15, 16</td></tr>
       <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), hipótesis de Markov, \(o(h)\) y diferenciabilidad, intensidades \(\mu^{ij}_x\), Chapman–Kolmogorov, ejemplo de clase</td><td>17, 18</td></tr>
+      <tr><td><a href="#q19">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>19 a 24</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -844,6 +845,98 @@ html { scroll-behavior: smooth; }
     <div class="math">\[ {}_{20}p^{10}_{40}=0{,}23943\cdot0{,}83030+0{,}70349\cdot0{,}06057=0{,}24141 \]</div>
     <div class="math">\[ {}_{20}p^{02}_{40}=0{,}93705\cdot0{,}10413+0{,}01953\cdot0{,}12732+0{,}04342=0{,}14348 \]</div>
     <div class="math">\[ \Pr[Y(10)=0\mid Y(20)=2]=\frac{0{,}93705\cdot0{,}10413}{0{,}14348}=0{,}6801\approx68\,\% \]</div>
+  </div>
+
+  <div class="q" id="q19"><span class="qn">PREGUNTA 19 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 3)</span>
+    <p class="stmt">Modelo 4 (0 sano, 1 enfermo, 2 fallecido) con probabilidades de supervivencia a un año. a) Sana a los 60, ¿sana a los 62? b) Sana a los 60, ¿enferma a los 62? c) Sana a los 60, ¿sana a los 63?</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Edad \(x\)</th><th>\(p^{00}_x\)</th><th>\(p^{01}_x\)</th><th>\(p^{10}_x\)</th><th>\(p^{11}_x\)</th></tr></thead>
+      <tbody>
+        <tr><td>60</td><td class="num">0,97025</td><td class="num">0,01467</td><td class="num">0,00313</td><td class="num">0,97590</td></tr>
+        <tr><td>61</td><td class="num">0,96686</td><td class="num">0,01674</td><td class="num">0,00272</td><td class="num">0,97449</td></tr>
+        <tr><td>62</td><td class="num">0,96305</td><td class="num">0,01911</td><td class="num">0,00236</td><td class="num">0,97286</td></tr>
+      </tbody></table></div>
+    <p>Se condiciona al estado a la edad intermedia (Chapman–Kolmogorov). <b>a)</b> Los caminos que acaban en 0 a los 62 son \(\{0,0,0\}\) y \(\{0,1,0\}\):</p>
+    <div class="math">\[ {}_2p^{00}_{60}=p^{00}_{60}p^{00}_{61}+p^{01}_{60}p^{10}_{61}=0{,}97025\cdot0{,}96686+0{,}01467\cdot0{,}00272=\mathbf{0{,}93814} \]</div>
+    <p><b>b)</b> Caminos \(\{0,0,1\}\) y \(\{0,1,1\}\):</p>
+    <div class="math">\[ {}_2p^{01}_{60}=p^{00}_{60}p^{01}_{61}+p^{01}_{60}p^{11}_{61}=0{,}97025\cdot0{,}01674+0{,}01467\cdot0{,}97449=\mathbf{0{,}03054} \]</div>
+    <p><b>c)</b> A los 62 puede estar sana o enferma; se reutilizan los apartados anteriores:</p>
+    <div class="math">\[ {}_3p^{00}_{60}={}_2p^{00}_{60}\,p^{00}_{62}+{}_2p^{01}_{60}\,p^{10}_{62}=0{,}93814\cdot0{,}96305+0{,}03054\cdot0{,}00236=\mathbf{0{,}9035} \]</div>
+    <div class="result">a) 0,93814 · b) 0,03054 · c) 0,9035</div>
+    <p class="note">La tabla solo da probabilidades a final de año: no informa de si la vida sale y vuelve al estado 0 dentro del año, así que solo se consideran los caminos por edades enteras.</p>
+    <details class="fc"><summary>Forma matricial</summary><div class="ans">
+      <p>Con \(p^{02}_x=1-p^{00}_x-p^{01}_x\) y \(p^{12}_x=1-p^{10}_x-p^{11}_x\), la matriz de transición a un año es \(P_x\) (la última fila es \((0,0,1)\), porque el fallecimiento es absorbente). Multiplicar matrices de edades consecutivas da las ecuaciones de Chapman–Kolmogorov:</p>
+      <div class="math">\[ P_{2,60}=P_{60}P_{61}=\begin{pmatrix}0{,}93814&0{,}03054&0{,}03133\\0{,}00568&0{,}95106&0{,}04326\\0&0&1\end{pmatrix},\qquad P_{3,60}=P_{2,60}P_{62}=\begin{pmatrix}0{,}90354&0{,}04764&0{,}04882\\0{,}00772&0{,}92535&0{,}06693\\0&0&1\end{pmatrix} \]</div>
+    </div></details>
+  </div>
+
+  <div class="q" id="q20"><span class="qn">PREGUNTA 20 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 4)</span>
+    <p class="stmt">Tabla de múltiples decrementos de una póliza que vence con el primer evento: fallecimiento (j = 1), renuncia (j = 2) o diagnóstico de enfermedad grave (j = 3). a) Calcule \({}_3p^{00}_{45}\), \({}_1p^{01}_{40}\) y \({}_5p^{03}_{41}\). b) Probabilidad de que una póliza emitida a los 45 genere siniestro (fallecimiento o enfermedad grave) antes de los 47. c) Probabilidad de que una póliza emitida a los 40 se liquide entre los 45 y los 47.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Edad \(x\)</th><th>\(l_x\)</th><th>\(d^{(1)}_x\)</th><th>\(d^{(2)}_x\)</th><th>\(d^{(3)}_x\)</th></tr></thead>
+      <tbody>
+        <tr><td>40</td><td class="num">100000</td><td class="num">51</td><td class="num">4784</td><td class="num">44</td></tr>
+        <tr><td>41</td><td class="num">95121</td><td class="num">52</td><td class="num">4526</td><td class="num">47</td></tr>
+        <tr><td>42</td><td class="num">90496</td><td class="num">53</td><td class="num">4268</td><td class="num">50</td></tr>
+        <tr><td>43</td><td class="num">86125</td><td class="num">54</td><td class="num">4010</td><td class="num">53</td></tr>
+        <tr><td>44</td><td class="num">82008</td><td class="num">55</td><td class="num">3753</td><td class="num">56</td></tr>
+        <tr><td>45</td><td class="num">78144</td><td class="num">56</td><td class="num">3496</td><td class="num">59</td></tr>
+        <tr><td>46</td><td class="num">74533</td><td class="num">57</td><td class="num">3239</td><td class="num">62</td></tr>
+        <tr><td>47</td><td class="num">71175</td><td class="num">57</td><td class="num">2983</td><td class="num">65</td></tr>
+        <tr><td>48</td><td class="num">68070</td><td class="num">58</td><td class="num">2729</td><td class="num">67</td></tr>
+        <tr><td>49</td><td class="num">65216</td><td class="num">58</td><td class="num">2476</td><td class="num">69</td></tr>
+        <tr><td>50</td><td class="num">62613</td><td class="num">58</td><td class="num">2226</td><td class="num">70</td></tr>
+      </tbody></table></div>
+    <p><b>Relaciones básicas.</b> \(l_{x+1}=l_x-d^{(1)}_x-d^{(2)}_x-d^{(3)}_x\). Para \(t\) entero:</p>
+    <div class="math">\[ {}_tp^{00}_x=\frac{l_{x+t}}{l_x},\qquad {}_tp^{0j}_x=\frac1{l_x}\sum_{k=0}^{t-1}d^{(j)}_{x+k}\quad(j=1,2,3) \]</div>
+    <p>La primera es la probabilidad de seguir vigente; la segunda, la de haber salido por la causa \(j\) antes del año \(t\): las salidas por \(j\) en esos años divididas entre los que había vigentes a la edad \(x\).</p>
+    <p><b>a)</b></p>
+    <div class="math">\[ {}_3p^{00}_{45}=\frac{l_{48}}{l_{45}}=\frac{68070}{78144}=\mathbf{0{,}87108},\qquad {}_1p^{01}_{40}=\frac{d^{(1)}_{40}}{l_{40}}=\frac{51}{100000}=\mathbf{0{,}00051} \]</div>
+    <div class="math">\[ {}_5p^{03}_{41}=\frac{d^{(3)}_{41}+d^{(3)}_{42}+d^{(3)}_{43}+d^{(3)}_{44}+d^{(3)}_{45}}{l_{41}}=\frac{47+50+53+56+59}{95121}=\frac{265}{95121}=\mathbf{0{,}0027859} \]</div>
+    <p><b>b)</b> Son siniestros las salidas por \(j=1\) y \(j=3\); la renuncia no lo es. El plazo abarca los años de edad 45 y 46:</p>
+    <div class="math">\[ {}_2p^{01}_{45}+{}_2p^{03}_{45}=\frac{56+57}{78144}+\frac{59+62}{78144}=\frac{234}{78144}=\mathbf{0{,}0029945} \]</div>
+    <p><b>c)</b> Se interpreta «liquidada» como salida por renuncia (\(j=2\)). Debe seguir vigente a los 45 y renunciar entre los 45 y los 47 (diferimiento de 5 años, plazo de 2):</p>
+    <div class="math">\[ {}_{5|2}p^{02}_{40}={}_5p^{00}_{40}\cdot{}_2p^{02}_{45}=\frac{l_{45}}{l_{40}}\cdot\frac{d^{(2)}_{45}+d^{(2)}_{46}}{l_{45}}=\frac{3496+3239}{100000}=\mathbf{0{,}06735} \]</div>
+    <div class="result">a) 0,87108 · 0,00051 · 0,0027859 · b) 0,0029945 · c) 0,06735</div>
+    <p class="note">En c) \(l_{45}\) se simplifica: el resultado son las renuncias entre los 45 y los 47 años divididas entre la población inicial de 40 años (0,78144 × 0,086187 = 0,06735).</p>
+  </div>
+
+  <div class="q" id="q21"><span class="qn">PREGUNTA 21 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 5)</span>
+    <p class="stmt">Con la tabla de la pregunta anterior, calcule \({}_{0,2}p^{0j}_{50}\) para \(j=1,2,3\) suponiendo distribución uniforme de decrementos entre edades enteras.</p>
+    <p>Con decrementos uniformes en cada año de edad, las salidas por cada causa ocurren a ritmo constante, de modo que para \(0\le t\le1\):</p>
+    <div class="math">\[ {}_tp^{0j}_x=t\cdot\frac{d^{(j)}_x}{l_x} \]</div>
+    <p>Con \(x=50\), \(t=0{,}2\), \(l_{50}=62613\), \(d^{(1)}_{50}=58\), \(d^{(2)}_{50}=2226\) y \(d^{(3)}_{50}=70\):</p>
+    <div class="math">\[ {}_{0,2}p^{01}_{50}=0{,}2\cdot\frac{58}{62613}=0{,}00018527,\quad {}_{0,2}p^{02}_{50}=0{,}2\cdot\frac{2226}{62613}=0{,}0071103,\quad {}_{0,2}p^{03}_{50}=0{,}2\cdot\frac{70}{62613}=0{,}00022360 \]</div>
+    <div class="result">j = 1: 0,00018527 · j = 2: 0,0071103 · j = 3: 0,00022360</div>
+    <p class="note">Comprobación: la suma, 0,0075192 = 0,2·(58+2226+70)/62613, es la probabilidad de salir del seguro por cualquier causa en los primeros 0,2 años.</p>
+  </div>
+
+  <div class="q" id="q22"><span class="qn">PREGUNTA 22 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 6)</span>
+    <p class="stmt">Modelo 3 (sano → inválido, sano → fallecido, inválido → fallecido; no hay vuelta de inválido a sano) con \(\mu^{01}_{x+t}=0{,}02\), \(\mu^{02}_{x+t}=0{,}03\), \(\mu^{12}_{x+t}=0{,}04\) para \(0\le t\le5\). a) Probabilidad de que una vida sana de edad \(x\) siga sana a los \(x+5\). b) Lo mismo, dado que sobrevive a \(x+5\).</p>
+    <p><b>a)</b> Seguir sano a \(x+5\) equivale a no haber salido nunca del estado 0, porque desde el 1 no se vuelve al 0 (\({}_tp^{00}_x={}_tp^{\overline{00}}_x\)). La permanencia depende de la suma de las intensidades de salida del 0:</p>
+    <div class="math">\[ {}_tp^{00}_x=\exp\Bigl(-\int_0^t(\mu^{01}_{x+s}+\mu^{02}_{x+s})\,ds\Bigr)=e^{-0{,}05t},\qquad {}_5p^{00}_x=e^{-0{,}25}=\mathbf{0{,}7788} \]</div>
+    <p><b>b)</b> Estar viva a \(x+5\) es estar en el estado 0 o en el 1, así que \(\Pr[\text{sana}\mid\text{viva}]={}_5p^{00}_x/({}_5p^{00}_x+{}_5p^{01}_x)\). Falta \({}_5p^{01}_x\): sana hasta \(s\), pasa a inválida en \(s\) y permanece inválida los \(5-s\) años restantes (intensidad de salida \(\mu^{12}=0{,}04\)):</p>
+    <div class="math">\[ {}_5p^{01}_x=\int_0^5e^{-0{,}05s}\cdot0{,}02\cdot e^{-0{,}04(5-s)}\,ds=0{,}02\,e^{-0{,}2}\int_0^5e^{-0{,}01s}\,ds=2e^{-0{,}2}(1-e^{-0{,}05})=0{,}07986 \]</div>
+    <div class="math">\[ \Pr[\text{sana}\mid\text{viva}]=\frac{0{,}77880}{0{,}77880+0{,}07986}=\frac{0{,}77880}{0{,}85866}=\mathbf{0{,}9070} \]</div>
+    <div class="result">a) 0,7788 · b) 0,9070</div>
+  </div>
+
+  <div class="q" id="q23"><span class="qn">PREGUNTA 23 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 7)</span>
+    <p class="stmt">Mismo modelo con \(\mu^{01}_{50+t}=0{,}02\), \(\mu^{02}_{50+t}=0{,}03\), \(\mu^{12}_{50+t}=0{,}11\) para \(0\le t\le15\). Una póliza paga un beneficio solo si la vida de 50 años y sana se invalida durante un año completo antes de los 65. Calcule la probabilidad de que se pague.</p>
+    <p>Se interpreta que la vida, sana a los 50, pasa a inválida en el instante \(s\) y permanece inválida el año completo \([s,s+1]\), que debe terminar antes de los 65: \(s+1\le15\), es decir, \(0\le s\le14\). Como no hay recuperación, basta con que no fallezca en ese año. Intervienen tres factores: seguir sana hasta \(s\), pasar a inválida en \(s\) y seguir inválida un año más (intensidad de salida \(\mu^{12}=0{,}11\)):</p>
+    <div class="math">\[ \Pr=\int_0^{14}{}_sp^{00}_{50}\;\mu^{01}_{50+s}\;{}_1p^{11}_{50+s}\,ds,\qquad {}_sp^{00}_{50}=e^{-0{,}05s},\quad {}_1p^{11}_{50+s}=e^{-0{,}11} \]</div>
+    <div class="math">\[ \Pr=0{,}02\,e^{-0{,}11}\int_0^{14}e^{-0{,}05s}ds=0{,}02\,e^{-0{,}11}\,\frac{1-e^{-0{,}7}}{0{,}05}=0{,}4\,e^{-0{,}11}(1-e^{-0{,}7})=0{,}4\cdot0{,}89583\cdot0{,}50342=\mathbf{0{,}1804} \]</div>
+    <div class="result">Pr = 0,1804</div>
+  </div>
+
+  <div class="q" id="q24"><span class="qn">PREGUNTA 24 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 8)</span>
+    <p class="stmt">Modelo 4 (sano ⇄ enfermo, ambos → fallecido) con \(\mu^{01}_{x+t}=0{,}09\), \(\mu^{02}_{x+t}=0{,}04\), \(\mu^{10}_{x+t}=0{,}01\), \(\mu^{12}_{x+t}=0{,}05\) para \(0\le t\le15\). a) Probabilidad de que una vida de edad \(x\) en el estado 1 permanezca en el estado 1 durante los próximos 15 años. b) Probabilidad de que una vida de edad \(x\), en el estado 1, pase al estado 0 y permanezca en 0 los siguientes 15 años.</p>
+    <p><b>a)</b> La intensidad total de salida del estado 1 es \(\mu^{10}+\mu^{12}=0{,}01+0{,}05=0{,}06\):</p>
+    <div class="math">\[ {}_{15}p^{\overline{11}}_x=\exp\Bigl(-\int_0^{15}(\mu^{10}_{x+s}+\mu^{12}_{x+s})ds\Bigr)=e^{-0{,}06\cdot15}=e^{-0{,}9}=\mathbf{0{,}4066} \]</div>
+    <p><b>b)</b> Se interpreta dentro del horizonte de 15 años en el que están definidas las intensidades: en el estado 1 hasta el instante \(s\), pasa al 0 en \(s\) y permanece en 0 los \(15-s\) años restantes. La intensidad de salida del 0 es \(\mu^{01}+\mu^{02}=0{,}09+0{,}04=0{,}13\):</p>
+    <div class="math">\[ \Pr=\int_0^{15}{}_sp^{\overline{11}}_x\;\mu^{10}_{x+s}\;{}_{15-s}p^{\overline{00}}_{x+s}\,ds=\int_0^{15}e^{-0{,}06s}\cdot0{,}01\cdot e^{-0{,}13(15-s)}ds=0{,}01\,e^{-1{,}95}\,\frac{e^{1{,}05}-1}{0{,}07}=\mathbf{0{,}0378} \]</div>
+    <div class="result">a) 0,4066 · b) 0,0378</div>
+    <p class="note">Verificado numéricamente: 0,01 · 0,14227 · 26,538 = 0,0378. La permanencia usa \(\overline{ii}\) (sin salir), no \({}_tp^{ii}_x\), que permitiría salir y volver.</p>
   </div>
   </div>
 </section>
