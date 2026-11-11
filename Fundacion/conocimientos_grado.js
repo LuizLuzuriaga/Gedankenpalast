@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Temarios del Grado en Economía (Universidad de Alcalá)
+ * Gedanken Palast - Temarios del Grado en Economía (Universidad de Alcalá)
  * Se carga después de conocimientos_mucaf.js (usa NUM, CALCULATORS y KNOWLEDGE).
  */
 

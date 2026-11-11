@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Topología del atlas
+ * Gedanken Palast - Topología del atlas
  * Cuatro cúmulos de conocimiento alrededor del Gran Atractor y los temas que orbitan cada uno.
  * Las metodologías de knowledgeData.js se añaden a su cúmulo en main.js (ver METHOD_CLUSTER).
  *

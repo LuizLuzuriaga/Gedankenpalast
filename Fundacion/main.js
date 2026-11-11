@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Experiencia 3D
+ * Gedanken Palast - Experiencia 3D
  * Portada: bola de obsidiana sobre blanco. Entrada: membrana viscosa.
  * Interior: superclúster de Laniakea con cuatro cúmulos de conocimiento cuyos temas orbitan,
  * filamentos de flujo hacia El Gran Atractor, buscador, filtros y panel de temario.
@@ -48,8 +48,31 @@ const container = document.getElementById('webgl-container');
 const scene = new THREE.Scene();
 const COLOR_WHITE = new THREE.Color(0xffffff);
 const COLOR_SPACE = new THREE.Color(0x000000);
-const COLOR_STUDIO = new THREE.Color(0xf1f1f1); // fondo de estudio de la portada
-scene.background = COLOR_STUDIO.clone();
+// Fondo de la portada: el mismo degradado que luizluzuriaga.github.io
+// (radial-gradient(120% 90% at 70% 10%, #0b1220 0%, #07080b 62%))
+function makeBackdrop() {
+    const w = 512, h = 512;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    g.fillStyle = '#07080b';
+    g.fillRect(0, 0, w, h);
+    g.save();
+    g.translate(w * 0.7, h * 0.1);
+    g.scale(1.2 * w, 0.9 * h); // elipse 120% x 90% del lienzo, como en CSS
+    const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1);
+    gr.addColorStop(0, '#0b1220');
+    gr.addColorStop(0.62, '#07080b');
+    gr.addColorStop(1, '#07080b');
+    g.fillStyle = gr;
+    g.fillRect(-2, -2, 4, 4);
+    g.restore();
+    const t = new THREE.CanvasTexture(c);
+    return t;
+}
+const BACKDROP = makeBackdrop();
+const COLOR_STUDIO = BACKDROP; // fondo de la portada
+scene.background = COLOR_STUDIO;
 
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.5, 20000);
 const CAM_PORTADA = new THREE.Vector3(0, 225, 710); // algo elevada, como una foto de producto
@@ -57,7 +80,7 @@ const CAM_OVERVIEW = new THREE.Vector3(430, 250, 840);
 // En pantallas verticales el campo horizontal es estrecho: la cámara se aleja para que quepan los cúmulos
 const viewScale = () => Math.max(1, Math.pow(1.5 / camera.aspect, 0.6));
 const overviewPosition = () => CAM_OVERVIEW.clone().multiplyScalar(viewScale());
-camera.position.copy(CAM_PORTADA);
+camera.position.copy(CAM_PORTADA).multiplyScalar(viewScale());
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -165,15 +188,15 @@ const obsidianMat = new THREE.ShaderMaterial({
         varying vec3 vN;
         varying vec3 vWorldPos;
 
-        // Estudio de producto difuso: techo claro, suelo gris en sombra y un horizonte muy suave.
-        // Sin ventanas ni brillos de borde: el vidrio negro solo refleja el estudio y una luz puntual.
+        // Entorno nocturno de la web: cielo azul marino casi negro, luz fría de frente arriba a la izquierda,
+        // contraluz azul a la derecha y un toque dorado abajo. Las luces están fijas en el mundo.
         vec3 studio(vec3 R) {
-            float sky = smoothstep(-0.02, 0.32, R.y);
-            float zenith = smoothstep(0.6, 1.0, R.y);
-            float v = mix(0.05, 1.0, sky) - zenith * 0.12;
-            // Luz amplia arriba a la derecha que aclara un poco ese lado de la cúpula
-            v += 0.12 * smoothstep(0.6, 1.0, dot(R, normalize(vec3(0.6, 0.7, 0.4))));
-            return vec3(v * 0.995, v, v * 1.01);
+            float up = smoothstep(0.2, 1.0, R.y * 0.5 + 0.5);
+            vec3 col = mix(vec3(0.004, 0.006, 0.013), vec3(0.035, 0.055, 0.115), up);
+            col += vec3(0.31, 0.44, 1.0) * 1.25 * pow(max(dot(R, normalize(vec3(0.8, 0.2, -0.55))), 0.0), 5.0);
+            col += vec3(0.89, 0.74, 0.47) * 0.38 * pow(max(dot(R, normalize(vec3(-0.6, -0.4, 0.6))), 0.0), 7.0);
+            col += vec3(0.66, 0.76, 1.0) * 0.95 * pow(max(dot(R, normalize(vec3(-0.55, 0.55, 0.65))), 0.0), 12.0);
+            return col;
         }
 
         void main() {
@@ -184,13 +207,13 @@ const obsidianMat = new THREE.ShaderMaterial({
 
             // Reflectancia de laca/vidrio pulido: algo de reflejo de frente, más hacia los bordes,
             // pero sin llegar a un aro blanco en la silueta
-            float F = 0.16 + 0.26 * pow(1.0 - NdV, 3.0);
-            vec3 col = vec3(0.004, 0.0042, 0.005) + studio(R) * F;
+            float F = 0.3 + 0.5 * pow(1.0 - NdV, 3.0);
+            vec3 col = vec3(0.003, 0.004, 0.007) + studio(R) * F;
 
             // Destello: un solo punto diminuto y nítido arriba a la derecha, con un halo apenas visible
-            vec3 Lp = normalize(vec3(0.42 + uPointer.x * 0.06, 0.78 + uPointer.y * 0.04, 0.62));
+            vec3 Lp = normalize(vec3(-0.55 + uPointer.x * 0.06, 0.55 + uPointer.y * 0.04, 0.65));
             float s = max(dot(R, Lp), 0.0);
-            col += vec3(pow(s, 3200.0) * 2.4 + pow(s, 260.0) * 0.05);
+            col += vec3(0.75, 0.85, 1.0) * (pow(s, 2600.0) * 2.4 + pow(s, 220.0) * 0.06);
 
             gl_FragColor = vec4(min(col, vec3(1.0)), uOpacity);
         }`,
@@ -218,8 +241,12 @@ const shadowMat = new THREE.ShaderMaterial({
             float along = dot(q, d);
             float across = d.x * q.y - d.y * q.x;
             float castShadow = exp(-pow(along / 1.15, 2.0) - pow(across / 0.62, 2.0)) * 0.26;
-            float a = 1.0 - (1.0 - contact) * (1.0 - occlusion) * (1.0 - castShadow);
-            gl_FragColor = vec4(vec3(0.0), a * uOpacity);
+            float sh = 1.0 - (1.0 - contact) * (1.0 - occlusion) * (1.0 - castShadow);
+            // Suelo: charco de luz azul bajo la bola para que la sombra se lea sobre el fondo oscuro
+            float pool = exp(-pow(r / 1.7, 2.0)) * 0.2;
+            float a = 1.0 - (1.0 - pool) * (1.0 - sh);
+            vec3 rgb = vec3(0.1, 0.17, 0.4) * pool * (1.0 - sh) / max(a, 0.0001);
+            gl_FragColor = vec4(rgb, a * uOpacity);
         }`,
     transparent: true,
     depthWrite: false
@@ -228,6 +255,27 @@ const contactShadow = new THREE.Mesh(new THREE.PlaneGeometry(SPHERE_RADIUS * SHA
 contactShadow.rotation.x = -Math.PI / 2;
 contactShadow.position.y = -SPHERE_RADIUS - 1;
 portada.add(contactShadow);
+
+// Halo azul detrás de la bola, como en la web
+function glowTexture() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,255,255,1)');
+    gr.addColorStop(0.18, 'rgba(255,255,255,0.55)');
+    gr.addColorStop(0.5, 'rgba(255,255,255,0.12)');
+    gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr;
+    g.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(c);
+}
+const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTexture(), color: 0x3b5bb8, transparent: true, opacity: 0.4, depthWrite: false, blending: THREE.AdditiveBlending
+}));
+halo.scale.set(SPHERE_RADIUS * 5, SPHERE_RADIUS * 5, 1);
+halo.renderOrder = -1;
+portada.add(halo);
 
 // ==========================================================================
 // 3. INTERIOR: SUPERCLÚSTER DE LANIAKEA
@@ -533,7 +581,7 @@ cosmos.add(relationLines);
 // ==========================================================================
 // 4. MEMBRANA VISCOSA (post-proceso de la transición)
 // ==========================================================================
-const post = { warp: 0, reveal: 1 };
+const post = { warp: 0, reveal: 1, flash: 0 };
 const sceneTarget = new THREE.WebGLRenderTarget(1, 1);
 const postCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 const postMat = new THREE.ShaderMaterial({
@@ -542,12 +590,13 @@ const postMat = new THREE.ShaderMaterial({
         uWarp: { value: 0 },
         uReveal: { value: 1 },
         uTime: { value: 0 },
-        uAspect: { value: 1 }
+        uAspect: { value: 1 },
+        uFlash: { value: 0 }
     },
     vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
     fragmentShader: `
         uniform sampler2D tScene;
-        uniform float uWarp, uReveal, uTime, uAspect;
+        uniform float uWarp, uReveal, uTime, uAspect, uFlash;
         varying vec2 vUv;
 
         float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -576,15 +625,46 @@ const postMat = new THREE.ShaderMaterial({
 
             // Estelas radiales y separación cromática al atravesar la membrana
             vec3 col = vec3(0.0);
-            for (int i = 0; i < 12; i++) {
-                float k = float(i) / 11.0;
-                vec2 s = (uv - 0.5) * (1.0 - k * 0.22 * uWarp) + 0.5;
-                vec2 ab = (s - 0.5) * 0.016 * uWarp;
+            for (int i = 0; i < 20; i++) {
+                float k = float(i) / 19.0;
+                vec2 s = (uv - 0.5) * (1.0 - k * 0.34 * uWarp) + 0.5;
+                vec2 ab = (s - 0.5) * 0.026 * uWarp;
                 col.r += texture2D(tScene, s + ab).r;
                 col.g += texture2D(tScene, s).g;
                 col.b += texture2D(tScene, s - ab).b;
             }
-            col /= 12.0;
+            col /= 20.0;
+
+            // Velocidad luz: estrellas que se estiran en rayos desde el centro y destellos que brillan al pasar
+            float ang = atan(c.y, c.x);
+            float w = clamp(uWarp, 0.0, 1.0);
+            for (int j = 0; j < 3; j++) {
+                float fj = float(j);
+                float lanes = 150.0 + fj * 110.0;
+                float id = floor(ang / 6.2831853 * lanes);
+                float h1 = hash(vec2(id, fj * 7.0));
+                float h2 = hash(vec2(id + 31.0, fj * 3.0));
+                float speed = 0.5 + h2 * 1.4;
+                float head = fract(uTime * speed * (0.6 + w * 1.6) + h1);
+                float rr = r * 2.2;
+                float len = 0.04 + w * (0.5 + h1 * 0.5);
+                float streak = pow(smoothstep(head - len, head, rr), 3.0) * (1.0 - smoothstep(head, head + 0.02, rr));
+                float lane = 1.0 - smoothstep(0.0, 0.32, abs(fract(ang / 6.2831853 * lanes) - 0.5));
+                float on = step(0.55, h1) * smoothstep(0.05, 0.5, r);
+                vec3 tint = mix(vec3(0.55, 0.72, 1.0), vec3(1.0, 0.9, 0.65), step(0.82, h2));
+                col += tint * streak * lane * on * w * (0.9 + 0.5 * fj);
+            }
+            // Brillos: puntos que centellean y aumentan con la velocidad
+            vec2 cell = (c + 0.5) * vec2(46.0 * uAspect, 46.0);
+            vec2 gp = floor(cell);
+            vec2 off = fract(cell) - 0.5 + (vec2(hash(gp + 3.1), hash(gp + 7.7)) - 0.5) * 0.5;
+            float gh = hash(gp + floor(uTime * 6.0 + hash(gp) * 5.0));
+            float gl = step(0.985, gh) * smoothstep(0.12, 0.6, r) * exp(-dot(off, off) * 90.0);
+            col += vec3(0.8, 0.9, 1.0) * gl * (0.4 + 2.2 * w);
+            // Resplandor central cuando se atraviesa la membrana
+            float glow = exp(-r * r * 9.0) * uFlash;
+            col += vec3(0.62, 0.75, 1.0) * glow * 1.3 + vec3(1.0, 0.93, 0.8) * exp(-r * r * 60.0) * uFlash * 1.2;
+            col += vec3(0.4, 0.55, 1.0) * uFlash * 0.18 * smoothstep(0.2, 1.0, r);
 
             // Iris líquido: se cierra al entrar en la obsidiana y se abre ya dentro
             float n = fbm(c * 5.0 + uTime * 0.35);
@@ -1455,7 +1535,7 @@ function showPortada() {
     closePanel();
     cosmos.visible = false;
     portada.visible = true;
-    scene.background = COLOR_STUDIO.clone();
+    scene.background = COLOR_STUDIO;
     state.scene = 'portada';
     state.focusCluster = null;
     document.body.classList.replace('scene-cosmos', 'scene-portada');
@@ -1472,6 +1552,11 @@ function beginTransition() {
     controls.autoRotate = false;
     controls.minDistance = 0.1;
     controls.maxDistance = 1e5;
+}
+
+function refreshFov() {
+    camera.updateProjectionMatrix();
+    updatePointScale();
 }
 
 function enterCosmos() {
@@ -1498,7 +1583,12 @@ function enterCosmos() {
         .call(showCosmos, null, 1.55)
         .fromTo(camera.position, { x: 6, y: 4, z: 26 }, { ...overview, duration: 3, ease: 'power2.out', immediateRender: false, onUpdate: () => camera.lookAt(GA_POS) }, 1.6)
         .to(post, { reveal: 1, duration: 1.3, ease: 'power2.out' }, 1.65)
-        .to(post, { warp: 0, duration: 2.4, ease: 'power2.out' }, 1.65);
+        .to(post, { warp: 0, duration: 2.4, ease: 'power2.out' }, 1.65)
+        // Destello al cruzar y campo de visión que se abre como en un salto a velocidad luz
+        .to(post, { flash: 1, duration: 0.45, ease: 'power2.in' }, 1.1)
+        .to(post, { flash: 0, duration: 1.6, ease: 'power2.out' }, 1.6)
+        .to(camera, { fov: 105, duration: 1.5, ease: 'power3.in', onUpdate: refreshFov }, 0)
+        .to(camera, { fov: 50, duration: 2.6, ease: 'power3.out', onUpdate: refreshFov }, 1.6);
 }
 
 function exitCosmos() {
@@ -1515,12 +1605,18 @@ function exitCosmos() {
         .to(post, { warp: 1, duration: 1.2, ease: 'power2.in' }, 0)
         .to(post, { reveal: 0, duration: 0.5, ease: 'power2.in' }, 0.7)
         .call(showPortada, null, 1.25)
-        .fromTo(camera.position, { x: 0, y: 30, z: SPHERE_RADIUS * 1.15 }, { x: CAM_PORTADA.x, y: CAM_PORTADA.y, z: CAM_PORTADA.z, duration: 2, ease: 'power2.out', immediateRender: false, onUpdate: () => camera.lookAt(0, 0, 0) }, 1.3)
+        .fromTo(camera.position, { x: 0, y: 30, z: SPHERE_RADIUS * 1.15 }, { x: CAM_PORTADA.x * viewScale(), y: CAM_PORTADA.y * viewScale(), z: CAM_PORTADA.z * viewScale(), duration: 2, ease: 'power2.out', immediateRender: false, onUpdate: () => camera.lookAt(0, 0, 0) }, 1.3)
         .to(post, { reveal: 1, duration: 1, ease: 'power2.out' }, 1.35)
-        .to(post, { warp: 0, duration: 1.6, ease: 'power2.out' }, 1.35);
+        .to(post, { warp: 0, duration: 1.6, ease: 'power2.out' }, 1.35)
+        .to(post, { flash: 1, duration: 0.4, ease: 'power2.in' }, 0.9)
+        .to(post, { flash: 0, duration: 1.2, ease: 'power2.out' }, 1.3)
+        .to(camera, { fov: 100, duration: 1.2, ease: 'power3.in', onUpdate: refreshFov }, 0)
+        .to(camera, { fov: 50, duration: 2, ease: 'power3.out', onUpdate: refreshFov }, 1.3);
 }
 
 function finishTransition() {
+    camera.fov = 50;
+    refreshFov();
     [controls.minDistance, controls.maxDistance] = DISTANCE_LIMITS[state.scene];
     app.classList.remove('is-arriving');
     portadaHeader.hidden = state.scene === 'cosmos';
@@ -1541,13 +1637,8 @@ function hitAt(clientX, clientY, objects) {
     return raycaster.intersectObjects(objects, false)[0] || null;
 }
 
-renderer.domElement.addEventListener('dblclick', (e) => {
-    if (state.scene === 'portada' && hitAt(e.clientX, e.clientY, [obsidian])) enterCosmos();
-});
-
-// Doble toque en móvil y toque simple en el cosmos
+// Un solo clic (o toque) sobre la bola entra; arrastrar la hace girar sin entrar
 let tapStart = null;
-let lastTap = { time: 0, x: 0, y: 0 };
 renderer.domElement.addEventListener('pointerdown', (e) => {
     tapStart = { x: e.clientX, y: e.clientY, time: performance.now() };
 });
@@ -1559,15 +1650,7 @@ renderer.domElement.addEventListener('pointerup', (e) => {
     if (moved > 8 || !quick) return;
 
     if (state.scene === 'portada') {
-        if (e.pointerType !== 'touch') return; // el ratón usa dblclick
-        const now = performance.now();
-        const near = Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 45;
-        if (now - lastTap.time < 420 && near && hitAt(e.clientX, e.clientY, [obsidian])) {
-            lastTap.time = 0;
-            enterCosmos();
-        } else {
-            lastTap = { time: now, x: e.clientX, y: e.clientY };
-        }
+        if (hitAt(e.clientX, e.clientY, [obsidian])) enterCosmos();
         return;
     }
 
@@ -1717,11 +1800,12 @@ function animate() {
     }
     controls.update();
 
-    const usePost = post.warp > 0.001 || post.reveal < 0.999;
+    const usePost = post.warp > 0.001 || post.reveal < 0.999 || post.flash > 0.001;
     if (usePost) {
         postMat.uniforms.uWarp.value = post.warp;
         postMat.uniforms.uReveal.value = post.reveal;
         postMat.uniforms.uTime.value = t;
+        postMat.uniforms.uFlash.value = post.flash;
         renderer.setRenderTarget(sceneTarget);
         renderer.render(scene, camera);
         renderer.setRenderTarget(null);

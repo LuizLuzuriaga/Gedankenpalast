@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Base de conocimientos desplegable
+ * Gedanken Palast - Base de conocimientos desplegable
  * Cada entrada se asocia a un concepto de main.js mediante su campo `knowledge`.
  * Texto con matemáticas en línea entre $...$ (KaTeX). Bloques disponibles:
  *   p, list, callout, formula, steps, table, calculator, sources, guide

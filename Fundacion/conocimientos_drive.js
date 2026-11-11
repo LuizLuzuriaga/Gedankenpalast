@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Temarios a partir del archivo compartido de la promoción (Google Drive, solo lectura)
+ * Gedanken Palast - Temarios a partir del archivo compartido de la promoción (Google Drive, solo lectura)
  * Biometría, Derecho bancario, Derecho del seguro, ERM y MCEV, Deontología y ampliación de Contabilidad.
  * Son resúmenes propios con las ideas y fórmulas de las diapositivas; no reproducen el material.
  * Se carga después de conocimientos_grado2.js.

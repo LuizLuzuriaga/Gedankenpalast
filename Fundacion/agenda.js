@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Agenda
+ * Gedanken Palast - Agenda
  * Calendario con dos fuentes de eventos:
  *   - PUBLISHED_EVENTS (eventos.js): publicados por el autor, los ve todo visitante, solo lectura.
  *   - Los del navegador (localStorage): cada visitante apunta los suyos tras introducir la contraseña.

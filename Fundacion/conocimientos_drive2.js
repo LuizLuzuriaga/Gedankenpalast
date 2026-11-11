@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Segunda tanda del archivo compartido de la promoción (Google Drive, solo lectura): segundo cuatrimestre.
+ * Gedanken Palast - Segunda tanda del archivo compartido de la promoción (Google Drive, solo lectura): segundo cuatrimestre.
  * Franquicias y garantía máxima (Matemática del seguro no vida), riesgo de suscripción no vida bajo Solvencia II (ERM)
  * y ampliación de Contabilidad (activos no financieros, pasivos financieros, derivados y provisiones).
  * Son resúmenes propios con las ideas y fórmulas de los apuntes; no reproducen el material.

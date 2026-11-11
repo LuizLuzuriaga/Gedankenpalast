@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Temarios del Máster (MUCAF), segundo bloque
+ * Gedanken Palast - Temarios del Máster (MUCAF), segundo bloque
  * Resúmenes, fórmulas y código de las asignaturas del máster, elaborados a partir de los apuntes
  * de cada profesor (ver "Fuentes" de cada tema). Se carga después de conocimientos.js y añade
  * sus entradas a KNOWLEDGE y CALCULATORS.

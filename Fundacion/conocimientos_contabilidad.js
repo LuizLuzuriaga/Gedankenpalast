@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Contabilidad 2 (instrumentos financieros, NIIF 9). Contabilidad sigue siendo `contabilidad_pgc` (PGC).
+ * Gedanken Palast - Contabilidad 2 (instrumentos financieros, NIIF 9). Contabilidad sigue siendo `contabilidad_pgc` (PGC).
  * Son resúmenes propios con las ideas de las diapositivas, la clase del 6/11/2026 y los enunciados de examen;
  * no reproducen el material. Se carga después de conocimientos_drive2.js.
  */

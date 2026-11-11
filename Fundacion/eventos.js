@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Eventos publicados
+ * Gedanken Palast - Eventos publicados
  * Los añade el autor y los ve cualquier visitante de la web; en la agenda son de solo lectura.
  * Si `topic` (un id de atlas.js o knowledgeData.js) tiene un evento en los próximos 30 días, ese tema late en el cosmos.
  *

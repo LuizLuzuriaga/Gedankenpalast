@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Ejecutor de Python en el navegador (Pyodide).
+ * Gedanken Palast - Ejecutor de Python en el navegador (Pyodide).
  * Se carga después de main.js. Pyodide solo se descarga al pulsar «Ejecutar el Python en el navegador».
  */
 

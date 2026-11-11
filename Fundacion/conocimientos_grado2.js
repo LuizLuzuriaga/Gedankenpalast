@@ -1,5 +1,5 @@
 /**
- * Gendanken Palast - Segundo bloque del Grado en Economía (4.º curso)
+ * Gedanken Palast - Segundo bloque del Grado en Economía (4.º curso)
  * Econometría II, Técnicas de evaluación de impacto, y ampliaciones de Teoría de juegos
  * y Dinámica económica a partir de los libros de referencia. Se carga después de conocimientos_grado.js.
  */
