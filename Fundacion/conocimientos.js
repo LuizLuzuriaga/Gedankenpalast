@@ -115,7 +115,7 @@ const KNOWLEDGE = {
                 id: 'idea',
                 title: 'Idea clave',
                 blocks: [
-                    { type: 'guide', text: 'Guía de estudio de las Lecciones 1 a 3 (Francesco Ungolo, UNSW / UAH): regla de Bayes, Beta–Binomial, regresión logística de Berkeley, MCMC, JAGS, Stan y PyMC, datos incompletos con EM y datos longitudinales. Ocho laboratorios interactivos y todo el código en R y Python.' },
+                    { type: 'guide', text: 'Guía de estudio de las Lecciones 1 a 3 (Francesco Ungolo, UNSW / UAH): regla de Bayes, Beta–Binomial, regresión logística de Berkeley, MCMC, JAGS, Stan y PyMC, datos incompletos con EM, datos longitudinales y correlacionados (estructuras de covarianza, REML, eficiencia de los diseños). Catorce laboratorios interactivos, el código en R y Python y enlace al manual del curso en PDF.' },
                     { type: 'p', text: 'En la estadística bayesiana el parámetro $\\theta$ es una variable aleatoria: se le asigna una distribución <b>a priori</b> antes de ver los datos y la verosimilitud la actualiza hasta la <b>posterior</b>. De ella salen la estimación, la incertidumbre y la predicción. Si la cuenta no sale a mano se aproxima con muestras (MCMC).' },
                     { type: 'list', title: 'Lección 3 · Bayes y computación', items: [
                         '<b>Conjugación</b>: $p\\sim\\text{Beta}(a,b)$ y $Z\\mid p\\sim\\text{Bin}(n,p)$ dan $p\\mid z\\sim\\text{Beta}(a+z,b+n-z)$; la media a posteriori es un promedio ponderado de la a priori y de los datos.',
@@ -125,7 +125,8 @@ const KNOWLEDGE = {
                     ] },
                     { type: 'list', title: 'Lecciones 1 y 2 · Lo que no se observa', items: [
                         '<b>Datos incompletos</b>: MCAR, MAR y MNAR; verosimilitud observada y algoritmo EM, cuyo paso E es la regla de Bayes.',
-                        '<b>Longitudinales</b>: modelo lineal mixto, efectos aleatorios como a priori y BLUP como media a posteriori; GLMM y modelos no lineales.'
+                        '<b>Longitudinales</b>: modelo lineal mixto, efectos aleatorios como a priori y BLUP como media a posteriori; GLMM y modelos no lineales.',
+                        '<b>Correlacionados</b>: modelo marginal frente a mixto, simetría compuesta, AR(1), Toeplitz y no estructurada, ML frente a REML, y por qué un diseño longitudinal gana (1−ρ) o pierde (1+ρ).'
                     ] }
                 ]
             },

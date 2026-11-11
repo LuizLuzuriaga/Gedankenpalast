@@ -241,6 +241,8 @@ nav.toc .in { gap: 6px 14px; }
     <a href="#b5">5 · Flujo de trabajo</a>
     <a href="#b6">6 · Datos incompletos</a>
     <a href="#b7">7 · Longitudinales</a>
+    <a href="#b8">8 · Correlacionados</a>
+    <a href="Ungolo_Course_Manual_Incomplete_Correlated_Bayesian.pdf" target="_blank" rel="noopener">Manual PDF</a>
     <a href="#preguntas">Preguntas</a>
     <a href="#tarjetas">Tarjetas</a>
   </div>
@@ -250,10 +252,11 @@ nav.toc .in { gap: 6px 14px; }
 <header class="hero">
   <div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Francesco Ungolo (UNSW Sydney)</div>
   <h1>Estadística bayesiana: modelos, inferencia y computación</h1>
-  <p class="lede">Guía de estudio de las tres lecciones del curso. Se parte de la regla de Bayes con un ejemplo exacto (Beta–Binomial), se llega a un modelo logístico que ya no tiene solución cerrada y se aprende a muestrear su posterior (Metropolis–Hastings, Gibbs, Hamiltoniano). Después se aplica la misma idea a lo que no se observa: datos faltantes (algoritmo EM) y efectos aleatorios de datos longitudinales. Cada método lleva su diagrama, un laboratorio que puedes mover y el código en <b>R</b> y en <b>Python</b>.</p>
+  <p class="lede">Guía de estudio de las tres lecciones del curso. Se parte de la regla de Bayes con un ejemplo exacto (Beta–Binomial), se llega a un modelo logístico que ya no tiene solución cerrada y se aprende a muestrear su posterior (Metropolis–Hastings, Gibbs, Hamiltoniano). Después se aplica la misma idea a lo que no se observa: datos faltantes (algoritmo EM) y efectos aleatorios de datos longitudinales, con sus estructuras de covarianza. Todo lo que sigue está tomado del <a href="Ungolo_Course_Manual_Incomplete_Correlated_Bayesian.pdf" target="_blank" rel="noopener">manual del curso en PDF</a>, que se puede abrir y descargar. Cada método lleva su diagrama, un laboratorio que puedes mover y el código en <b>R</b> y en <b>Python</b>.</p>
   <div class="hero-meta">
-    <span class="chip">Lecciones 1 a 3 · <b>8 laboratorios</b> · <b>13 bloques de código</b></span>
+    <span class="chip">Lecciones 1 a 3 · <b>14 laboratorios</b> · <b>15 bloques de código</b></span>
     <span class="src">Diapositivas: <b>Francesco Ungolo</b>, UNSW Sydney / Universidad de Alcalá</span>
+    <a class="chip" href="Ungolo_Course_Manual_Incomplete_Correlated_Bayesian.pdf" target="_blank" rel="noopener" download>Manual del curso (PDF, 67 págs.)</a>
   </div>
   <figure class="fig" id="f_mapa">
     <div class="tl-scroll"></div>
@@ -280,6 +283,7 @@ nav.toc .in { gap: 6px 14px; }
       <tr><td><a href="#b5">5 · Flujo de trabajo</a></td><td>Qué método elegir, flujo bayesiano en cinco pasos, ajuste frente a predicción</td><td>3</td><td>—</td></tr>
       <tr><td><a href="#b6">6 · Datos incompletos</a></td><td>MCAR, MAR, MNAR; verosimilitud observada; algoritmo EM con la regla de Bayes dentro</td><td>1</td><td>Datos faltantes</td></tr>
       <tr><td><a href="#b7">7 · Datos longitudinales</a></td><td>Modelo lineal mixto, efectos aleatorios como a priori, encogimiento, GLMM</td><td>2</td><td>Encogimiento</td></tr>
+      <tr><td><a href="#b8">8 · Datos correlacionados</a></td><td>Por qué falla ignorar la correlación, efecto transversal frente a longitudinal, eficiencia \(1\pm\rho\), CS, AR(1), Toeplitz, UN, REML y contrastes</td><td>2 (notas)</td><td>Correlación · Diseños · Estructuras · REML</td></tr>
     </tbody>
   </table></div>
   <div class="callout key">
@@ -1586,6 +1590,411 @@ print(az.summary(idata, var_names=["Intercept", "time", "study_hours_c"]))
   </div>
 </section>
 
+<!-- ===================================================== 8 -->
+<section id="b8">
+  <div class="sec-head"><div class="eyebrow">Lección 2 · Notas complementarias (Parte III del manual)</div><h2>Datos correlacionados, modelos marginales y estructuras de covarianza</h2></div>
+  <p class="note">Este bloque desarrolla lo que el bloque 7 solo enuncia: <b>por qué</b> hay que modelar la correlación, qué forma puede tener y cómo se estima. Sigue la Parte III del <a href="Ungolo_Course_Manual_Incomplete_Correlated_Bayesian.pdf#page=30" target="_blank" rel="noopener">manual del curso (PDF, pp. 30–46)</a>, que recoge las notas de M. Guindani (UCLA) para el mismo curso. Lo marcado como <span class="pill p">complemento</span> lo añade esta guía.</p>
+
+  <div class="sub" id="b8-why">
+    <h3>8.1 Por qué hacen falta herramientas específicas</h3>
+    <p>Los modelos lineales y lineales generalizados suponen observaciones (condicionalmente) independientes, \(Y_i\mid X,\beta,\sigma^2\overset{ind}{\sim}N(X_i\beta,\sigma^2)\). La dependencia aparece al muestrear <b>en el tiempo</b> (la tensión de un paciente varios días), <b>en el espacio</b> (condados vecinos) o <b>dentro de un grupo</b> (familias). Dos ejemplos del manual lo muestran:</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">Estudio MIT de crecimiento</span>
+        <p>162 niñas seguidas hasta cuatro años después de la menarquia: 1 049 medidas de porcentaje de grasa (PBF), unas 6,4 por niña. Una regresión <code>lm(PBF ~ Time.M)</code> da pendiente 1,473 con error típico 0,0946, <b>como si fueran 1 049 niñas distintas</b>.</p>
+        <p class="note">Un contraste \(t\) pareado entre la primera y la última medida de cada niña (ganancia media 7,95, \(t=17{,}5\)) respeta la independencia, pero tira casi todos los datos y no dice <b>cómo</b> cambia el PBF con el tiempo.</p></div>
+      <div class="card"><span class="tag">Curvas de crecimiento dental (Orthodont)</span>
+        <p>Distancia (mm) entre la hipófisis y la fisura pterigomaxilar a los 8, 10, 12 y 14 años (11 niñas y 16 niños). Las pendientes son parecidas, pero los interceptos varían mucho entre niñas.</p>
+        <p class="note">Tres objetivos: inferencia poblacional (la curva media), comparar la variabilidad dentro y entre niños, e inferencia individual (una «curva de crecimiento» para un niño nuevo).</p></div>
+    </div>
+    <div class="card"><span class="tag">Modelo marginal para Orthodont (niñas)</span>
+      <p>Ajustando \(E[Y_{ij}]=\beta_0^M+\beta_1^Mt_j\) y estimando empíricamente la desviación típica y la correlación de los residuos marginales (se asumen iguales para todas las niñas):</p>
+      <div class="math">\[ \begin{pmatrix}2{,}12&&&\\0{,}83&1{,}90&&\\0{,}86&0{,}90&2{,}36&\\0{,}84&0{,}88&0{,}95&2{,}44\end{pmatrix}\quad(\text{DE en la diagonal, correlaciones debajo}) \]</div>
+      <p class="note">Correlaciones de 0,83 a 0,95 entre edades de la misma niña. Un método que suponga correlación cero da errores típicos incorrectos para \(\hat\beta_0^M\) y \(\hat\beta_1^M\).</p></div>
+
+    <div class="lab" id="lab-cx">
+      <div class="lab-title">Laboratorio · Cuánto miente el error típico si se ignora la correlación</div>
+      <p class="note">Se simulan \(m\) individuos con \(n\) medidas cada uno, \(y_{ij}=0{,}5\,x_{ij}+b_i+\varepsilon_{ij}\) con varianza total 1 y correlación intraindividuo \(\rho\). Se ajusta una regresión simple que ignora el agrupamiento, 400 veces, y se compara el error típico que dice el programa con la dispersión real del estimador.</p>
+      <div class="ctl">
+        <label>Individuos \(m\) <span class="val" id="cx_m_v"></span><input id="cx_m" type="range" min="10" max="80" step="5" value="30"></label>
+        <label>Medidas por individuo \(n\) <span class="val" id="cx_n_v"></span><input id="cx_n" type="range" min="2" max="10" step="2" value="4"></label>
+        <label>Correlación \(\rho\) <span class="val" id="cx_rho_v"></span><input id="cx_rho" type="range" min="0" max="0.9" step="0.05" value="0.5"></label>
+        <label>Covariable<select id="cx_kind"><option value="between">Constante en cada individuo (p. ej. sexo)</option><option value="within">Alterna dentro del individuo (p. ej. tratamiento)</option></select></label>
+      </div>
+      <div class="tools"><button type="button" id="cx_new">Otra simulación</button></div>
+      <figure class="fig" id="f_cx"><div class="tl-scroll"></div>
+        <figcaption>Histograma: estimaciones de la pendiente en 400 repeticiones. Línea roja discontinua: lo que anuncia el error típico ingenuo. Línea azul: la dispersión real.</figcaption></figure>
+      <div class="stats" id="cx_stats"></div>
+      <div class="callout" id="cx_msg"></div>
+    </div>
+  </div>
+
+  <div class="sub" id="b8-var">
+    <h3>8.2 De dónde sale la correlación</h3>
+    <p>En un estudio <b>transversal</b> se mide una vez en un instante y solo se evalúa la variación entre individuos. En uno <b>longitudinal</b> hay dos o más medidas del mismo participante, lo que permite medir (i) el cambio <b>dentro</b> del individuo y (ii) las diferencias <b>entre</b> individuos. Si todos tienen las mismas ocasiones el estudio está <b>equilibrado</b>; si no (datos retrospectivos, tiempos medidos desde un evento como la menarquia), es <b>desequilibrado</b>; si faltan medidas previstas, está <b>incompleto</b> (Parte I).</p>
+    <p>Las correlaciones entre medidas repetidas suelen ser (1) positivas, (2) decrecientes al separarse en el tiempo, (3) rara vez cercanas a 0 aunque estén muy separadas y (4) rara vez cercanas a 1 aunque estén muy próximas. Tres fuentes de variación lo explican:</p>
+    <figure class="fig" id="f_src"><div class="tl-scroll"></div>
+      <figcaption>Dos individuos hipotéticos, A y B. Recta fina: trayectoria verdadera de cada uno (1, <b>heterogeneidad entre individuos</b>: su distancia a la media discontinua). Curva continua: variación biológica dentro del individuo, con memoria (2, <b>correlación serial</b>). Puntos: lo que se observa, con <b>error de medida</b> (3).</figcaption></figure>
+    <ul class="tight">
+      <li><b>Entre individuos.</b> Algunos responden siempre por encima de la media (ingreso anual, calorías diarias): induce correlación positiva constante, el <b>intercepto aleatorio</b>. Otros mejoran más rápido (CD4 tras un antiviral): la correlación baja al alejarse en el tiempo, la <b>pendiente aleatoria</b>.</li>
+      <li><b>Dentro del individuo.</b> Las medidas son realizaciones de un proceso biológico (peso, colesterol) que cambia de forma suave: más correlación cuanto más cerca en el tiempo (<b>correlación serial</b>).</li>
+      <li><b>Error de medida.</b> No es variación biológica; acerca las correlaciones a 0.</li>
+    </ul>
+    <div class="card"><span class="tag">Modelo completo en dos etapas</span>
+      <div class="math">\[ y_i=x_i\beta+z_ib_i+\delta_i+\varepsilon_i,\qquad b_i\sim(0,D),\ \ \delta_i\sim(0,\sigma_\delta^2R_i),\ \ \varepsilon_i\sim(0,\sigma_\varepsilon^2I) \]</div>
+      <p class="note">\(b_i\) = efectos aleatorios (entre individuos), \(\delta_i\) = dependencia serial (por ejemplo AR(1)), \(\varepsilon_i\) = error de medida. Los tres son incorrelados entre sí y entre individuos.</p></div>
+  </div>
+
+  <div class="sub" id="b8-cs">
+    <h3>8.3 Efecto transversal frente a efecto longitudinal</h3>
+    <p>Con una covariable que cambia con el tiempo (edad, tensión, peso) el modelo simple \(Y_{ij}=\beta_0+\beta x_{ij}+\varepsilon_{ij}\) puede reescribirse como \(Y_{ij}=\beta_0+\beta x_{i1}+\beta\,(x_{ij}-x_{i1})+\varepsilon_{ij}\): <b>supone que el efecto transversal (entre personas, \(x_{i1}\)) y el longitudinal (dentro de la persona, \(x_{ij}-x_{i1}\)) son el mismo</b>. Es una hipótesis fuerte, condenada a fallar en muchos estudios. El extremo contrario, dar a cada individuo su propio intercepto, descarta toda la información entre individuos. El modelo intermedio y más útil es</p>
+    <div class="math">\[ Y_{ij}=\beta_0+\beta^C x_{i1}+\beta^L(x_{ij}-x_{i1})+\varepsilon_{ij} \]</div>
+    <p>que permite estudiar los dos efectos por separado y contrastar si coinciden (\(\beta^C=\beta^L\)). Si la verdad es este modelo y se ajusta el simple, el estimador de mínimos cuadrados queda <b>sesgado</b>:</p>
+    <div class="math">\[ E(\hat\beta)=\beta^L+\frac{\sum_{i}n\,(\bar x_i-\bar x)(x_{i1}-\bar x_1)}{\sum_{i}\sum_{j}(x_{ij}-\bar x)^2}\,(\beta^C-\beta^L) \]</div>
+    <p class="note">Solo es insesgado si \(\beta^C=\beta^L\) o si \(\{x_{i1}\}\) y \(\{\bar x_i\}\) son ortogonales; el signo del sesgo depende de la correlación entre \(x_{i1}\) y \(\bar x_i\).</p>
+    <div class="lab" id="lab-cv">
+      <div class="lab-title">Laboratorio · Mismo dato, dos pendientes</div>
+      <p class="note">40 individuos con 4 medidas. Cada uno parte de un \(x_{i1}\) distinto y avanza hacia valores mayores. Pon \(\beta^C\) distinto de \(\beta^L\) y mira qué estima la regresión simple.</p>
+      <div class="ctl">
+        <label>Efecto transversal \(\beta^C\) <span class="val" id="cv_bc_v"></span><input id="cv_bc" type="range" min="-1.5" max="2" step="0.1" value="-0.5"></label>
+        <label>Efecto longitudinal \(\beta^L\) <span class="val" id="cv_bl_v"></span><input id="cv_bl" type="range" min="-1.5" max="2" step="0.1" value="1"></label>
+      </div>
+      <div class="tools"><button type="button" id="cv_new">Otra muestra</button></div>
+      <figure class="fig" id="f_cv"><div class="tl-scroll"></div>
+        <figcaption>Cada línea gris une las cuatro medidas de un individuo: su pendiente es \(\beta^L\). La recta roja discontinua es la regresión simple (modelo 2): mezcla ambos efectos. La recta azul tiene pendiente \(\beta^L\).</figcaption></figure>
+      <div class="stats" id="cv_stats"></div>
+    </div>
+  </div>
+
+  <div class="sub" id="b8-eff">
+    <h3>8.4 La eficiencia de los diseños longitudinales</h3>
+    <p>Aplicar distintos tratamientos al mismo paciente puede ser muy eficiente: <b>cada paciente es su propio control</b>. Se comparan dos tratamientos (codificados −1 y +1) con cuatro medidas en total.</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">Transversal</span><p>Una medida en cada uno de cuatro individuos, dos con \(-1\) y dos con \(+1\): \(\operatorname{var}(\hat\beta_1^c)=\sigma^2/4\).</p></div>
+      <div class="card"><span class="tag">Longitudinal</span><p>Dos medidas en cada uno de dos individuos, con \(Y_{ij}=\beta_0+\beta_1x_{ij}+b_i+\delta_{ij}\). Entonces \(\operatorname{Var}(Y)=\sigma^2R\) y \(R\) es diagonal por bloques con \(\rho=\sigma_0^2/\sigma^2\) en cada bloque. El estimador por mínimos cuadrados generalizados es \(\hat\beta^L=(x^\top R^{-1}x)^{-1}x^\top R^{-1}Y\).</p></div>
+    </div>
+    <div class="math">\[ \frac{\operatorname{var}(\hat\beta_1^L)}{\operatorname{var}(\hat\beta_1^c)}=\frac{1-\rho^2}{1-\rho\,(x_{11}x_{12}+x_{21}x_{22})/2} \]</div>
+    <ul class="tight">
+      <li><b>Tratamiento constante dentro de cada individuo</b> (\(x_{11}=x_{12}=-1\), \(x_{21}=x_{22}=1\)): la razón es \(1+\rho\). Con correlación positiva gana el transversal: <b>más individuos aportan más que más medidas del mismo</b>.</li>
+      <li><b>Tratamiento que varía dentro de cada individuo</b> (\(x_{11}=x_{22}=1\), \(x_{12}=x_{21}=-1\)): la razón es \(1-\rho\). Con \(\rho>0\) gana el longitudinal, porque cada individuo actúa como su propio control.</li>
+    </ul>
+    <div class="lab" id="lab-ef">
+      <div class="lab-title">Laboratorio · ¿Gana el diseño longitudinal?</div>
+      <div class="ctl">
+        <label>Correlación \(\rho\) <span class="val" id="ef_rho_v"></span><input id="ef_rho" type="range" min="0" max="0.95" step="0.05" value="0.6"></label>
+        <label>Diseño<select id="ef_des"><option value="var">El tratamiento varía dentro del individuo</option><option value="cte">El tratamiento es constante en cada individuo</option></select></label>
+      </div>
+      <div class="tools"><button type="button" id="ef_sim">Simular 5 000 repeticiones</button></div>
+      <figure class="fig" id="f_ef"><div class="tl-scroll"></div>
+        <figcaption>Razón de varianzas longitudinal/transversal. Por debajo de 1 (zona verde) el longitudinal es más preciso. El punto marca el \(\rho\) elegido.</figcaption></figure>
+      <div class="stats" id="ef_stats"></div>
+    </div>
+  </div>
+
+  <div class="sub" id="b8-lmm">
+    <h3>8.5 Modelo marginal y modelo mixto: qué se promedia</h3>
+    <div class="grid2">
+      <div class="card"><span class="tag">Modelo marginal</span>
+        <p>Solo especifica la <b>media</b> poblacional \(E[Y_i]=x_i\beta\) y la <b>correlación</b> entre medidas. Permite inferencia poblacional directa (respuestas medias en distintos tiempos) con pocos supuestos, pero exige estimar bien la estructura de correlación.</p></div>
+      <div class="card"><span class="tag">Modelo mixto</span>
+        <p>Estima una curva <b>para cada individuo</b> «tomando fuerza prestada» del resto. Frente a ajustar una curva separada por individuo (todo efectos fijos), estima parámetros poblacionales y admite variación individual. En el enfoque frecuentista los efectos aleatorios suelen ser una herramienta para modelar variabilidad; en el bayesiano son variables latentes con a priori, y se suele querer su posterior.</p></div>
+    </div>
+    <div class="card"><span class="tag">Marginalizar sobre \(b_i\)</span>
+      <div class="math">\[ E[Y_i]=x_i\beta,\qquad \operatorname{Var}(Y_i)=V_i(\alpha)=z_iDz_i^\top+E_i(\alpha),\qquad \operatorname{Cov}(Y_i,Y_{i'})=0\ (i\ne i') \]</div>
+      <p class="note">Como \(b_i\) es el mismo para todas las medidas del individuo, estas comparten efecto aleatorio y quedan correlacionadas. Los elementos diagonales de \(z_iDz_i^\top\) no tienen por qué ser constantes: el marco admite <b>heterocedasticidad</b>. \(E_i(\alpha)\) puede ser no diagonal (correlación) y depende de \(i\) solo por su dimensión; se parametriza con pocos parámetros (\(\sigma^2I\), un AR(1)…).</p></div>
+    <h4>Casos particulares</h4>
+    <div class="tbl"><table class="plain">
+      <thead><tr><th>Modelo</th><th>Ecuación</th><th>Covarianza que induce</th></tr></thead>
+      <tbody>
+        <tr><td>Efectos aleatorios de un factor</td><td>\(y_{ij}=\mu+b_i+\varepsilon_{ij}\)</td><td>\(\sigma_0^2\) entre medidas del mismo grupo</td></tr>
+        <tr><td><b>Intercepto aleatorio</b> (ANOVA de medidas repetidas)</td><td>\(y_{ij}=x_{ij}^\top\beta+b_i+\varepsilon_{ij}\)</td><td>\(\operatorname{Var}=\sigma_b^2+\sigma_\varepsilon^2,\ \operatorname{Cov}=\sigma_b^2\): <b>simetría compuesta</b></td></tr>
+        <tr><td><b>Intercepto y pendiente aleatorios</b></td><td>\(Y_{ij}=\beta_0+\beta_1t_{ij}+b_{0i}+b_{1i}t_{ij}+\varepsilon_{ij}\)</td><td>\(\operatorname{Var}(Y_{ij})=g_{11}+2t_{ij}g_{12}+t_{ij}^2g_{22}+\sigma^2\); \(\operatorname{Cov}(Y_{ij},Y_{ik})=g_{11}+(t_{ij}+t_{ik})g_{12}+t_{ij}t_{ik}g_{22}\)</td></tr>
+      </tbody>
+    </table></div>
+    <p>Con intercepto y pendiente aleatorios, la varianza es una <b>función cuadrática del tiempo</b>: crece si \(\operatorname{Cov}(b_{1i},b_{2i})\ge0\) y puede decrecer si es negativa; y la correlación entre dos medidas depende de su separación. Con covariables, las medias de intercepto y pendiente pueden depender de ellas: en dos grupos, \(Y_{ij}=\beta_1+\beta_2t_{ij}+\beta_3\text{Grupo}_i+\beta_4t_{ij}\text{Grupo}_i+b_{1i}+b_{2i}t_{ij}+\varepsilon_{ij}\), con \(X_i\) de filas \((1,t,0,0)\) en el control y \((1,t,1,t)\) en el tratamiento, y \(Z_i\) de filas \((1,t)\) en ambos.</p>
+    <div class="lab" id="lab-vt">
+      <div class="lab-title">Laboratorio · Varianza que cambia con el tiempo y centrado</div>
+      <div class="ctl">
+        <label>DE intercepto \(\sigma_0\) <span class="val" id="vt_s0_v"></span><input id="vt_s0" type="range" min="1" max="10" step="0.5" value="5"></label>
+        <label>DE pendiente \(\sigma_1\) <span class="val" id="vt_s1_v"></span><input id="vt_s1" type="range" min="0" max="2" step="0.1" value="0.6"></label>
+        <label>Corr. \(\rho_{01}\) <span class="val" id="vt_r_v"></span><input id="vt_r" type="range" min="-0.9" max="0.9" step="0.1" value="0.3"></label>
+        <label>DE residual \(\sigma\) <span class="val" id="vt_sg_v"></span><input id="vt_sg" type="range" min="1" max="10" step="0.5" value="5"></label>
+        <label>Centrar el tiempo en \(\bar t\) <span class="val" id="vt_tb_v"></span><input id="vt_tb" type="range" min="0" max="3" step="0.5" value="0"></label>
+      </div>
+      <div class="grid2">
+        <figure class="fig" id="f_vt"><div class="tl-scroll"></div><figcaption>Varianza de \(Y\) en función del tiempo; los puntos son los cuatro semestres.</figcaption></figure>
+        <figure class="fig" id="f_vt2"><div class="tl-scroll"></div><figcaption>Correlaciones entre los cuatro semestres.</figcaption></figure>
+      </div>
+      <div class="stats" id="vt_stats"></div>
+      <div class="callout" id="vt_msg"></div>
+    </div>
+    <h4>Centrado: la interpretación de \(D\) depende del origen del tiempo</h4>
+    <p>La matriz de covarianza de los efectos aleatorios <b>no es invariante</b> a transformaciones lineales de \(z_i\): centrar el tiempo (\(t_{ij}-\bar t\)) cambia lo que significa el intercepto y, con él, \(\operatorname{Var}(b_{0i})\) y \(\operatorname{Cov}(b_{0i},b_{1i})\). Con el tiempo sin centrar, \(\operatorname{Var}(b_{0i})\) es la variabilidad entre individuos en \(t=0\); centrado en \(\bar t\), lo es en \(\bar t\). Los modelos son equivalentes solo si \(D\) es no estructurada. Regla práctica: centrar los tiempos de todos en <b>un valor fijo común</b> dentro del rango (el tiempo desde la inclusión sirve; <b>centrar la edad de cada persona en su propia media no tiene sentido</b>).</p>
+  </div>
+
+  <div class="sub" id="b8-cov">
+    <h3>8.6 Estructuras de covarianza para datos agrupados</h3>
+    <p>Con \(y_i=x_i\beta+z_ib_i+\varepsilon_i\) y la simplificación \(E_i=\sigma^2I\) (errores incorrelados), la covarianza marginal se puede evaluar directamente con los datos. Las estructuras habituales son:</p>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th>Estructura</th><th>Forma</th><th>Parámetros (\(n\) ocasiones)</th><th>Cuándo</th></tr></thead>
+      <tbody>
+        <tr><td><b>Simetría compuesta (CS)</b> / intercambiable</td><td>\(\sigma^2[\rho]\), igual para todo par</td><td class="num">2</td><td>Grupos sin orden temporal (parcelas divididas, familias); en longitudinales solo a escalas cortas. Es poco flexible: la correlación debería decrecer.</td></tr>
+        <tr><td><b>AR(1)</b></td><td>\(\sigma^2\rho^{|j-k|}\)</td><td class="num">2</td><td>Tiempos equiespaciados; decrece geométricamente con la distancia.</td></tr>
+        <tr><td><b>Toeplitz</b></td><td>\(\sigma^2\rho_{|j-k|}\), con \(\rho_1,\dots,\rho_{n-1}\) libres</td><td class="num">\(n\)</td><td>Medidas equiespaciadas; no usa las distancias reales entre medidas.</td></tr>
+        <tr><td><b>Exponencial</b></td><td>\(\sigma^2\rho^{|t_{ij}-t_{ik}|}\)</td><td class="num">2</td><td>Tiempos no equiespaciados. La caída es bastante rápida respecto a lo habitual.</td></tr>
+        <tr><td><b>No estructurada (UN)</b></td><td>una varianza por ocasión y una correlación por par</td><td class="num">\(n(n+1)/2\)</td><td>Diseño común a todos; necesita muchos individuos \(m\). Flexibilidad frente a parsimonia.</td></tr>
+        <tr><td>Heterogéneas: CSH, ARH(1), TOEPH</td><td>mismas estructuras con varianza \(\sigma_j^2\) libre en cada ocasión</td><td class="num">\(n+1\), \(n+1\), \(2n-1\)</td><td>Cuando la varianza cambia con el tiempo. Con 5 ocasiones: 6, 6 y 9 parámetros.</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">En AR(1), \(\delta_{ij}=\rho\,\delta_{i,j-1}+u_{ij}\) con \(\operatorname{var}(u_i)=\sigma_u^2I\) y tiempos equiespaciados da \(R_i=[\rho^{|j-k|}]\). En CS, \(\operatorname{var}(Y_i)=\sigma_\varepsilon^2[\rho]\) con \(\sigma_\varepsilon^2=\sigma_0^2+\sigma^2\) y \(\rho=\sigma_0^2/\sigma_\varepsilon^2\).</p>
+    <div class="lab" id="lab-st">
+      <div class="lab-title">Laboratorio · Construye una matriz de covarianza</div>
+      <div class="ctl">
+        <label>Estructura<select id="st_kind">
+          <option value="cs">Simetría compuesta (CS)</option>
+          <option value="ar1" selected>AR(1)</option>
+          <option value="toep">Toeplitz (decaimiento √k, ilustrativo)</option>
+          <option value="expo">Exponencial (tiempos irregulares)</option>
+          <option value="csh">CSH (varianza crece)</option>
+          <option value="arh">ARH(1) (varianza crece)</option>
+          <option value="un">No estructurada: datos de Orthodont</option>
+        </select></label>
+        <label>Ocasiones \(n\) <span class="val" id="st_n_v"></span><input id="st_n" type="range" min="3" max="8" step="1" value="5"></label>
+        <label>Correlación \(\rho\) <span class="val" id="st_r_v"></span><input id="st_r" type="range" min="0" max="0.95" step="0.05" value="0.8"></label>
+        <label>Varianza \(\sigma^2\) <span class="val" id="st_s_v"></span><input id="st_s" type="range" min="0.5" max="9" step="0.5" value="4"></label>
+      </div>
+      <div class="grid2">
+        <figure class="fig" id="f_st"><div class="tl-scroll"></div><figcaption>Matriz de covarianza (más intensa = mayor valor).</figcaption></figure>
+        <figure class="fig" id="f_st2"><div class="tl-scroll"></div><figcaption>Correlación de cada par de ocasiones frente a su separación en el tiempo.</figcaption></figure>
+      </div>
+      <div class="stats" id="st_stats"></div>
+      <div class="callout" id="st_msg"></div>
+    </div>
+    <div class="callout key">
+      <h4>Cómo elegir entre estructuras</h4>
+      <p>La covarianza modela lo que queda tras la media, así que <b>primero se fija un modelo máximo para la media</b> (tratamiento y su interacción con el tiempo, por razones del problema, no por un procedimiento automático) y después se prueba una secuencia de estructuras. Si dos son <b>anidadas</b> (CS dentro de Toeplitz), un <b>contraste de razón de verosimilitudes con REML</b> compara la completa con la reducida, siempre con la <b>misma</b> media. Si no son anidadas, se compara con AIC/BIC.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="b8-inf">
+    <h3>8.7 Inferencia por verosimilitud en el modelo lineal mixto</h3>
+    <p>Los métodos estándar son <b>máxima verosimilitud (ML)</b> y <b>máxima verosimilitud restringida (REML)</b>. Con \(\varepsilon_i\sim N(0,E_i)\), \(b_i\sim N(0,D)\) y \(\alpha=(\sigma^2,D)\), integrar los efectos aleatorios da \(y_i\sim N(x_i\beta,V_i(\alpha))\) y</p>
+    <div class="math">\[ \ell(\beta,\alpha)=-\tfrac12\sum_i\log|V_i(\alpha)|-\tfrac12\sum_i(y_i-x_i\beta)^\top V_i(\alpha)^{-1}(y_i-x_i\beta) \]</div>
+    <div class="grid2">
+      <div class="card"><span class="tag">El estimador de \(\beta\) es mínimos cuadrados generalizados</span>
+        <div class="math">\[ \hat\beta=\Big(\sum_ix_i^\top V_i^{-1}x_i\Big)^{-1}\Big(\sum_ix_i^\top V_i^{-1}y_i\Big),\qquad \operatorname{var}(\hat\beta)=\Big(\sum_ix_i^\top V_i^{-1}x_i\Big)^{-1} \]</div>
+        <p class="note">Con \(D=0\), \(V=\sigma^2I\) y es mínimos cuadrados ordinarios. \(\hat\beta\) y \(\hat\alpha\) son asintóticamente independientes (matriz de información diagonal por bloques), así que cualquier \(\hat\alpha\) consistente da un \(\hat\beta\) asintóticamente eficiente. Por ser lineal en \(Y\), esto vale en muestras grandes aunque \(Y_i\) no sea normal, si los segundos momentos están bien especificados (Laird y Ware, 1982).</p></div>
+      <div class="card"><span class="tag">Cómo se maximiza</span>
+        <p><b>EM</b> (Parte I): se tratan los \(b_i\) como datos no observados. Cada iteración es barata y entra rápido en la región del óptimo, pero avanza lento cerca de él. <b>Newton–Raphson</b>: cada iteración cuesta más (score y hessiano) y puede ser inestable lejos del óptimo, pero converge muy rápido cerca de él. <b>Híbrido</b>: unas iteraciones de EM y después Newton–Raphson; así actúa <code>lme()</code> de nlme (25 de EM por defecto).</p></div>
+    </div>
+    <div class="card"><span class="tag">REML: por qué corrige a ML</span>
+      <p>ML estima las varianzas como si \(\beta\) fuera conocido y no tiene en cuenta los grados de libertad gastados en estimarlo, así que subestima las varianzas. REML maximiza la verosimilitud de contrastes que no dependen de \(\beta\) y reparte bien esos grados de libertad. En la regresión lineal sin efectos aleatorios la diferencia es la de siempre: \(\hat\sigma^2_{ML}=\mathrm{RSS}/n\) frente a \(\hat\sigma^2_{REML}=\mathrm{RSS}/(n-p)\). <span class="pill p">complemento</span></p></div>
+    <div class="lab" id="lab-rm">
+      <div class="lab-title">Laboratorio · ML frente a REML</div>
+      <p class="note">Regresión con \(p\) coeficientes y \(n\) observaciones, varianza real \(\sigma^2=1\). Se simulan 5 000 muestras y se comparan los dos estimadores.</p>
+      <div class="ctl">
+        <label>Observaciones \(n\) <span class="val" id="rm_n_v"></span><input id="rm_n" type="range" min="6" max="60" step="2" value="12"></label>
+        <label>Coeficientes \(p\) <span class="val" id="rm_p_v"></span><input id="rm_p" type="range" min="1" max="8" step="1" value="4"></label>
+      </div>
+      <figure class="fig" id="f_rm"><div class="tl-scroll"></div>
+        <figcaption>Distribución de \(\hat\sigma^2\) en 5 000 simulaciones. La línea vertical es la verdad (1).</figcaption></figure>
+      <div class="legend"><span><i class="p"></i>ML</span><span><i class="a"></i>REML</span></div>
+      <div class="stats" id="rm_stats"></div>
+    </div>
+    <h4>Contrastes sobre los efectos fijos</h4>
+    <div class="tbl"><table class="plain">
+      <thead><tr><th>Contraste</th><th>Estadístico</th><th>Notas</th></tr></thead>
+      <tbody>
+        <tr><td><b>Wald</b></td><td>\(W^2=(L\hat\beta)^\top\{L(\sum_ix_i^\top\hat V_i^{-1}x_i)^{-1}L^\top\}^{-1}(L\hat\beta)\sim\chi^2_{\operatorname{rank}(L)}\)</td><td>Con un solo componente es el contraste \(Z\). Tiende a sesgarse a la baja porque ignora la incertidumbre al estimar las varianzas.</td></tr>
+        <tr><td><b>F aproximado</b></td><td>\(W^2/\operatorname{rank}(L)\)</td><td>Reduce ese sesgo, pero exige estimar los grados de libertad del denominador (varios métodos), lo que limita su uso.</td></tr>
+        <tr><td><b>Razón de verosimilitudes</b></td><td>\(G^2=2\log L(\hat\theta_{full})-2\log L(\hat\theta_{reduced})\sim\chi^2\)</td><td>g.l. = diferencia en efectos fijos. Para efectos fijos se comparan ajustes <b>ML</b> (la verosimilitud REML depende de la fórmula de la media).</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">En muestras grandes y con predictores independientes, Wald y razón de verosimilitudes son equivalentes; con muestras pequeñas o predictores correlacionados pueden diferir bastante.</p>
+    <div class="callout tip">
+      <h4>Complementos útiles <span class="pill p">complemento</span></h4>
+      <ul class="tight">
+        <li><b>Varianza en la frontera.</b> Contrastar \(\sigma_1^2=0\) (¿hace falta pendiente aleatoria?) pone el parámetro en el borde del espacio; \(\chi^2\) sobreestima el p-valor y suele usarse una mezcla \(0{,}5\chi^2_{k}+0{,}5\chi^2_{k+1}\) (Self y Liang, 1987).</li>
+        <li><b>Ajuste singular.</b> Correlación \(\pm1\) o varianza casi 0 en un efecto aleatorio avisa de que los datos no sostienen la estructura completa; en R, <code>isSingular()</code>.</li>
+        <li><b>Estructura de trabajo (GEE).</b> Si solo importa la media poblacional, las ecuaciones de estimación generalizadas ajustan una estructura de correlación de trabajo (independiente, intercambiable, AR(1), no estructurada) y dan errores típicos robustos.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sub" id="b8-code">
+    <h3>8.8 En código: Orthodont, estructuras y comparación de modelos</h3>
+    <p>El código de R usa el conjunto real <code>Orthodont</code> de <code>nlme</code>. En Python no hay ese conjunto, así que se simula un panel con su misma forma (27 niños, 8–14 años) y se obtienen los mismos objetos: correlación marginal de los residuos, mixto con intercepto y con intercepto + pendiente, GEE con tres estructuras de trabajo y GLS a mano.</p>
+    <div class="codepair" data-file="Orthodont: correlación marginal, mixtos y estructuras con nlme · panel simulado con statsmodels" data-src="complemento">
+<script type="text/x-r">
+library(nlme)
+data(Orthodont)                                   # distance ~ age | Subject (11 niñas y 16 niños)
+
+# Correlación marginal de los residuos (4 edades por niño)
+res <- resid(lm(distance ~ age + Sex, Orthodont))
+round(cor(matrix(res, ncol = 4, byrow = TRUE)), 2)
+
+# Estructuras de correlación del modelo marginal (GLS), todas con la misma media
+g_ind <- gls(distance ~ age + Sex, Orthodont)
+g_cs  <- update(g_ind, correlation = corCompSymm(form = ~ 1 | Subject))
+g_ar1 <- update(g_ind, correlation = corAR1(form = ~ 1 | Subject))
+g_un  <- update(g_ind, correlation = corSymm(form = ~ 1 | Subject),
+                       weights = varIdent(form = ~ 1 | age))        # varianzas libres por edad
+anova(g_ind, g_cs, g_ar1, g_un)                   # AIC, BIC y contraste de razón de verosimilitudes (REML)
+anova(g_cs, g_un)                                 # anidadas: CS dentro de la no estructurada
+
+# La matriz AR(1) de Pinheiro y Bates (2000), con phi = 0,8
+cs1 <- Initialize(corAR1(0.8, form = ~ 1 | Subject), data = Orthodont)
+corMatrix(cs1)$M01
+
+# Modelos mixtos: intercepto aleatorio frente a intercepto + pendiente aleatorios
+fm_ri <- lme(distance ~ age + Sex, random = ~ 1   | Subject, data = Orthodont, method = "ML")
+fm_rs <- lme(distance ~ age + Sex, random = ~ age | Subject, data = Orthodont, method = "ML")
+anova(fm_ri, fm_rs)                               # LRT de la pendiente aleatoria (¡en la frontera!)
+final <- update(fm_ri, method = "REML")           # varianzas finales por REML
+summary(final)
+intervals(final)
+</script>
+<script type="text/x-py">
+import numpy as np, pandas as pd
+import statsmodels.formula.api as smf
+from statsmodels.genmod.cov_struct import Exchangeable, Autoregressive, Independence
+from scipy import stats
+
+# Panel con la forma de Orthodont: 27 niños medidos a los 8, 10, 12 y 14 años
+rng = np.random.default_rng(2026)
+m, ages = 27, np.array([8, 10, 12, 14])
+sex = np.repeat(rng.integers(0, 2, m)[:, None], 4, axis=1)          # 1 = niño
+b0 = rng.normal(0, 1.8, m)                                          # intercepto aleatorio
+b1 = rng.normal(0, 0.18, m)                                         # pendiente aleatoria
+age_c = ages - 11                                                   # edad centrada en el centro del rango
+dist = (24.5 + 0.66 * age_c + 2.0 * sex + b0[:, None] + b1[:, None] * age_c
+        + rng.normal(0, 1.3, (m, 4)))
+df = pd.DataFrame({"id": np.repeat(np.arange(m), 4), "age": np.tile(ages, m),
+                   "age_c": np.tile(age_c, m), "male": sex.ravel(), "dist": dist.ravel()})
+
+# Regresión que ignora la correlación y correlación residual (marginal)
+ols = smf.ols("dist ~ age_c + male", df).fit()
+R = ols.resid.values.reshape(m, 4)
+print(np.round(np.corrcoef(R.T), 2))             # correlaciones entre edades del mismo niño
+
+# Mixto: intercepto aleatorio frente a intercepto + pendiente aleatorios (ML para comparar)
+ri = smf.mixedlm("dist ~ age_c + male", df, groups="id").fit(reml=False)
+rs = smf.mixedlm("dist ~ age_c + male", df, groups="id", re_formula="~age_c").fit(reml=False)
+lr = 2 * (rs.llf - ri.llf)
+p_mix = 0.5 * stats.chi2.sf(lr, 1) + 0.5 * stats.chi2.sf(lr, 2)   # varianza en la frontera
+print(f"LRT = {lr:.2f}, p (mezcla 0,5 chi2_1 + 0,5 chi2_2) = {p_mix:.3f}")
+print("AIC:", round(-2 * ri.llf + 2 * 5, 1), round(-2 * rs.llf + 2 * 7, 1))   # k = efectos fijos + covarianza
+
+# Estimación final por REML y comparación de errores típicos
+final = smf.mixedlm("dist ~ age_c + male", df, groups="id").fit(reml=True)
+print(final.summary().tables[1])
+print("EE(edad) OLS:", round(ols.bse["age_c"], 4), "| mixto:", round(final.bse["age_c"], 4))
+
+# GEE: misma media con distintas estructuras de correlación de trabajo
+for name, cs in [("Independencia", Independence()), ("Intercambiable", Exchangeable()),
+                 ("AR(1)", Autoregressive())]:
+    g = smf.gee("dist ~ age_c + male", "id", df, time=df["age"], cov_struct=cs).fit()
+    print(f"{name:15s} beta(edad)={g.params['age_c']:.4f}  EE robusto={g.bse['age_c']:.4f}")
+
+# GLS a mano con V_i = tau2·11' + s2·I (intercepto aleatorio)
+s2, tau2 = final.scale, float(final.cov_re.iloc[0, 0])
+Vi = np.linalg.inv(tau2 * np.ones((4, 4)) + s2 * np.eye(4))
+X = np.column_stack([np.ones(len(df)), df["age_c"], df["male"]])
+A = sum(X[4*i:4*i+4].T @ Vi @ X[4*i:4*i+4] for i in range(m))
+b = sum(X[4*i:4*i+4].T @ Vi @ df["dist"].values[4*i:4*i+4] for i in range(m))
+print("beta GLS:", np.round(np.linalg.solve(A, b), 4), "| EE:", np.round(np.sqrt(np.diag(np.linalg.inv(A))), 4))
+print("correlación intraclase tau2/(tau2+s2) =", round(tau2 / (tau2 + s2), 3))
+</script>
+</div>
+    <ul class="walk">
+      <li><b><code>gls()</code></b> ajusta el modelo <b>marginal</b>: la misma media con distintas estructuras de correlación (<code>corCompSymm</code>, <code>corAR1</code>, <code>corSymm</code> + <code>varIdent</code> para una no estructurada con varianzas libres). <code>anova()</code> da AIC, BIC y el contraste REML entre modelos anidados.</li>
+      <li><b><code>lme()</code></b> ajusta el modelo <b>mixto</b>; <code>method = "ML"</code> para comparar modelos con distinta parte aleatoria y <code>"REML"</code> para el ajuste final.</li>
+      <li>En Python, <code>mixedlm</code> hace el mixto, <code>gee</code> las estructuras de trabajo y la última parte reproduce a mano \(\hat\beta=(\sum x^\top V^{-1}x)^{-1}\sum x^\top V^{-1}y\): coincide con <code>statsmodels</code> hasta el cuarto decimal.</li>
+      <li>Con la semilla 2026 de este panel simulado el error típico de la edad baja de 0,091 (OLS) a 0,066 (mixto): la edad varía <b>dentro</b> del niño y el modelo mixto aprovecha esa comparación. La correlación intraclase estimada es 0,48 y la pendiente aleatoria no mejora el AIC (448,9 frente a 450,7).</li>
+    </ul>
+    <div class="codepair" data-file="Matrices de covarianza a mano, eficiencia relativa y sesgo de ML" data-src="complemento">
+<script type="text/x-r">
+library(nlme)
+
+cs  <- function(n, s2, rho) s2 * (rho * matrix(1, n, n) + (1 - rho) * diag(n))
+ar1 <- function(n, s2, rho) s2 * rho ^ abs(outer(seq_len(n), seq_len(n), "-"))
+toep <- function(s2, rhos) s2 * toeplitz(c(1, rhos))
+expo <- function(t, s2, rho) s2 * rho ^ abs(outer(t, t, "-"))
+lmm_cov <- function(t, D, s2) { Z <- cbind(1, t); Z %*% D %*% t(Z) + s2 * diag(length(t)) }
+
+ar1(4, 1, 0.8)                                       # la matriz de Pinheiro y Bates
+D <- matrix(c(25, 0.9, 0.9, 0.36), 2)                # sigma0 = 5, sigma1 = 0.6, rho01 = 0.3
+V <- lmm_cov(0:3, D, 25); diag(V)                    # varianza por semestre: 50.00 52.16 55.04 58.64
+V[1, 4] / sqrt(V[1, 1] * V[4, 4])                    # correlación semestre 1 - 4: 0.512
+
+# Eficiencia del diseño longitudinal: var(beta_L) / var(beta_c), con sigma2 = 1
+rel_eff <- function(rho, constante) {
+  R <- diag(2) %x% matrix(c(1, rho, rho, 1), 2)      # dos individuos, dos medidas cada uno
+  x <- if (constante) c(-1, -1, 1, 1) else c(1, -1, -1, 1)
+  X <- cbind(1, x)
+  solve(t(X) %*% solve(R) %*% X)[2, 2] / (1 / 4)
+}
+sapply(c(0, 0.3, 0.6, 0.9), rel_eff, constante = TRUE)    # 1 + rho
+sapply(c(0, 0.3, 0.6, 0.9), rel_eff, constante = FALSE)   # 1 - rho
+
+# ML subestima la varianza: E[RSS/n] = (n - p)/n * sigma2; REML la corrige
+set.seed(1); n <- 12; p <- 4
+rss <- replicate(20000, { X <- cbind(1, matrix(rnorm(n * (p - 1)), n)); e <- rnorm(n)
+                          sum(resid(lm(e ~ X - 1))^2) })
+c(ML = mean(rss) / n, REML = mean(rss) / (n - p))   # 0.667 y 1.000
+</script>
+<script type="text/x-py">
+import numpy as np
+from scipy.linalg import toeplitz
+
+def cs(n, s2, rho):                    # intercambiable: 2 parámetros
+    return s2 * (rho * np.ones((n, n)) + (1 - rho) * np.eye(n))
+
+def ar1(n, s2, rho):                   # AR(1): rho^|j-k|, 2 parámetros
+    i = np.arange(n)
+    return s2 * rho ** np.abs(i[:, None] - i[None, :])
+
+def toep(s2, rhos):                    # Toeplitz: rho_1..rho_{n-1} libres, n parámetros
+    return s2 * toeplitz(np.r_[1.0, rhos])
+
+def expo(t, s2, rho):                  # exponencial: tiempos no equiespaciados
+    t = np.asarray(t, float)
+    return s2 * rho ** np.abs(t[:, None] - t[None, :])
+
+def lmm_cov(t, D, s2):                 # intercepto + pendiente aleatorios: Z D Z' + s2 I
+    t = np.asarray(t, float)
+    Z = np.column_stack([np.ones_like(t), t])
+    return Z @ D @ Z.T + s2 * np.eye(len(t))
+
+np.set_printoptions(precision=3, suppress=True)
+print(ar1(4, 1, 0.8))                                        # matriz de Pinheiro y Bates
+D = np.array([[25.0, 0.9], [0.9, 0.36]])                     # sigma0=5, sigma1=0.6, rho01=0.3
+V = lmm_cov(range(4), D, 25.0)
+print(np.diag(V), V[0, 3] / np.sqrt(V[0, 0] * V[3, 3]))     # [50, 52.16, 55.04, 58.64] y 0.512
+
+# Eficiencia relativa del diseño longitudinal frente al transversal (4 medidas, sigma2 = 1)
+def rel_eff(rho, trat_constante):
+    R = np.kron(np.eye(2), [[1, rho], [rho, 1]])             # dos individuos, dos medidas cada uno
+    x = np.array([-1, -1, 1, 1.]) if trat_constante else np.array([1, -1, -1, 1.])
+    X = np.column_stack([np.ones(4), x])
+    return np.linalg.inv(X.T @ np.linalg.inv(R) @ X)[1, 1] / (1 / 4)
+
+for rho in (0.0, 0.3, 0.6, 0.9):
+    print(f"rho={rho}: constante {rel_eff(rho, True):.3f} (=1+rho) | varía {rel_eff(rho, False):.3f} (=1-rho)")
+
+# ML frente a REML: la RSS de una regresión con p coeficientes es sigma2 * chi2_{n-p}
+rng = np.random.default_rng(1)
+n, p = 12, 4
+RSS = rng.chisquare(n - p, 200_000)
+print("ML:", RSS.mean() / n, "| REML:", RSS.mean() / (n - p))      # 0.667 y 1.000
+</script>
+</div>
+    <div class="callout tip">
+      <h4>Mensajes para llevarse (Parte III)</h4>
+      <p>Los datos correlacionados no se arreglan con un \(t\) pareado ni se ignoran: se modelan. La correlación viene de la heterogeneidad entre individuos, de la dinámica serial y del error de medida. Un diseño longitudinal gana cuando la covariable cambia dentro del individuo (\(1-\rho\)) y pierde cuando es constante (\(1+\rho\)). El modelo marginal da la media y la correlación; el mixto, además, curvas individuales. La estructura de covarianza se elige <b>después</b> de la media, con REML y AIC/BIC; el estimador de \(\beta\) es GLS y la inferencia sobre efectos fijos usa Wald o razón de verosimilitudes con ML.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ===================================================== PREGUNTAS -->
 <section id="preguntas">
   <div class="sec-head"><div class="eyebrow">Para practicar</div><h2>Preguntas posibles</h2></div>
@@ -1626,6 +2035,30 @@ print(az.summary(idata, var_names=["Intercept", "time", "study_hours_c"]))
     <p class="stmt">Intercepto aleatorio con \(\tau=5\), \(\sigma=5\) y \(T=4\) semestres. Un estudiante tiene residual medio +10 respecto de la media. ¿Cuál es su \(\hat b_0\)? ¿Y la correlación entre dos semestres?</p>
     <div class="result">\(\lambda=25/(25+25/4)=0{,}8\) → \(\hat b_0=0{,}8\cdot10=8\). Correlación \(\tau^2/(\tau^2+\sigma^2)=25/50=0{,}5\).</div>
   </div>
+  <div class="q" id="q10"><span class="qn">PREGUNTA 10 · EFICIENCIA DEL DISEÑO</span>
+    <p class="stmt">Se comparan dos tratamientos (−1 y +1) con cuatro medidas en total y correlación intraindividuo \(\rho=0{,}4\). ¿Qué diseño estima mejor el efecto si (a) cada individuo recibe un único tratamiento (2 individuos × 2 medidas) y (b) cada individuo recibe los dos?</p>
+    <div class="result">Frente al transversal (4 individuos, \(\operatorname{var}=\sigma^2/4\)): (a) razón \(1+\rho=1{,}4\), gana el transversal; (b) razón \(1-\rho=0{,}6\), gana el longitudinal: cada individuo es su propio control. Con \(\rho=0\) empatan.</div>
+  </div>
+  <div class="q" id="q11"><span class="qn">PREGUNTA 11 · SIMETRÍA COMPUESTA</span>
+    <p class="stmt">Intercepto aleatorio con varianza entre individuos \(\sigma_0^2=4\) y varianza residual \(\sigma_\varepsilon^2=6\). Da la varianza total, la correlación entre dos medidas del mismo individuo y el número de parámetros de la covarianza.</p>
+    <div class="result">\(\operatorname{Var}(Y_{ij})=4+6=10\); \(\operatorname{Cov}(Y_{ij},Y_{ik})=4\), luego \(\rho=4/10=0{,}4\), igual para todo par (no decrece con la distancia). Dos parámetros: \((\sigma_0^2,\sigma_\varepsilon^2)\).</div>
+  </div>
+  <div class="q" id="q12"><span class="qn">PREGUNTA 12 · PENDIENTE ALEATORIA</span>
+    <p class="stmt">Con \(g_{11}=25\), \(g_{12}=0{,}9\), \(g_{22}=0{,}36\) y \(\sigma^2=25\), calcula \(\operatorname{Var}(Y_{ij})\) en \(t=3\), \(\operatorname{Cov}(Y_{i0},Y_{i3})\) y la correlación.</p>
+    <div class="result">\(\operatorname{Var}=25+2\cdot3\cdot0{,}9+9\cdot0{,}36+25=58{,}64\). \(\operatorname{Cov}=g_{11}+(0+3)g_{12}+0\cdot3\,g_{22}=25+2{,}7=27{,}7\). Con \(\operatorname{Var}(Y_{i0})=50\): \(\rho=27{,}7/\sqrt{50\cdot58{,}64}=0{,}512\). La varianza crece con \(t\) porque \(g_{12}\ge0\).</div>
+  </div>
+  <div class="q" id="q13"><span class="qn">PREGUNTA 13 · ML O REML</span>
+    <p class="stmt">Regresión con \(n=12\) y \(p=4\) coeficientes. ¿Cuánto vale \(E[\hat\sigma^2_{ML}]\)? ¿Qué corrige REML? ¿Qué método usas para comparar dos modelos con distintos efectos fijos?</p>
+    <div class="result">\(E[\mathrm{RSS}/n]=\frac{n-p}{n}\sigma^2=\frac{8}{12}\sigma^2=0{,}667\,\sigma^2\): ML subestima porque ignora los \(p\) grados de libertad gastados en \(\beta\). REML divide entre \(n-p\) y es insesgado. Para efectos fijos se compara con <b>ML</b> (la verosimilitud REML depende de la fórmula de la media); para el ajuste final, REML.</div>
+  </div>
+  <div class="q" id="q14"><span class="qn">PREGUNTA 14 · ELEGIR LA ESTRUCTURA</span>
+    <p class="stmt">Cinco ocasiones equiespaciadas. Cuenta los parámetros de CS, AR(1), Toeplitz, no estructurada, CSH, ARH(1) y TOEPH, y di cómo eliges.</p>
+    <div class="result">CS 2, AR(1) 2, Toeplitz 5, UN \(5\cdot6/2=15\), CSH 6, ARH(1) 6, TOEPH 9. Primero se fija la media (modelo máximo); después, para estructuras anidadas (CS dentro de Toeplitz) un contraste de razón de verosimilitudes REML con la misma media; si no, AIC/BIC. UN exige muchos individuos.</div>
+  </div>
+  <div class="q" id="q15"><span class="qn">PREGUNTA 15 · TRANSVERSAL FRENTE A LONGITUDINAL</span>
+    <p class="stmt">Se ajusta \(Y_{ij}=\beta_0+\beta x_{ij}+\varepsilon_{ij}\) a datos longitudinales. ¿Qué supone y cuándo estima bien el efecto longitudinal?</p>
+    <div class="result">Supone \(\beta^C=\beta^L\) (efecto entre y dentro del individuo iguales). Si la verdad es \(Y_{ij}=\beta_0+\beta^Cx_{i1}+\beta^L(x_{ij}-x_{i1})+\varepsilon_{ij}\), \(\hat\beta\) tiene sesgo \(\propto(\beta^C-\beta^L)\); es insesgado solo si \(\beta^C=\beta^L\) o si \(\{x_{i1}\}\) y \(\{\bar x_i\}\) son ortogonales. Se evita ajustando el modelo con ambos términos.</div>
+  </div>
 </section>
 
 <section id="trampas">
@@ -1640,6 +2073,9 @@ print(az.summary(idata, var_names=["Intercept", "time", "study_hours_c"]))
     <li><b>EM no arregla MNAR</b> y omitir una variable cambia el modelo.</li>
     <li><b>ML o REML:</b> para comparar efectos fijos se usa ML; para las varianzas finales, REML.</li>
     <li><b>Los \(b_i\) no son un parámetro por estudiante</b> en el AIC: se integran y solo cuentan los parámetros de \(D\) y \(\sigma^2\).</li>
+    <li><b>Un diseño longitudinal no siempre gana:</b> con la covariable constante dentro del individuo la razón de varianzas es \(1+\rho\), peor que el transversal.</li>
+    <li><b>Centrar el tiempo cambia \(D\)</b>, no la covarianza marginal. No se centra la edad de cada persona en su propia media.</li>
+    <li><b>Estructura de covarianza:</b> se elige después de fijar la media y con REML; contrastar una varianza (\(\sigma_1^2=0\)) está en la frontera y el \(\chi^2\) habitual es conservador.</li>
   </ul>
 </section>
 
@@ -1669,12 +2105,25 @@ print(az.summary(idata, var_names=["Intercept", "time", "study_hours_c"]))
     <details class="fc"><summary>Predicción poblacional frente a condicional</summary><div class="ans"><p>Estudiante nuevo: \(x^\top\hat\beta\) (<code>re.form = ~0</code>). Estudiante observado: se suma \(z^\top\hat b_i\).</p></div></details>
     <details class="fc"><summary>GLMM y cómo se calcula su verosimilitud</summary><div class="ans"><p>\(g(\mu_{i,t})=x^\top\beta+z^\top b_i\) con Bernoulli+logit o Poisson+log. La integral sobre \(b_i\) no tiene forma cerrada; <code>glmer()</code> usa Laplace.</p></div></details>
     <details class="fc"><summary>Estructuras de correlación de trabajo</summary><div class="ans"><p>Independencia, intercambiable (igual para todo par), AR(1) (decrece con la distancia) y no estructurada (una por par; necesita muchos datos).</p></div></details>
+    <details class="fc"><summary>Modelo marginal frente a modelo mixto</summary><div class="ans"><p>Marginal: solo media \(x_i\beta\) y correlación; inferencia poblacional con pocos supuestos. Mixto: además una curva por individuo («tomando fuerza prestada»). Marginalizando, \(\operatorname{Var}(Y_i)=z_iDz_i^\top+E_i\).</p></div></details>
+    <details class="fc"><summary>Fuentes de variación en datos longitudinales</summary><div class="ans"><p>(1) Entre individuos (efectos aleatorios), (2) dentro del individuo (correlación serial), (3) error de medida. La correlación es positiva, decrece con la separación y no llega a 0 ni a 1.</p></div></details>
+    <details class="fc"><summary>Efecto transversal frente a longitudinal</summary><div class="ans"><p>\(Y_{ij}=\beta_0+\beta^Cx_{i1}+\beta^L(x_{ij}-x_{i1})+\varepsilon_{ij}\). La regresión simple solo es válida si \(\beta^C=\beta^L\).</p></div></details>
+    <details class="fc"><summary>Eficiencia del diseño longitudinal</summary><div class="ans"><p>Razón de varianzas \(\dfrac{1-\rho^2}{1-\rho(x_{11}x_{12}+x_{21}x_{22})/2}\): \(1+\rho\) si el tratamiento es constante en cada individuo, \(1-\rho\) si varía dentro.</p></div></details>
+    <details class="fc"><summary>Simetría compuesta e intercepto aleatorio</summary><div class="ans"><p>\(\operatorname{Var}=\sigma_b^2+\sigma_\varepsilon^2\), \(\operatorname{Cov}=\sigma_b^2\), \(\rho=\sigma_b^2/(\sigma_b^2+\sigma_\varepsilon^2)\). Dos parámetros; igual correlación para todo par.</p></div></details>
+    <details class="fc"><summary>AR(1), Toeplitz y exponencial</summary><div class="ans"><p>AR(1): \(\sigma^2\rho^{|j-k|}\). Toeplitz: \(\rho_{|j-k|}\) libres (\(n\) parámetros). Exponencial: \(\sigma^2\rho^{|t_j-t_k|}\), para tiempos irregulares.</p></div></details>
+    <details class="fc"><summary>Parámetros de cada estructura</summary><div class="ans"><p>CS 2, AR(1) 2, Toeplitz \(n\), UN \(n(n+1)/2\), CSH y ARH(1) \(n+1\), TOEPH \(2n-1\).</p></div></details>
+    <details class="fc"><summary>Varianza con intercepto y pendiente aleatorios</summary><div class="ans"><p>\(\operatorname{Var}(Y_{ij})=g_{11}+2t g_{12}+t^2g_{22}+\sigma^2\): cuadrática en el tiempo. \(\operatorname{Cov}(Y_{ij},Y_{ik})=g_{11}+(t_{ij}+t_{ik})g_{12}+t_{ij}t_{ik}g_{22}\).</p></div></details>
+    <details class="fc"><summary>Estimador de \(\beta\) en el modelo mixto</summary><div class="ans"><p>GLS: \(\hat\beta=(\sum x_i^\top V_i^{-1}x_i)^{-1}\sum x_i^\top V_i^{-1}y_i\), con \(\operatorname{var}(\hat\beta)=(\sum x_i^\top V_i^{-1}x_i)^{-1}\).</p></div></details>
+    <details class="fc"><summary>ML frente a REML</summary><div class="ans"><p>ML subestima las varianzas (\(\mathrm{RSS}/n\)); REML corrige los grados de libertad (\(\mathrm{RSS}/(n-p)\)). Efectos fijos: comparar con ML. Estructuras de covarianza: REML con la misma media.</p></div></details>
+    <details class="fc"><summary>EM frente a Newton–Raphson</summary><div class="ans"><p>EM: iteración barata, rápida lejos del óptimo y lenta cerca. Newton–Raphson: cara y a veces inestable lejos, rápida cerca. <code>lme()</code> hace 25 iteraciones de EM y pasa a Newton–Raphson.</p></div></details>
+    <details class="fc"><summary>Contrastes de efectos fijos</summary><div class="ans"><p>Wald (sesgado a la baja, ignora la estimación de las varianzas), F aproximado (g.l. del denominador) y razón de verosimilitudes (con ML). Equivalentes en muestras grandes.</p></div></details>
+    <details class="fc"><summary>Centrado del tiempo</summary><div class="ans"><p>\(D\) cambia al centrar (el intercepto es otro punto) pero \(V_i\) no. Se centra en un valor común, no en la media de cada persona.</p></div></details>
   </div>
 </section>
 
 <footer class="foot">
-  <div>Diapositivas: Francesco Ungolo, School of Risk and Actuarial Studies, UNSW Sydney, para la Universidad de Alcalá de Henares: «Data Analysis with Incomplete Observations» (Lección 1), «Cross-sectional and Longitudinal Data Analysis with Latent Variable Models» (Lección 2) y «Bayesian Statistics: Models, Inference, and Computation» (Lección 3). El código de las pestañas R sigue esas diapositivas; el de Python y los bloques marcados «complemento» son aportación de esta guía. Uso educativo, sin fines comerciales.</div>
-  <div>Fuentes citadas por el curso: Rubin (1976); Little y Rubin (2019); Dempster, Laird y Rubin (1977); Bickel, Hammel y O’Connell (1975); Gelman et al. (2013) <i>Bayesian Data Analysis</i> y (2026) <i>Bayesian Workflow</i>; Metropolis et al. (1953); Hastings (1970); Geman y Geman (1984); Plummer (2003) JAGS; Carpenter et al. (2017) Stan; Hoffman y Gelman (2014) NUTS; McElreath (2020) <i>Statistical Rethinking</i>; Blei, Ng y Jordan (2003); Hoffman et al. (2013); Blei, Kucukelbir y McAuliffe (2017); Bates et al. (2015) lme4; Fitzmaurice, Laird y Ware <i>Applied Longitudinal Analysis</i>; Diggle <i>Longitudinal Data Analysis</i>.</div>
+  <div>Diapositivas: Francesco Ungolo, School of Risk and Actuarial Studies, UNSW Sydney, para la Universidad de Alcalá de Henares: «Data Analysis with Incomplete Observations» (Lección 1), «Cross-sectional and Longitudinal Data Analysis with Latent Variable Models» (Lección 2) y «Bayesian Statistics: Models, Inference, and Computation» (Lección 3). El código de las pestañas R sigue esas diapositivas; el de Python y los bloques marcados «complemento» son aportación de esta guía. Uso educativo, sin fines comerciales. El manual completo (67 páginas, Partes I a IV, con las notas de M. Guindani, UCLA, en la Parte III) está disponible en <a href="Ungolo_Course_Manual_Incomplete_Correlated_Bayesian.pdf" target="_blank" rel="noopener">PDF</a>.</div>
+  <div>Fuentes citadas por el curso: Rubin (1976); Little y Rubin (2019); Dempster, Laird y Rubin (1977); Bickel, Hammel y O’Connell (1975); Gelman et al. (2013) <i>Bayesian Data Analysis</i> y (2026) <i>Bayesian Workflow</i>; Metropolis et al. (1953); Hastings (1970); Geman y Geman (1984); Plummer (2003) JAGS; Carpenter et al. (2017) Stan; Hoffman y Gelman (2014) NUTS; McElreath (2020) <i>Statistical Rethinking</i>; Blei, Ng y Jordan (2003); Hoffman et al. (2013); Blei, Kucukelbir y McAuliffe (2017); Bates et al. (2015) lme4; Fitzmaurice, Laird y Ware <i>Applied Longitudinal Analysis</i>; Diggle <i>Longitudinal Data Analysis</i>; Wakefield (2013) <i>Bayesian and Frequentist Regression Methods</i>; Fitzmaurice et al. (2009) <i>Handbook of Longitudinal Data Analysis</i>; Pinheiro y Bates (2000) <i>Mixed-Effects Models in S and S-PLUS</i>; Laird y Ware (1982); Dempster, Rubin y Tsutakawa (1981).</div>
 </footer>
 </div>
 
@@ -2559,10 +3008,257 @@ function labLmm() {
   run();
 }
 
+/* ====================== Bloque 8: datos correlacionados ====================== */
+function olsSlope(x, y) {
+  const n = x.length, mx = mean(x), my = mean(y);
+  let sxx = 0, sxy = 0;
+  for (let i = 0; i < n; i++) { const dx = x[i] - mx; sxx += dx * dx; sxy += dx * (y[i] - my); }
+  const b = sxy / sxx, a = my - b * mx; let rss = 0;
+  for (let i = 0; i < n; i++) { const e = y[i] - a - b * x[i]; rss += e * e; }
+  return { a, b, se: Math.sqrt(rss / (n - 2) / sxx) };
+}
+// Resuelve A·x = b (eliminación gaussiana con pivote parcial); A es n×n
+function solveLin(A, b) {
+  const n = b.length, M = A.map((row, i) => [...row, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    [M[c], M[p]] = [M[p], M[c]];
+    for (let r = c + 1; r < n; r++) { const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; }
+  }
+  const x = new Array(n).fill(0);
+  for (let r = n - 1; r >= 0; r--) { let s = M[r][n]; for (let k = r + 1; k < n; k++) s -= M[r][k] * x[k]; x[r] = s / M[r][r]; }
+  return x;
+}
+// Mapa de calor de una matriz cuadrada con el valor en cada celda
+function heatSvg(M, o = {}) {
+  const n = M.length, cell = o.cell || Math.min(52, Math.floor(300 / n)), L = 30, T = 24, W = L + n * cell + 6, H = T + n * cell + 6;
+  const mx = Math.max(...M.flat().map(Math.abs)) || 1, out = [];
+  for (let j = 0; j < n; j++) out.push(`<text class="tx" x="${L + j * cell + cell / 2}" y="${T - 8}" text-anchor="middle">${o.labels ? o.labels[j] : 't' + (j + 1)}</text>`);
+  for (let i = 0; i < n; i++) {
+    out.push(`<text class="tx" x="${L - 6}" y="${T + i * cell + cell / 2 + 4}" text-anchor="end">${o.labels ? o.labels[i] : 't' + (i + 1)}</text>`);
+    for (let j = 0; j < n; j++) {
+      const v = M[i][j], a = 0.08 + 0.82 * Math.abs(v) / mx;
+      out.push(`<rect class="f-a" fill-opacity="${a.toFixed(3)}" x="${L + j * cell + 1}" y="${T + i * cell + 1}" width="${cell - 2}" height="${cell - 2}" rx="3"/>`
+        + `<text class="tx-l" x="${L + j * cell + cell / 2}" y="${T + i * cell + cell / 2 + 4}" text-anchor="middle" style="font-size:${cell < 34 ? 9.5 : 11.5}px">${fmt(v, o.dec == null ? 2 : o.dec)}</text>`);
+    }
+  }
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || 'Matriz')}">${out.join('')}</svg>`;
+}
+const corrOf = (V) => V.map((row, i) => row.map((v, j) => v / Math.sqrt(V[i][i] * V[j][j])));
+
+function srcFig() {
+  const r = rng(77), t = Array.from({ length: 11 }, (_, i) => i);
+  const avg = (x) => 2.5 + 0.4 * x;
+  const A = (x) => 4.2 + 0.7 * x, B = (x) => 0.6 + 0.1 * x;
+  const wa = (x) => 0.7 * Math.sin(1.3 * x) + 0.35 * Math.sin(0.55 * x + 1), wb = (x) => 0.6 * Math.sin(1.1 * x + 2) + 0.4 * Math.sin(0.5 * x);
+  const grid = Array.from({ length: 101 }, (_, k) => k / 10);
+  const items = [
+    { k: 'line', cls: 's-w', dash: true, pts: [[0, avg(0)], [10, avg(10)]] },
+    { k: 'line', cls: 's-a', thin: true, dash: true, pts: [[0, A(0)], [10, A(10)]] },
+    { k: 'line', cls: 's-a', pts: grid.map((x) => [x, A(x) + wa(x)]) },
+    { k: 'pts', cls: 'f-a', pts: t.map((x) => [x, A(x) + wa(x) + 0.5 * gauss(r)]), r: 3.6, op: 0.95 },
+    { k: 'line', cls: 's-p', thin: true, dash: true, pts: [[0, B(0)], [10, B(10)]] },
+    { k: 'line', cls: 's-p', pts: grid.map((x) => [x, B(x) + wb(x)]) },
+    { k: 'pts', cls: 'f-p', pts: t.map((x) => [x, B(x) + wb(x) + 0.5 * gauss(r)]), r: 3.6, op: 0.95 },
+    { k: 'text', x: 10, y: avg(10), t: 'media', dx: -2, dy: 14, anchor: 'end' }, { k: 'text', x: 0.1, y: A(0) + 0.7, t: 'A', cls: 'tx-a' }, { k: 'text', x: 0.1, y: B(0) - 0.7, t: 'B', cls: 'tx-p' }
+  ];
+  return chart({ w: 560, h: 280, x: [0, 10], y: [-1, 13], xl: 'tiempo', yl: 'respuesta', items, aria: 'Tres fuentes de variación en datos longitudinales' });
+}
+
+function labCx() {
+  let seed = 3;
+  function run() {
+    const m = +$('#cx_m').value, n = +$('#cx_n').value, rho = num('cx_rho'), kind = $('#cx_kind').value;
+    $('#cx_m_v').textContent = m; $('#cx_n_v').textContent = n; $('#cx_rho_v').textContent = fmt(rho, 2);
+    const r = rng(seed * 9173), beta = 0.5, R = 400, bs = [], ses = []; let cover = 0;
+    const sb = Math.sqrt(rho), se0 = Math.sqrt(1 - rho);
+    for (let k = 0; k < R; k++) {
+      const x = [], y = [];
+      for (let i = 0; i < m; i++) {
+        const bi = sb * gauss(r), xi = gauss(r);
+        for (let j = 0; j < n; j++) { const xv = kind === 'between' ? xi : (j % 2 === 0 ? 1 : -1); x.push(xv); y.push(beta * xv + bi + se0 * gauss(r)); }
+      }
+      const o = olsSlope(x, y); bs.push(o.b); ses.push(o.se); if (Math.abs(o.b - beta) <= 1.96 * o.se) cover++;
+    }
+    const sd = Math.sqrt(variance(bs)), se = mean(ses), deff = (sd / se) ** 2, theo = kind === 'between' ? 1 + (n - 1) * rho : 1 - rho;
+    const half = 4 * Math.max(sd, se), lo = beta - half, hi = beta + half, h = histData(bs, lo, hi, 28);
+    const nd = (s) => (x) => Math.exp(-0.5 * ((x - beta) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+    setFig('#f_cx', chart({ w: 560, h: 250, x: [lo, hi], y: [0, Math.max(...h.dens, nd(Math.min(sd, se))(beta)) * 1.12], xl: 'estimación de la pendiente (real 0,5)', yl: 'densidad', nx: 6,
+      items: [{ k: 'hist', edges: h.edges, dens: h.dens, cls: 'f-a o50' }, { k: 'line', cls: 's-bad', dash: true, pts: curvePts(nd(se), lo, hi) }, { k: 'line', cls: 's-ok', pts: curvePts(nd(sd), lo, hi) }, { k: 'vline', x: beta, cls: 's-ink' }], aria: 'Distribución real del estimador frente a la anunciada' }));
+    const cv = cover / R;
+    $('#cx_stats').innerHTML = stat('EE que anuncia la regresión', fmt(se, 4), 'bad') + stat('Dispersión real (DE del estimador)', fmt(sd, 4), 'ok')
+      + stat('Efecto de diseño (DE/EE)²', fmt(deff, 2)) + stat('Valor teórico', fmt(theo, 2)) + stat('Cobertura del IC 95 % ingenuo', fmt(100 * cv, 0) + ' %', cv < 0.92 ? 'bad' : cv > 0.98 ? 'bad' : 'ok');
+    $('#cx_msg').innerHTML = '<h4>Lectura</h4><p>' + (kind === 'between'
+      ? `La covariable es la misma en todas las medidas del individuo: cada individuo aporta <b>una</b> observación efectiva, no ${n}. El error típico anunciado es demasiado pequeño en un factor \\(\\sqrt{1+(n-1)\\rho}\\) (ahora ≈ ${fmt(Math.sqrt(theo), 2)}) y el intervalo «del 95 %» cubre mucho menos.`
+      : `La covariable cambia dentro de cada individuo, que actúa como su propio control: la parte de la variabilidad que viene del individuo se cancela. Aquí el error típico anunciado es <b>demasiado grande</b> (factor ≈ ${fmt(Math.sqrt(Math.max(theo, 0.0001)), 2)}): el análisis ingenuo es conservador y desperdicia precisión.`) + '</p>';
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([$('#cx_msg')]);
+  }
+  onChange(['cx_m', 'cx_n', 'cx_rho', 'cx_kind'], run);
+  $('#cx_new').addEventListener('click', () => { seed++; run(); });
+  run();
+}
+
+function labCv() {
+  let seed = 7;
+  function run() {
+    const bc = num('cv_bc'), bl = num('cv_bl'), r = rng(seed * 7919), M = 40, n = 4;
+    $('#cv_bc_v').textContent = fmt(bc, 1); $('#cv_bl_v').textContent = fmt(bl, 1);
+    const subj = [], X = [], Y = [], X1 = [], XL = [];
+    for (let i = 0; i < M; i++) {
+      const x1 = 1.5 * gauss(r), pts = [];
+      for (let j = 0; j < n; j++) {
+        const x = j === 0 ? x1 : x1 + 0.9 * j + 0.4 * gauss(r), y = 2 + bc * x1 + bl * (x - x1) + 0.35 * gauss(r);
+        pts.push([x, y]); X.push(x); Y.push(y); X1.push(x1); XL.push(x - x1);
+      }
+      subj.push(pts);
+    }
+    const pooled = olsSlope(X, Y);
+    // modelo (3): y ~ 1 + x1 + (x - x1)
+    const cols = [Array(X.length).fill(1), X1, XL], A = cols.map((a) => cols.map((b) => sum(a.map((v, k) => v * b[k])))), rhs = cols.map((a) => sum(a.map((v, k) => v * Y[k])));
+    const g = solveLin(A, rhs);
+    const xb = mean(X), x1b = mean(subj.map((p) => p[0][0]));
+    let num1 = 0, den1 = 0;
+    subj.forEach((p) => { const xi = mean(p.map((q) => q[0])); num1 += n * (xi - xb) * (p[0][0] - x1b); });
+    X.forEach((v) => { den1 += (v - xb) ** 2; });
+    const pred = bl + (bc - bl) * num1 / den1, yb = mean(Y);
+    const xs = [Math.min(...X) - 0.2, Math.max(...X) + 0.2];
+    const items = subj.slice(0, 30).map((p) => ({ k: 'line', cls: 's-w', thin: true, pts: p })).concat([
+      { k: 'line', cls: 's-bad', dash: true, pts: xs.map((x) => [x, pooled.a + pooled.b * x]) },
+      { k: 'line', cls: 's-ok', pts: xs.map((x) => [x, yb + bl * (x - xb)]) }]);
+    const ys = Y.concat(xs.map((x) => pooled.a + pooled.b * x));
+    setFig('#f_cv', chart({ w: 560, h: 280, x: xs, y: [Math.min(...ys) - 0.5, Math.max(...ys) + 0.5], xl: 'covariable x', yl: 'respuesta y', items, aria: 'Efecto transversal frente a longitudinal' }));
+    $('#cv_stats').innerHTML = stat('β̂ de la regresión simple (modelo 2)', fmt(pooled.b, 3), Math.abs(pooled.b - bl) > 0.15 ? 'bad' : 'ok') + stat('Predicción por la fórmula del sesgo', fmt(pred, 3))
+      + stat('β̂ᴸ (modelo 3, dentro)', fmt(g[2], 3), 'ok') + stat('β̂ᶜ (modelo 3, entre)', fmt(g[1], 3), 'ok') + stat('Sesgo respecto de βᴸ', fmt(pooled.b - bl, 3), Math.abs(pooled.b - bl) > 0.15 ? 'bad' : 'ok');
+  }
+  onChange(['cv_bc', 'cv_bl'], run);
+  $('#cv_new').addEventListener('click', () => { seed++; run(); });
+  run();
+}
+
+function labEf() {
+  const des = (cte) => cte ? [-1, -1, 1, 1] : [1, -1, -1, 1];
+  // GLS: (X' R^-1 X)^-1 X' R^-1 con R diagonal por bloques 2×2
+  function gls(rho, cte) {
+    const x = des(cte), d = 1 - rho * rho, Ri = [[1 / d, -rho / d, 0, 0], [-rho / d, 1 / d, 0, 0], [0, 0, 1 / d, -rho / d], [0, 0, -rho / d, 1 / d]];
+    const X = x.map((v) => [1, v]), XtRi = [0, 1].map((c) => [0, 1, 2, 3].map((k) => sum([0, 1, 2, 3].map((l) => X[l][c] * Ri[l][k]))));
+    const A = [0, 1].map((a) => [0, 1].map((b) => sum([0, 1, 2, 3].map((k) => XtRi[a][k] * X[k][b]))));
+    const det = A[0][0] * A[1][1] - A[0][1] * A[1][0], inv = [[A[1][1] / det, -A[0][1] / det], [-A[1][0] / det, A[0][0] / det]];
+    return { varL: inv[1][1], w: [0, 1, 2, 3].map((k) => inv[1][0] * XtRi[0][k] + inv[1][1] * XtRi[1][k]) };
+  }
+  let seed = 1, sim = null;
+  function run() {
+    const rho = num('ef_rho'), cte = $('#ef_des').value === 'cte'; $('#ef_rho_v').textContent = fmt(rho, 2);
+    const g = gls(rho, cte), ratio = g.varL / 0.25, grid = Array.from({ length: 96 }, (_, k) => k / 100);
+    setFig('#f_ef', chart({ w: 560, h: 260, x: [0, 0.95], y: [0, 2], xl: 'correlación ρ', yl: 'var(β̂ᴸ) / var(β̂ᶜ)', nx: 5,
+      items: [{ k: 'rect', x: 0, y: 0, w: 0.95, h: 1, cls: 'f-ok o25' }, { k: 'hline', y: 1, cls: 's-ink' },
+        { k: 'line', cls: 's-bad', pts: grid.map((q) => [q, 1 + q]) }, { k: 'line', cls: 's-ok', pts: grid.map((q) => [q, 1 - q]) },
+        { k: 'dot', p: [rho, ratio], cls: 'f-ink', r: 5 }, { k: 'text', x: 0.55, y: 1.62, t: 'constante: 1 + ρ', cls: 'tx-bad' }, { k: 'text', x: 0.55, y: 0.32, t: 'varía: 1 − ρ', cls: 'tx-ok' }], aria: 'Eficiencia relativa del diseño longitudinal' }));
+    let simS = '';
+    if (sim && sim.rho === rho && sim.cte === cte) simS = stat('Simulación · var(β̂ᴸ)', fmt(sim.vl, 3)) + stat('Simulación · var(β̂ᶜ)', fmt(sim.vc, 3)) + stat('Simulación · razón', fmt(sim.vl / sim.vc, 3), 'ok');
+    $('#ef_stats').innerHTML = stat('var(β̂ᴸ)/var(β̂ᶜ) por GLS', fmt(ratio, 3), ratio < 1 ? 'ok' : 'bad') + stat('Fórmula', cte ? '1 + ρ = ' + fmt(1 + rho, 3) : '1 − ρ = ' + fmt(1 - rho, 3))
+      + stat('Gana', ratio < 0.9995 ? 'longitudinal' : ratio > 1.0005 ? 'transversal' : 'empate', ratio < 1 ? 'ok' : '') + simS;
+  }
+  function simulate() {
+    const rho = num('ef_rho'), cte = $('#ef_des').value === 'cte', g = gls(rho, cte), r = rng(seed++ * 104729), R = 5000, bL = [], bC = [], sb = Math.sqrt(rho), se = Math.sqrt(1 - rho), x = des(true);
+    for (let k = 0; k < R; k++) {
+      const b1 = sb * gauss(r), b2 = sb * gauss(r), y = [b1 + se * gauss(r), b1 + se * gauss(r), b2 + se * gauss(r), b2 + se * gauss(r)];
+      bL.push(sum(y.map((v, i) => g.w[i] * v)));
+      const z = [gauss(r), gauss(r), gauss(r), gauss(r)]; bC.push((z[2] + z[3] - z[0] - z[1]) / 4);
+    }
+    sim = { rho, cte, vl: variance(bL), vc: variance(bC) }; run();
+  }
+  onChange(['ef_rho', 'ef_des'], run); $('#ef_sim').addEventListener('click', simulate);
+  run();
+}
+
+function labSt() {
+  const TIMES = [0, 1, 3, 4, 6, 7, 9, 10];
+  const UN = (() => { const sd = [2.12, 1.90, 2.36, 2.44], rho = [[1, .83, .86, .84], [.83, 1, .90, .88], [.86, .90, 1, .95], [.84, .88, .95, 1]]; return rho.map((row, i) => row.map((v, j) => v * sd[i] * sd[j])); })();
+  const INFO = {
+    cs: 'Simetría compuesta: la misma correlación para todo par de ocasiones, \\(\\sigma^2[\\rho]\\). Dos parámetros. Es la que induce un intercepto aleatorio, pero no deja que la correlación decrezca con la distancia.',
+    ar1: 'AR(1): \\(\\sigma^2\\rho^{|j-k|}\\). Dos parámetros. La correlación decrece geométricamente al alejarse las ocasiones (equiespaciadas).',
+    toep: 'Toeplitz: la correlación depende solo de la distancia \\(|j-k|\\) pero cada distancia tiene su \\(\\rho_k\\). Aquí \\(\\rho_k=\\rho^{\\sqrt k}\\) solo para ilustrar un decaimiento que no es geométrico. \\(n\\) parámetros.',
+    expo: 'Exponencial: \\(\\sigma^2\\rho^{|t_j-t_k|}\\) con los tiempos reales (aquí 0, 1, 3, 4, 6, 7, 9, 10). Mismo número de parámetros que AR(1), pero admite medidas no equiespaciadas.',
+    csh: 'CSH: simetría compuesta con varianza \\(\\sigma_j^2\\) distinta en cada ocasión (aquí creciente). \\(n+1\\) parámetros.',
+    arh: 'ARH(1): AR(1) con varianza \\(\\sigma_j^2\\) distinta en cada ocasión (aquí creciente). \\(n+1\\) parámetros.',
+    un: 'No estructurada: matriz empírica de los residuos marginales de Orthodont (niñas, 4 edades), con \\(n(n+1)/2=10\\) parámetros. Flexible, pero necesita muchos individuos.'
+  };
+  function build(kind, n, rho, s2) {
+    const t = kind === 'expo' ? TIMES.slice(0, n) : Array.from({ length: n }, (_, i) => i), sig = (j) => Math.sqrt(s2) * (1 + 0.18 * j);
+    const V = Array.from({ length: n }, () => new Array(n).fill(0));
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      const d = Math.abs(t[i] - t[j]);
+      V[i][j] = kind === 'cs' ? s2 * (i === j ? 1 : rho) : kind === 'ar1' ? s2 * rho ** d : kind === 'expo' ? s2 * rho ** d : kind === 'toep' ? s2 * (d === 0 ? 1 : rho ** Math.sqrt(d))
+        : kind === 'csh' ? sig(i) * sig(j) * (i === j ? 1 : rho) : sig(i) * sig(j) * rho ** d;
+    }
+    return { V, t };
+  }
+  function run() {
+    const kind = $('#st_kind').value, un = kind === 'un'; let n = +$('#st_n').value, rho = num('st_r'), s2 = num('st_s');
+    if (un) n = 4;
+    $('#st_n_v').textContent = n; $('#st_r_v').textContent = fmt(rho, 2); $('#st_s_v').textContent = fmt(s2, 1);
+    ['st_n', 'st_r', 'st_s'].forEach((id) => { $('#' + id).disabled = un; });
+    const b = un ? { V: UN, t: [0, 1, 2, 3] } : build(kind, n, rho, s2), V = b.V, C = corrOf(V);
+    setFig('#f_st', heatSvg(V, { aria: 'Matriz de covarianza' }));
+    const pts = [];
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) pts.push([Math.abs(b.t[i] - b.t[j]), C[i][j]]);
+    const tmax = Math.max(...pts.map((p) => p[0]), 1);
+    setFig('#f_st2', chart({ w: 330, h: 230, x: [0, tmax + 0.5], y: [0, 1], xl: 'separación en el tiempo', yl: 'correlación', nx: 5, pad: { l: 44, r: 10, t: 10, b: 36 }, items: [{ k: 'pts', cls: 'f-a', pts, r: 4, op: 0.8 }], aria: 'Correlación frente a separación' }));
+    const npar = { cs: 2, ar1: 2, expo: 2, toep: n, csh: n + 1, arh: n + 1, un: n * (n + 1) / 2 }[kind];
+    const dmin = Math.min(...pts.map((p) => p[1])), dmax = Math.max(...pts.map((p) => p[1]));
+    $('#st_stats').innerHTML = stat('Parámetros', npar) + stat('Varianza ocasión 1 → n', `${fmt(V[0][0], 2)} → ${fmt(V[n - 1][n - 1], 2)}`) + stat('Correlación mínima', fmt(dmin, 2)) + stat('Correlación máxima', fmt(dmax, 2))
+      + stat('Parámetros de una UN con este n', n * (n + 1) / 2);
+    $('#st_msg').innerHTML = '<h4>Qué estás viendo</h4><p>' + INFO[kind] + '</p>';
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([$('#st_msg')]);
+  }
+  onChange(['st_kind', 'st_n', 'st_r', 'st_s'], run);
+  run();
+}
+
+function labVt() {
+  function run() {
+    const s0 = num('vt_s0'), s1 = num('vt_s1'), rho = num('vt_r'), sg = num('vt_sg'), tb = num('vt_tb');
+    ['s0', 's1', 'sg'].forEach((k) => { $('#vt_' + k + '_v').textContent = fmt(num('vt_' + k), 1); }); $('#vt_r_v').textContent = fmt(rho, 1); $('#vt_tb_v').textContent = fmt(tb, 1);
+    const g11 = s0 * s0, g22 = s1 * s1, g12 = rho * s0 * s1, vr = (t) => g11 + 2 * t * g12 + t * t * g22 + sg * sg;
+    const ts = [0, 1, 2, 3], V = ts.map((a) => ts.map((b) => g11 + (a + b) * g12 + a * b * g22 + (a === b ? sg * sg : 0))), C = corrOf(V);
+    const grid = curvePts(vr, 0, 3, 60), ymax = Math.max(...grid.map((p) => p[1])), ymin = Math.min(...grid.map((p) => p[1]));
+    setFig('#f_vt', chart({ w: 300, h: 230, x: [0, 3], y: [Math.max(0, ymin * 0.8), ymax * 1.1], xl: 'semestres transcurridos t', yl: 'Var(Y)', nx: 3, xticks: [0, 1, 2, 3], pad: { l: 46, r: 10, t: 10, b: 36 },
+      items: [{ k: 'line', cls: 's-a', pts: grid }, { k: 'pts', cls: 'f-ink', pts: ts.map((t) => [t, vr(t)]), r: 4, op: 1 }], aria: 'Varianza de Y en función del tiempo' }));
+    setFig('#f_vt2', heatSvg(C, { labels: ['S1', 'S2', 'S3', 'S4'], aria: 'Correlaciones entre semestres', cell: 46 }));
+    // Centrado: b0* = b0 + tb·b1 (intercepto en t = tb)
+    const v0 = g11 + 2 * tb * g12 + tb * tb * g22, c01 = g12 + tb * g22, r01 = c01 / Math.sqrt(v0 * g22 || 1);
+    let diff = 0; ts.forEach((a) => ts.forEach((b, j) => { const Vc = v0 + (a - tb + b - tb) * c01 + (a - tb) * (b - tb) * g22 + (a === b ? sg * sg : 0); diff = Math.max(diff, Math.abs(Vc - V[a][b])); }));
+    $('#vt_stats').innerHTML = stat('Var(Y) en S1 · S2 · S3 · S4', ts.map((t) => fmt(vr(t), 1)).join(' · ')) + stat('Corr(S1, S4)', fmt(C[0][3], 3))
+      + stat(`DE del intercepto aleatorio en t̄ = ${fmt(tb, 1)}`, fmt(Math.sqrt(v0), 2), tb > 0 ? 'bad' : '') + stat('Corr(intercepto, pendiente) en t̄', fmt(r01, 2), tb > 0 ? 'bad' : '') + stat('Cambio máximo en V al centrar', fmt(diff, 6), 'ok');
+    $('#vt_msg').innerHTML = '<h4>Lectura</h4><p>' + (tb > 0
+      ? `Al centrar el tiempo en \\(\\bar t=${fmt(tb, 1)}\\) cambian la varianza del intercepto aleatorio (${fmt(s0, 2)}² → ${fmt(v0, 2)}) y su correlación con la pendiente (${fmt(rho, 2)} → ${fmt(r01, 2)}): son parámetros <b>de otro intercepto</b>. Lo que <b>no</b> cambia es la covarianza marginal de las notas, la última casilla (≈ 0).`
+      : `Con \\(\\rho_{01}>0\\) la varianza crece con el tiempo; con \\(\\rho_{01}<0\\) puede bajar primero y subir después (parábola). Prueba a mover «Centrar el tiempo»: el intercepto aleatorio pasa a medir la variabilidad entre estudiantes en otro semestre, pero la matriz de correlaciones de la derecha no se mueve.`) + '</p>';
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([$('#vt_msg')]);
+  }
+  onChange(['vt_s0', 'vt_s1', 'vt_r', 'vt_sg', 'vt_tb'], run);
+  run();
+}
+
+function labRm() {
+  function run() {
+    const n = +$('#rm_n').value; let p = +$('#rm_p').value; if (p >= n) p = n - 1;
+    $('#rm_n_v').textContent = n; $('#rm_p_v').textContent = p;
+    const r = rng(2026 + n * 31 + p), R = 5000, ml = [], re = [], df = n - p;
+    for (let k = 0; k < R; k++) { let c = 0; for (let i = 0; i < df; i++) { const z = gauss(r); c += z * z; } ml.push(c / n); re.push(c / df); }
+    const hi = Math.min(4, Math.max(2, quantile(re, 0.995))), hm = histData(ml, 0, hi, 36), hr = histData(re, 0, hi, 36), mse = (a) => mean(a.map((v) => (v - 1) ** 2));
+    setFig('#f_rm', chart({ w: 560, h: 250, x: [0, hi], y: [0, Math.max(...hm.dens, ...hr.dens) * 1.12], xl: 'σ̂²', yl: 'densidad', items: [{ k: 'hist', edges: hm.edges, dens: hm.dens, cls: 'f-p o50' }, { k: 'hist', edges: hr.edges, dens: hr.dens, cls: 'f-a o50' }, { k: 'vline', x: 1, cls: 's-ink' }], aria: 'ML frente a REML' }));
+    $('#rm_stats').innerHTML = stat('Media ML', fmt(mean(ml), 3), mean(ml) < 0.9 ? 'bad' : 'ok') + stat('Media REML', fmt(mean(re), 3), 'ok') + stat('Sesgo teórico de ML', fmt(-p / n, 3)) + stat('Error cuadrático medio · ML', fmt(mse(ml), 3)) + stat('Error cuadrático medio · REML', fmt(mse(re), 3));
+  }
+  onChange(['rm_n', 'rm_p'], run); run();
+}
+
 function init() {
   mountCode(); mountFlows();
   setFig('#f_simpson', simpsonFig()); setFig('#f_corr', corrFig()); setFig('#f_aic', aicFig()); setFig('#f_struct', structFig());
+  setFig('#f_src', srcFig());
   labBB(); labPP(); labMcmc(); labSamp(); labGibbs(); labLmm(); labBerk(); labMiss();
+  labCx(); labCv(); labEf(); labSt(); labVt(); labRm();
+  if (window.MathJax && MathJax.startup && MathJax.startup.promise) MathJax.startup.promise.then(() => MathJax.typesetPromise());
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
