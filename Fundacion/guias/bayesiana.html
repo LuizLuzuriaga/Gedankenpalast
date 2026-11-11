@@ -227,6 +227,19 @@ ol.walk { padding-left: 24px; }
 .lab .fig { margin: 0; }
 .mini td.num, .mini th { text-align: center; }
 nav.toc .in { gap: 6px 14px; }
+
+/* Explicaciones conceptuales para principiantes */
+details.noob { border: 1px solid var(--pres); border-left-width: 4px; background: var(--pres-soft); border-radius: 0 6px 6px 0; }
+details.noob > summary { cursor: pointer; padding: 10px 16px; font-family: var(--font-data); font-size: 12.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--pres); list-style: none; display: flex; gap: 10px; align-items: center; }
+details.noob > summary::-webkit-details-marker { display: none; }
+details.noob > summary::before { content: "▾"; }
+details.noob:not([open]) > summary::before { content: "▸"; }
+details.noob .noob-body { padding: 2px 18px 16px; display: grid; gap: 10px; font-size: 16.5px; }
+details.noob .noob-body h4 { color: var(--pres); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; margin-top: 4px; }
+details.noob dl { margin: 0; display: grid; gap: 6px; font-size: 15px; }
+details.noob dt { font-weight: 600; color: var(--ink); }
+details.noob dd { margin: 0 0 4px; color: var(--muted); }
+details.noob .one { border-top: 1px dashed var(--pres); padding-top: 8px; font-style: italic; color: var(--ink); }
 </style>
 </head>
 <body>
@@ -290,6 +303,10 @@ nav.toc .in { gap: 6px 14px; }
     <h4>El hilo común de las tres lecciones</h4>
     <p>Siempre hay algo que no se ve y se trata con probabilidad. En la Lección 3 es el <b>parámetro</b> \(\theta\); en la Lección 1 es el <b>dato faltante</b> \(x_{mis}\), cuya distribución condicionada sale de la regla de Bayes (el peso \(w_i\) del paso E); en la Lección 2 es el <b>efecto aleatorio</b> \(b_i\), una a priori normal cuya media a posteriori es el BLUP. Por eso las tres caben en un mismo punto del atlas.</p>
   </div>
+  <div class="callout key">
+    <h4>Si es tu primera vez con esto</h4>
+    <p>Cada bloque empieza con un recuadro amarillo, <b>«Para entenderlo sin fórmulas»</b>, que explica la idea con analogías y sin notación. Léelo primero; las fórmulas, los laboratorios y el código vienen después y dicen lo mismo con más precisión. Puedes plegarlo pulsando en su título.</p>
+  </div>
   <div class="callout tip">
     <h4>Cómo leer el código</h4>
     <p>Cada bloque tiene dos pestañas, <b>R</b> y <b>Python</b>, con el mismo orden de pasos. Una etiqueta <span class="pill">curso</span> indica que el código sigue las diapositivas; <span class="pill p">complemento</span> indica que lo añade esta guía. Los bloques de Python con <code>numpy</code>, <code>scipy</code> y <code>statsmodels</code> se han ejecutado y reproducen las cifras de las diapositivas; los de <code>PyMC</code>, <code>Stan</code>, <code>arviz</code> y <code>bambi</code> necesitan esos paquetes instalados y no se han podido ejecutar aquí. Los laboratorios de la página corren en tu navegador con su propio generador, así que sus cifras coinciden con las de R solo hasta el ruido de Monte Carlo.</p>
@@ -298,6 +315,18 @@ nav.toc .in { gap: 6px 14px; }
 <!-- ===================================================== 1 -->
 <section id="b1">
   <div class="sec-head"><div class="eyebrow">Lección 3 · Tema 1</div><h2>La regla de Bayes y el modelo Beta–Binomial</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · La regla de Bayes</summary><div class="noob-body">
+    <p>Imagina que un amigo te dice que se ha presentado a una oposición. Antes de saber nada más, <b>ya tienes una idea</b> de si aprobó o no (por cómo es, cuánto estudia…). Eso es la <b>a priori</b>. Luego te enseña la nota de un simulacro: eso son los <b>datos</b>. Cambias de opinión: sigues creyendo que probablemente apruebe, pero ahora con más o menos seguridad. Esa creencia actualizada es la <b>posterior</b>. La regla de Bayes es solo la receta matemática de <b>cuánto</b> hay que cambiar de opinión.</p>
+    <p>En Berkeley el «misterio» es una probabilidad: <i>¿qué fracción de las mujeres que pidieron plaza en el departamento A la consiguen?</i> No sabemos el número exacto; sabemos que 89 de 108 entraron. En vez de dar un solo número, Bayes da <b>una curva</b> que dice qué valores son más creíbles (alrededor de 0,82) y cuáles muy poco (por debajo de 0,6).</p>
+    <h4>Las piezas, en llano</h4>
+    <dl>
+      <dt>La distribución Beta</dt><dd>Es una «barra de creencias» sobre un porcentaje entre 0 y 1. Sus dos números, <i>a</i> y <i>b</i>, funcionan como <b>aciertos y fallos imaginarios</b> que ya habías visto antes de empezar. Beta(2, 2) = «creo que está hacia el medio, pero sin mucha convicción».</dd>
+      <dt>Conjugación</dt><dd>Un truco de comodidad: si empiezas con una Beta y observas aciertos y fallos, <b>terminas con otra Beta</b>. Basta con sumar: los aciertos reales a <i>a</i> y los fallos reales a <i>b</i>. Sin integrales, solo sumas.</dd>
+      <dt>Peso de la a priori</dt><dd>Con pocos datos manda tu opinión previa; con muchos datos, mandan los datos. Es como un tira y afloja donde cada dato nuevo tira un poco más fuerte.</dd>
+      <dt>Predictiva</dt><dd>Para pronosticar, no te quedas con «el» valor más probable: promedias sobre <b>todos</b> los valores plausibles. Así la predicción incluye también tu incertidumbre, no solo el azar.</dd>
+    </dl>
+    <p class="one">En una frase: Bayes es aprender de la experiencia con números: una creencia inicial, más datos, igual a una creencia mejor.</p>
+  </div></details>
   <p class="note">Idea que lo une todo: el parámetro desconocido \(\theta\) deja de ser un número fijo y pasa a ser una variable aleatoria. Se le da una distribución antes de ver los datos (la <b>a priori</b>) y los datos la actualizan (la <b>posterior</b>).</p>
 
   <div class="sub" id="b1-fb">
@@ -494,6 +523,17 @@ print(np.histogram(z_sim, bins=6, range=(0, 108))[0])   # casi plana
 <!-- ===================================================== 2 -->
 <section id="b2">
   <div class="sec-head"><div class="eyebrow">Lección 3 · Tema 2</div><h2>Un modelo con varios parámetros: admisiones en Berkeley</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · Varios parámetros y la paradoja de Simpson</summary><div class="noob-body">
+    <p>Ahora no hay una sola incógnita sino varias: ¿cuánto influye ser mujer?, ¿y el departamento al que se pide? Se usa una <b>regresión logística</b>, que es una forma de decir «la probabilidad de entrar depende de varios factores que se suman». Se suman en una escala rara llamada <b>log-odds</b> (piénsala como un «termómetro de probabilidad» que no se sale nunca de 0 a 100 %). Cada factor tiene su propio parámetro y cada parámetro, su a priori y su posterior.</p>
+    <p>La <b>paradoja de Simpson</b> es el motivo por el que merece la pena modelar bien: mirando el total, parece que las mujeres entran menos; mirando <i>departamento por departamento</i>, no es así. La razón es que las mujeres pidieron más plaza en los departamentos más difíciles. Es como comparar a dos equipos por su porcentaje global de victorias cuando uno ha jugado casi siempre contra rivales mucho más duros: el total <b>mezcla</b> el resultado con a quién te enfrentas.</p>
+    <h4>Las piezas, en llano</h4>
+    <dl>
+      <dt>A priori «débil»</dt><dd>Una opinión previa amplia que solo descarta lo absurdo. Pero cuidado: una a priori que parece «vaga» en la escala de log-odds puede, al convertirla a probabilidades, empujar casi todo hacia 0 % o 100 %.</dd>
+      <dt>Chequeo predictivo a priori</dt><dd>Antes de mirar los datos, <b>simulas</b> qué datos produciría tu a priori. Si salen cosas ridículas (todo el mundo admitido o nadie), tu a priori está mal planteada. Es como probar la receta con ingredientes de mentira antes de cocinar de verdad.</dd>
+      <dt>Odds ratio</dt><dd>Cuántas veces más (o menos) probable es entrar para un grupo que para otro, con todo lo demás igual. Un valor cercano a 1 significa «sin diferencia clara».</dd>
+    </dl>
+    <p class="one">En una frase: con varias causas a la vez hay que compararlas «a igualdad de condiciones», y comprobar que tus suposiciones iniciales no son absurdas.</p>
+  </div></details>
   <p class="note">Al pasar de un departamento y un sexo a los doce grupos (6 departamentos × 2 sexos), la posterior depende de varios parámetros a la vez y deja de tener forma cerrada.</p>
 
   <div class="sub" id="b2-datos">
@@ -615,6 +655,23 @@ def log_post(theta):
 <!-- ===================================================== 3 -->
 <section id="b3">
   <div class="sec-head"><div class="eyebrow">Lección 3 · Tema 3</div><h2>Cadenas de Markov Monte Carlo (MCMC)</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · MCMC: cómo explorar lo que no se puede calcular</summary><div class="noob-body">
+    <p>En cuanto el modelo se complica, la posterior no tiene fórmula. Es como querer saber la forma de una montaña en plena niebla: <b>no puedes verla entera, pero sí puedes caminar por ella</b>. Si caminas de forma inteligente y pasas más tiempo en las zonas altas (los valores más creíbles del parámetro), al final tu recorrido <b>dibuja</b> la montaña. Eso son las cadenas de Markov Monte Carlo: una caminata aleatoria cuyos pasos acaban siendo muestras de la posterior.</p>
+    <h4>Los métodos, como paseos</h4>
+    <dl>
+      <dt>Metropolis–Hastings</dt><dd>Propones un paso al azar. Si el sitio nuevo es «más alto» (más creíble), lo aceptas siempre; si es más bajo, lo aceptas <b>a veces</b>, con una probabilidad. Si lo rechazas, te quedas donde estabas, y ese «no moverse» también cuenta. Aceptar a veces lo bajo es lo que te deja salir de rincones.</dd>
+      <dt>Gibbs</dt><dd>En lugar de moverte en todas direcciones a la vez, <b>actualizas un parámetro cada vez</b> suponiendo conocidos los demás. Funciona cuando cada trozo es fácil de muestrear aunque el todo no lo sea.</dd>
+      <dt>Hamiltoniano (HMC) y NUTS</dt><dd>Imagina que en vez de andar ciegamente lanzas una <b>canica que rueda</b> por la superficie: usa la pendiente (el gradiente) para ir lejos y bien dirigida. NUTS decide solo cuánto dejar rodar. Es el motor de Stan.</dd>
+      <dt>Inferencia variacional</dt><dd>Atajo: en vez de explorar, <b>sustituyes la montaña por una forma sencilla</b> (por ejemplo, una campana) y buscas la que más se le parezca. Es mucho más rápido, pero tiende a subestimar la incertidumbre.</dd>
+    </dl>
+    <h4>¿Cómo sé que el paseo ha funcionado?</h4>
+    <dl>
+      <dt>Varias cadenas, \(\hat R\)</dt><dd>Mandas a varios caminantes desde sitios distintos. Si todos acaban describiendo la misma montaña, \(\hat R\) es casi 1. Si discrepan, aún no se puede fiar.</dd>
+      <dt>Tamaño efectivo (ESS)</dt><dd>Como cada paso depende del anterior, 10 000 pasos no valen 10 000 datos independientes. El ESS dice a cuántos datos «de verdad» equivalen.</dd>
+      <dt>Calentamiento</dt><dd>Los primeros pasos se descartan, porque el caminante aún no ha llegado a la zona buena.</dd>
+    </dl>
+    <p class="one">En una frase: cuando no se puede calcular la respuesta, se obtiene <b>una muestra</b> de ella paseando por el modelo, y luego se comprueba que el paseo ha sido bueno.</p>
+  </div></details>
   <p class="note">En muchos modelos se puede evaluar \(f(y\mid\theta)\pi(\theta)\) pero no normalizar la posterior ni integrarla. MCMC construye una cadena \(\theta^{(1)},\dots,\theta^{(S)}\) cuya distribución límite es la posterior y la estima con las muestras.</p>
 
   <div class="sub" id="b3-idea">
@@ -937,6 +994,21 @@ print(np.corrcoef(out.T)[0, 1])                # recupera rho
 <!-- ===================================================== 4 -->
 <section id="b4">
   <div class="sec-head"><div class="eyebrow">Lección 3 · Software y resultados</div><h2>JAGS, Stan y PyMC: del modelo a la conclusión</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · JAGS, Stan y PyMC</summary><div class="noob-body">
+    <p>Programar un muestreador MCMC desde cero es posible (lo has visto en los laboratorios), pero es lento y propenso a errores. Estas herramientas hacen de <b>cocinero</b>: tú escribes la <b>receta</b> (qué a prioris pones y cómo se generan los datos) y el programa se encarga de «cocinar» la posterior. Se parecen a lo que haces con una fórmula en Excel: describes <i>qué</i> quieres, no <i>cómo</i> calcularlo.</p>
+    <dl>
+      <dt>JAGS</dt><dd>El veterano, basado en Gibbs; se describe el modelo con una sintaxis parecida a R.</dd>
+      <dt>Stan</dt><dd>Usa HMC/NUTS. Más potente con modelos grandes o difíciles, y da avisos útiles cuando algo va mal (divergencias).</dd>
+      <dt>PyMC</dt><dd>La opción nativa de Python; mismo concepto, lenguaje distinto.</dd>
+      <dt>Precisión frente a desviación típica</dt><dd>Un detalle que muerde: JAGS pide la <b>precisión</b> (1 dividido entre la varianza) y PyMC/Stan, la desviación típica. Mismo modelo, número distinto.</dd>
+    </dl>
+    <h4>Qué haces con el resultado</h4>
+    <dl>
+      <dt>Resumen de la posterior</dt><dd>Mediana y un <b>intervalo creíble</b>: «con una probabilidad del 95 %, el parámetro está aquí dentro». Es lo que mucha gente cree, erróneamente, que dice un intervalo de confianza clásico.</dd>
+      <dt>Chequeo predictivo posterior</dt><dd>Con el modelo ya ajustado, <b>inventas datos nuevos</b> y los comparas con los reales. Si los reales parecen «raros» frente a los inventados, el modelo se está perdiendo algo.</dd>
+    </dl>
+    <p class="one">En una frase: tú describes el modelo; el software hace el paseo, y tú interpretas y compruebas el resultado.</p>
+  </div></details>
   <p class="note">El software convierte la especificación del modelo (a prioris, verosimilitud, cantidades derivadas) en cadenas de la posterior. El juicio sobre el resultado sigue siendo del analista.</p>
 
   <div class="sub" id="b4-flujo">
@@ -1154,6 +1226,15 @@ print(y_new.mean(), np.percentile(y_new, [2.5, 50, 97.5]))   # ≈ 6.6 y [4, 9]
 <!-- ===================================================== 5 -->
 <section id="b5">
   <div class="sec-head"><div class="eyebrow">Lección 3 · Cierre</div><h2>Flujo de trabajo y elección del método</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · Qué método elegir y cómo trabajar</summary><div class="noob-body">
+    <p>No existe un método único mejor. Es como elegir un medio de transporte: <b>a pie</b> (la fórmula exacta, cuando existe) es perfecto y precisísimo para trayectos cortos; <b>en coche</b> (MCMC) llega casi a cualquier sitio, pero tarda; <b>en tren</b> (variacional) es rapidísimo, pero solo va por las vías que ya existen. Eliges según el tamaño del problema y cuánta precisión necesitas.</p>
+    <h4>El flujo bayesiano, en cinco gestos</h4>
+    <p>Piensa en ello como cocinar probando: <b>(1)</b> decide el modelo y las a prioris, <b>(2)</b> mira qué datos fabricaría antes de usar los reales, <b>(3)</b> ajusta, <b>(4)</b> revisa que el ajuste ha ido bien (\(\hat R\), ESS) y que el modelo reproduce lo observado, <b>(5)</b> si algo falla, vuelve atrás y cambia. Rara vez sale bien a la primera, y eso es normal: <b>iterar es parte del método</b>.</p>
+    <dl>
+      <dt>Ajuste frente a predicción</dt><dd>Un modelo puede explicar muy bien los datos que ya tienes y, aun así, fallar con datos nuevos (le pasa al alumno que memoriza el examen del año pasado). Si lo que quieres es pronosticar, <b>pruébalo con datos que no haya visto</b>.</dd>
+    </dl>
+    <p class="one">En una frase: elige la herramienta según el problema, y trata el modelado como una conversación de ida y vuelta con los datos, no como un botón.</p>
+  </div></details>
   <div class="sub" id="b5-ppc">
     <h3>5.1 Una discrepancia, un modelo mejorable</h3>
     <div class="tbl"><table class="plain mini">
@@ -1211,6 +1292,24 @@ print(y_new.mean(), np.percentile(y_new, [2.5, 50, 97.5]))   # ≈ 6.6 y [4, 9]
 <!-- ===================================================== 6 -->
 <section id="b6">
   <div class="sec-head"><div class="eyebrow">Lección 1</div><h2>Datos incompletos y el algoritmo EM</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · Datos incompletos y el algoritmo EM</summary><div class="noob-body">
+    <p>Una encuesta nunca vuelve completa: alguien deja en blanco los ingresos, otro escribe «−99», otro «prefiero no decirlo». La pregunta importante no es <i>cuántos</i> faltan, sino <b>por qué</b> faltan. Tres escenarios, con una encuesta de voto:</p>
+    <dl>
+      <dt>MCAR · «se perdió al azar»</dt><dd>Se derramó café sobre un montón de cuestionarios. Nada tiene que ver con quién eres. Es el caso más tranquilo: lo que queda sigue siendo una muestra representativa, solo que menor.</dd>
+      <dt>MAR · «falta por algo que sí vemos»</dt><dd>Los que contestan por internet omiten más los ingresos. Como <b>sabemos</b> quién contestó por internet, podemos compensarlo.</dd>
+      <dt>MNAR · «falta por lo que no vemos»</dt><dd>Los que ganan mucho esconden precisamente su ingreso. Lo que falta depende de lo que falta. Es el caso peligroso: ningún truco automático lo arregla, solo se puede <b>analizar cuánto cambiaría la conclusión</b> según lo que supongamos.</dd>
+    </dl>
+    <h4>Dos remedios ingenuos (y su problema)</h4>
+    <p><b>Quedarse solo con los completos</b> tira información y, si los que faltan son distintos, sesga. <b>Borrar la variable con huecos</b> pierde justo lo que querías estudiar.</p>
+    <h4>El algoritmo EM, con una analogía</h4>
+    <p>Quieres saber cuánto vale tener título universitario en el sueldo, pero a una parte de los encuestados se les perdió el título. EM hace algo como un <b>puzle de dos pasos que se repiten</b>:</p>
+    <ul class="tight">
+      <li><b>Paso E (estimar lo que falta):</b> para cada persona sin título registrado, calculas <i>«¿qué probabilidad hay de que lo tenga, viendo su sueldo y su experiencia?»</i>. No inventas un sí o un no: guardas un <b>porcentaje</b>. Aquí vuelve a aparecer la regla de Bayes: sueldo alto con poca experiencia hace más probable el título.</li>
+      <li><b>Paso M (reajustar):</b> con esos porcentajes como «medio-datos», recalculas el modelo del sueldo.</li>
+      <li>Repites hasta que ya no cambia. Con cada vuelta, el modelo y las suposiciones sobre lo que falta se mejoran mutuamente.</li>
+    </ul>
+    <p class="one">En una frase: los huecos no se rellenan a ojo; se razona con probabilidades sobre lo que falta y se mejora el modelo en bucle, pero EM no arregla el caso MNAR.</p>
+  </div></details>
   <p class="note">Los métodos estadísticos se desarrollaron para tablas rectangulares, pero en la práctica una encuesta de voto en España pierde la banda de ingresos, recibe «−99» como marcador de desconocido o un cero que en realidad es un blanco mal codificado. Lo que importa es <b>por qué faltan</b> los datos.</p>
 
   <div class="sub" id="b6-mec">
@@ -1409,6 +1508,20 @@ print("EM              ", beta_em.round(4), "en", iters, "iteraciones")
 <!-- ===================================================== 7 -->
 <section id="b7">
   <div class="sec-head"><div class="eyebrow">Lección 2</div><h2>Datos longitudinales y modelos con variables latentes</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · Datos longitudinales y efectos aleatorios</summary><div class="noob-body">
+    <p>Sigues a los mismos 800 estudiantes durante cuatro semestres. Sus notas de un semestre a otro <b>no son independientes</b>: un alumno que parte bien suele seguir bien. Tratar sus 4 notas como si fueran de 4 personas distintas sería hacerse trampas con el tamaño de la muestra (cuatro notas del mismo alumno aportan <i>menos</i> información que cuatro alumnos distintos).</p>
+    <h4>La idea del modelo mixto: «la clase» y «cada alumno»</h4>
+    <dl>
+      <dt>Efectos fijos</dt><dd>Lo que vale <b>para todos</b>: la tendencia media de la clase (cuánto sube la nota por semestre, cuánto ayuda estudiar una hora más).</dd>
+      <dt>Efectos aleatorios</dt><dd>Lo que es <b>propio de cada alumno</b>: unos empiezan más arriba (<i>intercepto aleatorio</i>) y otros mejoran más rápido (<i>pendiente aleatoria</i>). No se estima un número por alumno «a pelo»: se supone que son variaciones en torno a la media de la clase, con una cierta dispersión.</dd>
+      <dt>Efectos aleatorios = una a priori</dt><dd>Esto es lo que lo conecta todo con Bayes: «lo normal es que un alumno se parezca a la media» es una a priori sobre cada alumno.</dd>
+      <dt>Encogimiento (shrinkage)</dt><dd>Si de un alumno solo tienes dos notas y muy ruidosas, su recta individual es poco fiable: el modelo <b>tira de ella hacia la media de la clase</b>. Si tiene muchas notas y muy claras, el modelo le hace caso. Es como el bateador novato que acierta 3 de 3: no pensarías que tiene un 100 % de media; lo acercas al promedio hasta ver más partidos. Al valor que sale se le llama BLUP.</dd>
+      <dt>Predicción poblacional o condicional</dt><dd>Para un alumno <b>nuevo</b> solo puedes dar la media de la clase. Para uno <b>ya observado</b> afinas con lo que sabes de él.</dd>
+    </dl>
+    <h4>Y si no son notas</h4>
+    <p>Si la respuesta es «aprobó / no aprobó», se usa el mismo esquema con una regresión logística (<b>modelo lineal generalizado mixto</b>). Si la mejora se frena en una meseta (aprendes rápido al principio y luego menos), se usa una curva, no una recta (<b>modelo no lineal mixto</b>).</p>
+    <p class="one">En una frase: cada persona es un poco ella misma y un poco «la media»; el modelo mixto aprende cuánto de cada cosa.</p>
+  </div></details>
   <p class="note">Las observaciones repetidas del mismo estudiante <b>no son independientes</b>; las de estudiantes distintos sí. Los datos longitudinales miden a muchos individuos varias veces; las series temporales miden una o pocas variables a lo largo del tiempo.</p>
 
   <div class="sub" id="b7-dep">
@@ -1593,6 +1706,30 @@ print(az.summary(idata, var_names=["Intercept", "time", "study_hours_c"]))
 <!-- ===================================================== 8 -->
 <section id="b8">
   <div class="sec-head"><div class="eyebrow">Lección 2 · Notas complementarias (Parte III del manual)</div><h2>Datos correlacionados, modelos marginales y estructuras de covarianza</h2></div>
+  <details class="noob" open><summary>Para entenderlo sin fórmulas · Datos correlacionados y estructuras de covarianza</summary><div class="noob-body">
+    <p>Si preguntas lo mismo cuatro veces a la misma persona, <b>no tienes cuatro opiniones</b>: tienes una opinión medida cuatro veces. Los programas de regresión corrientes no lo saben: creen que tienes cuatro personas y, por eso, <b>se muestran demasiado seguros</b> (intervalos demasiado estrechos). Todo este bloque va de cómo darse cuenta de eso y cómo corregirlo.</p>
+    <h4>¿Por qué se parecen las medidas de una misma persona?</h4>
+    <dl>
+      <dt>Porque la persona es distinta del resto</dt><dd>Unos están siempre por encima de la media y otros por debajo (nota de partida, tensión habitual).</dd>
+      <dt>Porque lo reciente se parece a lo reciente</dt><dd>Tu peso de hoy se parece al de ayer más que al de hace un año. Esa «memoria» es la correlación serial.</dd>
+      <dt>Y el error de medida</dt><dd>La báscula no es perfecta; eso baja el parecido entre medidas.</dd>
+    </dl>
+    <h4>El «tamaño de muestra de verdad»</h4>
+    <p>Cuanto más se parecen las medidas del mismo sujeto, <b>menos vale cada una</b>. Ejemplo extremo: si cada persona se midiera 10 veces y las 10 medidas fueran idénticas, tendrías en realidad una sola observación por persona.</p>
+    <h4>Cada uno, su propio control</h4>
+    <p>Si quieres comparar dos tratamientos, probarlos <b>en la misma persona</b> elimina las diferencias entre personas (la altura de uno, el metabolismo de otro). Por eso gana el diseño longitudinal cuando el tratamiento cambia <i>dentro</i> de cada persona. Pero si cada persona recibe solo un tratamiento, repetir las medidas añade poco: valen más <b>más personas</b> que más medidas por persona.</p>
+    <h4>Las «estructuras de covarianza»: cómo se parecen unas medidas a otras</h4>
+    <dl>
+      <dt>Simetría compuesta (CS)</dt><dd>«Todas las medidas se parecen entre sí lo mismo», da igual cuánto tiempo pase. Es el caso del intercepto aleatorio. Sirve para hermanos o parcelas de un campo, no tanto para series en el tiempo.</dd>
+      <dt>AR(1)</dt><dd>«Las medidas vecinas se parecen mucho y el parecido <b>se desvanece</b> con la distancia». Muy natural para el tiempo.</dd>
+      <dt>Toeplitz</dt><dd>Parecido que depende solo de la distancia, pero cada distancia tiene su propio valor, sin una forma impuesta.</dd>
+      <dt>No estructurada</dt><dd>«Que cada pareja tenga su propio parecido». Máxima libertad, pero necesita muchísimos datos para no inventarse cosas.</dd>
+    </dl>
+    <p>El criterio de elección es el de siempre: <b>flexibilidad frente a sencillez</b>. Una estructura con pocos parámetros es más estable; una con muchos se adapta mejor pero puede sobreajustar.</p>
+    <h4>ML frente a REML, y los contrastes</h4>
+    <p>Al estimar una variabilidad con una media estimada, hay que dividir por «n − algo» y no por n, igual que en la fórmula de la desviación típica muestral (\(n-1\), no \(n\)). <b>ML</b> divide por \(n\) y se queda corto; <b>REML</b> corrige. Para decidir si un efecto es real se comparan modelos (razón de verosimilitudes) o se mira el estimador con su error (Wald); la guía indica cuándo usar cada versión.</p>
+    <p class="one">En una frase: medir a la misma persona muchas veces no multiplica la información por el número de medidas; el modelo tiene que saber cuánto se parecen esas medidas entre sí.</p>
+  </div></details>
   <p class="note">Este bloque desarrolla lo que el bloque 7 solo enuncia: <b>por qué</b> hay que modelar la correlación, qué forma puede tener y cómo se estima. Sigue la Parte III del <a href="Ungolo_Course_Manual_Incomplete_Correlated_Bayesian.pdf#page=30" target="_blank" rel="noopener">manual del curso (PDF, pp. 30–46)</a>, que recoge las notas de M. Guindani (UCLA) para el mismo curso. Lo marcado como <span class="pill p">complemento</span> lo añade esta guía.</p>
 
   <div class="sub" id="b8-why">
