@@ -276,7 +276,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--line); padding-top: 
   <h1>Simulación y modelos para el análisis de datos actuariales y financieros</h1>
   <p class="lede">Guía de estudio de los Temas 1, 2 y 3: cómo fabricar números aleatorios y variables con la distribución que queramos (incluso correlacionadas), cómo ajustar y validar una regresión lineal y cómo regularla con Ridge, LASSO y Elastic Net. Cada método lleva su diagrama de flujo, un laboratorio que puedes mover, el código R del curso y la explicación de cada línea.</p>
   <div class="hero-meta">
-    <span class="chip" id="examChip">Examen · 11 de noviembre de 2026 · <b id="examLeft">…</b></span>
+    <span class="chip" id="examChip">Examen · 25 de noviembre de 2026 · <b id="examLeft">…</b></span>
     <span class="src">Código y diapositivas: <b>David Atance del Olmo</b>, CC BY-NC-SA 4.0</span>
   </div>
   <figure class="fig" data-fig="mapaflujo">
@@ -322,7 +322,7 @@ footer.foot { margin-top: 56px; border-top: 2px solid var(--line); padding-top: 
     </tbody>
   </table></div>
   <div class="callout key" id="examen">
-    <h4>Para el examen del 11 de noviembre</h4>
+    <h4>Para el examen del 25 de noviembre</h4>
     <p>Lo que más rinde: (1) saber deducir cada inversa y cada algoritmo con un ejemplo numérico a mano, (2) interpretar la salida de R (<code>summary(lm)</code>, <code>step</code>, <code>cv.glmnet</code>), (3) justificar la decisión de preprocesamiento y el criterio de validación, (4) distinguir con una frase qué hace Ridge, LASSO y Elastic Net y cuándo usar cada uno. Las <a href="#preguntas">preguntas posibles</a> están resueltas con números y las <a href="#tarjetas">tarjetas</a> sirven para autoevaluarse.</p>
   </div>
   <div class="callout tip">
@@ -4681,7 +4681,7 @@ function labPath() {
 
 /* ====================== Arranque ====================== */
 function countdown() {
-  const exam = new Date(2026, 10, 11), now = new Date(); now.setHours(0, 0, 0, 0);
+  const exam = new Date(2026, 10, 25), now = new Date(); now.setHours(0, 0, 0, 0);
   const d = Math.round((exam - now) / 86400000);
   $('#examLeft').textContent = d > 1 ? `faltan ${d} días` : d === 1 ? 'mañana' : d === 0 ? 'hoy' : 'ya pasó';
 }

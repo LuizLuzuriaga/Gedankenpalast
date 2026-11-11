@@ -219,7 +219,7 @@ print(list(fit.random_effects.items())[:3])    # BLUP: medias a posteriori encog
                 id: 'idea',
                 title: 'Idea clave',
                 blocks: [
-                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 3: diagramas de flujo de cada método, laboratorios interactivos, todo el código explicado en R y Python, preguntas posibles resueltas y tarjetas de repaso. Examen: 11 de noviembre de 2026.' },
+                    { type: 'guide', text: 'Guía de estudio completa de los Temas 1 a 3: diagramas de flujo de cada método, laboratorios interactivos, todo el código explicado en R y Python, preguntas posibles resueltas y tarjetas de repaso. Examen: 25 de noviembre de 2026.' },
                     { type: 'p', text: 'Un ordenador solo produce uniformes $U(0,1)$ de forma determinista. Todo lo demás se obtiene <b>transformándolas</b>: invirtiendo una función de distribución, aceptando o rechazando candidatos o mezclándolas con álgebra matricial. Sobre ese motor se construye el análisis de riesgo (Monte Carlo, VaR, TVaR) y los modelos de regresión que se validan fuera de muestra.' },
                     { type: 'list', title: 'Tema 1 · Simular', items: [
                         '<b>Uniformes</b>: generador congruencial $z_i=(az_{i-1}+c)\\bmod m$ y condiciones de Hull–Dobell.',
