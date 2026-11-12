@@ -90,7 +90,8 @@ def sec_tema(t):
     parts = []
     import didactica
     vis = {}
-    for after, html_ in didactica.VISUALS.get(t["id"], []): vis.setdefault(after, []).append(html_)
+    import visuales
+    for after, html_ in didactica.VISUALS.get(t["id"], []) + visuales.GEN.get(t["id"], []): vis.setdefault(after, []).append(html_)
     for i, (h, body) in enumerate(t["explain"], 1):
         dm = didactica.DUMMY.get((t["id"], i))
         dbox = f'<div class="dummy"><b class="dh">Para dummies</b>{dm}</div>' if dm else ""

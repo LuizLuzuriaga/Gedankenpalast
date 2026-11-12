@@ -110,6 +110,29 @@ W.t6_agg=(el,P,out)=>{const c=C(),{g,w,h}=setup(el.querySelector('canvas'));cons
  bars.forEach((b,i)=>{const x=60+i*((w-90)/3),bw=(w-90)/3-30,y=Y(b[1],0,mx,h);g.fillStyle=b[2];g.globalAlpha=.7;g.fillRect(x,y,bw,h-28-y);g.globalAlpha=1;g.fillStyle=c.ink;g.font='12px monospace';g.fillText(b[1].toFixed(2),x+4,y-4);g.fillStyle=c.mut;g.fillText(b[0],x,h-12)});
  el.querySelector('.out').innerHTML=`Diversificación de la fórmula: ${(M+U-s).toFixed(2)} M€ (${((M+U-s)/(M+U)*100).toFixed(1)} %) · capital adicional por cola: <b>${(a-s).toFixed(2)} M€</b> · beneficio de diversificación que queda: ${(M+U-a).toFixed(2)} M€`};
 
+function lg(x){const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,.1208650973866179e-2,-.5395239384953e-5];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(let j=0;j<6;j++)s+=c[j]/++y;return -t+Math.log(2.5066282746310005*s/x)}
+const curve=(f,a,b,n=200)=>Array.from({length:n+1},(_,i)=>{const x=a+(b-a)*i/n;return[x,f(x)]});
+const pois=l=>{if(l>30)return Math.max(0,Math.round(l+Math.sqrt(l)*rn()));const L=Math.exp(-l);let k=0,p=1;do{k++;p*=Math.random()}while(p>L);return k-1};
+function panjer(lam,r,S){const f=new Float64Array(S+1);for(let k=1;k<=S;k++)f[k]=(1-r)*Math.pow(r,k-1);const g=new Float64Array(S+1);g[0]=Math.exp(-lam);for(let s=1;s<=S;s++){let t=0;for(let k=1;k<=s;k++)t+=k*f[k]*g[s-k];g[s]=lam/s*t}return g}
+function tpdf(t,nu){return Math.exp(lg((nu+1)/2)-lg(nu/2))/Math.sqrt(nu*Math.PI)*Math.pow(1+t*t/nu,-(nu+1)/2)}
+function tcdf(x,nu){const a=Math.abs(x),n=200,h=a/n;let s=tpdf(0,nu)+tpdf(a,nu);for(let i=1;i<n;i++)s+=tpdf(i*h,nu)*(i%2?4:2);const I=s*h/3;return x<0?.5-I:.5+I}
+const H={Phi,qn,rn,rg,re,rch,lg,curve,pois,panjer,tcdf,hist,q99};
+function wrapTxt(t,m){const ws=t.split(' ');const L=[];let cur='';ws.forEach(w=>{if((cur+' '+w).trim().length>m){L.push(cur);cur=w}else cur=(cur+' '+w).trim()});L.push(cur);return L}
+function render(el,R){const c=C(),cv=el.querySelector('canvas'),{g,w,h}=setup(cv);const col=k=>c[k]||k;el.querySelector('.out').innerHTML=R.out||'';g.font='11px monospace';
+ if(R.cat){const n=R.cat.length,ys=R.bars.map(b=>b.h),y0=R.y?R.y[0]:Math.min(0,...ys),ym=R.y?R.y[1]:Math.max(...ys,1e-9)*1.2;
+  g.strokeStyle=c.rule;g.beginPath();g.moveTo(40,h-50);g.lineTo(w-10,h-50);g.moveTo(40,10);g.lineTo(40,h-50);g.stroke();const Yc=v=>h-50-(h-60)*(v-y0)/(ym-y0);
+  for(let i=0;i<=4;i++){const v=y0+(ym-y0)*i/4;g.fillStyle=c.mut;g.fillText(v.toFixed(Math.abs(ym)<5?2:0),2,Yc(v)+3)}
+  const bw=(w-60)/n;R.bars.forEach((b,i)=>{const x=46+i*bw,wid=bw-18;g.fillStyle=col(b.c||'acc');g.globalAlpha=.75;g.fillRect(x,Math.min(Yc(b.h),Yc(0)),wid,Math.abs(Yc(b.h)-Yc(0)));g.globalAlpha=1;g.fillStyle=c.ink;g.fillText(b.h.toFixed(Math.abs(b.h)<10?2:1),x+2,Yc(b.h)-4);g.fillStyle=c.mut;wrapTxt(R.cat[i],Math.floor(bw/6.5)).forEach((l,j)=>g.fillText(l,x,h-36+j*12))});return}
+ const x0=R.x[0],x1=R.x[1];const ys=[];(R.curves||[]).forEach(k=>k.pts.forEach(p=>{if(isFinite(p[1]))ys.push(p[1])}));(R.bars||[]).forEach(b=>{ys.push(b.h);ys.push(0)});(R.groups||[]).forEach(gr=>gr.pts.forEach(p=>ys.push(p[1])));
+ let y0=R.y?R.y[0]:Math.min(0,...ys),y1=R.y?R.y[1]:Math.max(...ys)*1.08;if(!(y1>y0))y1=y0+1;axes(g,w,h,x0,x1,y0,y1,c,R.xl,R.yl);const sx=v=>X(v,x0,x1,w),sy=v=>Y(v,y0,y1,h);
+ (R.bars||[]).forEach(b=>{const bw=b.w==null?(x1-x0)/60:b.w;g.fillStyle=col(b.c||'acc');g.globalAlpha=.6;g.fillRect(sx(b.x-bw/2),sy(b.h),Math.max(1,sx(b.x+bw/2)-sx(b.x-bw/2)-1),sy(0)-sy(b.h));g.globalAlpha=1});
+ (R.groups||[]).forEach(gr=>{g.fillStyle=col(gr.c);g.globalAlpha=gr.a||.55;const r=gr.r||1.5;gr.pts.forEach(p=>g.fillRect(sx(p[0])-r,sy(p[1])-r,2*r,2*r));g.globalAlpha=1});
+ (R.curves||[]).forEach(k=>{g.strokeStyle=col(k.c||'acc');g.lineWidth=k.lw||2.5;g.setLineDash(k.dash||[]);g.beginPath();let on=false;k.pts.forEach(p=>{if(!isFinite(p[1])||p[1]<y0-1e-9||p[1]>y1+1e-9){on=false;return}if(on)g.lineTo(sx(p[0]),sy(p[1]));else{g.moveTo(sx(p[0]),sy(p[1]));on=true}});g.stroke();g.setLineDash([])});
+ (R.hl||[]).forEach(l=>{g.strokeStyle=col(l.c||'mut');g.setLineDash([5,4]);g.beginPath();g.moveTo(40,sy(l.y));g.lineTo(w-10,sy(l.y));g.stroke();g.setLineDash([]);g.fillStyle=col(l.c||'mut');g.fillText(l.label||'',44,sy(l.y)-4)});
+ (R.vl||[]).forEach(l=>{if(l.x>=x0&&l.x<=x1)vl(g,sx(l.x),h,col(l.c||'pres'),l.label||'')});
+ (R.legend||[]).forEach((l,i)=>{g.fillStyle=col(l[1]);g.fillRect(w-230,14+i*14,10,3);g.fillStyle=c.ink;g.fillText(l[0],w-216,18+i*14)})}
+W.gen=(el,P)=>{const Q={};for(const k in P)Q[k]=(P[k]!==''&&!isNaN(+P[k]))?+P[k]:P[k];const code=el.querySelector('.calc').textContent;render(el,new Function('P','H','const {Phi,qn,rn,rg,re,rch,lg,curve,pois,panjer,tcdf,hist,q99}=H;'+code)(Q,H))};
+
 function init(el){const name=el.dataset.w,ctl=el.querySelectorAll('input,select');
  const run=()=>{const P={};ctl.forEach(i=>{P[i.name]=i.value;const sp=el.querySelector('.v[data-for="'+i.name+'"]');if(sp)sp.textContent=i.value});try{W[name](el,P)}catch(e){el.querySelector('.out').textContent='Error: '+e.message}};
  ctl.forEach(i=>i.addEventListener('input',run));const b=el.querySelector('button');if(b)b.addEventListener('click',run);
