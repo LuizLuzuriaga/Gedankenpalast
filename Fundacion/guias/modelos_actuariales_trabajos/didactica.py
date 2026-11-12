@@ -1,4 +1,4 @@
-# Material didáctico: cajas «En cristiano» (explicación para principiantes) y ejemplos dinámicos (JS) por tema.
+# Material didáctico: cajas «Para dummies» (explicación para principiantes) y ejemplos dinámicos (JS) por tema.
 CSS = """
 .dummy { border-left: 3px solid var(--pres); background: var(--pres-soft); padding: 10px 14px; border-radius: 4px; margin: 10px 0; font-size: 15px; }
 .dummy b.dh { color: var(--pres); font-family: var(--font-data); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; display: block; margin-bottom: 4px; }
@@ -152,7 +152,7 @@ VISUALS = {
    "Incluso con ρ = 0 hay recargo: la dependencia de cola no es la correlación media. A mayor ρ, la fórmula ya «ve» parte de la dependencia y la diversificación que queda es menor."))],
 }
 
-# ---------------------------------------------------------------- «En cristiano»: (tema, apartado) -> texto
+# ---------------------------------------------------------------- «Para dummies»: (tema, apartado) -> texto
 DUMMY = {
 ("t1", 1): "Cien euros no valen lo mismo para quien tiene 1.000 que para quien tiene 1 millón. Por eso una persona prudente no acepta «tirar una moneda» por su sueldo, aunque en media saliera a cuenta.",
 ("t1", 2): "Cada uno puntúa el dinero con una «escala de felicidad» (la utilidad). Entre dos apuestas, se elige la que da más felicidad esperada, no la que da más dinero esperado.",

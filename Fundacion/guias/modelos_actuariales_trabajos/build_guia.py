@@ -93,7 +93,7 @@ def sec_tema(t):
     for after, html_ in didactica.VISUALS.get(t["id"], []): vis.setdefault(after, []).append(html_)
     for i, (h, body) in enumerate(t["explain"], 1):
         dm = didactica.DUMMY.get((t["id"], i))
-        dbox = f'<div class="dummy"><b class="dh">En cristiano</b>{dm}</div>' if dm else ""
+        dbox = f'<div class="dummy"><b class="dh">Para dummies</b>{dm}</div>' if dm else ""
         parts.append(f'<div class="sub" id="{t["id"]}-e{i}"><h3>{t["num"]}.{i} {h}</h3>{dbox}{body}{"".join(vis.get(i, []))}</div>')
     return (f'<section id="{t["id"]}"><div class="sec-head"><div class="eyebrow">Tema {t["num"]}</div><h2>{t["title"]}</h2></div>'
             f'<p class="lede">{t["lede"]}</p>' + "".join(parts) +
