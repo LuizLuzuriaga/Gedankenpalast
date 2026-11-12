@@ -19,7 +19,7 @@ def py_to_ipynb(py, ipynb, execute=True):
             cells.append(nbformat.v4.new_code_cell(body))
     nb = nbformat.v4.new_notebook(cells=cells, metadata={"kernelspec": {"name": "python3", "display_name": "Python 3", "language": "python"}})
     if execute:
-        NotebookClient(nb, timeout=300, kernel_name="python3", resources={"metadata": {"path": str(pathlib.Path(py).parent)}}).execute()
+        NotebookClient(nb, timeout=900, kernel_name="python3", resources={"metadata": {"path": str(pathlib.Path(py).parent)}}).execute()
     nbformat.write(nb, ipynb)
     return nb
 

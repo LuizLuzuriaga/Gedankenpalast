@@ -1,0 +1,263 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
+\newcommand{\euro}{\texteuro}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\TVaR}{\mathrm{TVaR}}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
+
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 6: Preguntas de debate}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas argumentadas a las cuatro preguntas de debate del tema. Tema 6 (Dependencia no lineal y modelización de colas con cópulas): simplicidad regulatoria de la fórmula estándar, decisiones sobre el capital adicional, validación de la cola con pocos datos y otros pares de riesgos con contagio.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: cópulas, dependencia de cola, capital de solvencia, validación, debate.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class debate for Topic 6 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: regulatory simplicity, tail-dependence capital, validation with limited data and other contagion pairs.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: copulas, tail dependence, solvency capital, validation, debate.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+\section{Tema 6: Dependencia no lineal y modelización de colas con cópulas}
+\label{sec:tema6debate}
+\noindent
+Respuestas argumentadas a las cuatro preguntas para el debate en clase. Material de referencia: diapositivas del Tema 6 (Prof. Hugo González Riera). Las cifras proceden del taller (Excel, Python y R).
+
+\subsection{Debate 1 -- \textquestiondown{}Por qué la fórmula estándar sigue usando agregación tipo Gaussiana?}
+
+\noindent\textbf{Enunciado.} \textquestiondown{}Por qué crees que la fórmula estándar de Solvencia II sigue usando una agregación tipo Gaussiana (sin dependencia de cola) pese a sus limitaciones conocidas? \textquestiondown{}Qué argumentos de simplicidad regulatoria hay en juego?
+
+\paragraph{Planteamiento.} Se separa lo que hace que la fórmula sea deseable como estándar (argumentos a favor) de su coste en riesgo de modelo, que se cuantifica.
+
+\subsubsection*{1. Argumentos a favor de mantenerla}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Transparencia y comparabilidad.} Una fórmula cerrada, con una matriz de correlaciones prescrita, produce el mismo SCR para dos entidades con el mismo perfil: condición de \guillemotleft{}campo de juego nivelado\guillemotright{} entre 27 Estados miembros.
+\item \textbf{Auditabilidad y coste.} Se reproduce en una hoja de cálculo; no exige simulación ni validación estadística. Para la gran mayoría de aseguradoras pequeñas y medianas es la única opción proporcionada.
+\item \textbf{Agregación jerárquica y asignación.} La raíz cuadrada se aplica por niveles (riesgos, módulo, BSCR, SCR) y permite asignar el capital por Euler. Una cópula con cola obligaría a simular el conjunto y a decidir quién \guillemotleft{}contribuye\guillemotright{} a la cola.
+\item \textbf{Calibración sin datos suficientes.} Los riesgos de baja frecuencia no tienen historia conjunta para estimar $\lambda$ (ver Debate 3); un único parámetro por par ($\rho_{ij}$) es lo máximo que se puede defender con datos europeos.
+\item \textbf{Prudencia incorporada.} Los coeficientes prescritos se calibraron con criterio de prudencia (según la documentación de calibración de EIOPA/CEIOPS), en parte para recoger la dependencia en estrés; y el regulador abre la válvula: modelos internos totales o parciales, con carga de la prueba en la entidad.
+\item \textbf{Estabilidad.} Evita que el SCR cambie por la elección de una familia de cópulas, que es una decisión de modelización difícil de contrastar.
+\end{itemize}
+
+\subsubsection*{2. Qué cuesta (riesgo de modelo)}
+La fórmula es exacta solo para estructuras elípticas (ver Repaso~2). Con la misma dependencia media ($\tau$ de Kendall igual):
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Caso & Fórmula estándar & Con cola & Diferencia\\
+\midrule
+2 módulos (40; 30), Clayton rotada & 55,68 & 62,00 & $+11{,}3\%$\\
+4 módulos (40; 30; 20; 10), $t$ con $\nu=4$ & 70,00 & 75,99 & $+8{,}6\%$\\
+4 módulos, $t$ con $\nu=10$ & 70,00 & 72,45 & $+3{,}5\%$\\
+4 módulos, Clayton rotada & 70,00 & 81,78 & $+16{,}8\%$\\
+4 módulos, Gumbel & 70,00 & 84,32 & $+20{,}5\%$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Y la probabilidad de que los cuatro módulos superen a la vez su percentil 99 pasa de $0{,}8$ por cada 100.000 escenarios (Gaussiana) a $23{,}7$ ($t$, $\nu=4$), $41{,}5$ (Clayton rotada) y $127$ (Gumbel). Las arquimedianas usan un único $\theta$ para todos los pares: son escenarios de estrés, no calibraciones.
+
+\subsubsection*{3. Una lectura equilibrada}
+La simplicidad regulatoria es un \emph{bien público} (comparabilidad, supervisión, proporcionalidad) pagado con riesgo de modelo que la propia norma reconoce en el ORSA (evaluación de la desviación del perfil de riesgo respecto a los supuestos del SCR, art.~45.1.c) y en el proceso de aprobación de modelos internos. El problema no es que la fórmula sea Gaussiana, sino que se interprete su resultado como el capital \guillemotleft{}verdadero\guillemotright{} y no como un \emph{mínimo regulatorio razonable} que la entidad debe contrastar con su perfil, sobre todo cuando el contagio es conocido.
+
+\paragraph{Conclusión.} Se mantiene por simplicidad, comparabilidad y proporcionalidad, con la salvaguarda de los modelos internos y el ORSA; su coste (de $+4$ a $+20\%$ de capital en nuestros ejemplos) es el precio de esa simplicidad.
+
+\subsection{Debate 2 -- Decisiones con los 7,24 M\euro{} de capital adicional}
+
+\noindent\textbf{Enunciado.} En el Caso 1, \textquestiondown{}qué decisiones de negocio podrían tomarse con los 7,24 M\euro{} de capital adicional identificado bajo Clayton: reaseguro, cambios en la política de inversión, límites de suscripción?
+
+\paragraph{Planteamiento.} Primero se cuantifica el coste y el reparto de ese capital; después se evalúan las palancas por su efecto sobre la \emph{cola conjunta}, no sobre el promedio.
+
+\subsubsection*{1. Coste y reparto}
+Al 6\,\% de coste de capital, 7,24 M\euro{} cuestan $0{,}434$ M\euro{} al año: es el \emph{presupuesto máximo} razonable para cubrir ese riesgo antes de que la cobertura deje de compensar. Su reparto (esperanza condicionada al VaR 99,5\,\%) no es proporcional al SCR individual:
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+ & VaR 99,5\,\% & Mercado & Suscripción\\
+\midrule
+Gaussiana & 55,71 & 34,20 (61,4\,\%) & 21,48 (38,6\,\%)\\
+Clayton rotada & 62,07 & 36,61 (59,0\,\%) & 25,46 (41,0\,\%)\\
+\emph{Incremento} & \emph{6,36} & \emph{2,41 (38\,\%)} & \emph{3,98 (62\,\%)}\\
+\bottomrule
+\end{tabular}
+\end{center}
+El \textbf{62\,\% del recargo de cola recae en suscripción}, aunque su SCR es el menor: en la cola conjunta, suscripción es la que más se arrastra. Es una pista de dónde actuar.
+
+\subsubsection*{2. Palancas}
+\begin{enumerate}[leftmargin=*,itemsep=3pt]
+\item \textbf{Reaseguro.} Lo que reduce la cola conjunta no es el reaseguro proporcional (reduce ambos de forma parecida) sino el \emph{no proporcional}: \emph{stop-loss} agregado o XL por evento que limite la suscripción en el escenario adverso. Cada euro de recargo de capital evitado vale $6\%$ al año: una cobertura que recorte, por ejemplo, 3 M\euro{} de capital se justifica si su coste neto es inferior a $0{,}18$ M\euro/año. Hay que descontar el riesgo de contraparte del reasegurador, que es otro ejemplo de dependencia de cola (Debate~4).
+\item \textbf{Política de inversión.} Reducir la beta de renta variable o cubrirla con opciones \emph{put} (coste de la prima frente a capital liberado), acortar el riesgo de crédito y aumentar liquidez. El objetivo es reducir la pata \emph{mercado} del evento conjunto; como la cola de mercado aporta el 59\,\% del VaR, es la palanca más grande en euros.
+\item \textbf{Límites de suscripción.} Topes de exposición por zona, ramo y cliente en los ramos sensibles a la crisis (caución, crédito, responsabilidad civil de directivos) y revisión de precios: la tarifa debe incorporar un \emph{margen de cola} (no solo la correlación media).
+\item \textbf{Capital y gobierno.} Mantener el colchón en fondos propios o en capital contingente, fijar umbrales de aviso en el ORSA y definir acciones de gestión previas (reducir dividendos, recomprar reaseguro).
+\item \textbf{Modelo.} Antes de gastar, validar la cola: el $+13\%$ es ilustrativo (la simulación con igual $\tau$ da $+11\%$ en VaR y $+13\%$ en TVaR) y su valor depende de $\theta$ (para un $+13\%$ en VaR basta $\theta\approx0{,}45$, $\lambda_U\approx0{,}21$).
+\end{enumerate}
+
+\paragraph{Conclusión.} El criterio no es \guillemotleft{}cubrir los 7,24 M\euro\guillemotright{}, sino comparar el coste de cada palanca con el coste de capital que libera (6\,\%), priorizando las que actúan sobre la cola conjunta (reaseguro no proporcional en suscripción, cobertura de renta variable) y reflejando el recargo en el precio.
+
+\subsection{Debate 3 -- \textquestiondown{}Cómo validar con pocos datos si hay dependencia de cola?}
+
+\noindent\textbf{Enunciado.} \textquestiondown{}Cómo podrías validar, con datos históricos limitados (típico en riesgos de baja frecuencia), si la verdadera estructura de dependencia entre dos riesgos tiene o no dependencia de cola?
+
+\paragraph{Planteamiento.} Honestidad estadística: con pocos datos la cola no se \emph{demuestra}; lo que se hace es acotar su plausibilidad, medir la incertidumbre y gestionar el riesgo de modelo. Se cuantifica con la muestra del ejercicio.
+
+\subsubsection*{1. El estimador empírico es muy ruidoso}
+$\hat\lambda(q)=P(V>q\mid U>q)$ en la muestra ($n=1.500$) con IC al 95\,\% por \emph{bootstrap} (1.000 remuestreos):
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+$q$ & Puntos en la cola & $\hat\lambda(q)$ & IC 95\,\%\\
+\midrule
+0,90 & 150 & 0,467 & [0,407; 0,544]\\
+0,95 & 75 & 0,360 & [0,253; 0,453]\\
+0,99 & 15 & 0,267 & [0,067; 0,533]\\
+\bottomrule
+\end{tabular}
+\end{center}
+A $q=0{,}99$ el intervalo va de $0{,}07$ a $0{,}53$: compatible con independencia casi total y con un contagio fuerte. Nada se aprende de un solo $q$.
+
+\subsubsection*{2. Qué sí se puede hacer}
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{Perfil $\hat\lambda(q)$ y $\hat\chi(q)$ para varios $q$} con IC: comprobar si el perfil converge a un valor positivo o decae a 0 (a $\tau=0{,}5$ la Gaussiana sigue en $\approx0{,}28$ a $q=0{,}99$ pese a $\lambda=0$: la convergencia es lentísima, no basta una cifra).
+\item \textbf{Comparar modelos con y sin cola} con la \emph{misma} base de datos: AIC/BIC y contraste de razón de verosimilitudes (la Gaussiana es el límite $\nu\to\infty$ de la $t$), más bondad de ajuste $S_n$ (p-valores por \emph{bootstrap}). En nuestro ejercicio: $2\Delta\ell=11{,}95$, $\Delta$AIC $=9{,}95$, $\hat\nu=15{,}6$; pero la Gaussiana tampoco se rechaza ($p=0{,}96$).
+\item \textbf{Potencia.} Con $\rho=0{,}7$ (60 réplicas por caso), el AIC elige la $t$ frente a la Gaussiana en el $47\%$ de las muestras con $n=250$ y $\nu=15$, en el $100\%$ con $n=1.500$ y $\nu=15$, y en el $98$--$100\%$ con $\nu=4$. Si el generador es Gaussiano elige la $t$ en el $10\%$ (error de tipo I). Con colas débiles y muestras pequeñas no hay potencia: no rechazar la Gaussiana no demuestra que no haya cola.
+\item \textbf{Aprovechar la estructura de valores extremos.} Estimar con POT (Tema 5) las marginales y usar excedencias conjuntas por encima de umbrales altos (modelos bivariantes de extremos, función de dependencia de Pickands, $\eta$ de Ledford--Tawn) en lugar del cuerpo de la distribución.
+\item \textbf{Aumentar los datos}: periodos de estrés específicos, datos de grupo o de mercado, series externas homogeneizadas, simulaciones de escenarios físicos o económicos (catastróficos, crisis).
+\item \textbf{Argumento causal}: contagio por un canal real (litigiosidad, impago del reasegurador) vale más que un estadístico. Si hay un mecanismo, se modela una cola aunque la muestra no la detecte.
+\item \textbf{Sensibilidad y prudencia.} Si no se puede probar ni descartar la cola, se acota: calcular el capital con Gaussiana, $t$ y Gumbel, usar la peor o un promedio y publicar el rango en el ORSA; \emph{reverse stress test} de coincidencia de extremos.
+\end{enumerate}
+
+\paragraph{Conclusión.} Con datos limitados la pregunta correcta no es \guillemotleft{}\textquestiondown{}hay cola?\guillemotright{} sino \guillemotleft{}\textquestiondown{}cuánto capital cambia si la hay, y qué evidencia hay en contra?\guillemotright{}. Se valida combinando perfil $\hat\lambda(q)$ con IC, selección de modelos y potencia, extremos bivariantes, juicio experto causal y sensibilidad.
+
+\subsection{Debate 4 -- Otros pares de riesgos con dependencia de cola}
+
+\noindent\textbf{Enunciado.} \textquestiondown{}Qué otros pares de riesgos, además de mercado--siniestralidad, sospechas que podrían tener dependencia de cola relevante para una aseguradora o un banco?
+
+\paragraph{Planteamiento.} Se propone una lista con el \emph{canal} que genera la cola, el signo de la cola en pérdidas y la familia que se probaría primero.
+
+\begin{center}
+\small
+\begin{tabular}{p{3.6cm}p{5.4cm}p{3.2cm}}
+\toprule
+Par de riesgos & Canal de contagio & Cola/familia a probar\\
+\midrule
+Catastrófico natural -- contraparte del reaseguro & Gran siniestro y rebaja de rating o retraso de pago del reasegurador a la vez (riesgo de camino equivocado) & Superior; Gumbel, $t$\\
+Hogar -- Autos (granizo, inundación) & Un mismo evento climático dispara ambos ramos & Superior; Gumbel\\
+Pandemia: mortalidad -- salud -- interrupción de negocio -- crédito & Un \emph{shock} común sistémico & $t$ con $\nu$ bajo; vines\\
+Tipos de interés -- caída de renta variable -- caducidad masiva (vida) & Crisis financiera con salidas de ahorro y devaluación de activos & Superior; $t$\\
+Crédito -- renta variable (cartera de inversión) & Ampliación de \emph{spreads} y caída bursátil en crisis & Superior de pérdidas; Gumbel/$t$\\
+Inflación social -- responsabilidad civil -- daños materiales & Alza común de costes de reparación, indemnizaciones y litigiosidad & Superior; $t$\\
+Ciber: pérdidas de asegurados distintos & Un mismo proveedor, fallo o vulnerabilidad afecta a muchos clientes & Superior; Gumbel jerárquica\\
+Crédito/caución -- ciclo económico & Quiebras encadenadas y sequía de financiación & Superior; $t$\\
+Banca: soberano -- banca doméstica (\emph{doom loop}) & Deuda pública en el balance bancario y rescates & Superior; asimétrica\\
+Banca: inmobiliario -- hipotecas -- empleo & Caída de precios y desempleo simultáneos & Superior; $t$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Cómo decidir.} (i) Hay un canal causal creíble. (ii) El contagio es en la dirección adversa y, por tanto, la cola de pérdidas es la superior; se rota la cópula si se trabaja con rentabilidades. (iii) Se contrasta con datos (perfil $\hat\lambda(q)$, AIC, potencia) o con escenarios. (iv) En dimensión $d>2$ se prefieren $t$ agrupada, HAC o vines si los pares son heterogéneos.
+
+\paragraph{Conclusión.} La dependencia de cola aparece donde un \emph{factor común} (clima, crisis financiera, pandemia, fallo tecnológico, solvencia del reasegurador) conecta riesgos que en tiempos normales parecen independientes; son justo los que la agregación Gaussiana no ve.
+
+\subsubsection*{Referencias}
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+\item Sklar, A. (1959). Fonctions de r\'epartition \`a $n$ dimensions et leurs marges. \emph{Publ. Inst. Statist. Univ. Paris}, 8.
+\item Nelsen, R. B. \emph{An Introduction to Copulas}. Springer.
+\item Embrechts, P., McNeil, A. y Straumann, D. (2002). Correlation and dependence in risk management: properties and pitfalls.
+\item McNeil, A. J., Frey, R. y Embrechts, P. \emph{Quantitative Risk Management}. Princeton University Press.
+\item Li, D. X. (2000). On default correlation: a copula function approach. \emph{Journal of Fixed Income}, 9(4).
+\item Genest, C., Ghoudi, K. y Rivest, L.-P. (1995). A semiparametric estimation procedure of dependence parameters in multivariate families of distributions. \emph{Biometrika}, 82.
+\item Demarta, S. y McNeil, A. J. (2005). The $t$ copula and related copulas. \emph{International Statistical Review}, 73.
+\item Directiva 2009/138/CE (Solvencia II) y Reglamento Delegado (UE) 2015/35.
+\end{itemize}
+
+\end{document}

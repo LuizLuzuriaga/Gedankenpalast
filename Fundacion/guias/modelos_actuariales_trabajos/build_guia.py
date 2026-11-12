@@ -77,7 +77,7 @@ def r_output(slug):
 
 # ---------- carga de temas ----------
 TEMAS = []
-for n in range(1, 6):
+for n in range(1, 7):
     try: TEMAS.append(importlib.import_module(f"content_t{n}").T)
     except ModuleNotFoundError: pass
 
@@ -146,7 +146,7 @@ def build():
     body = mapa() + "".join(sec_tema(t) for t in TEMAS) + sec_trabajos()
     doc = f'''<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Guía de Matemática Actuarial de la Estabilidad y Solvencia: utilidad, modelo individual y colectivo, medidas de riesgo y valores extremos, con trabajos resueltos en PDF, Excel, Python y R.">
+<meta name="description" content="Guía de Matemática Actuarial de la Estabilidad y Solvencia: utilidad, modelo individual y colectivo, medidas de riesgo, valores extremos y cópulas, con trabajos resueltos en PDF, Excel, Python y R.">
 <title>Matemática actuarial de la solvencia (No Vida II)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -158,7 +158,7 @@ def build():
 <div class="wrap"><header class="hero"><div class="eyebrow">Máster CC. Actuariales y Financieras · UAH · Prof. Hugo González Riera</div>
 <h1>Matemática Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora</h1>
 <div class="eyebrow">(Matemática No Vida II)</div>
-<p class="lede">Guía de estudio de los cinco temas del bloque de teoría del riesgo: utilidad y reaseguro, modelo individual, modelo colectivo, medidas de riesgo coherentes y valores extremos. Cada tema se explica y se acompaña de las respuestas a las preguntas de repaso y debate y del ejercicio práctico en Excel, Python y R.</p>
+<p class="lede">Guía de estudio de los seis temas del bloque de teoría del riesgo: utilidad y reaseguro, modelo individual, modelo colectivo, medidas de riesgo coherentes, valores extremos y dependencia con cópulas. Cada tema se explica y se acompaña de las respuestas a las preguntas de repaso y debate y del ejercicio práctico en Excel, Python y R.</p>
 <div class="hero-meta"><span class="chip">Trabajos de <b>Luiz Luzuriaga</b></span><span class="src">PDF en LaTeX · Excel · Python · R</span></div></header>
 {body}
 <footer class="foot"><div>Fuentes: diapositivas del Máster en Ciencias Actuariales y Financieras (Universidad de Alcalá). Elaboración propia: Luiz Luzuriaga.</div></footer></div></body></html>'''

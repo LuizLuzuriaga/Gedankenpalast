@@ -1,0 +1,269 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{ragged2e}
+\usepackage[spanish]{babel}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage{textcomp}
+\newcommand{\euro}{\texteuro}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\VaR}{\mathrm{VaR}}
+\newcommand{\TVaR}{\mathrm{TVaR}}
+\addto\captionsspanish{\renewcommand{\tablename}{Tabla}}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+\captionsetup{font=small,labelfont=bf}
+
+% Configuración de márgenes
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+% Configuración de encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Configuración de interlineado
+\onehalfspacing
+\justifying
+
+% Configuración de hipervínculos
+\hypersetup{
+    hidelinks,
+    colorlinks=false
+}
+
+\begin{document}
+
+% Primera página (Título, Resumen y Abstract)
+\begin{titlepage}
+    \centering
+    \vspace*{0.1cm}
+    \huge\textbf{Tema 6: Preguntas de repaso}\\
+    \vspace{1cm}
+    \small{Luiz Alberto Luzuriaga Izquierdo}\\
+    \vspace{0.1cm}
+    Facultad de ciencias económicas, empresariales y turismo. \\
+    \vspace{0.1cm}
+    Universidad de Alcalá de Henares. \\
+    \vspace{0.1cm}
+    Curso 2026-2027\\
+    \vspace{0.5cm}
+
+{\bfseries Resumen}
+
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Respuestas razonadas a las tres preguntas de repaso del tema. Tema 6 (Dependencia no lineal y modelización de colas con cópulas): correlación nula con dependencia de cola, la fórmula estándar de Solvencia II como cópula Gaussiana y la elección de familia para crédito y mercado.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Palabras clave}: cópulas, dependencia de cola, Solvencia II, correlación, preguntas de repaso.
+\end{justify}
+\begin{center}
+    {\bfseries Abstract}
+\end{center}
+\vspace{0.1cm}
+\noindent
+\begin{justify}
+Class work for Topic 6 of Actuarial Mathematics of Stability and Solvency of Insurance Activity: review questions on copulas and tail dependence with actuarial reasoning and numerical evidence.\\\\
+\vspace{0.1cm}
+\noindent
+\textbf{Keywords}: copulas, tail dependence, Solvency II, correlation, review questions.
+\end{justify}
+
+\end{titlepage}
+
+% Índice
+\newpage\pagenumbering{gobble}
+\renewcommand{\contentsname}{Índice}
+\newgeometry{left=4cm, right=4cm, top=3cm, bottom=2.5cm}
+\tableofcontents
+
+\restoregeometry
+\newpage
+\numberwithin{equation}{section}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+\section{Tema 6: Dependencia no lineal y modelización de colas con cópulas}
+\label{sec:tema6repaso}
+\noindent
+Respuestas razonadas a las tres preguntas de repaso del tema. Material de referencia: diapositivas del Tema 6 (Prof. Hugo González Riera). Las cifras proceden del taller (Excel, Python y R) con las mismas semillas y datos.
+
+\subsection{Pregunta 1 -- $\rho=0$ pero $\lambda_U>0$: significado y ejemplo de negocio}
+
+\noindent\textbf{Enunciado.} Explica con tus propias palabras qué significa que dos variables tengan $\rho=0$ pero $\lambda_U>0$, y pon un ejemplo de negocio donde esto sería relevante.
+
+\paragraph{Planteamiento.} Son dos afirmaciones sobre objetos distintos: $\rho$ es un promedio lineal sobre toda la distribución conjunta; $\lambda_U$ es el límite de una probabilidad condicionada en la cola. Que ambas sean compatibles no es una paradoja: es la razón de ser de las cópulas.
+
+\subsubsection*{1. Qué dice cada número}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item $\rho(X,Y)=\operatorname{Cov}(X,Y)/(\sigma_X\sigma_Y)=0$: no hay tendencia \emph{lineal} a que $X$ e $Y$ se muevan juntas \emph{en promedio}. No implica independencia (el ejemplo clásico es $Y=X^2$: dependencia exacta y, en la simulación, $\rho\approx0{,}00$ y $\rho_S\approx0{,}00$).
+\item $\lambda_U=\lim_{u\to1^-}P(V>u\mid U>u)>0$: si un riesgo ya está en su peor escenario, la probabilidad de que el otro también lo esté \emph{no se desvanece} al endurecer el escenario. Con independencia, $P(V>u\mid U>u)=1-u\to0$.
+\end{itemize}
+Pueden coexistir porque el número $\rho$ mezcla todas las regiones del plano: en el centro y en los cuadrantes de signo contrario puede cancelar lo que ocurre en la cola.
+
+\subsubsection*{2. Un ejemplo explícito: la cópula $t$ con $\rho=0$}
+En la cópula $t$ con parámetros $(\rho,\nu)$,
+\[
+\lambda_U=\lambda_L=2\,t_{\nu+1}\!\left(-\sqrt{\frac{(\nu+1)(1-\rho)}{1+\rho}}\right),\qquad
+\rho=0\;\Rightarrow\;\lambda=2\,t_{\nu+1}(-\sqrt{\nu+1}).
+\]
+Con $\nu=4$: $\lambda=2\,t_5(-\sqrt5)=0{,}0756$. Se genera con un factor común: $(Z_1,Z_2)\sim N(0,I)$ independientes y $W\sim\chi^2_\nu/\nu$ común, $T_i=Z_i/\sqrt W$. Cuando $W$ es pequeño, \emph{ambas} coordenadas se inflan a la vez; $\operatorname{Cov}(T_1,T_2)=0$, pero $\operatorname{Cov}(T_1^2,T_2^2)>0$: hay dependencia en las \emph{magnitudes}.
+
+Simulación con $2\cdot10^6$ pares (cópula $t$, $\rho=0$, $\nu=4$):
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+ & $q=0{,}95$ & $q=0{,}99$ & $q=0{,}999$\\
+\midrule
+$P(V>q\mid U>q)$ & 0,127 & 0,093 & 0,082\\
+Si fueran independientes ($1-q$) & 0,050 & 0,010 & 0,001\\
+Razón & $\times2{,}5$ & $\times9$ & $\times82$\\
+\bottomrule
+\end{tabular}
+\end{center}
+La correlación de Pearson de las normalizadas es $0{,}002$, la de Spearman $0{,}001$ y $\tau=-0{,}000$: ninguna medida de asociación media ve nada, y sin embargo, a $q=0{,}999$, un extremo arrastra a otro con probabilidad 82 veces mayor que la independiente.
+
+\paragraph{Por qué la correlación cancela.} La cópula $t$ es simétrica: infla por igual los cuadrantes $(+,+)$ y $(+,-)$. Para pérdidas, solo el cuadrante conjunto importa; por eso el negocio necesita cópulas asimétricas (Gumbel, Clayton rotada) cuando se sabe que el contagio es \emph{en la dirección adversa}.
+
+\subsubsection*{3. Efecto sobre el capital}
+Con los SCR del Caso 1 (mercado 40, suscripción 30 M\euro) y marginales normales, la independencia ($\rho=0$) da $\sqrt{40^2+30^2}=50{,}00$ M\euro. Con cópula $t$ ($\rho=0$, $\nu=4$) el VaR 99,5\,\% simulado es $54{,}97$ M\euro ($+9{,}9\%$): \textbf{4,97 M\euro de capital} que la fórmula con $\rho=0$ no ve.
+
+\subsubsection*{4. Ejemplo de negocio}
+Riesgo catastrófico natural (inundación, granizo) y riesgo de contraparte del reasegurador (o impago de los derivados de cobertura): en tiempos normales sus series no se relacionan ($\rho\approx0$), pero una catástrofe grande \emph{coincide} con rebajas de rating, litigios y retrasos de pago del reaseguro justo cuando más se necesita. Es el mismo mecanismo de \guillemotleft{}riesgo de camino equivocado\guillemotright{} que en banca: la exposición crece cuando la solvencia de la contraparte cae.
+
+\subsubsection*{5. Cuidado con el valor asintótico}
+Con $\rho=0$ y $\nu=15$ el límite es $\lambda=0{,}0010$ (casi nulo) y con $\nu=10$, $0{,}0069$. Lo relevante para un SCR 99,5\,\% no es el límite sino la probabilidad condicionada a $q$ finito (aquí $0{,}09$ a $q=0{,}99$). Con datos reales el $q=0{,}99$ se apoya en pocos puntos (en una muestra de $n=1.500$, 15), de modo que el estimador es muy ruidoso (ver Debate~3).
+
+\paragraph{Conclusión.} $\rho=0$ más $\lambda_U>0$ significa \guillemotleft{}sin tendencia lineal media, pero con \emph{acumulación en los extremos}\guillemotright{}. Es el punto ciego de Pearson y el motivo para estimar y vigilar la dependencia de cola.
+
+\subsection{Pregunta 2 -- \textquestiondown{}Por qué la fórmula estándar de Solvencia II es una cópula Gaussiana?}
+
+\noindent\textbf{Enunciado.} \textquestiondown{}Por qué se dice que la fórmula estándar de Solvencia II es, matemáticamente, una cópula Gaussiana? \textquestiondown{}Qué implicación tiene esto para las líneas de negocio con riesgo de contagio extremo?
+
+\paragraph{Planteamiento.} Se demuestra en qué condiciones $SCR=\sqrt{\sum_{ij}\rho_{ij}SCR_iSCR_j}$ \emph{es} el VaR 99,5\,\% de la suma, se comprueba por simulación qué pasa fuera de esas condiciones y se cuantifica lo que cuesta ignorar el contagio.
+
+\subsubsection*{1. La demostración}
+Sea $L=(L_1,\dots,L_d)\sim N(0,\Sigma)$ con $\sigma_i=SCR_i/z_{0{,}995}$ y matriz de correlación $P$. La suma $S=\sum_iL_i$ es normal con $\operatorname{Var}(S)=\sum_{ij}\rho_{ij}\sigma_i\sigma_j$, luego
+\[
+\operatorname{VaR}_{99{,}5\%}(S)=z_{0{,}995}\sqrt{\sum_{ij}\rho_{ij}\sigma_i\sigma_j}=\sqrt{\sum_{ij}\rho_{ij}SCR_iSCR_j}.
+\]
+Normal multivariante = marginales normales + cópula Gaussiana con matriz $P$. La fórmula estándar \emph{es} ese cálculo, con $P$ prescrita por el regulador.
+
+\paragraph{Generalización.} El resultado vale para cualquier distribución \emph{elíptica} (también la $t$ multivariante): toda combinación lineal $w^\top L$ es una variable de la misma familia escalada por $\sqrt{w^\top\Sigma w}$; si las marginales se calibran en el mismo cuantil, $\operatorname{VaR}(S)=\sqrt{SCR^\top P\,SCR}$. Es decir, lo que la fórmula supone no es solo \guillemotleft{}Gaussiana\guillemotright{} sino \emph{elipticidad} (en particular, ausencia de asimetría y de cola conjunta distinta de la marginal).
+
+\subsubsection*{2. Comprobación por simulación (Caso 1, $2\cdot10^6$ escenarios)}
+\begin{center}
+\small
+\begin{tabular}{lcr}
+\toprule
+Modelo para $(L_{mkt},L_{uw})$ con $\rho=0{,}25$ & Elíptico & VaR 99,5\,\% (M\euro)\\
+\midrule
+Fórmula estándar & -- & 55,68\\
+(a) Normal bivariante & sí & 55,75\\
+(b) $t$ bivariante, $\nu=4$ & sí & 56,02\\
+(c) Cópula $t(\nu=4)$ con marginales normales & no & 59,80\\
+(d) Cópula Gaussiana, marginales lognormales $\sigma=0{,}8$ & no & 54,38\\
+(d') Cópula Gaussiana, marginales lognormales $\sigma=1{,}2$ & no & 53,90\\
+(e) Cópula Gaussiana, marginales Pareto $\alpha=3$ & no & 54,36\\
+\bottomrule
+\end{tabular}
+\end{center}
+(a) y (b) reproducen la fórmula (la diferencia en (b) es el error de Monte Carlo de un cuantil 99,5\,\% de una $t_4$). En cuanto se sale de la familia elíptica la fórmula deja de ser exacta: con cola de dependencia (c) \textbf{infravalora} ($+7{,}4\%$); con marginales asimétricas (d,e) la \textbf{sobrevalora} ($-2$ a $-3\%$). La fórmula no es ni conservadora ni prudente \guillemotleft{}por construcción\guillemotright{}: depende de la estructura real.
+
+\subsubsection*{3. Implicación para líneas con contagio extremo}
+La cópula Gaussiana es asintóticamente independiente ($\lambda=0$ si $\rho<1$), de modo que \textbf{da por hecho} que el beneficio de diversificación del nivel medio (aquí $70-55{,}68=14{,}32$ M\euro, el 20,5\,\%) se mantiene en el percentil 99,5. Con una Clayton rotada de la \emph{misma} $\tau$ de Kendall ($\theta=0{,}383$, $\lambda_U=0{,}16$) el VaR simulado es $62{,}00$ ($+11{,}3\%$) y el beneficio cae a $70-62{,}00=8{,}00$ M\euro: \textbf{se evapora el 44\,\% de la diversificación} precisamente en el escenario que fija el capital. El TVaR 99,5\,\% sube de $62{,}57$ a $70{,}76$ ($+13{,}1\%$), que coincide con el recargo del $13\%$ del Caso~1.
+
+\paragraph{Qué hacer.} (i) Si la entidad usa fórmula estándar, evaluar en el ORSA la desviación del perfil de riesgo respecto a los supuestos del SCR (art.~45.1.c de la Directiva 2009/138/CE) con tablas de sensibilidad a la cola; (ii) para los módulos con contagio conocido (mercado--suscripción de caución o crédito, catastrófico--contraparte) aplicar un modelo interno parcial con cópulas con cola; (iii) justificar ante el supervisor cualquier cópula distinta de la implícita (carga de la prueba en la aseguradora).
+
+\subsection{Pregunta 3 -- Clayton, Gumbel o $t$-Student para crédito y mercado}
+
+\noindent\textbf{Enunciado.} Si tuvieras que elegir entre Clayton, Gumbel y una $t$-Student para modelar la dependencia entre el riesgo de crédito y el de mercado de una cartera de inversión, \textquestiondown{}cuál elegirías y por qué?
+
+\paragraph{Planteamiento.} Se razona sobre las pérdidas (cola superior), se compara qué ofrece cada familia, se comprueba por simulación si los datos permiten distinguirlas y se concluye con una recomendación y su contraste.
+
+\subsubsection*{1. Qué necesita el negocio}
+Pérdidas de crédito (ampliación de \emph{spreads}, impagos) y de renta variable: en las crisis financieras se materializan a la vez; en las fases de euforia, una caída conjunta de pérdidas no pone en riesgo la solvencia. El interés está, por tanto, en la \textbf{cola superior de las pérdidas}, que puede ser distinta de la inferior.
+
+\subsubsection*{2. Qué ofrece cada familia (misma $\tau=0{,}5$)}
+\begin{center}
+\small
+\begin{tabular}{lcccp{5.6cm}}
+\toprule
+Familia & Parámetros & $\lambda_L$ & $\lambda_U$ & Comentario\\
+\midrule
+Clayton (sobre rentabilidades) & $\theta=2$ & 0,707 & 0 & Cola inferior de rentabilidad = pérdidas conjuntas si se rota; asimétrica\\
+Gumbel (sobre pérdidas) & $\theta=2$ & 0 & 0,586 & Cola superior de pérdidas; asimétrica\\
+$t$ ($\nu=15$) & $\rho=0{,}707,\nu$ & 0,117 & 0,117 & Cola simétrica y débil\\
+$t$ ($\nu=4$) & $\rho=0{,}707,\nu$ & 0,397 & 0,397 & Cola simétrica fuerte\\
+\bottomrule
+\end{tabular}
+\end{center}
+Clayton y Gumbel son \emph{intercambiables} en $d>2$ (un único $\theta$) y solo admiten dependencia positiva; la $t$ tiene una matriz $P$ completa (cada par su $\rho$), pero un único $\nu$.
+
+\subsubsection*{3. \textquestiondown{}Los datos distinguen las familias? (simulación, $n=1.500$)}
+AIC (menor es mejor) de cada modelo ajustado a muestras generadas con distintas verdades:
+\begin{center}
+\small
+\begin{tabular}{lrrr}
+\toprule
+ & Verdad: Gumbel $\theta=1{,}8$ & Verdad: Clayton rot.\ $\theta=1{,}2$ & Verdad: Gaussiana $\rho=0{,}68$\\
+\midrule
+Gaussiana & $-861{,}1$ & $-512{,}8$ & $\mathbf{-888{,}3}$\\
+$t$-Student & $-886{,}0$ ($\hat\nu=8{,}2$) & $-534{,}1$ ($\hat\nu=7{,}8$) & $-885{,}3$ ($\hat\nu=129$)\\
+Clayton & $-510{,}6$ & $-187{,}2$ & $-644{,}6$\\
+Clayton rotada & $-880{,}7$ & $\mathbf{-737{,}2}$ & $-660{,}8$\\
+Gumbel & $\mathbf{-944{,}1}$ & $-685{,}4$ & $-795{,}7$\\
+Frank & $-803{,}1$ & $-484{,}0$ & $-819{,}2$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Con asimetría real y $n=1.500$ el AIC la detecta con claridad: la $t$ intenta imitar la cola con $\hat\nu\approx8$ pero pierde unos 58 puntos frente a la familia correcta; con datos gaussianos la $t$ se degenera ($\hat\nu=129$) y la Gaussiana gana.
+
+\subsubsection*{4. Qué cuesta equivocarse (ejercicio de ajuste, VaR 99,5\,\% de $X+Y$, muestra $t_{15}$)}
+Elegir una cola \emph{con la orientación equivocada} es lo más caro: Clayton sin rotar $-13{,}2\%$ (respecto a la $t$ ajustada), Frank (sin cola) $-8{,}4\%$, Gaussiana $-1{,}2\%$, Clayton rotada $+4{,}6\%$, Gumbel $+3{,}9\%$.
+
+\subsubsection*{5. Recomendación}
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{Modelo base: cópula $t$} (matriz $P$ ajustada por pares, $\nu$ estimado), porque crédito y mercado se mueven juntos en ambas direcciones, se generaliza a $d$ riesgos, se calibra con una matriz de correlación coherente con el marco regulatorio y su $\nu$ cuantifica el contagio.
+\item \textbf{Alternativa/estrés: Gumbel sobre pérdidas} (o Clayton rotada) si el contraste de asimetría de las colas lo apoya: es más severa a igual $\tau$ y es la prueba de robustez habitual.
+\item Decidir con AIC/BIC, bondad de ajuste ($S_n$), $\lambda$ empírico con IC y sensibilidad del capital; \textbf{no} Gaussiana ni Frank como modelo final si hay evidencia de cola; \textbf{nunca} Clayton sin rotar con pérdidas.
+\end{enumerate}
+\paragraph{Conclusión.} La $t$ es la mejor opción como punto de partida general; si los datos o la economía muestran contagio solo en la dirección adversa, Gumbel (o Clayton rotada) es más fiel; Clayton directa es la cola equivocada para pérdidas.
+
+\subsubsection*{Referencias}
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+\item Sklar, A. (1959). Fonctions de r\'epartition \`a $n$ dimensions et leurs marges. \emph{Publ. Inst. Statist. Univ. Paris}, 8.
+\item Nelsen, R. B. \emph{An Introduction to Copulas}. Springer.
+\item Embrechts, P., McNeil, A. y Straumann, D. (2002). Correlation and dependence in risk management: properties and pitfalls.
+\item McNeil, A. J., Frey, R. y Embrechts, P. \emph{Quantitative Risk Management}. Princeton University Press.
+\item Li, D. X. (2000). On default correlation: a copula function approach. \emph{Journal of Fixed Income}, 9(4).
+\item Genest, C., Ghoudi, K. y Rivest, L.-P. (1995). A semiparametric estimation procedure of dependence parameters in multivariate families of distributions. \emph{Biometrika}, 82.
+\item Demarta, S. y McNeil, A. J. (2005). The $t$ copula and related copulas. \emph{International Statistical Review}, 73.
+\item Directiva 2009/138/CE (Solvencia II) y Reglamento Delegado (UE) 2015/35.
+\end{itemize}
+
+\end{document}

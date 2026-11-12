@@ -37,7 +37,7 @@ const TOPICS = [
     },
     {
         id: 'act_mat_estabilidad_solvencia', cluster: 'act', name: 'Matemática Actuarial de la Estabilidad y Solvencia de la Actividad Aseguradora (Matemática No Vida II)',
-        desc: 'Teoría del riesgo para la solvencia: utilidad y reaseguro, modelo individual y colectivo del coste total, medidas coherentes (VaR y TVaR) y valores extremos para riesgos catastróficos.',
+        desc: 'Teoría del riesgo para la solvencia: utilidad y reaseguro, modelo individual y colectivo del coste total, medidas coherentes (VaR y TVaR), valores extremos para riesgos catastróficos y cópulas para la dependencia entre riesgos.',
         related: ['act_gestion_riesgos', 'act_solvencia', 'act_no_vida', 'mat_probabilidad'],
         knowledge: 'modelos_actuariales'
     },
