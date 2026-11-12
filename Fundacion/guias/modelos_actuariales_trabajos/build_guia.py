@@ -7,6 +7,8 @@ sys.path.insert(0, str(HERE))
 # ---------- CSS: el de la guía de Renta fija, más unos extras ----------
 rf = (GUIAS / "renta_fija.html").read_text(encoding="utf-8")
 CSS = re.search(r"<style>(.*?)</style>", rf, re.S).group(1)
+import didactica
+CSS += didactica.CSS
 CSS += """
 .tema-work { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
 .tema-work > summary { cursor: pointer; padding: 12px 16px; font-family: var(--font-display); font-weight: 700; font-size: 18px; list-style: none; display: flex; gap: 10px; align-items: baseline; }
@@ -86,8 +88,13 @@ def fig(src, cap):
 
 def sec_tema(t):
     parts = []
+    import didactica
+    vis = {}
+    for after, html_ in didactica.VISUALS.get(t["id"], []): vis.setdefault(after, []).append(html_)
     for i, (h, body) in enumerate(t["explain"], 1):
-        parts.append(f'<div class="sub" id="{t["id"]}-e{i}"><h3>{t["num"]}.{i} {h}</h3>{body}</div>')
+        dm = didactica.DUMMY.get((t["id"], i))
+        dbox = f'<div class="dummy"><b class="dh">En cristiano</b>{dm}</div>' if dm else ""
+        parts.append(f'<div class="sub" id="{t["id"]}-e{i}"><h3>{t["num"]}.{i} {h}</h3>{dbox}{body}{"".join(vis.get(i, []))}</div>')
     return (f'<section id="{t["id"]}"><div class="sec-head"><div class="eyebrow">Tema {t["num"]}</div><h2>{t["title"]}</h2></div>'
             f'<p class="lede">{t["lede"]}</p>' + "".join(parts) +
             f'<p class="note">Respuestas, PDF, Excel, Python y R de este tema: <a href="#tr-repaso-{t["id"]}">repaso</a> · <a href="#tr-debate-{t["id"]}">debate</a> · <a href="#tr-practica-{t["id"]}">ejercicio práctico</a>.</p></section>')
@@ -161,7 +168,7 @@ def build():
 <p class="lede">Guía de estudio de los seis temas del bloque de teoría del riesgo: utilidad y reaseguro, modelo individual, modelo colectivo, medidas de riesgo coherentes, valores extremos y dependencia con cópulas. Cada tema se explica y se acompaña de las respuestas a las preguntas de repaso y debate y del ejercicio práctico en Excel, Python y R.</p>
 <div class="hero-meta"><span class="chip">Trabajos de <b>Luiz Luzuriaga</b></span><span class="src">PDF en LaTeX · Excel · Python · R</span></div></header>
 {body}
-<footer class="foot"><div>Fuentes: diapositivas del Máster en Ciencias Actuariales y Financieras (Universidad de Alcalá). Elaboración propia: Luiz Luzuriaga.</div></footer></div></body></html>'''
+<footer class="foot"><div>Fuentes: diapositivas del Máster en Ciencias Actuariales y Financieras (Universidad de Alcalá). Elaboración propia: Luiz Luzuriaga.</div></footer></div><script>{didactica.JS}</script></body></html>'''
     out = GUIAS / "modelos_actuariales.html"
     out.write_text(doc, encoding="utf-8"); print("guia ok", out, len(doc) // 1024, "KB", [t["id"] for t in TEMAS])
 
