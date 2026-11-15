@@ -1811,6 +1811,20 @@ body.scene-portada .ag-error {
         padding: 18px 16px 0;
     }
 
+    /* En el móvil todo el panel se desplaza junto: cabecera y pestañas de tema no quedan ancladas */
+    .panel:not(.is-guide) {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .panel:not(.is-guide) .panel-body {
+        flex: none;
+        overflow: visible;
+        min-height: auto;
+        padding-bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+    }
+
     .has-panel .cluster-nav {
         display: none;
     }
@@ -1902,3 +1916,5 @@ body.scene-portada .ag-error {
 .run-out.is-error { color: #ff9b9b; }
 .run-figs { display: grid; gap: 10px; margin-top: 10px; }
 .run-fig { width: 100%; height: auto; border-radius: var(--radius-inner); background: #fff; }
+
+@view-transition { navigation: auto; }
