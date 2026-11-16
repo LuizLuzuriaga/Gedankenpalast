@@ -2024,6 +2024,12 @@ print(-2 * modelo2.llf + 4 * np.log(len(sev)))
         </tbody>
       </table></div>
       <p>Las no penalizadas <b>no se usan para decidir los pasos</b> con datos de entrenamiento: SSE, MSE y \(R^2\) siempre mejoran al añadir una variable, y forward no pararía nunca. Solo podrían guiar los pasos si se calcularan en datos de validación (validación cruzada), que es otro método.</p>
+      <p><b>Por qué se hace así.</b></p>
+      <ul>
+        <li><b>Penalizadas dentro del stepwise:</b> el algoritmo prueba muchos modelos con <b>los mismos datos de entrenamiento</b>. Ahí cualquier variable extra reduce el error aunque sea ruido, así que hace falta un castigo por parámetro que haga de «sustituto» del error en datos nuevos. El AIC es justo una estimación de ese error fuera de muestra (corrige el optimismo del ajuste con \(2p\)), y el BIC lo hace con más dureza.</li>
+        <li><b>No penalizadas al final:</b> el AIC solo dice <b>qué modelo es mejor</b> (es una cifra relativa, sin unidades útiles), no <b>cuánto se equivoca</b>. RMSE y MAE sí: están en las unidades de \(Y\) y se pueden explicar a negocio. Y al calcularlas en test no hay sesgo por sobreajuste, así que no necesitan penalización.</li>
+        <li><b>Por qué no basta una sola:</b> el stepwise elige con los mismos datos con los que luego se juzga, así que su resultado es algo optimista. Evaluar el modelo final en datos de test con medidas no penalizadas es la comprobación honesta.</li>
+      </ul>
       <p><b>El criterio es el árbitro de cada paso.</b> En cada iteración se ajustan los modelos candidatos y se calcula su AIC (o BIC); se hace el cambio que más lo reduce, y se para cuando ningún cambio lo mejora.</p>
       <ul>
         <li><b>Forward:</b> candidato = modelo actual + una variable. Entra la variable cuyo modelo tiene <b>menor AIC</b>, siempre que baje respecto al actual. Se para cuando añadir cualquiera lo sube.</li>
