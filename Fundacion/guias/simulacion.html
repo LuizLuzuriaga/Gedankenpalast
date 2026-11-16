@@ -2015,6 +2015,15 @@ print(-2 * modelo2.llf + 4 * np.log(len(sev)))
     </figure>
     <div class="callout key">
       <h4>Cómo se usan las medidas de validación en forward y backward</h4>
+      <p><b>Respuesta corta: en dos momentos distintos.</b></p>
+      <div class="tbl"><table class="plain mini">
+        <thead><tr><th>Momento</th><th>Qué medidas</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td><b>1. Durante el stepwise</b> (en cada paso, forward o backward)</td><td><b>Penalizadas</b>: AIC (por defecto), BIC o \(C_p\)</td><td>Decidir <b>qué variable entra (forward) o sale (backward)</b> y cuándo parar. Se calculan con los datos de entrenamiento, por eso tienen que llevar penalización.</td></tr>
+          <tr><td><b>2. Después del stepwise</b> (con el modelo ya elegido)</td><td><b>No penalizadas</b>: RMSE, MAE, MSE, \(R^2\) (y también AIC/BIC para comparar)</td><td><b>Comparar las propuestas</b> (forward, backward, both) y <b>medir cuánto error tiene</b> el modelo final, mejor en datos de test. Es lo que hace la función <code>evalua_modelo</code> del script del curso.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Las no penalizadas <b>no se usan para decidir los pasos</b> con datos de entrenamiento: SSE, MSE y \(R^2\) siempre mejoran al añadir una variable, y forward no pararía nunca. Solo podrían guiar los pasos si se calcularan en datos de validación (validación cruzada), que es otro método.</p>
       <p><b>El criterio es el árbitro de cada paso.</b> En cada iteración se ajustan los modelos candidatos y se calcula su AIC (o BIC); se hace el cambio que más lo reduce, y se para cuando ningún cambio lo mejora.</p>
       <ul>
         <li><b>Forward:</b> candidato = modelo actual + una variable. Entra la variable cuyo modelo tiene <b>menor AIC</b>, siempre que baje respecto al actual. Se para cuando añadir cualquiera lo sube.</li>
