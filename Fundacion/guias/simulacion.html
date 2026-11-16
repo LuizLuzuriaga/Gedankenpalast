@@ -2013,6 +2013,19 @@ print(-2 * modelo2.llf + 4 * np.log(len(sev)))
       <div class="tl-scroll"></div>
       <figcaption>Cómo se lee el resultado de <code>step(direction="forward")</code>: en cada paso entra una variable y el AIC baja. Los valores son <b>ilustrativos</b> (inventados para mostrar la lógica, no del dataset); el criterio de parada es que ninguna candidata mejore el AIC.</figcaption>
     </figure>
+    <div class="callout key">
+      <h4>Cómo se usan las medidas de validación en forward y backward</h4>
+      <p><b>El criterio es el árbitro de cada paso.</b> En cada iteración se ajustan los modelos candidatos y se calcula su AIC (o BIC); se hace el cambio que más lo reduce, y se para cuando ningún cambio lo mejora.</p>
+      <ul>
+        <li><b>Forward:</b> candidato = modelo actual + una variable. Entra la variable cuyo modelo tiene <b>menor AIC</b>, siempre que baje respecto al actual. Se para cuando añadir cualquiera lo sube.</li>
+        <li><b>Backward:</b> candidato = modelo actual − una variable. Sale la variable cuya eliminación <b>baja más el AIC</b> (o lo sube menos, si se compara con el actual). Se para cuando quitar cualquiera lo empeora.</li>
+        <li><b>Both:</b> en cada paso mira añadir y quitar, y elige el mejor movimiento.</li>
+      </ul>
+      <p><b>Por qué hay que usar una medida penalizada.</b> Con SSE, MSE o \(R^2\) el modelo con más variables <b>siempre</b> gana: forward añadiría todas las variables y backward no quitaría ninguna, así que el algoritmo no se detendría donde debe. El término \(2p\) del AIC (o \(p\log n\) del BIC) hace que una variable solo entre si mejora el ajuste más de lo que «cuesta». Con \(R^2_{adj}\) también funciona, pero <code>step()</code> usa AIC por defecto.</p>
+      <p><b>AIC o BIC en <code>step()</code>.</b> Por defecto, <code>step(modelo)</code> usa AIC (<code>k = 2</code>). Para BIC se pone <code>k = log(nrow(datos))</code>: <code>step(modelo, direction = "backward", k = log(nrow(sev)))</code>. Como el BIC castiga más, deja <b>menos variables</b>. Detalle: <code>step()</code> calcula el AIC con <code>extractAIC</code>, que difiere de <code>AIC()</code> en una constante; el ranking de modelos es el mismo.</p>
+      <p><b>Ejemplo numérico (ilustrativo).</b> Backward con modelo completo, AIC \(=6408\). Quitar <code>Area</code> da 6405 (baja 3: se quita); quitar <code>Density</code> da 6410 (sube 2: se mantiene); quitar <code>VehGas</code> da 6420 (sube 12: se mantiene). Sale <code>Area</code> y se repite con el nuevo modelo hasta que todas las eliminaciones suban el AIC.</p>
+      <p><b>Cuándo cada dirección y cuándo medir el resultado.</b> Con muchas variables conviene backward (parte de un modelo completo que puede ajustar bien); con pocas, forward. Forward es la única opción si hay más variables que observaciones, porque el modelo completo no se puede ajustar. Una vez elegido el modelo, se evalúa con las <b>medidas no penalizadas en datos de test</b> (RMSE, MAE) para saber cuánto error tiene, porque el AIC dice qué modelo es mejor pero no cuánto se equivoca. Además, el stepwise optimiza sobre los mismos datos con los que se juzga, así que sus p-valores e intervalos quedan algo optimistas.</p>
+    </div>
     <div class="codepair" data-file="Tema 2. Forward.R" data-src="curso">
 <script type="text/x-r">
 load(file = "Tema2Datos.RData")
