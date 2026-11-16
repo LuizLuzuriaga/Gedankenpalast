@@ -979,17 +979,22 @@ html { scroll-behavior: smooth; }
     <div class="math">\[ P^2=\begin{pmatrix}0{,}33&0{,}44&0{,}23\\0{,}22&0{,}44&0{,}34\\0&0&1\end{pmatrix},\qquad {}_3P_x=P^2P=\begin{pmatrix}0{,}253&0{,}396&0{,}351\\0{,}198&0{,}352&0{,}450\\0&0&1\end{pmatrix} \]</div>
     <p><b>b)</b> Cada vida sana llega al estado 2 con probabilidad \({}_3p^{02}=0{,}351\) y cada inválida con \({}_3p^{12}=0{,}450\). El número esperado es la suma de esperanzas:</p>
     <div class="math">\[ E=8\cdot0{,}351+4\cdot0{,}450=2{,}808+1{,}8=\mathbf{4{,}608} \]</div>
-    <p><b>c)</b> Se definen tres variables aleatorias. \(X_1\): número de personas procedentes del estado 0 que estarán en el estado 2 dentro de 3 años, \(X_1\sim	ext{Bin}(8,\,{}_3p^{02}_x)=	ext{Bin}(8;\,0{,}351)\). \(X_2\): número de personas procedentes del estado 1 que estarán en el estado 2 dentro de 3 años, \(X_2\sim	ext{Bin}(4,\,{}_3p^{12}_x)=	ext{Bin}(4;\,0{,}450)\). \(X_3=X_1+X_2\): número de personas del grupo de 12 que estarán en el estado 2 dentro de 3 años. Como todas las vidas son independientes, \(X_1\) y \(X_2\) también lo son. Para que \(X_3\) valga 2 hay tres combinaciones: \((X_1,X_2)=(2,0)\), \((1,1)\) o \((0,2)\). Se pide:</p>
+    <p><b>c)</b> Se definen tres variables aleatorias. \(X_1\): número de personas procedentes del estado 0 que estarán en el estado 2 dentro de 3 años. \(X_2\): número de personas procedentes del estado 1 que estarán en el estado 2 dentro de 3 años. \(X_3=X_1+X_2\): número de personas del grupo de 12 que estarán en el estado 2 dentro de 3 años.</p>
+    <p>Cada vida llega o no al estado 2, con la misma probabilidad dentro de su grupo, y las vidas son independientes. Por eso cada grupo sigue una <b>distribución binomial</b>, con \(n\) vidas y probabilidad de éxito \(p\) (llegar al estado 2):</p>
+    <div class="math">\[ X\sim\mathrm{Bin}(n,p)\ \Longrightarrow\ \Pr[X=k]=\binom{n}{k}\,p^{k}\,(1-p)^{n-k},\qquad k=0,1,\dots,n \]</div>
+    <div class="math">\[ X_1\sim\mathrm{Bin}\bigl(8,\,{}_3p^{02}_x\bigr)=\mathrm{Bin}(8;\,0{,}351),\qquad X_2\sim\mathrm{Bin}\bigl(4,\,{}_3p^{12}_x\bigr)=\mathrm{Bin}(4;\,0{,}450) \]</div>
+    <div class="math">\[ \Pr[X_1=k]=\binom{8}{k}\,0{,}351^{k}\,0{,}649^{8-k},\qquad \Pr[X_2=k]=\binom{4}{k}\,0{,}450^{k}\,0{,}550^{4-k} \]</div>
+    <p>Como todas las vidas son independientes, \(X_1\) y \(X_2\) también lo son. Para que \(X_3\) valga 2 hay tres combinaciones: \((X_1,X_2)=(2,0)\), \((1,1)\) o \((0,2)\). Se pide:</p>
     <div class="math">\[ \Pr[X_3=2]=\Pr[X_1=2]\Pr[X_2=0]+\Pr[X_1=1]\Pr[X_2=1]+\Pr[X_1=0]\Pr[X_2=2] \]</div>
-    <p>Con los valores:</p>
-    <div class="math">\[ \Pr[X_3=2]=\sum_{i=0}^{2}\Pr[X_1=i]\,\Pr[X_2=2-i]=0{,}01157+0{,}04078+0{,}02359=\mathbf{0{,}0759} \]</div>
+    <p>Sustituyendo la fórmula binomial en cada término:</p>
     <div class="tbl"><table class="mini">
-      <thead><tr><th>\(X_1\) (desde el estado 0)</th><th>\(X_2\) (desde el estado 1)</th><th>Probabilidad</th></tr></thead>
+      <thead><tr><th>\((X_1,X_2)\)</th><th>\(\Pr[X_1=i]\cdot\Pr[X_2=2-i]\)</th><th>Valor</th></tr></thead>
       <tbody>
-        <tr><td>0</td><td>2</td><td class="num">\(0{,}649^8\cdot\binom42\,0{,}45^2\,0{,}55^2=0{,}01157\)</td></tr>
-        <tr><td>1</td><td>1</td><td class="num">\(8\cdot0{,}351\cdot0{,}649^7\cdot4\cdot0{,}45\cdot0{,}55^3=0{,}04078\)</td></tr>
-        <tr><td>2</td><td>0</td><td class="num">\(\binom82\,0{,}351^2\,0{,}649^6\cdot0{,}55^4=0{,}02359\)</td></tr>
+        <tr><td>(2, 0)</td><td class="num">\(\binom{8}{2}0{,}351^2\,0{,}649^6\cdot\binom{4}{0}0{,}550^4\)</td><td class="num">0,02359</td></tr>
+        <tr><td>(1, 1)</td><td class="num">\(\binom{8}{1}0{,}351\,0{,}649^7\cdot\binom{4}{1}0{,}450\,0{,}550^3\)</td><td class="num">0,04078</td></tr>
+        <tr><td>(0, 2)</td><td class="num">\(\binom{8}{0}0{,}649^8\cdot\binom{4}{2}0{,}450^2\,0{,}550^2\)</td><td class="num">0,01157</td></tr>
       </tbody></table></div>
+    <div class="math">\[ \Pr[X_3=2]=0{,}02359+0{,}04078+0{,}01157=\mathbf{0{,}0759} \]</div>
     <div class="result">a) \({}_3P_x\) arriba · b) 4,608 vidas · c) 0,0759</div>
     <p class="note">Las filas de \({}_3P_x\) suman 1 y la del estado 2 es \((0,0,1)\): el fallecimiento es absorbente. El apartado c) usa que, dado el estado inicial, cada vida evoluciona de forma independiente (hipótesis del enunciado).</p>
   </div>
@@ -1125,7 +1130,7 @@ html { scroll-behavior: smooth; }
     <p class="stmt">Cada 20 de julio desde 2017 se aportan 6.000 € a un plan. Fondo disponible al jubilarse el 15/12/2025 con la participación a 150 €, y ecuaciones de la rentabilidad relativa y absoluta.</p>
     <figure class="tl" data-tl="ucuenta"><div class="tl-scroll"></div></figure>
     <p>Las participaciones de cada año son \(6.000/VL_t\), con un total de 593,877. El fondo final es 593,877 × 150 = 89.081,55 €.</p>
-    <div class="math">\[ 89.081{,}55=6.000\sum_{k=0}^{8}(1+R_m)^{k+\frac{148}{365}}\ \Rightarrow\ R_m=11{,}10\%;\qquad I=89.081{,}55-54.000=35.081{,}55\ 	ext{euros} \]</div>
+    <div class="math">\[ 89.081{,}55=6.000\sum_{k=0}^{8}(1+R_m)^{k+\frac{148}{365}}\ \Rightarrow\ R_m=11{,}10\%;\qquad I=89.081{,}55-54.000=35.081{,}55\ \text{euros} \]</div>
     <p class="note">El exponente añade los 148 días entre el 20/07 y el 15/12. La solución de clase da 11,01 %, pero con ese tipo el fondo saldría 88.697,84 €; el valor que cuadra es 11,10 %.</p>
   </div>
 
