@@ -178,7 +178,7 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), hipótesis de Markov, \(o(h)\) y diferenciabilidad, intensidades \(\mu^{ij}_x\), Chapman–Kolmogorov, ejemplo de clase</td><td>17, 18</td></tr>
       <tr><td><a href="#t3-md">3.1 (cont.) Múltiples decrementos</a></td><td>Probabilidades dependientes e independientes, tablas de múltiples decrementos, distribución uniforme, intensidades constantes, \(p^{*(j)}=(p^{00})^{p^{0j}/p^{0\bullet}}\)</td><td>19 a 24</td></tr>
       <tr><td><a href="#t3-preg">Preguntas del Tema 3</a></td><td>Preguntas 14 a 24, dentro del propio tema</td><td>14 a 24</td></tr>
-      <tr><td><a href="#t3-ej">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>Ejercicios 3 a 9 (en el propio tema)</td></tr>
+      <tr><td><a href="#t3-ej">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>Ejercicios 3 a 10 (en el propio tema)</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -877,7 +877,7 @@ html { scroll-behavior: smooth; }
 
   <div class="sub" id="t3-ej">
     <h3>Ejercicios del Tema 3</h3>
-    <p class="note">Ejercicios 3 a 9 de la colección del Tema 3, resueltos. Los ejercicios 3 a 8 son los de los PDF de enunciados y soluciones; el 9 es el de la clase del 16/11.</p>
+    <p class="note">Ejercicios 3 a 10 de la colección del Tema 3, resueltos. Los ejercicios 3 a 8 son los de los PDF de enunciados y soluciones; el 9 y el 10 son los de la clase del 16/11.</p>
     <div class="stack">
 
   <div class="q" id="ej3"><span class="qn">EJERCICIO 3 · TEMA 3</span>
@@ -1003,6 +1003,28 @@ html { scroll-behavior: smooth; }
     <div class="math">\[ \Pr[X_3=2]=0{,}023588+0{,}040782+0{,}011568=\mathbf{0{,}075938} \]</div>
     <div class="result">a) \({}_3P_x\) arriba · b) 4,608 vidas · c) 0,075938</div>
     <p class="note">Las filas de \({}_3P_x\) suman 1 y la del estado 2 es \((0,0,1)\): el fallecimiento es absorbente. El apartado c) usa que, dado el estado inicial, cada vida evoluciona de forma independiente (hipótesis del enunciado).</p>
+  </div>
+
+  <div class="q" id="ej10"><span class="qn">EJERCICIO 10 · TEMA 3</span>
+    <p class="stmt">Con el extracto de la tabla de múltiples decrementos del ejercicio 4 (fallecimiento \(j=1\), renuncia \(j=2\), enfermedad grave \(j=3\)), calcule las probabilidades independientes de salida a un año para cada decremento, para las edades 45 a 50. Suponga distribución uniforme de decrementos.</p>
+    <p>Para cada edad \(x\) se parte de las probabilidades dependientes de la tabla: \(p^{0j}_x=d^{(j)}_x/l_x\). La salida total es \(p^{0\bullet}_x=\bigl(d^{(1)}_x+d^{(2)}_x+d^{(3)}_x\bigr)/l_x\) y la permanencia \(p^{00}_x=1-p^{0\bullet}_x=l_{x+1}/l_x\). Con distribución uniforme de decrementos (<a href="#t3-md">apartado 3.1 (cont.)</a>):</p>
+    <div class="math">\[ q^{*(j)}_x=1-\bigl(p^{00}_x\bigr)^{\,p^{0j}_x/p^{0\bullet}_x}=1-\bigl(p^{00}_x\bigr)^{\,d^{(j)}_x/\sum_k d^{(k)}_x} \]</div>
+    <p><b>Ejemplo, \(x=45\).</b> \(l_{45}=78144\), \(d^{(1)}=56\), \(d^{(2)}=3496\), \(d^{(3)}=59\), salidas totales \(3611\):</p>
+    <div class="math">\[ p^{0\bullet}_{45}=\frac{3611}{78144}=0{,}046210,\qquad p^{00}_{45}=0{,}953790=\frac{74533}{78144} \]</div>
+    <div class="math">\[ q^{*(1)}_{45}=1-0{,}953790^{\,56/3611}=\mathbf{0{,}000733},\quad q^{*(2)}_{45}=1-0{,}953790^{\,3496/3611}=\mathbf{0{,}044771},\quad q^{*(3)}_{45}=1-0{,}953790^{\,59/3611}=\mathbf{0{,}000773} \]</div>
+    <p>Repitiendo el cálculo para cada edad:</p>
+    <div class="tbl"><table class="mini">
+      <thead><tr><th>Edad \(x\)</th><th>\(p^{0\bullet}_x\)</th><th>\(p^{00}_x\)</th><th>\(q^{*(1)}_x\) fallecimiento</th><th>\(q^{*(2)}_x\) renuncia</th><th>\(q^{*(3)}_x\) enf. grave</th></tr></thead>
+      <tbody>
+        <tr><td>45</td><td class="num">0,046210</td><td class="num">0,953790</td><td class="num">0,000733</td><td class="num">0,044771</td><td class="num">0,000773</td></tr>
+        <tr><td>46</td><td class="num">0,045054</td><td class="num">0,954946</td><td class="num">0,000782</td><td class="num">0,043493</td><td class="num">0,000851</td></tr>
+        <tr><td>47</td><td class="num">0,043625</td><td class="num">0,956375</td><td class="num">0,000819</td><td class="num">0,041947</td><td class="num">0,000933</td></tr>
+        <tr><td>48</td><td class="num">0,041927</td><td class="num">0,958073</td><td class="num">0,000870</td><td class="num">0,040128</td><td class="num">0,001005</td></tr>
+        <tr><td>49</td><td class="num">0,039914</td><td class="num">0,960086</td><td class="num">0,000907</td><td class="num">0,038004</td><td class="num">0,001079</td></tr>
+        <tr><td>50</td><td class="num">0,037596</td><td class="num">0,962404</td><td class="num">0,000944</td><td class="num">0,035589</td><td class="num">0,001139</td></tr>
+      </tbody></table></div>
+    <div class="result">q*(1): 0,000733 · 0,000782 · 0,000819 · 0,000870 · 0,000907 · 0,000944 (edades 45 a 50)</div>
+    <p class="note">Las independientes superan a las dependientes en los tres decrementos y en todas las edades (por ejemplo, a los 45 la renuncia dependiente es 3496/78144 = 0,044738, frente a 0,044771). La diferencia es pequeña porque la salida total es del 4 % al 5 %. Para \(x=50\) coincide con la <a href="#q23">pregunta 23</a>.</p>
   </div>
 
     </div>
