@@ -334,6 +334,133 @@ print(np.mean((y_test - pred) ** 2))                # MSE fuera de muestra
             }
         ]
     },
+    data_science: {
+        guide: 'guias/data_science.html',
+        sections: [
+            {
+                id: 'idea',
+                title: 'Idea clave',
+                blocks: [
+                    { type: 'guide', text: 'Guía de estudio completa del curso de Fei Huang (UNSW): las lecciones de los Ch1 a Ch8 y los nueve laboratorios, con todo el código en R original y traducido a Python, tarjetas de repaso y dos tests tipo examen.' },
+                    { type: 'p', text: 'La ciencia de datos actuarial es un <b>ciclo iterativo</b>, no una receta: se plantea una pregunta que se pueda contestar, se recogen y se limpian los datos, se exploran, se modeliza, se evalúa fuera de muestra y se comunica el resultado cuidando la equidad. Es una aplicación concreta del Ciclo de Control Actuarial.' },
+                    { type: 'list', title: 'Ciclo de vida (DSL)', items: [
+                        '<b>Planteamiento del problema</b>: expectativas, información y revisión (el epiciclo); tipos de pregunta y entorno de negocio.',
+                        '<b>Datos</b>: visualización (gramática de gráficos), manipulación (dplyr/pandas, joins, datos ordenados) y calidad (valores perdidos, atípicos).',
+                        '<b>Modelización</b>: GLM, regularización, árboles y bosques, boosting y redes neuronales.',
+                        '<b>Evaluación</b>: sesgo-varianza, validación cruzada, bootstrap, AIC y BIC, curvas ROC y de Gini.',
+                        '<b>Despliegue y comunicación</b>: informes reproducibles y evaluación de la equidad en el precio.'
+                    ] },
+                    { type: 'callout', text: 'Cada laboratorio de la guía lleva el R original del curso y su traducción a Python (pandas, statsmodels y scikit-learn). Las figuras se cargan de la web del curso.' }
+                ]
+            },
+            {
+                id: 'modelos',
+                title: 'Modelos del Ch4',
+                blocks: [
+                    { type: 'list', title: 'Qué hace cada familia', items: [
+                        '<b>GLM</b>: respuesta de la familia exponencial, predictor lineal y enlace. Poisson con <i>offset</i> $\\log(\\text{Exposure})$ para la frecuencia, binomial negativa o quasi-Poisson si hay sobredispersión, Gamma con enlace log para la severidad y Tweedie ($1<p<2$) para el coste total.',
+                        '<b>Regularización</b>: Ridge ($\\ell_2$), LASSO ($\\ell_1$, anula coeficientes) y Elastic Net; $\\lambda$ por validación cruzada (<code>lambda.min</code> o <code>lambda.1se</code>).',
+                        '<b>Árboles y bosques</b>: CART con poda por coste-complejidad; bagging y Random Forest (<i>mtry</i> decorrelaciona árboles; error out-of-bag).',
+                        '<b>Gradient Boosting</b>: árboles pequeños ajustados al gradiente negativo de la pérdida; shrinkage, profundidad y número de árboles.',
+                        '<b>Redes neuronales</b>: capas densas con activación, salida lineal, sigmoide o softmax; regularización con L2, dropout y <i>early stopping</i>.'
+                    ] },
+                    { type: 'table', caption: 'Qué problema resuelve cada técnica', head: ['Técnica', 'Mejor para', 'Cuidado con'], rows: [
+                        ['GLM', 'Interpretar efectos multiplicativos y tarificar', 'Interacciones y no linealidades no se modelizan solas'],
+                        ['LASSO / Elastic Net', 'Muchas variables correlacionadas y selección', 'Hay que estandarizar y elegir $\\lambda$'],
+                        ['Random Forest', 'Pocas hipótesis y mucha no linealidad', 'Menos interpretable; no extrapola'],
+                        ['Gradient Boosting', 'Máxima capacidad predictiva en datos tabulares', 'Sobreajuste si se abusa de árboles y profundidad'],
+                        ['Red neuronal', 'Datos muy grandes o con estructura', 'Exige escalado de entradas y regularización']
+                    ] }
+                ]
+            },
+            {
+                id: 'formulas',
+                title: 'Fórmulas',
+                blocks: [
+                    { type: 'formula', label: 'GLM', tex: 'g(\\mu_i)=x_i^\\top\\beta,\\qquad Y_i\\sim\\text{familia exponencial},\\quad \\operatorname{Var}(Y_i)=\\phi\\,V(\\mu_i)' },
+                    { type: 'formula', label: 'Poisson con exposición (offset)', tex: '\\log\\mathbb{E}[N_i]=\\log(e_i)+x_i^\\top\\beta' },
+                    { type: 'formula', label: 'Devianza, AIC y BIC', tex: 'D=2(\\ell_{\\text{sat}}-\\ell_{\\text{mod}}),\\quad \\mathrm{AIC}=-2\\ell+2k,\\quad \\mathrm{BIC}=-2\\ell+k\\ln n' },
+                    { type: 'formula', label: 'Tweedie', tex: '\\operatorname{Var}(Y)=\\phi\\,\\mu^{p},\\qquad 1<p<2:\\ \\text{Poisson compuesta con saltos Gamma}' },
+                    { type: 'formula', label: 'Penalización Elastic Net', tex: '\\min_\\beta\\ \\text{pérdida}(\\beta)+\\lambda\\Big[\\tfrac{1-\\alpha}{2}\\lVert\\beta\\rVert_2^2+\\alpha\\lVert\\beta\\rVert_1\\Big]' },
+                    { type: 'formula', label: 'Sesgo y varianza', tex: '\\mathbb{E}\\big[(y-\\hat f(x))^2\\big]=\\operatorname{sesgo}^2+\\operatorname{var}+\\sigma^2' },
+                    { type: 'formula', label: 'Índice de Gini', tex: '\\text{Gini}=1-2\\int_0^1 L(u)\\,du' }
+                ]
+            },
+            {
+                id: 'codigo',
+                title: 'Código',
+                blocks: [
+                    { type: 'code', code: { r: `
+# Frecuencia: GLM Poisson con offset log(Exposure) y comprobación de sobredispersión
+fit <- glm(ClaimNb ~ VehPower + VehAge + DrivAge + BonusMalus + VehBrand + VehGas + Area,
+           data = train, offset = log(Exposure), family = poisson(link = "log"))
+summary(fit)
+sum(residuals(fit, type = "pearson")^2) / fit$df.residual     # > 1 indica sobredispersión
+AIC(fit); BIC(fit)`,
+                        python: `
+import numpy as np
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+fit = smf.glm("ClaimNb ~ VehPower + VehAge + DrivAge + BonusMalus + VehBrand + VehGas + Area",
+              data=train, family=sm.families.Poisson(), offset=np.log(train["Exposure"])).fit()
+print(fit.summary())
+print(fit.pearson_chi2 / fit.df_resid)        # > 1 indica sobredispersión
+print(fit.aic, fit.bic_llf)
+` } },
+                    { type: 'code', code: { r: `
+# Regularización con validación cruzada y AUC
+library(glmnet)
+x <- model.matrix(~ ., x_train)
+cv <- cv.glmnet(x, y_train, family = "binomial", type.measure = "auc", alpha = 0.5, nfolds = 10)
+p <- predict(cv, newx = model.matrix(~ ., x_test), s = "lambda.min", type = "response")
+PRROC::roc.curve(scores.class0 = p, weights.class0 = y_test, curve = FALSE)$auc`,
+                        python: `
+import pandas as pd
+from sklearn.linear_model import LogisticRegressionCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score
+
+Xtr = pd.get_dummies(x_train, drop_first=True, dtype=float)
+Xte = pd.get_dummies(x_test, drop_first=True, dtype=float).reindex(columns=Xtr.columns, fill_value=0.0)
+sc = StandardScaler().fit(Xtr)                    # glmnet estandariza por dentro
+cv = LogisticRegressionCV(Cs=20, cv=10, scoring="roc_auc", l1_ratios=[0.5], solver="saga", max_iter=300).fit(sc.transform(Xtr), y_train)
+print(roc_auc_score(y_test, cv.predict_proba(sc.transform(Xte))[:, 1]))
+` } },
+                    { type: 'code', code: { r: `
+# Boosting: rejilla con validación cruzada (caret) y modelo final
+library(caret)
+grid <- expand.grid(n.trees = (1:20) * 50, interaction.depth = c(1, 2, 3), shrinkage = c(0.01, 0.1), n.minobsinnode = 10)
+ctrl <- trainControl(method = "cv", number = 5, classProbs = TRUE, summaryFunction = twoClassSummary)
+gbm_fit <- train(default ~ ., data = train, method = "gbm", metric = "ROC",
+                 trControl = ctrl, tuneGrid = grid, verbose = FALSE)
+gbm_fit$bestTune`,
+                        python: `
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import GridSearchCV
+
+grid = {"n_estimators": range(50, 1001, 50), "max_depth": [1, 2, 3], "learning_rate": [0.01, 0.1]}
+gs = GridSearchCV(GradientBoostingClassifier(min_samples_leaf=10, random_state=1), grid,
+                  scoring="roc_auc", cv=5, n_jobs=-1).fit(X_train, y_train)
+print(gs.best_params_, gs.best_score_)
+` } }
+                ]
+            },
+            {
+                id: 'fuentes',
+                title: 'Fuentes',
+                blocks: [
+                    { type: 'sources', items: [
+                        'Huang, F. (2026). Actuarial Data Science – Open Learning Resource. UNSW Sydney. https://datascience.feihuang.org. CC BY-NC 4.0.',
+                        'Hastie, Tibshirani y Friedman (2009). The Elements of Statistical Learning. Springer.',
+                        'James, Witten, Hastie y Tibshirani (2015). An Introduction to Statistical Learning. Springer.',
+                        'Wüthrich y Buser (2023). Data Analytics for Non-Life Insurance Pricing.',
+                        'Peng y Matsui (2015). The Art of Data Science. Leanpub.'
+                    ] }
+                ]
+            }
+        ]
+    },
     prevision_pensiones: {
         guide: 'guias/prevision_social.html',
         sections: [

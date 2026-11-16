@@ -133,6 +133,12 @@ const TOPICS = [
 
     // DATA SCIENCE
     {
+        id: 'ds_data_science', cluster: 'ds', name: 'Data Science',
+        desc: 'Ciclo de vida de la ciencia de datos actuarial (curso de Fei Huang, UNSW): planteamiento del problema, visualización, manipulación y limpieza de datos, GLM de frecuencia, severidad y Tweedie, regularización, árboles y bosques, boosting, redes neuronales, evaluación de modelos, comunicación y ética.',
+        related: ['ds_estadistica', 'ds_simulacion', 'ds_ml_supervisado', 'ds_ml_no_supervisado', 'ds_deep_learning', 'ds_data_mining', 'act_no_vida'],
+        knowledge: 'data_science'
+    },
+    {
         id: 'ds_estadistica', cluster: 'ds', name: 'Estadística',
         desc: 'Fundamento del análisis empírico: estimación puntual, intervalos de confianza, contrastes de hipótesis y teoría asintótica para inferir la población a partir de muestras.',
         related: ['mat_probabilidad', 'ds_econometria', 'ds_ml_supervisado', 'ds_bayesiana'],
