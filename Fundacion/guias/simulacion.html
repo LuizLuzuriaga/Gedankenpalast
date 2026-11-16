@@ -1891,6 +1891,10 @@ sm.qqplot(modelo2.resid, line="s"); plt.show()       # residuos muy asimétricos
         <tr><td><b>Ejemplo</b></td><td>Dos predictores de la cuantía de un siniestro, uno con regresión y otro con boosting: se comparan por RMSE en el conjunto de test.</td><td>Elegir con <code>step()</code> qué variables tarifarias dejar en un GLM de frecuencia: se mantiene el modelo de menor AIC (o BIC si se busca algo más simple).</td></tr>
       </tbody>
     </table></div>
+    <div class="callout key">
+      <h4>Por qué existen las dos familias</h4>
+      <p>Un modelo con más variables <b>siempre</b> se ajusta mejor a los datos con los que se entrena, aunque las variables añadidas sean ruido (sobreajuste). Por eso, en entrenamiento, SSE, MSE y \(R^2\) no distinguen un modelo bueno de uno inflado. Hay dos formas de arreglarlo: <b>(1)</b> medir el error en datos que el modelo no ha visto (test o validación cruzada), donde el sobreajuste ya penaliza solo y bastan las no penalizadas; o <b>(2)</b> si solo se tienen los datos de entrenamiento, <b>añadir un castigo por parámetro</b> (\(R^2_{adj}\), AIC, BIC) para que una variable solo entre si mejora el ajuste más de lo que cuesta. Las penalizadas se usan en selección de variables porque no hace falta apartar datos; las no penalizadas, para validar y comunicar el error real.</p>
+    </div>
     <p class="note"><b>En la práctica se combinan:</b> los criterios penalizados sirven para <i>seleccionar</i> el modelo con los datos de entrenamiento, y las medidas no penalizadas, calculadas en <b>test</b>, para <i>validar</i> el elegido y contar cuánto error tiene.</p>
     <h4>Para qué sirve cada medida, cuándo usarla y en qué modelos</h4>
     <div class="tbl"><table class="plain mini">
