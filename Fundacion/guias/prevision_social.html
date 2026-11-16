@@ -176,6 +176,7 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t2-rent">Rentabilidad</a></td><td>Plan con unidades de cuenta, TIR y rendimiento absoluto</td><td>11</td></tr>
       <tr><td><a href="#t3-mort">Repaso de mortalidad</a></td><td>\(S_x(t)\), \(\mu_x\), \({}_tp_x\), \({}_{t|u}q_x\), \(\mathring e_x\), \(e_x\), varianzas</td><td>14, 15, 16</td></tr>
       <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), hipótesis de Markov, \(o(h)\) y diferenciabilidad, intensidades \(\mu^{ij}_x\), Chapman–Kolmogorov, ejemplo de clase</td><td>17, 18</td></tr>
+      <tr><td><a href="#t3-md">3.1 (cont.) Múltiples decrementos</a></td><td>Probabilidades dependientes e independientes, tablas de múltiples decrementos, distribución uniforme, intensidades constantes, \(p^{*(j)}=(p^{00})^{p^{0j}/p^{0\bullet}}\)</td><td>25 a 30</td></tr>
       <tr><td><a href="#q19">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>19 a 24</td></tr>
     </tbody>
   </table></div>
@@ -473,7 +474,7 @@ html { scroll-behavior: smooth; }
     .t3pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     @media (max-width:640px){.t3pair{grid-template-columns:1fr}}
   </style>
-  <p class="note">Índice del tema según las diapositivas: 3.1 Modelos de múltiples estados y múltiples decrementos · 3.2 Supervivencia de dos o más personas · 3.3 Valoración de las obligaciones del plan: métodos de coste actuarial · 3.4 Aleatoriedad de las obligaciones · 3.5 Valoración de los activos del plan · 3.6 Solvencia del plan. El material disponible desarrolla el apartado 3.1 y un repaso del modelo de mortalidad del curso anterior, que es la base de todo el tema; los apartados 3.2 a 3.6 se añadirán a esta guía cuando haya documentos.</p>
+  <p class="note">Índice del tema según las diapositivas: 3.1 Modelos de múltiples estados y múltiples decrementos · 3.2 Supervivencia de dos o más personas · 3.3 Valoración de las obligaciones del plan: métodos de coste actuarial · 3.4 Aleatoriedad de las obligaciones · 3.5 Valoración de los activos del plan · 3.6 Solvencia del plan. El material disponible desarrolla el apartado 3.1 (incluida la clase del 16/11 sobre múltiples decrementos) y un repaso del modelo de mortalidad del curso anterior, que es la base de todo el tema; los apartados 3.2 a 3.6 se añadirán a esta guía cuando haya documentos.</p>
 
   <div class="sub" id="t3-mort">
     <h3>Repaso del modelo de mortalidad</h3>
@@ -663,6 +664,101 @@ html { scroll-behavior: smooth; }
     <p class="note">Esta parte no está en las diapositivas; es el desarrollo estándar que las completa. En el modelo 2 el estado 0 tiene dos salidas (causas de decremento), con fuerzas \(\mu^{(1)}_{x+t}\) (accidente) y \(\mu^{(2)}_{x+t}\) (otras causas).</p>
     <div class="math">\[ \mu^{(\tau)}_{x+t}=\mu^{(1)}_{x+t}+\mu^{(2)}_{x+t},\qquad {}_tp^{00}_x=e^{-\int_0^t\mu^{(\tau)}_{x+u}du},\qquad \Pr[Y(t)=j]=\int_0^t{}_sp^{00}_x\,\mu^{(j)}_{x+s}\,ds\ \ (j=1,2) \]</div>
     <p>Con una sola salida (\(m=1\)) se recupera el modelo de mortalidad: \(\mu^{(\tau)}=\mu\) y \({}_tp^{00}_x={}_tp_x\). Cuando hay reversibilidad (modelo 4) las probabilidades se obtienen resolviendo las ecuaciones diferenciales de Kolmogorov, porque la probabilidad de estar en un estado ya no es un producto de supervivencias.</p>
+  </div>
+
+  <div class="sub" id="t3-md">
+    <h3>3.1 (cont.) Múltiples decrementos: probabilidades dependientes e independientes</h3>
+    <p class="note">Clase del 16/11/2026. Se vuelve al modelo con un estado 0 (activo, vigente) y \(m\) salidas o <b>decrementos</b> \(j=1,\dots,m\) (fallecimiento, renuncia, invalidez…). Las fórmulas marcadas con * son las numeradas en los apuntes de clase, y están en el mismo orden.</p>
+
+    <h4>Probabilidades dependientes (las que da el modelo)</h4>
+    <div class="card"><span class="tag">*1 y *2 · a partir de las intensidades de paso</span>
+      <div class="math">\[ {}_tp^{00}_x={}_tp^{\overline{00}}_x=e^{-\int_0^t\sum_{j=1}^m\mu^{0j}_{x+s}\,ds},\qquad {}_tp^{0j}_x=\int_0^t{}_sp^{00}_x\;\mu^{0j}_{x+s}\,ds \]</div>
+      <p>Las \(\mu^{0j}_{x+t}\) son <b>intensidades de paso</b> en tiempo continuo (también «tasas de salida por el decremento \(j\)»). Las probabilidades así calculadas se llaman <b>dependientes</b> porque dependen de las intensidades de paso de <i>todos</i> los demás decrementos: el exponente de \({}_tp^{00}_x\) suma las \(m\) intensidades, y la salida por \(j\) solo se produce si antes no se ha salido por otra causa.</p></div>
+
+    <h4>Probabilidades independientes (modelo simplificado)</h4>
+    <p>Se puede suponer, para estudiar cada riesgo por separado, que <b>los demás no existen</b>. Es un modelo artificial de dos estados (activo \(\to\) salida por \(j\)) con una sola intensidad, \(\mu^{0j}_{x+t}\). Las probabilidades que resultan se llaman <b>independientes</b> y se marcan con asterisco.</p>
+    <figure class="t3fig" id="md_fig" style="margin:0"></figure>
+    <p class="note" style="margin-top:-6px">Izquierda: modelo con todos los decrementos (probabilidades dependientes). Derecha: el decremento \(j\) aislado (probabilidades independientes), con la misma intensidad \(\mu^{0j}\).</p>
+    <div class="card"><span class="tag">*3 y *4 · supervivencia y salida independientes por el decremento \(j\)</span>
+      <div class="math">\[ {}_tp^{*(j)}_x=e^{-\int_0^t\mu^{0j}_{x+u}\,du},\qquad {}_tq^{*(j)}_x=1-{}_tp^{*(j)}_x=\int_0^t{}_up^{*(j)}_x\;\mu^{0j}_{x+u}\,du \]</div>
+      <p>\({}_tp^{*(j)}_x\) es la probabilidad independiente de <b>supervivencia</b> (no salir por \(j\)) entre \(x\) y \(x+t\); \({}_tq^{*(j)}_x\), la de <b>salida</b> por \(j\).</p>
+      <p class="note"><b>Regla de orden.</b> Por lo general, para el mismo decremento, la probabilidad independiente es <b>mayor</b> que la dependiente: \({}_tq^{*(j)}_x\ge{}_tp^{0j}_x\). Con el riesgo aislado no hay otros decrementos que «se lleven» antes a parte de la población, así que queda más gente expuesta a \(j\).</p></div>
+
+    <h4>Tablas de múltiples decrementos</h4>
+    <p>Hacen tratable el modelo: una cohorte inicial \(l_{x_0}\) y, edad a edad, cuánta gente sigue vigente y cuánta sale por cada causa.</p>
+    <div class="card"><span class="tag">*5 y *6 · los dos elementos de la tabla</span>
+      <div class="math">\[ l_x=l_{x_0+t}=l_{x_0}\cdot{}_tp^{00}_{x_0},\qquad d^{(j)}_x=l_x\cdot p^{0j}_x \]</div>
+      <p>\(l_x\): número esperado de vigentes a la edad \(x\). \(d^{(j)}_x\): <b>número esperado de salidas por el decremento \(j\)</b> entre \(x\) y \(x+1\). Es la tabla del ejercicio 4 (<a href="#q20">pregunta 20</a>).</p></div>
+    <p>Una tabla solo da información en edades enteras. Para saber <i>cuándo</i> dentro del año salen hace falta una hipótesis sobre el reparto de las salidas.</p>
+
+    <h4>Hipótesis de distribución uniforme de decrementos</h4>
+    <div class="card"><span class="tag">*7 · para \(x\) entero, \(0\le t\le1\) y \(j\ne0\)</span>
+      <div class="math">\[ {}_tp^{0j}_x=t\cdot p^{0j}_x \]</div>
+      <p>Las salidas por cada causa se reparten uniformemente a lo largo del año: en la fracción \(t\) del año ha salido la fracción \(t\) de las que saldrán ese año.</p></div>
+
+    <h4>La relación depende del patrón de salidas</h4>
+    <p>La relación entre dependientes e independientes depende de <b>cuándo salen</b> las personas entre edades enteras, en cada decremento. Ejemplo de clase (*8 y *9): grupo de 100 vidas con \(p^{01}_x=0{,}01\) (fallecimiento) y \(p^{02}_x=0{,}10\) (renuncia). Se supone que <b>todas las renuncias ocurren a final de año</b> y los fallecimientos se reparten a lo largo del año.</p>
+    <div class="card"><span class="tag">Patrón: renuncias a final de año</span>
+      <ul class="tight">
+        <li><b>Mortalidad independiente.</b> Mientras no hay renuncias (todas llegan a final de año), las 100 vidas están expuestas a morir durante todo el año. Se espera 1 fallecimiento sobre 100: \(q^{*(1)}_x=\dfrac{1}{100}=0{,}01\).</li>
+        <li><b>Renuncia independiente.</b> Las 10 renuncias esperadas (\(100\cdot0{,}10\)) salen de las <b>99</b> vidas que llegan vivas a final de año (ya ha fallecido 1): \(q^{*(2)}_x=\dfrac{10}{99}=0{,}1010\).</li>
+      </ul>
+      <p class="note">Con este patrón la renuncia independiente (0,1010) supera a la dependiente (0,10), porque la base es 99 en vez de 100; la mortalidad independiente coincide con la dependiente. Cuando no hay información sobre el patrón de salidas hace falta una hipótesis de edad fraccionada (distribución uniforme): es lo que siguen las fórmulas de abajo.</p></div>
+
+    <h4>Intensidades de paso constantes en cada año de edad</h4>
+    <div class="card"><span class="tag">*10 a *13 · fuerza de decremento constante</span>
+      <div class="math">\[ \mu^{0j}_{x+t}=\mu^{0j}_x\ \ (0\le t<1),\qquad \mu^{0\bullet}_x=\sum_{k=1}^m\mu^{0k}_x,\qquad {}_tp^{00}_x=e^{-t\,\mu^{0\bullet}_x} \]</div>
+      <p>\(\mu^{0\bullet}_x\) es la <b>fuerza de salida total</b> desde el estado 0 a la edad \(x+t\), \(0\le t<1\). \(p^{0\bullet}_x\) es la probabilidad de salida total de \(x\) a \(x+1\):</p>
+      <div class="math">\[ p^{0\bullet}_x=1-p^{00}_x=\sum_{k=1}^m p^{0k}_x,\qquad p^{00}_x=e^{-\mu^{0\bullet}_x},\qquad p^{0\bullet}_x=1-e^{-\mu^{0\bullet}_x} \]</div>
+      <p class="note">En el apunte *13 la salida total aparece con \(t\) incluido, \(1-e^{-t\mu_x^{0\bullet}}\): es la salida total en el tramo \(t\); para el año completo \(t=1\).</p></div>
+
+    <h4>Obtención de tasas independientes a partir de dependientes</h4>
+    <p>Hipótesis de distribución uniforme de decrementos. Para cada edad entera \(x\) y \(0\le t<1\):</p>
+    <div class="card"><span class="tag">Paso a paso (*14 a *21)</span>
+      <div class="math">\[ \text{*14)}\ {}_tp^{0k}_x=t\,p^{0k}_x\qquad\qquad \text{*15)}\ {}_tp^{00}_x=1-t\,p^{0\bullet}_x \]</div>
+      <p><b>*16)</b> La densidad de salida por \(j\) es probabilidad de seguir vigente por intensidad (como \({}_tp_x\,\mu_{x+t}=q_x\) con un solo decremento). Derivando *14 respecto de \(t\):</p>
+      <div class="math">\[ {}_tp^{00}_x\;\mu^{0j}_{x+t}=p^{0j}_x \]</div>
+      <p><b>*17)</b> Despejando la intensidad y sustituyendo *15:</p>
+      <div class="math">\[ \mu^{0j}_{x+t}=\frac{p^{0j}_x}{{}_tp^{00}_x}=\frac{p^{0j}_x}{1-t\,p^{0\bullet}_x} \]</div>
+      <p><b>*18)</b> Se integra en el año completo: \(\displaystyle\int_0^1\mu^{0j}_{x+t}\,dt=\int_0^1\frac{p^{0j}_x}{1-t\,p^{0\bullet}_x}\,dt\).</p>
+      <p><b>*19)</b> Cambio de variable \(u=1-t\,p^{0\bullet}_x\), con \(du=-p^{0\bullet}_x\,dt\). Los límites pasan de \(t=0,1\) a \(u=1\) y \(u=1-p^{0\bullet}_x=p^{00}_x\).</p>
+      <p><b>*20)</b></p>
+      <div class="math">\[ \int_0^1\mu^{0j}_{x+t}\,dt=-\frac{p^{0j}_x}{p^{0\bullet}_x}\int\frac{du}{u}=-\frac{p^{0j}_x}{p^{0\bullet}_x}\Bigl[\ln\bigl(1-t\,p^{0\bullet}_x\bigr)\Bigr]_0^1=-\frac{p^{0j}_x}{p^{0\bullet}_x}\ln p^{00}_x \]</div>
+      <p><b>*21)</b> Como \(p^{00}_x=1-p^{0\bullet}_x\), la probabilidad independiente de supervivencia por \(j\) en el año es \(e^{-\int_0^1\mu^{0j}}\):</p>
+      <div class="math">\[ \boxed{\;p^{*(j)}_x=\bigl(p^{00}_x\bigr)^{\,p^{0j}_x/p^{0\bullet}_x}\;},\qquad q^{*(j)}_x=1-p^{*(j)}_x \]</div>
+      <p class="note">Interpretación: el exponente \(p^{0j}_x/p^{0\bullet}_x\) es la <b>parte de las salidas totales</b> debida al decremento \(j\); la supervivencia independiente es la supervivencia total elevada a esa parte. Con un solo decremento el exponente es 1 y las probabilidades coinciden. Como el exponente está entre 0 y 1, la desigualdad de Bernoulli da \(q^{*(j)}_x\ge p^{0j}_x\): la regla de orden.</p>
+      <p class="note">Complemento (no está en los apuntes): con intensidades <i>constantes</i> (*10) resulta \(p^{0j}_x=\frac{\mu^{0j}_x}{\mu^{0\bullet}_x}\bigl(1-e^{-\mu^{0\bullet}_x}\bigr)\), así que \(p^{0j}_x/p^{0\bullet}_x=\mu^{0j}_x/\mu^{0\bullet}_x\) y se llega a la misma fórmula, con \(p^{*(j)}_x=e^{-\mu^{0j}_x}\): un decremento aislado con intensidad constante \(\mu^{0j}\) sobrevive \(e^{-\mu^{0j}}\) en un año.</p></div>
+
+    <div class="card"><span class="tag">Ejemplo numérico · \(p^{01}=0{,}01\) (fallecimiento), \(p^{02}=0{,}10\) (renuncia), distribución uniforme</span>
+      <div class="math">\[ p^{0\bullet}=0{,}11,\quad p^{00}=0{,}89,\quad p^{*(1)}=0{,}89^{\,0{,}01/0{,}11}=0{,}98946\Rightarrow q^{*(1)}=\mathbf{0{,}01054},\quad p^{*(2)}=0{,}89^{\,0{,}10/0{,}11}=0{,}89948\Rightarrow q^{*(2)}=\mathbf{0{,}10052} \]</div>
+      <p class="note">Ambas independientes superan a las dependientes (0,01054 &gt; 0,01 y 0,10052 &gt; 0,10), como dice la regla de orden. Compáralas con el patrón «renuncias a final de año» (0,01 y 0,1010): el resultado depende de la hipótesis sobre el reparto de las salidas dentro del año.</p></div>
+
+    <div class="t3lab" id="md-lab">
+      <h4>Calculadora · de probabilidades dependientes a independientes</h4>
+      <div class="calc">
+        <label for="md_1">\(p^{01}\) (decremento 1)<input id="md_1" type="number" step="any" min="0" value="0.01"></label>
+        <label for="md_2">\(p^{02}\) (decremento 2)<input id="md_2" type="number" step="any" min="0" value="0.10"></label>
+        <label for="md_3">\(p^{03}\) (decremento 3, opcional)<input id="md_3" type="number" step="any" min="0" value="0"></label>
+      </div>
+      <div class="out" aria-live="polite">
+        <div><span>Salida total \(p^{0\bullet}\)</span><b id="md_o0">–</b></div>
+        <div><span>Permanencia \(p^{00}\)</span><b id="md_o00">–</b></div>
+        <div><span>\(q^{*(1)}\) independiente</span><b id="md_o1">–</b></div>
+        <div><span>\(q^{*(2)}\) independiente</span><b id="md_o2">–</b></div>
+        <div><span>\(q^{*(3)}\) independiente</span><b id="md_o3">–</b></div>
+        <div><span>Producto de las \(p^{*(j)}\) (= \(p^{00}\))</span><b id="md_oc">–</b></div>
+      </div>
+      <p class="note">Con distribución uniforme de decrementos: \(q^{*(j)}=1-(p^{00})^{p^{0j}/p^{0\bullet}}\). El producto de las supervivencias independientes recupera la permanencia total, porque \(\sum_jp^{0j}/p^{0\bullet}=1\).</p>
+    </div>
+
+    <details class="fc"><summary>Apuntes de clase del 16/11/2026 · versión manuscrita (3 páginas)</summary><div class="ans">
+      <p class="note">Páginas del cuaderno en orden de lectura: probabilidades dependientes, independientes, tablas e hipótesis uniforme; después intensidades constantes y obtención de tasas independientes (*10 a *20); y el resultado final (*20 y *21). Pulsa en una imagen para ampliarla.</p>
+      <div class="t3pair" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">
+        <a href="psc_tema3_apuntes/apuntes_16_11_1.webp" target="_blank" rel="noopener"><img src="psc_tema3_apuntes/apuntes_16_11_1.webp" alt="Apuntes manuscritos 1: probabilidades dependientes e independientes, tablas de múltiples decrementos, distribución uniforme" loading="lazy" style="max-width:100%;height:auto;border-radius:4px"></a>
+        <a href="psc_tema3_apuntes/apuntes_16_11_3.webp" target="_blank" rel="noopener"><img src="psc_tema3_apuntes/apuntes_16_11_3.webp" alt="Apuntes manuscritos 2: intensidades constantes y obtención de tasas independientes a partir de las dependientes, *10 a *20" loading="lazy" style="max-width:100%;height:auto;border-radius:4px"></a>
+        <a href="psc_tema3_apuntes/apuntes_16_11_2.webp" target="_blank" rel="noopener"><img src="psc_tema3_apuntes/apuntes_16_11_2.webp" alt="Apuntes manuscritos 3: integral final y probabilidad independiente igual a la de permanencia elevada a p0j entre p0 total" loading="lazy" style="max-width:100%;height:auto;border-radius:4px"></a>
+      </div>
+    </div></details>
   </div>
 </section>
 
@@ -939,6 +1035,70 @@ html { scroll-behavior: smooth; }
     <div class="result">a) 0,4066 · b) 0,0378</div>
     <p class="note">Verificado numéricamente: 0,01 · 0,14227 · 26,538 = 0,0378. La permanencia usa \(\overline{ii}\) (sin salir), no \({}_tp^{ii}_x\), que permitiría salir y volver.</p>
   </div>
+
+  <div class="q" id="q25"><span class="qn">PREGUNTA 25 · TEORÍA · CLASE 16/11</span>
+    <p class="stmt">En un modelo de múltiples decrementos, ¿qué son las probabilidades dependientes y las independientes? ¿Cuál es mayor para un mismo decremento y por qué?</p>
+    <p><b>Dependientes.</b> Son las del modelo completo, con todos los decrementos actuando a la vez: \({}_tp^{00}_x=e^{-\int_0^t\sum_{j=1}^m\mu^{0j}_{x+s}ds}\) y \({}_tp^{0j}_x=\int_0^t{}_sp^{00}_x\,\mu^{0j}_{x+s}\,ds\). Se llaman dependientes porque cada una depende de las intensidades de paso de todas las demás causas: para salir por \(j\) hay que seguir vigente, y eso depende del resto.</p>
+    <p><b>Independientes.</b> Se supone que cada riesgo actúa solo, como si los demás no existiesen. Es un modelo artificial de dos estados con intensidad \(\mu^{0j}\): \({}_tp^{*(j)}_x=e^{-\int_0^t\mu^{0j}_{x+u}du}\), \({}_tq^{*(j)}_x=1-{}_tp^{*(j)}_x\).</p>
+    <p><b>Orden.</b> Por lo general, \({}_tq^{*(j)}_x\ge{}_tp^{0j}_x\). En el modelo completo parte de la población sale antes por otras causas y deja de estar expuesta a \(j\); en el aislado toda la población sigue expuesta.</p>
+    <div class="result">Dependientes: todos los decrementos a la vez · Independientes: cada uno aislado · \(q^{*(j)}\ge p^{0j}\)</div>
+  </div>
+
+  <div class="q" id="q26"><span class="qn">PREGUNTA 26 · TEORÍA · CLASE 16/11</span>
+    <p class="stmt">¿Qué es una tabla de múltiples decrementos y qué hipótesis hace falta para trabajar entre edades enteras?</p>
+    <p>Es una tabla con dos elementos por edad entera \(x\): el número esperado de vigentes, \(l_x=l_{x_0}\cdot{}_tp^{00}_{x_0}\) (con \(x=x_0+t\)), y el número esperado de salidas por cada decremento \(j\) entre \(x\) y \(x+1\), \(d^{(j)}_x=l_x\,p^{0j}_x\). Hace tratable el modelo, porque las probabilidades se obtienen como cocientes de la tabla (\({}_tp^{00}_x=l_{x+t}/l_x\)).</p>
+    <p>La tabla no dice <i>cuándo</i> salen las personas dentro del año. Se hace la <b>hipótesis de distribución uniforme de decrementos</b>: para \(x\) entero, \(0\le t\le1\) y \(j\ne0\),</p>
+    <div class="math">\[ {}_tp^{0j}_x=t\cdot p^{0j}_x \]</div>
+    <p>Las salidas por cada causa se reparten uniformemente en el año. Es lo que se usa en el ejercicio 5 (<a href="#q21">pregunta 21</a>).</p>
+  </div>
+
+  <div class="q" id="q27"><span class="qn">PREGUNTA 27 · PRÁCTICA · CLASE 16/11</span>
+    <p class="stmt">Grupo de 100 vidas con \(p^{01}_x=0{,}01\) (fallecimiento) y \(p^{02}_x=0{,}10\) (renuncia). Todas las renuncias ocurren a final de año y los fallecimientos se reparten a lo largo del año. Calcule las tasas independientes de mortalidad y de renuncia.</p>
+    <p><b>Mortalidad.</b> Como las renuncias solo llegan a final de año, durante todo el año las 100 vidas están expuestas a morir. Se esperan \(100\cdot0{,}01=1\) fallecimiento:</p>
+    <div class="math">\[ q^{*(1)}_x=\frac{1}{100}=0{,}01 \]</div>
+    <p><b>Renuncia.</b> Se esperan \(100\cdot0{,}10=10\) renuncias, y salen de las vidas que llegan vivas a final de año: \(100-1=99\):</p>
+    <div class="math">\[ q^{*(2)}_x=\frac{10}{99}=0{,}10101 \]</div>
+    <div class="result">\(q^{*(1)}=0{,}01\) · \(q^{*(2)}=10/99=0{,}1010\)</div>
+    <p class="note">La renuncia independiente (0,1010) es mayor que la dependiente (0,10), como indica la regla general. Si el patrón de salidas no se conoce, se usa la distribución uniforme: \(q^{*(1)}=0{,}01054\) y \(q^{*(2)}=0{,}10052\) (<a href="#q28">pregunta 28</a>).</p>
+  </div>
+
+  <div class="q" id="q28"><span class="qn">PREGUNTA 28 · TEORÍA · CLASE 16/11</span>
+    <p class="stmt">Con distribución uniforme de decrementos, deduzca la probabilidad independiente \(p^{*(j)}_x\) en función de las dependientes.</p>
+    <p>Para \(x\) entero y \(0\le t<1\): \({}_tp^{0k}_x=t\,p^{0k}_x\) y \({}_tp^{00}_x=1-t\,p^{0\bullet}_x\), con \(p^{0\bullet}_x=\sum_kp^{0k}_x=1-p^{00}_x\). Se despeja la intensidad de \({}_tp^{00}_x\,\mu^{0j}_{x+t}=p^{0j}_x\) (derivada de \({}_tp^{0j}_x=t\,p^{0j}_x\)):</p>
+    <div class="math">\[ \mu^{0j}_{x+t}=\frac{p^{0j}_x}{1-t\,p^{0\bullet}_x} \]</div>
+    <p>Se integra en \([0,1]\) con \(u=1-t\,p^{0\bullet}_x\), \(du=-p^{0\bullet}_x\,dt\):</p>
+    <div class="math">\[ \int_0^1\mu^{0j}_{x+t}\,dt=-\frac{p^{0j}_x}{p^{0\bullet}_x}\Bigl[\ln\bigl(1-t\,p^{0\bullet}_x\bigr)\Bigr]_0^1=-\frac{p^{0j}_x}{p^{0\bullet}_x}\ln p^{00}_x \]</div>
+    <p>Y como \(p^{*(j)}_x=e^{-\int_0^1\mu^{0j}_{x+t}dt}\):</p>
+    <div class="math">\[ p^{*(j)}_x=\bigl(p^{00}_x\bigr)^{p^{0j}_x/p^{0\bullet}_x},\qquad q^{*(j)}_x=1-\bigl(p^{00}_x\bigr)^{p^{0j}_x/p^{0\bullet}_x} \]</div>
+    <div class="result">Ejemplo \(p^{01}=0{,}01\), \(p^{02}=0{,}10\): \(q^{*(1)}=1-0{,}89^{1/11}=0{,}01054\) · \(q^{*(2)}=1-0{,}89^{10/11}=0{,}10052\)</div>
+  </div>
+
+  <div class="q" id="q29"><span class="qn">PREGUNTA 29 · PRÁCTICA · CLASE 16/11 (SOBRE EL EJ. 4 Y 5)</span>
+    <p class="stmt">Con la tabla de múltiples decrementos de la <a href="#q20">pregunta 20</a> y distribución uniforme, calcule las probabilidades independientes de salida a un año por cada decremento a la edad 50, y compárelas con las dependientes.</p>
+    <p>Datos a \(x=50\): \(l_{50}=62613\), \(d^{(1)}=58\), \(d^{(2)}=2226\), \(d^{(3)}=70\). Las dependientes son \(p^{0j}_{50}=d^{(j)}_{50}/l_{50}\) y la salida total es \(p^{0\bullet}_{50}=2354/62613=0{,}037596\), con \(p^{00}_{50}=0{,}962404\). El exponente es la parte de cada decremento, \(d^{(j)}/2354\):</p>
+    <div class="math">\[ q^{*(1)}_{50}=1-0{,}962404^{\,58/2354}=\mathbf{0{,}00094374},\quad q^{*(2)}_{50}=1-0{,}962404^{\,2226/2354}=\mathbf{0{,}0355886},\quad q^{*(3)}_{50}=1-0{,}962404^{\,70/2354}=\mathbf{0{,}00113889} \]</div>
+    <div class="tbl"><table class="mini">
+      <thead><tr><th>Decremento</th><th>Dependiente \(p^{0j}_{50}\)</th><th>Independiente \(q^{*(j)}_{50}\)</th></tr></thead>
+      <tbody>
+        <tr><td>1 · fallecimiento</td><td class="num">0,00092633</td><td class="num">0,00094374</td></tr>
+        <tr><td>2 · renuncia</td><td class="num">0,03555172</td><td class="num">0,03558859</td></tr>
+        <tr><td>3 · enfermedad grave</td><td class="num">0,00111798</td><td class="num">0,00113889</td></tr>
+      </tbody></table></div>
+    <div class="result">Las tres independientes superan a las dependientes</div>
+    <p class="note">Las diferencias son pequeñas porque las salidas totales son bajas (3,76 %). Cuanto mayor es \(p^{0\bullet}\), más se separan las independientes de las dependientes.</p>
+  </div>
+
+  <div class="q" id="q30"><span class="qn">PREGUNTA 30 · PRÁCTICA · CLASE 16/11 (INTENSIDADES CONSTANTES)</span>
+    <p class="stmt">Con intensidades constantes en el año \(\mu^{01}_x=0{,}02\) y \(\mu^{02}_x=0{,}03\), calcule \(p^{00}_x\), \(p^{0\bullet}_x\), \(p^{01}_x\), \(p^{02}_x\) y las tasas independientes de salida.</p>
+    <p>Fuerza total de salida \(\mu^{0\bullet}_x=0{,}02+0{,}03=0{,}05\). Con \(t=1\) (*12 y *13):</p>
+    <div class="math">\[ p^{00}_x=e^{-0{,}05}=0{,}95123,\qquad p^{0\bullet}_x=1-e^{-0{,}05}=0{,}04877 \]</div>
+    <p>La salida total se reparte entre los decrementos en proporción a su intensidad (\(p^{0j}_x=\int_0^1{}_sp^{00}_x\mu^{0j}ds=\frac{\mu^{0j}}{\mu^{0\bullet}}(1-e^{-\mu^{0\bullet}})\)):</p>
+    <div class="math">\[ p^{01}_x=\frac{0{,}02}{0{,}05}\,0{,}04877=0{,}01951,\qquad p^{02}_x=\frac{0{,}03}{0{,}05}\,0{,}04877=0{,}02926 \]</div>
+    <p>Las independientes tienen una sola intensidad: \(q^{*(j)}_x=1-e^{-\mu^{0j}}\):</p>
+    <div class="math">\[ q^{*(1)}_x=1-e^{-0{,}02}=0{,}01980,\qquad q^{*(2)}_x=1-e^{-0{,}03}=0{,}02955 \]</div>
+    <div class="result">\(p^{00}=0{,}95123\) · \(p^{01}=0{,}01951\) · \(p^{02}=0{,}02926\) · \(q^{*(1)}=0{,}01980\) · \(q^{*(2)}=0{,}02955\)</div>
+    <p class="note">Coincide con la fórmula de la pregunta 28: \(1-0{,}95123^{0{,}4}=0{,}01980\). Las independientes superan a las dependientes (0,01980 &gt; 0,01951 y 0,02955 &gt; 0,02926).</p>
+  </div>
   </div>
 </section>
 
@@ -1004,6 +1164,12 @@ html { scroll-behavior: smooth; }
     <details class="fc"><summary>Intensidad de transición \(\mu^{ij}_x\)</summary><div class="ans"><div class="math">\[ \mu^{ij}_x=\lim_{h\to0^+}\frac{{}_hp^{ij}_x}{h},\quad {}_hp^{ij}_x=h\,\mu^{ij}_x+o(h)\ (i\ne j) \]</div><p>En el modelo 1, \(\mu^{01}_x=\mu_x\), \({}_tp^{00}_x={}_tp_x\), \({}_tp^{01}_x={}_tq_x\), \({}_tp^{10}_x=0\).</p></div></details>
     <details class="fc"><summary>\({}_tp^{ii}_x\) frente a \({}_tp^{\overline{ii}}_x\)</summary><div class="ans"><p>\({}_tp^{ii}_x\): estar en \(i\) a la edad \(x+t\) (puede haber salido y vuelto). \({}_tp^{\overline{ii}}_x\): permanecer en \(i\) de forma continua entre \(x\) y \(x+t\).</p></div></details>
     <details class="fc"><summary>Chapman–Kolmogorov</summary><div class="ans"><div class="math">\[ {}_{s+t}p^{ij}_x=\sum_k{}_sp^{ik}_x\,{}_tp^{kj}_{x+s} \]</div><p>Consecuencia de la propiedad de Markov. Ejemplo de clase: \({}_{20}p^{00}_{40}=0{,}77922\), \({}_{20}p^{10}_{40}=0{,}24141\), \({}_{20}p^{02}_{40}=0{,}14348\); sano a los 50 sabiendo que muere antes de los 60: 68,0 %.</p></div></details>
+    <details class="fc"><summary>Probabilidades dependientes frente a independientes</summary><div class="ans"><p>Dependientes: todos los decrementos actúan a la vez, \({}_tp^{00}_x=e^{-\int_0^t\sum_j\mu^{0j}}\). Independientes: cada decremento aislado, \({}_tp^{*(j)}_x=e^{-\int_0^t\mu^{0j}}\). Por lo general \(q^{*(j)}\ge p^{0j}\).</p></div></details>
+    <details class="fc"><summary>Elementos de una tabla de múltiples decrementos</summary><div class="ans"><div class="math">\[ l_x=l_{x_0}\,{}_tp^{00}_{x_0},\qquad d^{(j)}_x=l_x\,p^{0j}_x \]</div><p>Vigentes esperados a la edad \(x\) y salidas esperadas por el decremento \(j\) entre \(x\) y \(x+1\).</p></div></details>
+    <details class="fc"><summary>Hipótesis de distribución uniforme de decrementos</summary><div class="ans"><div class="math">\[ {}_tp^{0j}_x=t\,p^{0j}_x,\qquad {}_tp^{00}_x=1-t\,p^{0\bullet}_x\quad(0\le t\le1) \]</div></div></details>
+    <details class="fc"><summary>De dependientes a independientes con distribución uniforme</summary><div class="ans"><div class="math">\[ p^{*(j)}_x=\bigl(p^{00}_x\bigr)^{p^{0j}_x/p^{0\bullet}_x},\qquad q^{*(j)}_x=1-p^{*(j)}_x \]</div><p>Se deduce de \(\mu^{0j}_{x+t}=p^{0j}_x/(1-t\,p^{0\bullet}_x)\) integrando con \(u=1-t\,p^{0\bullet}_x\).</p></div></details>
+    <details class="fc"><summary>Renuncias a final de año: tasas independientes de un grupo de 100 con \(p^{01}=0{,}01\), \(p^{02}=0{,}10\)</summary><div class="ans"><p>Mortalidad: \(1/100\). Renuncia: \(10/99\), porque las 10 renuncias salen de los 99 que llegan vivos a final de año.</p></div></details>
+    <details class="fc"><summary>Intensidades constantes en el año</summary><div class="ans"><div class="math">\[ \mu^{0\bullet}_x=\sum_k\mu^{0k}_x,\quad p^{00}_x=e^{-\mu^{0\bullet}_x},\quad p^{0\bullet}_x=1-e^{-\mu^{0\bullet}_x},\quad p^{*(j)}_x=e^{-\mu^{0j}_x} \]</div></div></details>
   </div>
 </section>
 </div>
@@ -1468,6 +1634,28 @@ function clasePsc() {
   run();
 }
 clasePsc();
+function mdec() {
+  const $ = (id) => document.getElementById(id);
+  if (!$('md_fig') || !$('md_1')) return;
+  const o = [];
+  o.push('<text class="ttl" x="20" y="20">Todos los decrementos (dependientes)</text>', box(20, 36, 90, 46, 'Activo', '0'), box(200, 30, 100, 40, 'Salida 1', '1', 'p'), box(200, 82, 100, 40, 'Salida 2', '2', 'p'), box(200, 134, 100, 40, 'Salida m', 'm', 'p'), arrow(110, 50, 198, 50), arrow(110, 59, 198, 102), arrow(110, 68, 198, 154));
+  o.push('<text class="sm" x="132" y="44">μ⁰¹</text><text class="sm" x="132" y="86">μ⁰²</text><text class="sm" x="136" y="134">μ⁰ᵐ</text>');
+  o.push('<text class="ttl" x="400" y="20">Decremento j aislado (independientes)</text>', box(400, 36, 90, 46, 'Activo', '0'), box(560, 36, 110, 46, 'Salida j', 'j', 'p'), arrow(490, 59, 558, 59), '<text class="sm" x="508" y="52">μ⁰ʲ</text>');
+  $('md_fig').innerHTML = '<svg viewBox="0 0 680 190" width="680" height="190" role="img" aria-label="Modelo con todos los decrementos frente al modelo con el decremento j aislado">' + o.join('') + '</svg>';
+  const f = (v) => Number.isFinite(v) ? v.toLocaleString('es-ES', { minimumFractionDigits: 5, maximumFractionDigits: 5 }) : '–';
+  const run = () => {
+    const p = ['md_1', 'md_2', 'md_3'].map((id) => Math.max(0, parseFloat($(id).value) || 0));
+    const tot = p[0] + p[1] + p[2], p00 = 1 - tot;
+    $('md_o0').textContent = f(tot); $('md_o00').textContent = f(p00);
+    if (tot <= 0 || p00 <= 0) { ['md_o1', 'md_o2', 'md_o3', 'md_oc'].forEach((id) => $(id).textContent = '–'); return; }
+    const ps = p.map((v) => Math.pow(p00, v / tot));
+    ['md_o1', 'md_o2', 'md_o3'].forEach((id, k) => $(id).textContent = p[k] > 0 ? f(1 - ps[k]) : '–');
+    $('md_oc').textContent = f(ps.reduce((a, b) => a * b, 1));
+  };
+  ['md_1', 'md_2', 'md_3'].forEach((id) => $(id).addEventListener('input', run));
+  run();
+}
+mdec();
 
 })();
 </script>
