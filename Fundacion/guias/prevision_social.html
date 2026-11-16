@@ -986,16 +986,22 @@ html { scroll-behavior: smooth; }
     <div class="math">\[ \Pr[X_1=k]=\binom{8}{k}\,0{,}351^{k}\,0{,}649^{8-k},\qquad \Pr[X_2=k]=\binom{4}{k}\,0{,}450^{k}\,0{,}550^{4-k} \]</div>
     <p>Como todas las vidas son independientes, \(X_1\) y \(X_2\) también lo son. Para que \(X_3\) valga 2 hay tres combinaciones: \((X_1,X_2)=(2,0)\), \((1,1)\) o \((0,2)\). Se pide:</p>
     <div class="math">\[ \Pr[X_3=2]=\Pr[X_1=2]\Pr[X_2=0]+\Pr[X_1=1]\Pr[X_2=1]+\Pr[X_1=0]\Pr[X_2=2] \]</div>
-    <p>Sustituyendo la fórmula binomial en cada término:</p>
+    <p>Desarrollo completo, con \(p_{02}={}_3p^{02}_x\) y \(p_{12}={}_3p^{12}_x\) (así se resolvió en la pizarra):</p>
+    <div class="math">\[ \begin{aligned}
+\Pr[X_3=2]&=\binom{8}{2}p_{02}^{2}(1-p_{02})^{8-2}\cdot\binom{4}{0}p_{12}^{0}(1-p_{12})^{4-0}\\
+&\quad+\binom{8}{1}p_{02}^{1}(1-p_{02})^{8-1}\cdot\binom{4}{1}p_{12}^{1}(1-p_{12})^{4-1}\\
+&\quad+\binom{8}{0}p_{02}^{0}(1-p_{02})^{8-0}\cdot\binom{4}{2}p_{12}^{2}(1-p_{12})^{4-2}
+\end{aligned} \]</div>
+    <p>Con \(p_{02}=0{,}351\) y \(p_{12}=0{,}450\), cada término vale:</p>
     <div class="tbl"><table class="mini">
-      <thead><tr><th>\((X_1,X_2)\)</th><th>\(\Pr[X_1=i]\cdot\Pr[X_2=2-i]\)</th><th>Valor</th></tr></thead>
+      <thead><tr><th>\((X_1,X_2)\)</th><th>Término</th><th>Valor</th></tr></thead>
       <tbody>
-        <tr><td>(2, 0)</td><td class="num">\(\binom{8}{2}0{,}351^2\,0{,}649^6\cdot\binom{4}{0}0{,}550^4\)</td><td class="num">0,02359</td></tr>
-        <tr><td>(1, 1)</td><td class="num">\(\binom{8}{1}0{,}351\,0{,}649^7\cdot\binom{4}{1}0{,}450\,0{,}550^3\)</td><td class="num">0,04078</td></tr>
-        <tr><td>(0, 2)</td><td class="num">\(\binom{8}{0}0{,}649^8\cdot\binom{4}{2}0{,}450^2\,0{,}550^2\)</td><td class="num">0,01157</td></tr>
+        <tr><td>(2, 0)</td><td class="num">\(\binom{8}{2}0{,}351^2\,0{,}649^6\cdot\binom{4}{0}0{,}550^4\)</td><td class="num">0,023588</td></tr>
+        <tr><td>(1, 1)</td><td class="num">\(\binom{8}{1}0{,}351\,0{,}649^7\cdot\binom{4}{1}0{,}450\,0{,}550^3\)</td><td class="num">0,040782</td></tr>
+        <tr><td>(0, 2)</td><td class="num">\(\binom{8}{0}0{,}649^8\cdot\binom{4}{2}0{,}450^2\,0{,}550^2\)</td><td class="num">0,011568</td></tr>
       </tbody></table></div>
-    <div class="math">\[ \Pr[X_3=2]=0{,}02359+0{,}04078+0{,}01157=\mathbf{0{,}0759} \]</div>
-    <div class="result">a) \({}_3P_x\) arriba · b) 4,608 vidas · c) 0,0759</div>
+    <div class="math">\[ \Pr[X_3=2]=0{,}023588+0{,}040782+0{,}011568=\mathbf{0{,}075938} \]</div>
+    <div class="result">a) \({}_3P_x\) arriba · b) 4,608 vidas · c) 0,075938</div>
     <p class="note">Las filas de \({}_3P_x\) suman 1 y la del estado 2 es \((0,0,1)\): el fallecimiento es absorbente. El apartado c) usa que, dado el estado inicial, cada vida evoluciona de forma independiente (hipótesis del enunciado).</p>
   </div>
 
