@@ -1869,6 +1869,29 @@ sm.qqplot(modelo2.resid, line="s"); plt.show()       # residuos muy asimétricos
         <tr><td>HQIC</td><td>\(-2\ell(\hat\theta)+2p\log\log n\)</td><td>mín</td></tr>
       </tbody>
     </table></div>
+    <h4>Situaciones: ¿penalizada o no penalizada?</h4>
+    <div class="tbl"><table class="plain mini">
+      <thead><tr><th></th><th>No penalizadas (SSE, MSE, RMSE, MAE, MAPE, \(R^2\))</th><th>Penalizadas (\(R^2_{adj}\), AIC, BIC, AICc, HQIC)</th></tr></thead>
+      <tbody>
+        <tr><td><b>Qué miden</b></td><td>Solo cuánto se equivoca el modelo; no les importa cuántas variables tiene.</td><td>El ajuste menos un castigo por cada parámetro: premian el modelo que explica bien <b>con pocas variables</b>.</td></tr>
+        <tr><td><b>Úsalas cuando…</b></td>
+          <td><ul>
+            <li>Evalúas la <b>capacidad predictiva en datos de test</b> o con validación cruzada: ahí el sobreajuste ya se nota en el error, no hace falta penalizar.</li>
+            <li>Comparas modelos con <b>el mismo número de variables</b> o de familias distintas (árbol frente a regresión).</li>
+            <li>Tienes que <b>informar del error</b> a negocio en unidades de \(Y\) (RMSE, MAE) o en % (MAPE).</li>
+            <li>El modelo <b>no tiene verosimilitud</b> (bosques aleatorios, boosting, redes), así que AIC/BIC no existen.</li>
+          </ul></td>
+          <td><ul>
+            <li>Comparas modelos con <b>distinto número de variables</b> usando <b>solo los datos de entrenamiento</b>, sin conjunto de test.</li>
+            <li>Haces <b>selección de variables</b> (forward, backward, both con <code>step()</code>).</li>
+            <li>Comparas modelos <b>con verosimilitud</b> sobre los mismos datos: lineal, GLM, ARIMA.</li>
+            <li>Quieres <b>evitar el sobreajuste</b> sin reservar datos para test (muestra pequeña: AICc), o un modelo más simple (BIC).</li>
+          </ul></td></tr>
+        <tr><td><b>No las uses cuando…</b></td><td>Comparas modelos con distinto número de variables <b>solo en entrenamiento</b>: el grande siempre gana (SSE, MSE y \(R^2\) mejoran siempre al añadir variables).</td><td>El modelo no tiene verosimilitud, o los modelos usan <b>datos o respuestas distintas</b> (\(Y\) frente a \(\log Y\)). Tampoco miden el error en unidades reales.</td></tr>
+        <tr><td><b>Ejemplo</b></td><td>Dos predictores de la cuantía de un siniestro, uno con regresión y otro con boosting: se comparan por RMSE en el conjunto de test.</td><td>Elegir con <code>step()</code> qué variables tarifarias dejar en un GLM de frecuencia: se mantiene el modelo de menor AIC (o BIC si se busca algo más simple).</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note"><b>En la práctica se combinan:</b> los criterios penalizados sirven para <i>seleccionar</i> el modelo con los datos de entrenamiento, y las medidas no penalizadas, calculadas en <b>test</b>, para <i>validar</i> el elegido y contar cuánto error tiene.</p>
     <h4>Para qué sirve cada medida, cuándo usarla y en qué modelos</h4>
     <div class="tbl"><table class="plain mini">
       <thead><tr><th>Medida</th><th>Para qué sirve</th><th>Cuándo se usa</th><th>Modelos y ejemplo</th></tr></thead>
