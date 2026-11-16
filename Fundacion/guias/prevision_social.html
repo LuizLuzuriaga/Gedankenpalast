@@ -177,7 +177,7 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t3-mort">Repaso de mortalidad</a></td><td>\(S_x(t)\), \(\mu_x\), \({}_tp_x\), \({}_{t|u}q_x\), \(\mathring e_x\), \(e_x\), varianzas</td><td>14, 15, 16</td></tr>
       <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), hipótesis de Markov, \(o(h)\) y diferenciabilidad, intensidades \(\mu^{ij}_x\), Chapman–Kolmogorov, ejemplo de clase</td><td>17, 18</td></tr>
       <tr><td><a href="#t3-md">3.1 (cont.) Múltiples decrementos</a></td><td>Probabilidades dependientes e independientes, tablas de múltiples decrementos, distribución uniforme, intensidades constantes, \(p^{*(j)}=(p^{00})^{p^{0j}/p^{0\bullet}}\)</td><td>25 a 30</td></tr>
-      <tr><td><a href="#q19">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>19 a 24</td></tr>
+      <tr><td><a href="#q19">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>19 a 24 y 31</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -1098,6 +1098,26 @@ html { scroll-behavior: smooth; }
     <div class="math">\[ q^{*(1)}_x=1-e^{-0{,}02}=0{,}01980,\qquad q^{*(2)}_x=1-e^{-0{,}03}=0{,}02955 \]</div>
     <div class="result">\(p^{00}=0{,}95123\) · \(p^{01}=0{,}01951\) · \(p^{02}=0{,}02926\) · \(q^{*(1)}=0{,}01980\) · \(q^{*(2)}=0{,}02955\)</div>
     <p class="note">Coincide con la fórmula de la pregunta 28: \(1-0{,}95123^{0{,}4}=0{,}01980\). Las independientes superan a las dependientes (0,01980 &gt; 0,01951 y 0,02955 &gt; 0,02926).</p>
+  </div>
+
+  <div class="q" id="q31"><span class="qn">PREGUNTA 31 · PRÁCTICA · EJERCICIOS TEMA 3 (EJ. 9)</span>
+    <p class="stmt">Modelo de Markov homogéneo con 3 estados (0 sano, 1 inválido, 2 fallecido). Las probabilidades de transición a un año no dependen de la edad. En el instante 0 hay 8 vidas en el estado 0 y 4 vidas en el estado 1. a) Calcule la matriz de transición a 3 años, \({}_3P_x\). b) Calcule el número esperado de vidas en el estado 2 al final de los 3 años. c) Calcule la probabilidad de que exactamente 2 vidas del grupo original de 12 estén en el estado 2 al final de los 3 años.</p>
+    <div class="math">\[ P_x=egin{pmatrix}p^{00}&p^{01}&p^{02}\p^{10}&p^{11}&p^{12}\p^{20}&p^{21}&p^{22}\end{pmatrix}=egin{pmatrix}0{,}5&0{,}4&0{,}1\0{,}2&0{,}6&0{,}2\0&0&1\end{pmatrix} \]</div>
+    <p><b>a)</b> Por Chapman–Kolmogorov, la matriz a 3 años es el producto de las matrices anuales, \({}_3P_x=P_x\,P_{x+1}\,P_{x+2}\). Como no dependen de la edad, \({}_3P_x=P^3\):</p>
+    <div class="math">\[ P^2=egin{pmatrix}0{,}33&0{,}44&0{,}23\0{,}22&0{,}44&0{,}34\0&0&1\end{pmatrix},\qquad {}_3P_x=P^2P=egin{pmatrix}0{,}253&0{,}396&0{,}351\0{,}198&0{,}352&0{,}450\0&0&1\end{pmatrix} \]</div>
+    <p><b>b)</b> Cada vida sana llega al estado 2 con probabilidad \({}_3p^{02}=0{,}351\) y cada inválida con \({}_3p^{12}=0{,}450\). El número esperado es la suma de esperanzas:</p>
+    <div class="math">\[ E=8\cdot0{,}351+4\cdot0{,}450=2{,}808+1{,}8=\mathbf{4{,}608} \]</div>
+    <p><b>c)</b> Se supone que las vidas son independientes. El número de fallecidas entre las 8 sanas es \(X\sim	ext{Bin}(8;\,0{,}351)\) y entre las 4 inválidas \(Y\sim	ext{Bin}(4;\,0{,}450)\). Se pide \(\Pr[X+Y=2]\), que suma los tres repartimientos posibles de las 2 fallecidas:</p>
+    <div class="math">\[ \Pr[X+Y=2]=\sum_{i=0}^{2}\Pr[X=i]\,\Pr[Y=2-i]=0{,}01157+0{,}04078+0{,}02359=\mathbf{0{,}0759} \]</div>
+    <div class="tbl"><table class="mini">
+      <thead><tr><th>Sanas fallecidas \(X\)</th><th>Inválidas fallecidas \(Y\)</th><th>Probabilidad</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>2</td><td class="num">\(0{,}649^8\cdotinom42\,0{,}45^2\,0{,}55^2=0{,}01157\)</td></tr>
+        <tr><td>1</td><td>1</td><td class="num">\(8\cdot0{,}351\cdot0{,}649^7\cdot4\cdot0{,}45\cdot0{,}55^3=0{,}04078\)</td></tr>
+        <tr><td>2</td><td>0</td><td class="num">\(inom82\,0{,}351^2\,0{,}649^6\cdot0{,}55^4=0{,}02359\)</td></tr>
+      </tbody></table></div>
+    <div class="result">a) \({}_3P_x\) arriba · b) 4,608 vidas · c) 0,0759</div>
+    <p class="note">Las filas de \({}_3P_x\) suman 1 y la del estado 2 es \((0,0,1)\): el fallecimiento es absorbente. El apartado c) usa que, dado el estado inicial, cada vida evoluciona de forma independiente (hipótesis del enunciado).</p>
   </div>
   </div>
 </section>
