@@ -177,7 +177,10 @@ html { scroll-behavior: smooth; }
       <tr><td><a href="#t3-mort">Repaso de mortalidad</a></td><td>\(S_x(t)\), \(\mu_x\), \({}_tp_x\), \({}_{t|u}q_x\), \(\mathring e_x\), \(e_x\), varianzas</td><td>14, 15, 16</td></tr>
       <tr><td><a href="#t3-ms">3.1 Múltiples estados</a></td><td>Modelos 1 a 4, proceso \(Y(t)\), hipótesis de Markov, \(o(h)\) y diferenciabilidad, intensidades \(\mu^{ij}_x\), Chapman–Kolmogorov, ejemplo de clase</td><td>17, 18</td></tr>
       <tr><td><a href="#t3-md">3.1 (cont.) Múltiples decrementos</a></td><td>Probabilidades dependientes e independientes, tablas de múltiples decrementos, distribución uniforme, intensidades constantes, \(p^{*(j)}=(p^{00})^{p^{0j}/p^{0\bullet}}\)</td><td>19 a 24</td></tr>
-      <tr><td><a href="#t3-preg">Preguntas del Tema 3</a></td><td>Preguntas 14 a 24, dentro del propio tema</td><td>14 a 24</td></tr>
+      <tr><td><a href="#t3-preg">Preguntas del Tema 3</a></td><td>Preguntas 14 a 27, dentro del propio tema</td><td>14 a 27</td></tr>
+      <tr><td><a href="#t3-md2">3.1 (cont.) Diapositivas del 23/11</a></td><td>Kolmogorov, trayectoria 0 → 1, cadenas de Markov, patrón de bajas al comienzo del año, de independientes a dependientes</td><td>26, 27</td></tr>
+      <tr><td><a href="#t3-32">3.2 Supervivencia de dos personas</a></td><td>\(T_{xy}\), \(T_{\overline{xy}}\), probabilidades conjuntas y de último superviviente, vidas independientes, rentas y seguros</td><td>25</td></tr>
+      <tr><td><a href="#t3-ej32">Ejercicios de dos vidas (hoja del 23/11)</a></td><td>Probabilidades con tablas, rentas temporales conjunta y de último superviviente, seguro con renta diferida</td><td>Ejercicios 1 y 2</td></tr>
       <tr><td><a href="#t3-ej">Ejercicios del Tema 3</a></td><td>Chapman–Kolmogorov con tablas, múltiples decrementos (uniformidad), intensidades constantes, permanencia y probabilidades condicionadas</td><td>Ejercicios 3 a 10 (en el propio tema)</td></tr>
     </tbody>
   </table></div>
@@ -475,7 +478,7 @@ html { scroll-behavior: smooth; }
     .t3pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     @media (max-width:640px){.t3pair{grid-template-columns:1fr}}
   </style>
-  <p class="note">Índice del tema según las diapositivas: 3.1 Modelos de múltiples estados y múltiples decrementos · 3.2 Supervivencia de dos o más personas · 3.3 Valoración de las obligaciones del plan: métodos de coste actuarial · 3.4 Aleatoriedad de las obligaciones · 3.5 Valoración de los activos del plan · 3.6 Solvencia del plan. El material disponible desarrolla el apartado 3.1 (incluida la clase del 16/11 sobre múltiples decrementos) y un repaso del modelo de mortalidad del curso anterior, que es la base de todo el tema; los apartados 3.2 a 3.6 se añadirán a esta guía cuando haya documentos.</p>
+  <p class="note">Índice del tema según las diapositivas: 3.1 Modelos de múltiples estados y múltiples decrementos · 3.2 Supervivencia de dos o más personas · 3.3 Valoración de las obligaciones del plan: métodos de coste actuarial · 3.4 Aleatoriedad de las obligaciones · 3.5 Valoración de los activos del plan · 3.6 Solvencia del plan. El material disponible desarrolla los apartados 3.1 (incluidas la clase del 16/11 y las diapositivas del 23/11) y 3.2, y un repaso del modelo de mortalidad del curso anterior, que es la base de todo el tema; los apartados 3.3 a 3.6 se añadirán a esta guía cuando haya documentos.</p>
 
   <div class="sub" id="t3-mort">
     <h3>Repaso del modelo de mortalidad</h3>
@@ -762,9 +765,128 @@ html { scroll-behavior: smooth; }
     </div></details>
   </div>
 
+  <div class="sub" id="t3-md2">
+    <h3>3.1 (cont.) Diapositivas del 23/11: Kolmogorov, cadenas de Markov y de decrementos independientes a dependientes</h3>
+    <p class="note">Completa el apartado 3.1 con las diapositivas 11 a 32 del PDF «Tema 3» del 23/11/2026. Lo que ya se vio en la clase del 16/11 está en el apartado anterior; aquí solo se añade lo nuevo.</p>
+
+    <h4>Permanencia y ecuaciones progresivas de Kolmogorov</h4>
+    <div class="card"><span class="tag">Diapositiva 11 · a partir de las intensidades de transición</span>
+      <p>Probabilidad de que una vida de edad \(x\) que está en el estado \(i\) <b>permanezca</b> en \(i\) durante el periodo \([0,t]\), en términos de todas las intensidades de salida desde \(i\):</p>
+      <div class="math">\[ {}_tp^{\overline{ii}}_x=e^{-\int_0^t\sum_{j=0,\,j\ne i}^{m}\mu^{ij}_{x+s}\,ds} \]</div>
+      <p>Generaliza \({}_tp_x=e^{-\int_0^t\mu_{x+s}ds}\). Las <b>ecuaciones progresivas de Kolmogorov</b> para un proceso de Markov son:</p>
+      <div class="math">\[ \frac{d}{dt}\,{}_tp^{ij}_x=\sum_{k=0,\,k\ne j}^{m}\Bigl({}_tp^{ik}_x\,\mu^{kj}_{x+t}-{}_tp^{ij}_x\,\mu^{jk}_{x+t}\Bigr),\qquad {}_0p^{ii}_x=1,\quad {}_0p^{ij}_x=0\ (i\ne j) \]</div>
+      <p class="note">El primer término es lo que entra en \(j\) desde los demás estados; el segundo, lo que sale de \(j\). Se resuelven numéricamente con las condiciones de acotación \({}_0p^{ii}_x=1\) y \({}_0p^{ij}_x=0\) si \(i\ne j\).</p></div>
+
+    <h4>Probabilidad de ir del estado 0 al 1 entre \(x\) y \(x+u\)</h4>
+    <div class="card"><span class="tag">Diapositivas 12 y 13 · trayectoria 0 → 1</span>
+      <p>Para pasar del estado 0 al 1 entre las edades \(x\) y \(x+u\) hay que permanecer en 0 hasta una edad \(x+t\), pasar al 1 entre \(x+t\) y \(x+t+dt\) (con \(dt\) pequeño) y permanecer en 1 desde \(x+t+dt\) hasta \(x+u\). La probabilidad infinitesimal de esta trayectoria es:</p>
+      <div class="math">\[ {}_tp^{\overline{00}}_x\cdot\mu^{01}_{x+t}\,dt\cdot{}_{u-t}p^{\overline{11}}_{x+t} \]</div>
+      <p>Como la edad de transferencia \(x+t\) puede ser cualquiera entre \(x\) y \(x+u\), la probabilidad total es la integral de estas probabilidades:</p>
+      <div class="math">\[ {}_up^{01}_x=\int_0^u{}_tp^{\overline{00}}_x\;\mu^{01}_{x+t}\;{}_{u-t}p^{\overline{11}}_{x+t}\,dt \]</div>
+      <p class="note">Es la fórmula que se usa en los <a href="#ej7">ejercicios 7</a> y <a href="#ej8">8</a>. La diapositiva 13 la remite al ejercicio 2 de la colección.</p></div>
+
+    <h4>Cadenas de Markov (tiempo discreto) y ecuaciones de Chapman–Kolmogorov</h4>
+    <div class="card"><span class="tag">Diapositivas 14 a 18</span>
+      <p>Los modelos de Markov <b>en tiempo discreto</b> se llaman <b>cadenas de Markov</b>. Un proceso \(\{Y(t)\}_{t=0,1,2,\dots}\) con espacio de estados \(S=\{0,1,\dots,m\}\) es una cadena de Markov si, para cualesquiera enteros \(t,k\ge0\) y cualquier estado \(s\),</p>
+      <div class="math">\[ \Pr[Y(t+k)=s\mid Y(0),Y(1),\dots,Y(t)]=\Pr[Y(t+k)=s\mid Y(t)] \]</div>
+      <p>Al igual que en el caso continuo, la probabilidad de estar en un estado en una fecha futura depende solo del estado actual, no de la historia anterior. Las <b>ecuaciones de Chapman–Kolmogorov</b> descomponen el suceso \(Y(t+r)=j\mid Y(0)=i\) en \(m+1\) sucesos incompatibles y exhaustivos según el estado \(k\) en el instante \(t\):</p>
+      <div class="math">\[ {}_{t+r}p^{ij}_x=\sum_{k=0}^{m}{}_tp^{ik}_x\;{}_rp^{kj}_{x+t}={}_tp^{i0}_x\,{}_rp^{0j}_{x+t}+{}_tp^{i1}_x\,{}_rp^{1j}_{x+t}+\dots+{}_tp^{im}_x\,{}_rp^{mj}_{x+t} \]</div>
+      <p>Cuando una transición no es posible su probabilidad es cero. En forma matricial, la matriz de transición a un año para la edad \(x\) es \(P_x\), de tamaño \((m+1)\times(m+1)\):</p>
+      <div class="math">\[ P_x=\begin{pmatrix}p^{00}_x&p^{01}_x&\cdots&p^{0m}_x\\ \vdots&\vdots&\ddots&\vdots\\ p^{m0}_x&p^{m1}_x&\cdots&p^{mm}_x\end{pmatrix} \]</div>
+      <p>Es una matriz <b>estocástica</b>: todas las entradas son no negativas y cada fila suma 1. Multiplicar matrices de edades sucesivas genera las ecuaciones de Chapman–Kolmogorov del sistema, y permite obtener la matriz de transición a \(t\) años para cualquier entero \(t\) y valorar prestaciones condicionadas al estado.</p>
+      <p class="note"><b>Homogéneo o no.</b> Cuando las probabilidades de transición son constantes en cada periodo, el proceso es <b>homogéneo en el tiempo</b> (como el del <a href="#ej9">ejercicio 9</a>, con \({}_3P_x=P^3\)). En prestaciones ligadas a la vida de una persona las probabilidades dependen de la edad, así que el proceso es <b>no homogéneo</b> (como el del <a href="#ej3">ejercicio 3</a>, con \({}_3P_{60}=P_{60}P_{61}P_{62}\)).</p></div>
+
+    <h4>Modelo de múltiples decrementos como caso particular</h4>
+    <div class="card"><span class="tag">Diapositivas 19 a 21</span>
+      <p>Un modelo de múltiples decrementos con \(m+1\) estados tiene un <b>único estado inicial</b> (activo, estado 0) y \(m\) <b>estados de salida</b>. El proceso hace al menos una transición a uno de ellos; no hay otras transiciones, así que los estados de salida son <b>absorbentes</b> y todas las probabilidades son de la forma \({}_tp^{0j}_x\). Los modos de salida se llaman <b>decrementos</b>.</p>
+      <p>Como no se puede volver al estado 0, estar en 0 equivale a no haber salido, y las ecuaciones de Kolmogorov se simplifican:</p>
+      <div class="math">\[ {}_tp^{00}_x={}_tp^{\overline{00}}_x=e^{-\int_0^t\sum_{i=1}^m\mu^{0i}_{x+s}ds},\qquad \frac{d}{dt}\,{}_tp^{0j}_x={}_tp^{00}_x\,\mu^{0j}_{x+t},\qquad {}_tp^{0j}_x=\int_0^t{}_sp^{00}_x\,\mu^{0j}_{x+s}\,ds \]</div>
+      <p>Las probabilidades \({}_tp^{00}_x\) y \({}_tp^{0j}_x\) se llaman <b>dependientes</b> (tasas de supervivencia o de salida por el decremento \(j\)) porque dependen de las otras intensidades \(\mu^{0k}_{x+s}\), \(k\ne j\). Para simplificar se puede usar un modelo reducido con una sola salida \(j\) y la misma intensidad \(\mu^{0j}_x\): el <b>modelo de decremento único independiente para \(j\)</b>, con \({}_tp^{*(j)}_x\) y \({}_tq^{*(j)}_x\) (probabilidades independientes). Son probabilidades hipotéticas, las que se aplicarían si la única forma de abandonar el estado activo fuese \(j\).</p></div>
+
+    <h4>Segundo patrón de salidas: las bajas al comienzo del año</h4>
+    <div class="card"><span class="tag">Diapositiva 24 · completa el ejemplo de las 100 vidas</span>
+      <p>Con \(p^{01}_x=0{,}01\) (mortalidad) y \(p^{02}_x=0{,}10\) (baja), sobre 100 vidas activas se espera 1 fallecimiento y 10 bajas antes de \(x+1\). Hay dos patrones extremos:</p>
+      <div class="tbl"><table class="mini">
+        <thead><tr><th>Patrón de las bajas</th><th>Mortalidad independiente \(q^{*(1)}_x\)</th><th>Baja independiente \(q^{*(2)}_x\)</th></tr></thead>
+        <tbody>
+          <tr><td>Todas a <b>final</b> de año</td><td class="num">\(1/100\): las bajas no afectan al fallecimiento esperado</td><td class="num">\(10/99\): las 10 bajas salen de las 99 vidas que llegan vivas</td></tr>
+          <tr><td>Todas al <b>comienzo</b> del año</td><td class="num">\(1/90\): tras las bajas quedan 90 vidas activas, de las que se espera 1 fallecimiento</td><td class="num">\(10/100\): aún no ha pasado tiempo para que la mortalidad afecte</td></tr>
+        </tbody></table></div>
+      <p class="note">En el primer patrón la mortalidad independiente coincide con la dependiente; en el segundo, es la baja la que coincide. Cuando no se conoce el patrón se usa la distribución uniforme (apartado anterior). Para el cálculo de la clase del 16/11 véase la <a href="#q21">pregunta 21</a>.</p></div>
+
+    <h4>De tasas independientes a dependientes</h4>
+    <div class="card"><span class="tag">Diapositivas 30 a 32</span>
+      <p>Del resultado \(p^{*(j)}_x=(p^{00}_x)^{p^{0j}_x/p^{0\bullet}_x}\), tomando logaritmos y despejando:</p>
+      <div class="math">\[ p^{0j}_x=\frac{\ln p^{*(j)}_x}{\ln p^{00}_x}\cdot p^{0\bullet}_x \]</div>
+      <p>El producto de las probabilidades de supervivencia independientes es la dependiente:</p>
+      <div class="math">\[ \prod_{j=1}^m{}_tp^{*(j)}_x=\prod_{j=1}^me^{-\int_0^t\mu^{0j}_{x+s}ds}=e^{-\int_0^t\sum_{j=1}^m\mu^{0j}_{x+s}ds}={}_tp^{00}_x \]</div>
+      <p><b>Distribución uniforme en cada modelo independiente.</b> Para cada decremento \(j\), \(x\) entero y \(0\le t<1\), se supone \({}_tq^{*(j)}_x=t\,q^{*(j)}_x\), de modo que \({}_tp^{*(j)}_x\,\mu^{0j}_{x+t}=q^{*(j)}_x\) (modelo de decremento único). Sustituyendo en \(p^{0j}_x=\int_0^1{}_sp^{00}_x\mu^{0j}_{x+s}ds\) con \({}_sp^{00}_x=\prod_k{}_sp^{*(k)}_x\):</p>
+      <div class="math">\[ p^{0j}_x=\int_0^1{}_sp^{00}_x\,\mu^{0j}_{x+s}\,ds=q^{*(j)}_x\int_0^1\prod_{k=1,\,k\ne j}^m{}_sp^{*(k)}_x\,ds=q^{*(j)}_x\int_0^1\prod_{k\ne j}\bigl(1-s\,q^{*(k)}_x\bigr)\,ds \]</div>
+      <p>Con <b>dos decrementos</b> se puede demostrar que:</p>
+      <div class="math">\[ p^{01}_x=q^{*(1)}_x\int_0^1\bigl(1-s\,q^{*(2)}_x\bigr)ds=q^{*(1)}_x\Bigl(1-\tfrac12\,q^{*(2)}_x\Bigr),\qquad p^{02}_x=q^{*(2)}_x\Bigl(1-\tfrac12\,q^{*(1)}_x\Bigr) \]</div>
+      <p class="note">Comprobación con el ejemplo \(q^{*(1)}=0{,}010538\) y \(q^{*(2)}=0{,}100521\) (obtenidas de \(p^{01}=0{,}01\), \(p^{02}=0{,}10\)): \(0{,}010538\,(1-0{,}050261)=0{,}010008\) y \(0{,}100521\,(1-0{,}005269)=0{,}099992\). Casi se recuperan 0,01 y 0,10; lo que queda es la diferencia entre suponer la uniformidad en el modelo dependiente o en cada modelo independiente. Según la diapositiva 32, hay poca diferencia entre ambas hipótesis, y solo es notable cuando las fuerzas de transición cambian mucho entre edades enteras.</p></div>
+  </div>
+
+  <div class="sub" id="t3-32">
+    <h3>3.2 Supervivencia de dos o más personas</h3>
+    <p class="note">Diapositivas 33 a 39 del PDF del 23/11/2026. Prestaciones que dependen de la mortalidad conjunta de dos o más vidas, normalmente marido y mujer.</p>
+    <h4>Tipos de beneficio</h4>
+    <ul class="tight">
+      <li><b>Renta vitalicia conjunta:</b> se paga hasta el primer fallecimiento de \(x\) e \(y\).</li>
+      <li><b>Renta vitalicia del último superviviente:</b> se paga hasta el segundo fallecimiento.</li>
+      <li><b>Renta vitalicia reversible:</b> empieza a pagar al fallecimiento de \(x\), si \(y\) está vivo, y continúa hasta el fallecimiento de \(y\).</li>
+      <li><b>Seguro de vida conjunto:</b> paga al primer fallecimiento de \(x\) e \(y\).</li>
+      <li><b>Seguro de vida de último superviviente:</b> paga al segundo fallecimiento.</li>
+    </ul>
+    <h4>Notación y relaciones entre variables</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Símbolo</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>\(T_x,\ T_y\)</td><td>Tiempo de vida futura de una persona de edad \(x\) y de otra de edad \(y\)</td></tr>
+        <tr><td>\(T_{xy}=\min(T_x,T_y)\)</td><td>Tiempo hasta el <b>primer</b> fallecimiento (vida conjunta)</td></tr>
+        <tr><td>\(T_{\overline{xy}}=\max(T_x,T_y)\)</td><td>Tiempo hasta el <b>último</b> fallecimiento (último superviviente)</td></tr>
+      </tbody></table></div>
+    <p>Con dos vidas, si \(x\) fallece primero, los valores de \(T_x\) y \(T_{xy}\) coinciden y, por tanto, también los de \(T_y\) y \(T_{\overline{xy}}\); si fallece primero \(y\), ocurre lo contrario. De ahí se deduce, para las variables aleatorias, los factores de descuento y las rentas ciertas:</p>
+    <div class="math">\[ T_x+T_y=T_{xy}+T_{\overline{xy}},\qquad v^{T_x}+v^{T_y}=v^{T_{xy}}+v^{T_{\overline{xy}}},\qquad a_{\overline{T_x}|}+a_{\overline{T_y}|}=a_{\overline{T_{xy}}|}+a_{\overline{T_{\overline{xy}}}|} \]</div>
+    <h4>Probabilidades</h4>
+    <div class="tbl"><table>
+      <thead><tr><th>Probabilidad</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>\({}_tp_{xy}=\Pr(T_{xy}&gt;t)\)</td><td>\(x\) e \(y\) vivirán conjuntamente \(t\) años</td></tr>
+        <tr><td>\({}_tq_{xy}=\Pr(T_{xy}\le t)\)</td><td>\(x\) e \(y\) no vivirán conjuntamente \(t\) años (alguno fallece antes)</td></tr>
+        <tr><td>\({}_{u|t}q_{xy}=\Pr(u&lt;T_{xy}\le u+t)\)</td><td>Viven conjuntamente \(u\) años pero alguno de los dos fallece en los \(t\) siguientes</td></tr>
+        <tr><td>\({}_tq^{\,1}_{xy}=\Pr(T_x\le t,\ T_x&lt;T_y)\)</td><td>\(x\) fallece antes que \(y\), dentro de los próximos \(t\) años</td></tr>
+        <tr><td>\({}_tq^{\,2}_{xy}=\Pr(T_y&lt;T_x\le t)\)</td><td>\(x\) fallece después que \(y\), dentro de los próximos \(t\) años</td></tr>
+        <tr><td>\({}_tp_{\overline{xy}}=\Pr(T_{\overline{xy}}&gt;t)\)</td><td>Al menos uno de los dos estará vivo dentro de \(t\) años</td></tr>
+        <tr><td>\({}_tq_{\overline{xy}}=\Pr(T_{\overline{xy}}\le t)\)</td><td>\(x\) e \(y\) habrán fallecido ambos dentro de \(t\) años</td></tr>
+        <tr><td>\({}_{u|t}q_{\overline{xy}}=\Pr(u&lt;T_{\overline{xy}}\le u+t)\)</td><td>Al menos uno estará vivo dentro de \(u\) años, pero ambos fallecen en los \(t\) siguientes</td></tr>
+      </tbody></table></div>
+    <h4>Relaciones válidas con cualquier dependencia entre \(T_x\) y \(T_y\)</h4>
+    <div class="card">
+      <div class="math">\[ {}_tp_{\overline{xy}}=\Pr(T_{\overline{xy}}&gt;t)=\Pr(T_x&gt;t)+\Pr(T_y&gt;t)-\Pr(T_{xy}&gt;t)={}_tp_x+{}_tp_y-{}_tp_{xy} \]</div>
+      <p>Tomando esperanzas en \(a_{\overline{T_x}|}+a_{\overline{T_y}|}=a_{\overline{T_{xy}}|}+a_{\overline{T_{\overline{xy}}}|}\) y en \(v^{T_x}+v^{T_y}=v^{T_{xy}}+v^{T_{\overline{xy}}}\):</p>
+      <div class="math">\[ a_{\overline{xy}}=a_x+a_y-a_{xy},\qquad A_{\overline{xy}}=A_x+A_y-A_{xy},\qquad a_{x|y}=a_y-a_{xy} \]</div>
+      <p class="note">\(a_{x|y}\) es la <b>renta vitalicia reversible</b> (se paga al fallecimiento de \(x\) si \(y\) vive), y \(a_{xy}\) es el valor actual esperado de una renta unitaria pagable a \(y\) mientras \(x\) está vivo. Todo lo anterior sirve para cualquier modelo de dependencia entre \(T_x\) y \(T_y\).</p></div>
+    <h4>Hipótesis de vidas independientes</h4>
+    <div class="card"><span class="tag">Diapositiva 37</span>
+      <p>La vida futura de cada individuo no está afectada por la otra: \(T_x\) y \(T_y\) son independientes. Se usa en la práctica salvo que la dependencia tenga un impacto significativo en la valoración actuarial. Se parte de que se conocen los modelos de supervivencia de las dos variables (normalmente distintos, por ejemplo hombre y mujer): \({}_tp_x\), \({}_tp_y\), \(\mu_{x+t}\) y \(\mu_{y+t}\). Para \(t\ge0\):</p>
+      <div class="math">\[ {}_tp_{xy}=\Pr(T_x&gt;t,\ T_y&gt;t)={}_tp_x\cdot{}_tp_y \]</div>
+      <div class="math">\[ {}_tp_{\overline{xy}}=\Pr(T_x&gt;t\ \text{o}\ T_y&gt;t)=1-{}_tq_x\,{}_tq_y={}_tp_x+{}_tp_y-{}_tp_x\,{}_tp_y \]</div>
+      <div class="math">\[ {}_{k|}q_{xy}={}_kp_{xy}\bigl(1-p_{x+k:y+k}\bigr)={}_kp_{xy}-{}_{k+1}p_{xy} \]</div>
+      <p class="note">La diapositiva escribe esta última fórmula con la barra de último superviviente, pero la expresión \({}_kp_{xy}-{}_{k+1}p_{xy}\) es la de la <b>vida conjunta</b> (fallecimiento del primero en el año \(k+1\)). Para el último superviviente sería \({}_{k|}q_{\overline{xy}}={}_kp_{\overline{xy}}-{}_{k+1}p_{\overline{xy}}\).</p></div>
+    <h4>Valor actual de rentas y seguros</h4>
+    <div class="card"><span class="tag">Diapositivas 38 y 39</span>
+      <div class="math">\[ \ddot a_{xy:\overline{n}|}=\sum_{k=0}^{n-1}v^k\,{}_kp_{xy},\qquad \ddot a_{\overline{xy}}=\sum_{k=0}^{\omega}v^k\,{}_kp_{\overline{xy}}=\ddot a_x+\ddot a_y-\ddot a_{xy} \]</div>
+      <div class="math">\[ A_{xy}=\sum_{k=0}^{\omega}v^{k+1}\,{}_{k|}q_{xy},\qquad A_{\overline{xy}}=\sum_{k=0}^{\omega}v^{k+1}\,{}_{k|}q_{\overline{xy}}=A_x+A_y-A_{xy} \]</div>
+      <p>Rentas pagables \(m\) veces al año, y seguro temporal de vida conjunta que paga al final del año del <b>primer</b> fallecimiento si ocurre dentro de \(n\) años:</p>
+      <div class="math">\[ \ddot a^{(m)}_{xy}=\frac1m\Bigl(1+{}_{1/m}p_{xy}\,v^{1/m}+{}_{2/m}p_{xy}\,v^{2/m}+\cdots\Bigr),\qquad \ddot a^{(m)}_{\overline{xy}}=\ddot a^{(m)}_x+\ddot a^{(m)}_y-\ddot a^{(m)}_{xy} \]</div>
+      <div class="math">\[ A^{1}_{xy:\overline{n}|}=\sum_{k=0}^{n-1}v^{k+1}\,{}_{k|}q_{xy} \]</div>
+      <p class="note">Los ejercicios de esta parte están en «<a href="#t3-ej32">Ejercicios de supervivencia de dos vidas</a>»: el 1 pide probabilidades y rentas temporales con tablas (diapositiva 38) y el 2 es un seguro con renta diferida (diapositiva 39).</p></div>
+  </div>
+
   <div class="sub" id="t3-preg">
     <h3>Preguntas del Tema 3</h3>
-    <p class="note">Preguntas 14 a 24: repaso de mortalidad (14 a 16), modelos de múltiples estados (17 y 18) y múltiples decrementos de la clase del 16/11 (19 a 24).</p>
+    <p class="note">Preguntas 14 a 27: repaso de mortalidad (14 a 16), modelos de múltiples estados (17 y 18), múltiples decrementos de la clase del 16/11 (19 a 24) y diapositivas del 23/11 (25 a 27).</p>
     <div class="stack">
 
   <div class="q" id="q14"><span class="qn">PREGUNTA 14 · TEORÍA</span>
@@ -870,6 +992,31 @@ html { scroll-behavior: smooth; }
     <div class="math">\[ q^{*(1)}_x=1-e^{-0{,}02}=0{,}01980,\qquad q^{*(2)}_x=1-e^{-0{,}03}=0{,}02955 \]</div>
     <div class="result">\(p^{00}=0{,}95123\) · \(p^{01}=0{,}01951\) · \(p^{02}=0{,}02926\) · \(q^{*(1)}=0{,}01980\) · \(q^{*(2)}=0{,}02955\)</div>
     <p class="note">Coincide con la fórmula de la pregunta 22: \(1-0{,}95123^{0{,}4}=0{,}01980\). Las independientes superan a las dependientes (0,01980 &gt; 0,01951 y 0,02955 &gt; 0,02926).</p>
+  </div>
+
+  <div class="q" id="q25"><span class="qn">PREGUNTA 25 · TEORÍA · DIAPOSITIVAS 23/11 (3.2)</span>
+    <p class="stmt">Defina \(T_{xy}\) y \(T_{\overline{xy}}\) y explique cómo se relacionan con \(T_x\) y \(T_y\). ¿Qué relaciones se cumplen entre rentas y seguros de vida conjunta y de último superviviente?</p>
+    <p>\(T_{xy}=\min(T_x,T_y)\) es el tiempo hasta el <b>primer</b> fallecimiento (vida conjunta) y \(T_{\overline{xy}}=\max(T_x,T_y)\) el tiempo hasta el <b>último</b>. Si fallece primero \(x\), \(T_{xy}=T_x\) y \(T_{\overline{xy}}=T_y\); si fallece primero \(y\), al revés. Por eso:</p>
+    <div class="math">\[ T_x+T_y=T_{xy}+T_{\overline{xy}},\qquad v^{T_x}+v^{T_y}=v^{T_{xy}}+v^{T_{\overline{xy}}} \]</div>
+    <p>Tomando esperanzas, con cualquier dependencia entre \(T_x\) y \(T_y\), y con \({}_tp_{\overline{xy}}={}_tp_x+{}_tp_y-{}_tp_{xy}\):</p>
+    <div class="math">\[ a_{\overline{xy}}=a_x+a_y-a_{xy},\qquad A_{\overline{xy}}=A_x+A_y-A_{xy},\qquad a_{x|y}=a_y-a_{xy} \]</div>
+    <p>Con <b>vidas independientes</b>: \({}_tp_{xy}={}_tp_x\,{}_tp_y\) y \({}_tp_{\overline{xy}}=1-{}_tq_x\,{}_tq_y\).</p>
+    <div class="result">\(T_{xy}=\min\) · \(T_{\overline{xy}}=\max\) · \(a_{\overline{xy}}=a_x+a_y-a_{xy}\)</div>
+  </div>
+
+  <div class="q" id="q26"><span class="qn">PREGUNTA 26 · TEORÍA · DIAPOSITIVAS 23/11 (3.1)</span>
+    <p class="stmt">Con dos decrementos y distribución uniforme en cada modelo independiente, exprese las probabilidades dependientes \(p^{01}_x\) y \(p^{02}_x\) en función de las independientes. ¿Cómo se relacionan el producto de las supervivencias independientes y la dependiente?</p>
+    <p>En cada modelo de decremento único, \({}_tq^{*(j)}_x=t\,q^{*(j)}_x\), así que \({}_tp^{*(j)}_x\,\mu^{0j}_{x+t}=q^{*(j)}_x\). Con \(p^{0j}_x=\int_0^1{}_sp^{00}_x\mu^{0j}_{x+s}ds\) y \({}_sp^{00}_x={}_sp^{*(1)}_x\,{}_sp^{*(2)}_x\):</p>
+    <div class="math">\[ p^{01}_x=q^{*(1)}_x\int_0^1\bigl(1-s\,q^{*(2)}_x\bigr)ds=q^{*(1)}_x\Bigl(1-\tfrac12q^{*(2)}_x\Bigr),\qquad p^{02}_x=q^{*(2)}_x\Bigl(1-\tfrac12q^{*(1)}_x\Bigr) \]</div>
+    <p>El producto de las supervivencias independientes es la dependiente: \(\prod_j{}_tp^{*(j)}_x=e^{-\int_0^t\sum_j\mu^{0j}_{x+s}ds}={}_tp^{00}_x\). De ello, \(p^{0j}_x=\dfrac{\ln p^{*(j)}_x}{\ln p^{00}_x}\,p^{0\bullet}_x\).</p>
+    <div class="result">\(p^{01}=q^{*(1)}(1-\tfrac12q^{*(2)})\) · \(p^{02}=q^{*(2)}(1-\tfrac12q^{*(1)})\) · \(\prod p^{*(j)}=p^{00}\)</div>
+  </div>
+
+  <div class="q" id="q27"><span class="qn">PREGUNTA 27 · TEORÍA · DIAPOSITIVAS 23/11 (3.1)</span>
+    <p class="stmt">¿Qué es una cadena de Markov y cuándo es homogénea? Escriba las ecuaciones de Chapman–Kolmogorov y la matriz de transición.</p>
+    <p>Una <b>cadena de Markov</b> es un modelo de Markov en tiempo discreto: \(\Pr[Y(t+k)=s\mid Y(0),\dots,Y(t)]=\Pr[Y(t+k)=s\mid Y(t)]\); el futuro depende solo del estado actual. Las ecuaciones de Chapman–Kolmogorov descomponen la transición a \(t+r\) años según el estado \(k\) en \(t\):</p>
+    <div class="math">\[ {}_{t+r}p^{ij}_x=\sum_{k=0}^m{}_tp^{ik}_x\,{}_rp^{kj}_{x+t} \]</div>
+    <p>La matriz \(P_x\) de transición a un año, de tamaño \((m+1)\times(m+1)\), es estocástica: entradas no negativas y filas que suman 1. El producto de matrices de edades sucesivas da la matriz a \(t\) años. La cadena es <b>homogénea</b> si las probabilidades son constantes en el tiempo (\({}_3P_x=P^3\), <a href="#ej9">ejercicio 9</a>); con prestaciones ligadas a la vida las probabilidades dependen de la edad y es <b>no homogénea</b> (\({}_3P_{60}=P_{60}P_{61}P_{62}\), <a href="#ej3">ejercicio 3</a>).</p>
   </div>
 
     </div>
@@ -1027,6 +1174,73 @@ html { scroll-behavior: smooth; }
     <p class="note">Las independientes superan a las dependientes en los tres decrementos y en todas las edades (por ejemplo, a los 45 la renuncia dependiente es 3496/78144 = 0,044738, frente a 0,044771). La diferencia es pequeña porque la salida total es del 4 % al 5 %. Para \(x=50\) coincide con la <a href="#q23">pregunta 23</a>.</p>
   </div>
 
+    </div>
+  </div>
+
+  <div class="sub" id="t3-ej32">
+    <h3>Ejercicios de supervivencia de dos vidas (hoja del 23/11)</h3>
+    <p class="note">«Ejercicios Tema 3 · PSC (MCAF · UAH)», apartado «Ejercicios probabilidades de supervivencia múltiples vidas». Se numeran 1 y 2 en la hoja; son distintos de los ejercicios 3 a 10 de más arriba. Bibliografía de la hoja: Dickson, Hardy y Waters (2020), <i>Actuarial Mathematics for Life Contingent Risks</i>, 3.ª ed., Cambridge University Press.</p>
+    <div class="stack">
+
+  <div class="q" id="evv1"><span class="qn">EJERCICIO 1 · SUPERVIVENCIA DE DOS VIDAS</span>
+    <p class="stmt">La siguiente tabla es un extracto de dos tablas de mortalidad, para hombres y mujeres, con vidas independientes en relación con la mortalidad.</p>
+    <div class="tbl"><table class="mini">
+      <thead><tr><th colspan="2">Hombres</th><th colspan="2">Mujeres</th></tr><tr><th>\(x\)</th><th>\(l_x\)</th><th>\(y\)</th><th>\(l_y\)</th></tr></thead>
+      <tbody>
+        <tr><td>65</td><td class="num">43302</td><td>60</td><td class="num">47260</td></tr>
+        <tr><td>66</td><td class="num">42854</td><td>61</td><td class="num">47040</td></tr>
+        <tr><td>67</td><td class="num">42081</td><td>62</td><td class="num">46755</td></tr>
+        <tr><td>68</td><td class="num">41351</td><td>63</td><td class="num">46500</td></tr>
+        <tr><td>69</td><td class="num">40050</td><td>64</td><td class="num">46227</td></tr>
+      </tbody></table></div>
+    <ol class="tight" type="a">
+      <li>Calcule \({}_3p_{xy}\) para un marido de 66 años y una mujer de 60 años.</li>
+      <li>Calcule \({}_2p_{\overline{xy}}\) para un marido de 65 años y una mujer de 62.</li>
+      <li>Calcule la probabilidad de que un marido, de edad actual 65, fallezca en dos años y una mujer, de edad actual 61, sobreviva al menos dos años.</li>
+      <li>Explique el significado del símbolo \(\ddot a_{xy:\overline{n}|}\).</li>
+      <li>Explique el significado del símbolo \(\ddot a_{\overline{xy}:\overline{n}|}\).</li>
+      <li>Calcule \(\ddot a_{xy:\overline{5}|}\) y \(\ddot a_{\overline{xy}:\overline{5}|}\) para un marido de 65 y una mujer de 60, al tipo de interés del 5 % anual.</li>
+    </ol>
+    <p>Con vidas independientes y las tablas: \({}_tp_x=l_{x+t}/l_x\) y \({}_tp_y=l_{y+t}/l_y\).</p>
+    <p><b>a)</b> \({}_3p_{xy}={}_3p_x\,{}_3p_y\) con \(x=66\) e \(y=60\):</p>
+    <div class="math">\[ {}_3p_{66:60}=\frac{l_{69}}{l_{66}}\cdot\frac{l_{63}}{l_{60}}=\frac{40050}{42854}\cdot\frac{46500}{47260}=0{,}934569\cdot0{,}983919=\mathbf{0{,}91954} \]</div>
+    <p><b>b)</b> Último superviviente: \({}_2p_{\overline{xy}}={}_2p_x+{}_2p_y-{}_2p_x\,{}_2p_y\) con \(x=65\) e \(y=62\):</p>
+    <div class="math">\[ {}_2p_{65}=\frac{l_{67}}{l_{65}}=\frac{42081}{43302}=0{,}971803,\qquad {}_2p_{62}=\frac{l_{64}}{l_{62}}=\frac{46227}{46755}=0{,}988707 \]</div>
+    <div class="math">\[ {}_2p_{\overline{65:62}}=0{,}971803+0{,}988707-0{,}971803\cdot0{,}988707=\mathbf{0{,}99968} \]</div>
+    <p><b>c)</b> Sucesos independientes: el marido de 65 fallece dentro de 2 años (\({}_2q_{65}\)) y la mujer de 61 sobrevive 2 años (\({}_2p_{61}\)):</p>
+    <div class="math">\[ {}_2q_{65}\cdot{}_2p_{61}=\Bigl(1-\frac{42081}{43302}\Bigr)\cdot\frac{46500}{47040}=0{,}028197\cdot0{,}988520=\mathbf{0{,}02787} \]</div>
+    <p><b>d)</b> \(\ddot a_{xy:\overline{n}|}\) es el valor actual esperado de una renta unitaria <b>prepagable</b>, anual, <b>temporal</b> de \(n\) años, pagadera mientras vivan <b>ambos</b> (hasta el primer fallecimiento de \(x\) e \(y\)) y con un máximo de \(n\) pagos:</p>
+    <div class="math">\[ \ddot a_{xy:\overline{n}|}=\sum_{k=0}^{n-1}v^k\,{}_kp_{xy} \]</div>
+    <p><b>e)</b> \(\ddot a_{\overline{xy}:\overline{n}|}\) es la misma renta temporal prepagable de \(n\) años, pero pagadera mientras <b>viva al menos uno</b> de los dos (hasta el último fallecimiento), con un máximo de \(n\) pagos:</p>
+    <div class="math">\[ \ddot a_{\overline{xy}:\overline{n}|}=\sum_{k=0}^{n-1}v^k\,{}_kp_{\overline{xy}}=\ddot a_{x:\overline{n}|}+\ddot a_{y:\overline{n}|}-\ddot a_{xy:\overline{n}|} \]</div>
+    <p><b>f)</b> Con \(x=65\), \(y=60\), \(n=5\) y \(v=1/1{,}05\), se necesitan \({}_kp_{65}=l_{65+k}/l_{65}\) y \({}_kp_{60}=l_{60+k}/l_{60}\) para \(k=0,\dots,4\):</p>
+    <div class="tbl"><table class="mini">
+      <thead><tr><th>\(k\)</th><th>\({}_kp_{65}\)</th><th>\({}_kp_{60}\)</th><th>\({}_kp_{xy}\)</th><th>\({}_kp_{\overline{xy}}\)</th><th>\(v^k\)</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td class="num">1,000000</td><td class="num">1,000000</td><td class="num">1,000000</td><td class="num">1,000000</td><td class="num">1,000000</td></tr>
+        <tr><td>1</td><td class="num">0,989654</td><td class="num">0,995345</td><td class="num">0,985047</td><td class="num">0,999952</td><td class="num">0,952381</td></tr>
+        <tr><td>2</td><td class="num">0,971803</td><td class="num">0,989314</td><td class="num">0,961418</td><td class="num">0,999699</td><td class="num">0,907029</td></tr>
+        <tr><td>3</td><td class="num">0,954944</td><td class="num">0,983919</td><td class="num">0,939588</td><td class="num">0,999275</td><td class="num">0,863838</td></tr>
+        <tr><td>4</td><td class="num">0,924900</td><td class="num">0,978142</td><td class="num">0,904683</td><td class="num">0,998358</td><td class="num">0,822702</td></tr>
+      </tbody></table></div>
+    <div class="math">\[ \ddot a_{xy:\overline{5}|}=\sum_{k=0}^{4}v^k\,{}_kp_{xy}=\mathbf{4{,}3661},\qquad \ddot a_{\overline{xy}:\overline{5}|}=\sum_{k=0}^{4}v^k\,{}_kp_{\overline{xy}}=\mathbf{4{,}5437} \]</div>
+    <div class="result">a) 0,91954 · b) 0,99968 · c) 0,02787 · f) 4,3661 y 4,5437</div>
+    <p class="note">Como era de esperar, la renta del último superviviente vale más que la conjunta, porque se paga en más casos. Comprobación: \(\ddot a_{x:\overline{5}|}+\ddot a_{y:\overline{5}|}-\ddot a_{xy:\overline{5}|}=4{,}5437\).</p>
+  </div>
+
+  <div class="q" id="evv2"><span class="qn">EJERCICIO 2 · SEGURO CON RENTA DIFERIDA</span>
+    <p class="stmt">Un matrimonio, el hombre de 55 años y la mujer de 50, acaban de comprar una renta diferida. La prima constante es pagable de forma mensual durante al menos 10 años, solo si ambos viven. Si cualquiera de los dos fallece en 10 años, la suma asegurada son 200000 € pagables al final del año de fallecimiento. Si ambos sobreviven diez años, una renta anual de 50000 € por año se pagará mensualmente, de forma prepagable, mientras ambos estén vivos, reduciendo a 30000 € por año, también pagables mensualmente, mientras solo uno está vivo. La renta se termina con el fallecimiento del último superviviente. Calcule la prima mensual sobre la siguiente base: mismo modelo de mortalidad para cada vida; son vidas independientes en relación con la mortalidad.</p>
+    <p><b>Planteamiento.</b> Sean \(x=55\), \(y=50\), \(v=1/(1+i)\) y \(P\) la prima mensual, es decir, \(12P\) al año pagadero mensualmente. Se aplica el principio de equivalencia: valor actual de las primas = valor actual de las prestaciones. Se interpreta que la prima se paga durante los 10 años de diferimiento, mientras ambos vivan.</p>
+    <ol class="tight">
+      <li><b>Primas</b> (renta mensual prepagable, conjunta y temporal a 10 años): \(12P\,\ddot a^{(12)}_{xy:\overline{10}|}\), con \(\ddot a^{(12)}_{xy:\overline{10}|}=\ddot a^{(12)}_{xy}-{}_{10}E_{xy}\,\ddot a^{(12)}_{x+10:y+10}\) y \({}_{10}E_{xy}=v^{10}\,{}_{10}p_x\,{}_{10}p_y\).</li>
+      <li><b>Fallecimiento de cualquiera en 10 años</b> (seguro temporal de vida conjunta, pagadero al final del año del primer fallecimiento): \(200000\,A^1_{xy:\overline{10}|}\), con \(A^1_{xy:\overline{10}|}=\sum_{k=0}^{9}v^{k+1}\,{}_{k|}q_{xy}\) y \({}_{k|}q_{xy}={}_kp_{xy}-{}_{k+1}p_{xy}\).</li>
+      <li><b>Renta diferida 10 años.</b> Si ambos viven a los 10 años, se paga 50000 € al año mientras ambos viven y 30000 € mientras solo uno vive. Se descompone como 30000 € mientras viva al menos uno más 20000 € mientras vivan ambos: \(50000=30000+20000\) con ambos vivos, y 30000 con uno solo.</li>
+    </ol>
+    <div class="math">\[ 12P\,\ddot a^{(12)}_{xy:\overline{10}|}=200000\,A^1_{xy:\overline{10}|}+{}_{10}E_{xy}\Bigl[30000\,\ddot a^{(12)}_{\overline{x+10:\,y+10}}+20000\,\ddot a^{(12)}_{x+10:\,y+10}\Bigr] \]</div>
+    <p>Con \(\ddot a^{(12)}_{\overline{xy}}=\ddot a^{(12)}_x+\ddot a^{(12)}_y-\ddot a^{(12)}_{xy}\) (diapositiva 39) el corchete queda \(30000\bigl(\ddot a^{(12)}_{65}+\ddot a^{(12)}_{60}\bigr)-10000\,\ddot a^{(12)}_{65:60}\), y la prima mensual es:</p>
+    <div class="math">\[ P=\frac{200000\,A^1_{55:50:\overline{10}|}+{}_{10}E_{55:50}\Bigl[30000\bigl(\ddot a^{(12)}_{65}+\ddot a^{(12)}_{60}\bigr)-10000\,\ddot a^{(12)}_{65:60}\Bigr]}{12\,\ddot a^{(12)}_{55:50:\overline{10}|}} \]</div>
+    <p class="note"><b>Resultado numérico pendiente.</b> La hoja no da el modelo de mortalidad (la tabla o la ley) ni el tipo de interés; el enunciado solo dice «mismo modelo de mortalidad para cada vida» y «vidas independientes». Con esos datos se calculan \({}_kp_{55}\), \({}_kp_{50}\), \({}_kp_{xy}\), \(A^1\) y las rentas mensuales (con \(\ddot a^{(12)}\) calculada como en la diapositiva 39, o por la aproximación \(\ddot a^{(12)}\approx\ddot a-\tfrac{11}{24}\) en rentas de vida entera). También se ha leído «durante al menos 10 años» como «durante 10 años como máximo»; si se refiere a otra duración, solo cambia el límite de la renta de primas.</p>
+  </div>
     </div>
   </div>
 </section>
@@ -1250,6 +1464,13 @@ html { scroll-behavior: smooth; }
     <details class="fc"><summary>De dependientes a independientes con distribución uniforme</summary><div class="ans"><div class="math">\[ p^{*(j)}_x=\bigl(p^{00}_x\bigr)^{p^{0j}_x/p^{0\bullet}_x},\qquad q^{*(j)}_x=1-p^{*(j)}_x \]</div><p>Se deduce de \(\mu^{0j}_{x+t}=p^{0j}_x/(1-t\,p^{0\bullet}_x)\) integrando con \(u=1-t\,p^{0\bullet}_x\).</p></div></details>
     <details class="fc"><summary>Renuncias a final de año: tasas independientes de un grupo de 100 con \(p^{01}=0{,}01\), \(p^{02}=0{,}10\)</summary><div class="ans"><p>Mortalidad: \(1/100\). Renuncia: \(10/99\), porque las 10 renuncias salen de los 99 que llegan vivos a final de año.</p></div></details>
     <details class="fc"><summary>Intensidades constantes en el año</summary><div class="ans"><div class="math">\[ \mu^{0\bullet}_x=\sum_k\mu^{0k}_x,\quad p^{00}_x=e^{-\mu^{0\bullet}_x},\quad p^{0\bullet}_x=1-e^{-\mu^{0\bullet}_x},\quad p^{*(j)}_x=e^{-\mu^{0j}_x} \]</div></div></details>
+    <details class="fc"><summary>Ecuaciones progresivas de Kolmogorov</summary><div class="ans"><div class="math">\[ \frac{d}{dt}{}_tp^{ij}_x=\sum_{k\ne j}\Bigl({}_tp^{ik}_x\,\mu^{kj}_{x+t}-{}_tp^{ij}_x\,\mu^{jk}_{x+t}\Bigr),\quad {}_0p^{ii}_x=1,\ {}_0p^{ij}_x=0 \]</div><p>Con un solo estado activo y varios decrementos: \(\frac{d}{dt}{}_tp^{0j}_x={}_tp^{00}_x\,\mu^{0j}_{x+t}\).</p></div></details>
+    <details class="fc"><summary>Probabilidad de pasar de 0 a 1 entre \(x\) y \(x+u\)</summary><div class="ans"><div class="math">\[ {}_up^{01}_x=\int_0^u{}_tp^{\overline{00}}_x\,\mu^{01}_{x+t}\,{}_{u-t}p^{\overline{11}}_{x+t}\,dt \]</div></div></details>
+    <details class="fc"><summary>Bajas al comienzo del año: tasas independientes con \(p^{01}=0{,}01\), \(p^{02}=0{,}10\)</summary><div class="ans"><p>Baja: \(10/100\). Mortalidad: \(1/90\), porque tras las bajas quedan 90 vidas activas y se espera 1 fallecimiento.</p></div></details>
+    <details class="fc"><summary>De independientes a dependientes con dos decrementos</summary><div class="ans"><div class="math">\[ p^{01}_x=q^{*(1)}_x\Bigl(1-\tfrac12q^{*(2)}_x\Bigr),\qquad p^{0j}_x=\frac{\ln p^{*(j)}_x}{\ln p^{00}_x}\,p^{0\bullet}_x,\qquad \prod_jp^{*(j)}_x=p^{00}_x \]</div></div></details>
+    <details class="fc"><summary>\(T_{xy}\) y \(T_{\overline{xy}}\)</summary><div class="ans"><div class="math">\[ T_{xy}=\min(T_x,T_y),\quad T_{\overline{xy}}=\max(T_x,T_y),\quad T_x+T_y=T_{xy}+T_{\overline{xy}} \]</div></div></details>
+    <details class="fc"><summary>Último superviviente, reversible y vidas independientes</summary><div class="ans"><div class="math">\[ {}_tp_{\overline{xy}}={}_tp_x+{}_tp_y-{}_tp_{xy},\quad a_{\overline{xy}}=a_x+a_y-a_{xy},\quad a_{x|y}=a_y-a_{xy},\quad {}_tp_{xy}={}_tp_x\,{}_tp_y \]</div></div></details>
+    <details class="fc"><summary>Renta conjunta temporal y seguro conjunto temporal</summary><div class="ans"><div class="math">\[ \ddot a_{xy:\overline{n}|}=\sum_{k=0}^{n-1}v^k\,{}_kp_{xy},\qquad A^1_{xy:\overline{n}|}=\sum_{k=0}^{n-1}v^{k+1}\,{}_{k|}q_{xy},\qquad {}_{k|}q_{xy}={}_kp_{xy}-{}_{k+1}p_{xy} \]</div></div></details>
   </div>
 </section>
 </div>
