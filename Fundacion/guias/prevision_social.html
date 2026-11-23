@@ -125,6 +125,9 @@ button { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; bo
 .out span { font-size: 12px; color: var(--muted); }
 .out b { font-family: var(--font-data); font-weight: 500; font-size: 18px; font-variant-numeric: tabular-nums; }
 mjx-container[display="true"] { margin: 6px 0 !important; }
+mjx-container[display="true"] > svg { max-width: 100%; height: auto; }
+.intu { background: var(--accent-soft); border-radius: 6px; padding: 10px 14px; display: grid; gap: 4px; }
+.intu p { margin: 0; font-size: 15px; }
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 @media (max-width: 760px) { nav.toc { position: static; } }
@@ -1203,19 +1206,28 @@ html { scroll-behavior: smooth; }
     </ol>
     <p>Con vidas independientes y las tablas: \({}_tp_x=l_{x+t}/l_x\) y \({}_tp_y=l_{y+t}/l_y\).</p>
     <p><b>a)</b> \({}_3p_{xy}={}_3p_x\,{}_3p_y\) con \(x=66\) e \(y=60\):</p>
+    <p>Forma producto, con las dos supervivencias por separado (vidas independientes):</p>
+    <div class="math">\[ {}_3p_{66:60}={}_3p_{66}\cdot{}_3p_{60},\qquad {}_3p_{66}=\frac{l_{69}}{l_{66}}=\frac{40050}{42854}=0{,}934569,\qquad {}_3p_{60}=\frac{l_{63}}{l_{60}}=\frac{46500}{47260}=0{,}983919 \]</div>
+    <p>Todo junto:</p>
     <div class="math">\[ {}_3p_{66:60}=\frac{l_{69}}{l_{66}}\cdot\frac{l_{63}}{l_{60}}=\frac{40050}{42854}\cdot\frac{46500}{47260}=0{,}934569\cdot0{,}983919=\mathbf{0{,}91954} \]</div>
+    <div class="intu"><span class="tag">Interpretación</span><p>Se pide que <b>los dos</b> estén vivos dentro de 3 años: él llega a los 69 <b>y</b> ella llega a los 63. Son dos personas distintas con vidas independientes, y para «ocurre una cosa y la otra» se <b>multiplican</b> las probabilidades. Cada factor sale de su propia tabla: de 42854 hombres de 66 años llegan 40050 a los 69, y de 47260 mujeres de 60 llegan 46500 a los 63. El producto (0,92) es menor que cada factor porque exigir las dos cosas a la vez hace el suceso menos probable.</p></div>
     <p><b>b)</b> Último superviviente: \({}_2p_{\overline{xy}}={}_2p_x+{}_2p_y-{}_2p_x\,{}_2p_y\) con \(x=65\) e \(y=62\):</p>
     <div class="math">\[ {}_2p_{65}=\frac{l_{67}}{l_{65}}=\frac{42081}{43302}=0{,}971803,\qquad {}_2p_{62}=\frac{l_{64}}{l_{62}}=\frac{46227}{46755}=0{,}988707 \]</div>
-    <div class="math">\[ {}_2p_{\overline{65:62}}=0{,}971803+0{,}988707-0{,}971803\cdot0{,}988707=\mathbf{0{,}99968} \]</div>
+    <p>Reescrito con la probabilidad conjunta, \({}_2p_{\overline{65:62}}={}_2p_{65}+{}_2p_{62}-{}_2p_{65:62}\), donde \({}_2p_{65:62}={}_2p_{65}\cdot{}_2p_{62}\) por la independencia:</p>
+    <div class="math">\[ {}_2p_{65:62}=0{,}971803\cdot0{,}988707=0{,}960829,\qquad {}_2p_{\overline{65:62}}={}_2p_{65}+{}_2p_{62}-{}_2p_{65:62}=0{,}971803+0{,}988707-0{,}960829=\mathbf{0{,}99968} \]</div>
+    <div class="intu"><span class="tag">Interpretación</span><p>Ahora basta con que <b>viva al menos uno</b> de los dos, que es mucho más fácil. Se suman las dos probabilidades de supervivencia, pero así se cuentan dos veces los casos en que viven <b>ambos</b>; por eso se resta una vez la probabilidad conjunta \({}_2p_{65:62}\). Otra forma de verlo: 1 menos la probabilidad de que mueran los dos. El resultado, casi 1, tiene sentido: es muy raro que fallezcan marido y mujer en solo 2 años.</p></div>
     <p><b>c)</b> Sucesos independientes: el marido de 65 fallece dentro de 2 años (\({}_2q_{65}\)) y la mujer de 61 sobrevive 2 años (\({}_2p_{61}\)):</p>
-    <div class="math">\[ {}_2q_{65}\cdot{}_2p_{61}=\Bigl(1-\frac{42081}{43302}\Bigr)\cdot\frac{46500}{47040}=0{,}028197\cdot0{,}988520=\mathbf{0{,}02787} \]</div>
+    <div class="math">\[ \begin{aligned}{}_2q_{65}\cdot{}_2p_{61}&=\bigl(1-{}_2p_{65}\bigr)\cdot{}_2p_{61}\\&=\Bigl(1-\frac{42081}{43302}\Bigr)\cdot\frac{46500}{47040}\\&=0{,}028197\cdot0{,}988520=\mathbf{0{,}02787}\end{aligned} \]</div>
+    <div class="intu"><span class="tag">Interpretación</span><p>Aquí cada persona responde a una pregunta distinta. Para él se pide <b>fallecer</b> en 2 años, así que se usa la probabilidad de muerte \({}_2q_{65}=1-{}_2p_{65}\). Para ella se pide <b>sobrevivir</b>, así que se usa \({}_2p_{61}\). Como son independientes, se multiplican. Sale pequeño (2,8 %) porque a los 65 años es poco probable morir en solo 2 años, y la supervivencia de ella pesa casi 1.</p></div>
     <p><b>d)</b> \(\ddot a_{xy:\overline{n}|}\) es el valor actual esperado de una renta unitaria <b>prepagable</b>, anual, <b>temporal</b> de \(n\) años, pagadera mientras vivan <b>ambos</b> (hasta el primer fallecimiento de \(x\) e \(y\)) y con un máximo de \(n\) pagos:</p>
     <div class="math">\[ \ddot a_{xy:\overline{n}|}=\sum_{k=0}^{n-1}v^k\,{}_kp_{xy} \]</div>
+    <div class="intu"><span class="tag">Interpretación</span><p><b>Definición de clase:</b> valor esperado actual (a las edades \(x\) e \(y\)), a tipo de interés constante, de una serie de como máximo \(n\) pagos unitarios anuales. El primer pago vence en el momento actual y cada pago se realiza si la vida \(x\) y la vida \(y\) viven <u>conjuntamente</u> en el vencimiento de cada pago.</p><p>En palabras sencillas: es lo que vale hoy una renta de 1 € al año que la pareja cobra <b>mientras vivan los dos</b>, con un máximo de \(n\) pagos. Cada pago del año \(k\) solo se cobra si ambos llegan vivos a ese momento, por eso se pondera con \({}_kp_{xy}\) (la probabilidad conjunta); \(v^k\) trae cada pago a valor de hoy. Es prepagable: el primer pago (\(k=0\)) se cobra seguro al empezar.</p></div>
     <p><b>e)</b> \(\ddot a_{\overline{xy}:\overline{n}|}\) es la misma renta temporal prepagable de \(n\) años, pero pagadera mientras <b>viva al menos uno</b> de los dos (hasta el último fallecimiento), con un máximo de \(n\) pagos:</p>
     <div class="math">\[ \ddot a_{\overline{xy}:\overline{n}|}=\sum_{k=0}^{n-1}v^k\,{}_kp_{\overline{xy}}=\ddot a_{x:\overline{n}|}+\ddot a_{y:\overline{n}|}-\ddot a_{xy:\overline{n}|} \]</div>
+    <div class="intu"><span class="tag">Interpretación</span><p><b>Definición de clase:</b> valor actual esperado, a un tipo de interés constante, de una serie de como máximo \(n\) pagos unitarios anuales. El primer pago vence en el momento actual y cada pago se realiza si <u>al menos uno</u> de los dos vive en el momento del pago.</p><p>En palabras sencillas: es la misma renta, pero ahora se sigue cobrando mientras <b>viva al menos uno</b> de los dos, como una pensión de viudedad que no se corta al morir el primero. Se pondera con \({}_kp_{\overline{xy}}\), que es mayor que \({}_kp_{xy}\), así que esta renta <b>vale más</b>. La suma \(\ddot a_{x}+\ddot a_{y}-\ddot a_{xy}\) sigue la misma lógica que la de las probabilidades: se suman las rentas individuales y se resta la conjunta para no contarla dos veces.</p></div>
     <p><b>f)</b> Con \(x=65\), \(y=60\), \(n=5\) y \(v=1/1{,}05\), se necesitan \({}_kp_{65}=l_{65+k}/l_{65}\) y \({}_kp_{60}=l_{60+k}/l_{60}\) para \(k=0,\dots,4\):</p>
     <div class="tbl"><table class="mini">
-      <thead><tr><th>\(k\)</th><th>\({}_kp_{65}\)</th><th>\({}_kp_{60}\)</th><th>\({}_kp_{xy}\)</th><th>\({}_kp_{\overline{xy}}\)</th><th>\(v^k\)</th></tr></thead>
+      <thead><tr><th>\(k\)</th><th>\({}_kp_{65}\)</th><th>\({}_kp_{60}\)</th><th>\({}_kp_{65:60}\)</th><th>\({}_kp_{\overline{65:60}}\)</th><th>\(v^k\)</th></tr></thead>
       <tbody>
         <tr><td>0</td><td class="num">1,000000</td><td class="num">1,000000</td><td class="num">1,000000</td><td class="num">1,000000</td><td class="num">1,000000</td></tr>
         <tr><td>1</td><td class="num">0,989654</td><td class="num">0,995345</td><td class="num">0,985047</td><td class="num">0,999952</td><td class="num">0,952381</td></tr>
@@ -1223,9 +1235,10 @@ html { scroll-behavior: smooth; }
         <tr><td>3</td><td class="num">0,954944</td><td class="num">0,983919</td><td class="num">0,939588</td><td class="num">0,999275</td><td class="num">0,863838</td></tr>
         <tr><td>4</td><td class="num">0,924900</td><td class="num">0,978142</td><td class="num">0,904683</td><td class="num">0,998358</td><td class="num">0,822702</td></tr>
       </tbody></table></div>
-    <div class="math">\[ \ddot a_{xy:\overline{5}|}=\sum_{k=0}^{4}v^k\,{}_kp_{xy}=\mathbf{4{,}3661},\qquad \ddot a_{\overline{xy}:\overline{5}|}=\sum_{k=0}^{4}v^k\,{}_kp_{\overline{xy}}=\mathbf{4{,}5437} \]</div>
+    <div class="math">\[ \ddot a_{65:60:\overline{5}|}=\sum_{k=0}^{4}v^k\,{}_kp_{65:60}=\mathbf{4{,}3661},\qquad \ddot a_{\overline{65:60}:\overline{5}|}=\sum_{k=0}^{4}v^k\,{}_kp_{\overline{65:60}}=\mathbf{4{,}5437} \]</div>
+    <div class="intu"><span class="tag">Interpretación</span><p>Son 5 pagos de 1 € al inicio de los años 0 a 4. El primero se cobra seguro (\({}_0p=1\)); los demás se multiplican por la probabilidad de que siga vivo <b>el matrimonio entero</b> (4,3661) o <b>al menos uno</b> (4,5437), y por \(v^k\) del 5 %. Casi se cobran los 5 pagos en el último superviviente (4,5437 de un máximo de 5 sin descontar), mientras que la renta conjunta pierde más porque basta que muera uno para que se pare.</p></div>
     <div class="result">a) 0,91954 · b) 0,99968 · c) 0,02787 · f) 4,3661 y 4,5437</div>
-    <p class="note">Como era de esperar, la renta del último superviviente vale más que la conjunta, porque se paga en más casos. Comprobación: \(\ddot a_{x:\overline{5}|}+\ddot a_{y:\overline{5}|}-\ddot a_{xy:\overline{5}|}=4{,}5437\).</p>
+    <p class="note">Como era de esperar, la renta del último superviviente vale más que la conjunta, porque se paga en más casos. Comprobación: \(\ddot a_{65:\overline{5}|}+\ddot a_{60:\overline{5}|}-\ddot a_{65:60:\overline{5}|}=4{,}5437\).</p>
   </div>
 
   <div class="q" id="evv2"><span class="qn">EJERCICIO 2 · SEGURO CON RENTA DIFERIDA</span>
