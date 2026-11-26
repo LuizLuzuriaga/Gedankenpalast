@@ -81,16 +81,16 @@ lab = [f.strftime("%d/%m/%y") for f in fechas]
 x = np.arange(len(fechas))
 fig, ax = plt.subplots(figsize=(7, 3.6))
 for j, (t, c) in enumerate(zip(TEN, ["#7a8794", "#1559a6", "#b07a1d", "#1c7a4a"])):
-    ax.plot(x, euribor[:, j], marker="o", ms=4, color=c, label=f"Euribor {t}")
+    ax.plot(x, euribor[:, j], marker="o", ms=4, color=c, label=f"Euríbor {t}")
 ax.set_xticks(x, lab, rotation=35, ha="right"); ax.set_ylabel("%"); ax.legend(frameon=False, ncol=2)
-ax.set_title("Evolución del Euribor (1.er día hábil de cada trimestre)")
+ax.set_title("Evolución del Euríbor (1.er día hábil de cada trimestre)")
 fig.tight_layout(); fig.savefig(OUT / "fig_a_euribor.pdf"); plt.close(fig)
 
 fig, ax = plt.subplots(figsize=(7, 3.6))
 ax.plot(x, [r["f36c"] * 100 for r in filas], marker="o", ms=4, color="#1559a6", label=r"$F_{3/12;6/12}$ (3 m dentro de 3 m)")
 ax.plot(x, [r["f612c"] * 100 for r in filas], marker="s", ms=4, color="#b07a1d", label=r"$F_{6/12;12/12}$ (6 m dentro de 6 m)")
 ax.set_xticks(x, lab, rotation=35, ha="right"); ax.set_ylabel("% (compuesto anual equivalente)"); ax.legend(frameon=False)
-ax.set_title("Tipos forward implícitos en la curva del Euribor")
+ax.set_title("Tipos forward implícitos en la curva del Euríbor")
 fig.tight_layout(); fig.savefig(OUT / "fig_b_forward.pdf"); plt.close(fig)
 
 fig, axs = plt.subplots(1, 3, figsize=(7.4, 2.9), sharey=True)
@@ -101,15 +101,31 @@ for ax, k in zip(axs, (0, 4, 8)):
 axs[0].set_ylabel("tipo compuesto anual (%)")
 fig.tight_layout(); fig.savefig(OUT / "fig_c_etti.pdf"); plt.close(fig)
 
+# Las tres ETTI superpuestas; los puntos se unen con una curva suavizada como en el gráfico de Excel.
+# Se usa una interpolación cúbica monótona (PCHIP), que no inventa máximos ni mínimos entre los puntos.
+from scipy.interpolate import PchipInterpolator
+fig, ax = plt.subplots(figsize=(7, 3.8))
+for k, col, mk in ((0, "#1559a6", "D"), (4, "#d9771f", "s"), (8, "#1c7a6a", "^")):
+    r = filas[k]; xm = np.array([n / 365 * 12 for n in r["n"]])
+    xx = np.linspace(xm[0], xm[-1], 200)
+    ax.plot(xx, PchipInterpolator(xm, r["R"] * 100)(xx), color=col, lw=1.8)
+    ax.plot(xm, r["R"] * 100, mk, color=col, ms=6, label=fechas[k].strftime("%d/%m/%Y"))
+ax.set_xlabel("plazo hasta el vencimiento (meses)"); ax.set_ylabel("tipo anual compuesto equivalente (%)")
+ax.set_xlim(0, 12.6); ax.legend(frameon=False, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.12))
+fig.tight_layout(); fig.savefig(OUT / "fig_c_etti_conjunta.pdf"); plt.close(fig)
+
+# Contraste: cada Euribor observado se dibuja en la fecha en que se calculó el forward que intentaba preverlo,
+# de modo que la distancia vertical entre las dos líneas es el error de previsión (columna «Dif.» de la Tabla 4)
 fig, ax = plt.subplots(figsize=(7, 3.4))
 xs = [c["fecha"].strftime("%d/%m/%y") for c in cont]
-ax.plot(xs, [c["f36s"] for c in cont], "o-", color="#1559a6", label=r"Forward $F_{3/12;6/12}$ (t)")
-ax.plot(xs[1:], [c["real3"] for c in cont if c["real3"] is not None], "o--", color="#b3261e", label="Euribor 3 m observado 3 meses después")
-ax.set_xticks(range(len(xs)), xs, rotation=35, ha="right"); ax.set_ylabel("%"); ax.legend(frameon=False)
+ax.plot(xs, [c["f36s"] for c in cont], "o-", color="#1559a6", label=r"Forward $F_{3/12;6/12}$ calculado en la fecha")
+ax.plot(xs[:-1], [c["real3"] for c in cont if c["real3"] is not None], "o--", color="#b3261e", label="Euríbor 3 m observado tres meses después")
+ax.set_xticks(range(len(xs)), xs, rotation=35, ha="right"); ax.set_ylabel("%"); ax.set_xlabel("fecha en que se calcula el forward"); ax.legend(frameon=False)
 fig.tight_layout(); fig.savefig(OUT / "fig_d_contraste3.pdf"); plt.close(fig)
 fig, ax = plt.subplots(figsize=(7, 3.4))
-ax.plot(xs, [c["f612s"] for c in cont], "o-", color="#b07a1d", label=r"Forward $F_{6/12;12/12}$ (t)")
-ax.plot(xs[2:], [c["real6"] for c in cont if c["real6"] is not None], "o--", color="#b3261e", label="Euribor 6 m observado 6 meses después")
+ax.plot(xs, [c["f612s"] for c in cont], "o-", color="#b07a1d", label=r"Forward $F_{6/12;12/12}$ calculado en la fecha")
+ax.plot(xs[:-2], [c["real6"] for c in cont if c["real6"] is not None], "o--", color="#b3261e", label="Euríbor 6 m observado seis meses después")
+ax.set_xlabel("fecha en que se calcula el forward")
 ax.set_xticks(range(len(xs)), xs, rotation=35, ha="right"); ax.set_ylabel("%"); ax.legend(frameon=False)
 fig.tight_layout(); fig.savefig(OUT / "fig_d_contraste6.pdf"); plt.close(fig)
 
@@ -147,7 +163,7 @@ for k, r in enumerate(filas):
 ch = wb.add_chart({"type": "line"})
 for j, nm in enumerate(TEN):
     ch.add_series({"name": f"Euribor {nm}", "categories": ["Datos y calculos", 3, 0, 11, 0], "values": ["Datos y calculos", 3, 1 + j, 11, 1 + j], "marker": {"type": "circle"}})
-ch.set_title({"name": "a) Evolución del Euribor"}); ch.set_y_axis({"name": "%"}); ch.set_x_axis({"date_axis": False, "num_format": "dd/mm/yy"})
+ch.set_title({"name": "a) Evolución del Euríbor"}); ch.set_y_axis({"name": "%"}); ch.set_x_axis({"date_axis": False, "num_format": "dd/mm/yy"})
 ch.set_size({"width": 720, "height": 340}); ws.insert_chart("A16", ch)
 ch2 = wb.add_chart({"type": "line"})
 ch2.add_series({"name": "F3/12;6/12", "categories": ["Datos y calculos", 3, 0, 11, 0], "values": ["Datos y calculos", 3, 17, 11, 17], "marker": {"type": "circle"}})
@@ -163,10 +179,10 @@ for c, k in enumerate((0, 4, 8)):
     for j in range(4):
         we.write_formula(1 + j, 1 + c, f"='Datos y calculos'!{chr(78+j)}{4+k}", t4, filas[k]["R"][j] * 100)
 we.write(6, 0, "Nota: el eje de plazos usa los días de la 1.ª fila (01/10/2024); los plazos de las otras fechas difieren en pocos días.")
-ch3 = wb.add_chart({"type": "scatter", "subtype": "straight_with_markers"})
+ch3 = wb.add_chart({"type": "scatter", "subtype": "smooth_with_markers"})
 for c, nm in enumerate(["01/10/2024", "01/10/2025", "01/10/2026"]):
     ch3.add_series({"name": nm, "categories": ["ETTI c)", 1, 0, 4, 0], "values": ["ETTI c)", 1, 1 + c, 4, 1 + c]})
-ch3.set_title({"name": "c) ETTI del Euribor"}); ch3.set_x_axis({"name": "meses"}); ch3.set_y_axis({"name": "%"}); ch3.set_size({"width": 640, "height": 340}); we.insert_chart("F2", ch3)
+ch3.set_title({"name": "c) ETTI del Euríbor"}); ch3.set_x_axis({"name": "meses"}); ch3.set_y_axis({"name": "%"}); ch3.set_size({"width": 640, "height": 340}); we.insert_chart("F2", ch3)
 
 # Hoja contraste (d)
 wc = wb.add_worksheet("Contraste d)")
