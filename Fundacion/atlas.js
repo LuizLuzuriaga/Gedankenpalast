@@ -17,7 +17,8 @@ const CLUSTERS = [
 // Lunas: temas que orbitan a otro tema en vez de al centro de su cúmulo
 const TOPIC_PARENTS = {
     chain_ladder: 'act_reserving',
-    ds_bayesiana: 'ds_estadistica'
+    ds_bayesiana: 'ds_estadistica',
+    ds_tfm_hogar: 'ds_data_science'
 };
 
 // Categoría de knowledgeData.js -> cúmulo
@@ -137,6 +138,12 @@ const TOPICS = [
         desc: 'Ciclo de vida de la ciencia de datos actuarial (curso de Fei Huang, UNSW): planteamiento del problema, visualización, manipulación y limpieza de datos, GLM de frecuencia, severidad y Tweedie, regularización, árboles y bosques, boosting, redes neuronales, evaluación de modelos, comunicación y ética.',
         related: ['ds_estadistica', 'ds_simulacion', 'ds_ml_supervisado', 'ds_ml_no_supervisado', 'ds_deep_learning', 'ds_data_mining', 'act_no_vida'],
         knowledge: 'data_science'
+    },
+    {
+        id: 'ds_tfm_hogar', cluster: 'ds', name: 'TFM: pricing de Hogar (GLM y XGBoost)',
+        desc: 'Trabajo de fin de máster: prima pura de Hogar con GLM de frecuencia y severidad y XGBoost, sin y con variables de contexto por código postal. Bitácora del preprocesamiento: variables, nulos y transformaciones paso a paso en R.',
+        related: ['ds_data_science', 'act_no_vida', 'ds_ml_supervisado'],
+        knowledge: 'tfm_hogar'
     },
     {
         id: 'ds_estadistica', cluster: 'ds', name: 'Estadística',

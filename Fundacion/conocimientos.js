@@ -461,6 +461,24 @@ print(gs.best_params_, gs.best_score_)
             }
         ]
     },
+    tfm_hogar: {
+        guide: 'guias/tfm_hogar.html',
+        sections: [
+            {
+                id: 'idea',
+                title: 'Idea clave',
+                blocks: [
+                    { type: 'guide', text: 'Bitácora del preprocesamiento de la base de Hogar del TFM: diccionario de las 33 variables (con lo confirmado, lo inferido y lo desconocido), tratamiento de nulos y cada transformación con su código R explicado. La base de datos no se publica.' },
+                    { type: 'p', text: 'El objetivo es predecir la <b>prima pura</b> (frecuencia × severidad). Las variables de contexto por código postal son <b>predictores</b> para predecirla mejor fuera de muestra, comparando GLM y XGBoost sin y con contexto.' },
+                    { type: 'list', title: 'Cómo se preprocesa', items: [
+                        'Una variable cada vez: mirar, comprobar qué se perdería, transformar y verificar.',
+                        'Un nulo no siempre es un dato perdido: en el motivo de anulación significa que la póliza sigue viva.',
+                        'Vigilar la fuga: los históricos de siniestros pueden contener el periodo que se predice.'
+                    ] }
+                ]
+            }
+        ]
+    },
     prevision_pensiones: {
         guide: 'guias/prevision_social.html',
         sections: [

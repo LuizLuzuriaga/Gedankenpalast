@@ -6,3 +6,12 @@ Conocimientos/
 
 # Caché de Python de tools/
 __pycache__/
+
+# TFM Hogar: la base de datos NUNCA se sube (solo codigo y guia)
+Fundacion/guias/tfm_hogar/**/*.xlsx
+Fundacion/guias/tfm_hogar/**/*.csv
+*.RDATA
+*.RData
+*.rdata
+*.rds
+

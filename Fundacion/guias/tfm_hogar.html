@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Bitácora del preprocesamiento de datos del TFM de pricing de Hogar (GLM frente a XGBoost con contexto por código postal): variables, nulos y transformaciones paso a paso, con el código R. La base de datos no se publica.">
+<title>TFM Hogar: preprocesamiento</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3Cellipse cx='11' cy='9' rx='3.5' ry='2' fill='%232a2a2d' transform='rotate(-32 11 9)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Una columna de lectura con índice fijo: el proceso se lee de arriba abajo en el mismo orden en que se hace. */
+:root {
+  color-scheme: dark;
+  --bg: #000000; --surface: #111111; --ink: #f2f2f2; --muted: #b4b4b4; --rule: #2a2a2a; --line: #2a4f85;
+  --title: #d3e4fb; --accent: #9cc4f2; --accent-soft: #101c2e;
+  --pres: #f2dc8a; --pres-soft: #211d0b; --unknown: #f4968a; --ok: #a9dcf0; --ok-soft: #0e1c24; --code-bg: #0a0a0a;
+  --font-body: "STIX Two Text", Georgia, "Times New Roman", serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 18px; line-height: 1.7; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 64px max(16px, env(safe-area-inset-left, 0px)); }
+nav.toc { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); }
+nav.toc .in { max-width: 980px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 6px 16px; flex-wrap: wrap; font-size: 13px; }
+nav.toc a { color: var(--muted); text-decoration: none; font-weight: 500; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+header.hero { padding-block: 40px 8px; display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+h1 { color: var(--title); font-size: clamp(30px, 6vw, 44px); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { color: var(--title); font-size: 27px; line-height: 1.2; margin: 0; text-wrap: balance; }
+h3 { color: var(--title); font-size: 21px; margin: 0; }
+p { margin: 0; }
+.lede { color: var(--muted); max-width: 64ch; }
+section { padding-top: 48px; display: grid; gap: 16px; scroll-margin-top: 56px; }
+.sec-head { display: grid; gap: 6px; border-top: 2px solid var(--line); padding-top: 12px; }
+.step { display: grid; gap: 12px; padding-top: 8px; scroll-margin-top: 56px; }
+ul.tight, ol.tight { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+.callout { border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 6px 6px 0; padding: 12px 16px; display: grid; gap: 6px; font-size: 16px; }
+.callout.warn { border-left-color: var(--unknown); }
+.callout.tip { border-left-color: var(--ok); }
+.callout h4 { margin: 0; font-size: 13px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.5; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+td code, p code, li code { font-family: var(--font-data); font-size: .86em; background: var(--accent-soft); padding: 1px 5px; border-radius: 3px; overflow-wrap: anywhere; }
+.st { font-family: var(--font-data); font-size: 11.5px; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.st.ok { background: var(--ok-soft); color: var(--ok); }
+.st.inf { background: var(--pres-soft); color: var(--pres); }
+.st.no { background: color-mix(in srgb, var(--unknown) 14%, var(--surface)); color: var(--unknown); }
+.st.cur { background: var(--accent-soft); color: var(--accent); }
+.code { background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.code-head { padding: 6px 14px; border-bottom: 1px solid var(--rule); font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.code pre { margin: 0; padding: 12px 14px; overflow: auto; font-family: var(--font-data); font-size: 13px; line-height: 1.55; }
+.why { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 16px; }
+.why li::marker { color: var(--accent); font-family: var(--font-data); font-size: 13px; }
+.found { background: var(--pres-soft); border-radius: 4px; padding: 10px 14px; font-size: 16px; display: grid; gap: 4px; }
+.found b { color: var(--pres); }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; counter-reset: paso; }
+.flow a { display: grid; gap: 4px; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; text-decoration: none; color: var(--ink); font-size: 15px; }
+.flow a:hover, .flow a:focus-visible { border-color: var(--accent); }
+.flow a .n { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+footer.foot { margin-top: 56px; border-top: 2px solid var(--line); padding-top: 14px; font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+@media (max-width: 760px) { nav.toc { position: static; } body { font-size: 17px; } }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="Índice">
+  <div class="in">
+    <a href="../" target="_top">← Gedanken Palast</a>
+    <a href="#proceso">Proceso</a>
+    <a href="#idea">Idea</a>
+    <a href="#variables">Variables</a>
+    <a href="#p0">0 Carga</a>
+    <a href="#p1">1 Tipos</a>
+    <a href="#p2">2 Variable a variable</a>
+    <a href="#nulos">Nulos</a>
+    <a href="#registro">Transformaciones</a>
+    <a href="#avisos">Avisos</a>
+  </div>
+</nav>
+
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">TFM · Máster en Ciencias Actuariales y Financieras · Universidad de Alcalá</div>
+  <h1>Preprocesamiento de la base de datos de Hogar</h1>
+  <p class="lede">Bitácora del TFM de pricing de Hogar: modelos de frecuencia y severidad (GLM y XGBoost) sin y con variables de contexto por código postal. Aquí se explica, en el orden en que se hace, cada paso del preprocesamiento en R: qué significa cada variable, qué se encontró al revisarla, cómo se tratan sus nulos y qué transformación se le aplica.</p>
+  <div class="callout warn">
+    <h4>Confidencialidad</h4>
+    <p>La base de datos <b>no se publica</b> ni se sube al repositorio. Esta página solo contiene el código y la descripción de las variables; los resultados de la revisión se describen de forma cualitativa, sin cifras ni registros de la base.</p>
+  </div>
+</header>
+
+<section id="proceso">
+  <div class="sec-head"><div class="eyebrow">Mapa</div><h2>El proceso, en orden</h2></div>
+  <p>El preprocesamiento se hace <b>una variable cada vez</b>: primero se mira (tipo, nulos, valores raros, distribución) y solo después se transforma. Nada se convierte en bloque, porque un cambio masivo esconde problemas distintos en cada variable.</p>
+  <div class="flow">
+    <a href="#p0"><span class="n">Paso 0 · hecho</span>Cargar el Excel en R</a>
+    <a href="#p1"><span class="n">Paso 1 · hecho</span>Revisar el tipo de cada variable</a>
+    <a href="#p2-fecha"><span class="n">Paso 2.1 · hecho</span><code>FECHAALTA</code> a fecha</a>
+    <a href="#p2-prima"><span class="n">Paso 2.2 · en curso</span><code>PRNETA11</code>: tipo y cola</a>
+    <a href="#pendientes"><span class="n">Paso 2.3 y siguientes</span>Resto de variables</a>
+    <a href="#avisos"><span class="n">Después</span>Exposición, corte temporal y código postal</a>
+  </div>
+</section>
+
+<section id="idea">
+  <div class="sec-head"><div class="eyebrow">Contexto</div><h2>Para qué se preprocesa</h2></div>
+  <ul class="tight">
+    <li>El <b>objetivo</b> es predecir la prima pura (coste esperado por póliza y año) como frecuencia × severidad.</li>
+    <li>Las variables de contexto por código postal son <b>predictores</b> que se añaden para predecirla mejor; no son la prima pura.</li>
+    <li>"Mejorar el modelo" significa predecir mejor <b>fuera de muestra</b> (test temporal y validación cruzada por zona).</li>
+    <li>Diseño 2 × 2: GLM base, GLM con contexto, XGBoost base y XGBoost con contexto.</li>
+  </ul>
+  <p>Un preprocesamiento descuidado rompe esa comparación: un tipo mal leído, un nulo que en realidad es una categoría o una variable que contiene el futuro (fuga) cambian el resultado más que el propio modelo.</p>
+</section>
+
+<section id="variables">
+  <div class="sec-head"><div class="eyebrow">Diccionario</div><h2>Las 33 variables</h2></div>
+  <p>La columna <b>Seguridad</b> dice cuánto sabemos del significado: <span class="st ok">confirmado</span> si lo describe el diccionario de la base, <span class="st inf">inferido</span> si se deduce del nombre o de los valores y <span class="st no">desconocido</span> si no hay descripción (se indica lo que pensamos que puede ser).</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Variable</th><th>Qué es</th><th>Valores / categorías</th><th>Seguridad</th><th>Uso previsto</th></tr></thead>
+    <tbody>
+      <tr><td><code>ID</code></td><td>Identificador de la póliza</td><td>Texto</td><td><span class="st ok">confirmado</span></td><td>Clave; no es predictor</td></tr>
+      <tr><td><code>CANAL</code></td><td>Modalidad de distribución: combina el canal (Agentes o Corredores) con el proveedor (1 a 10)</td><td>Códigos 1 a 93; 0 = sin modalidad; vacío = sin informar</td><td><span class="st ok">confirmado</span></td><td>Factor; derivar canal y proveedor y agrupar niveles raros</td></tr>
+      <tr><td><code>TVIVIENDA</code></td><td>Tipo de vivienda</td><td>A pisos en casas con vecindad · I piso alto de menos de 5 años · B chalet con protección · C chalet sin protección · U unifamiliar · D adosado/bajo/ático sin protección · E adosado/chalet con protección en planta baja · H casa móvil/caravana · M otros</td><td><span class="st ok">confirmado</span></td><td>Factor; agrupable en 5 familias (pisos, chalets y unifamiliares, adosados/bajos/áticos, móvil, otros)</td></tr>
+      <tr><td><code>ANO_CONSTR</code></td><td>Año de construcción de la vivienda</td><td>Numérico</td><td><span class="st ok">confirmado</span></td><td>Numérica; posible antigüedad = año de referencia − año de construcción</td></tr>
+      <tr><td><code>ULT_REFORMA</code></td><td>Última reforma. Pensamos que indica si la vivienda se ha reformado o un tramo de antigüedad de la reforma</td><td>1, 2, <code>*</code>, <code>.</code> y vacío</td><td><span class="st no">desconocido</span></td><td>Unificar <code>*</code>, <code>.</code> y vacío como "sin informar"; valorar si aporta</td></tr>
+      <tr><td><code>M2</code></td><td>Superficie de la vivienda en m²</td><td>Numérico</td><td><span class="st ok">confirmado</span></td><td>Numérica; revisar ceros y extremos</td></tr>
+      <tr><td><code>INQPRO</code></td><td>Régimen de tenencia</td><td>P propietario · I inquilino</td><td><span class="st ok">confirmado</span></td><td>Factor</td></tr>
+      <tr><td><code>HABSE</code></td><td>Uso de la vivienda</td><td>H habitual · S secundaria</td><td><span class="st ok">confirmado</span></td><td>Factor</td></tr>
+      <tr><td><code>FPAGO</code></td><td>Forma de pago de la prima</td><td>A anual · S semestral · T trimestral</td><td><span class="st ok">confirmado</span></td><td>Factor</td></tr>
+      <tr><td><code>EDAD</code></td><td>Edad del asegurado</td><td>Numérico</td><td><span class="st ok">confirmado</span></td><td>Numérica; revisar extremos</td></tr>
+      <tr><td><code>FECHAALTA</code></td><td>Fecha de alta de la póliza</td><td>Fecha</td><td><span class="st ok">confirmado</span></td><td>Fecha; base para la exposición y el corte temporal</td></tr>
+      <tr><td><code>cliente descuento</code></td><td>Si el cliente tiene descuento</td><td>NO · SI</td><td><span class="st ok">confirmado</span></td><td>Factor; renombrar sin espacio</td></tr>
+      <tr><td><code>PRNETA11</code>, <code>PRNETA12</code></td><td>Prima neta. Pensamos que son la prima de dos anualidades consecutivas (2011 y 2012) o de dos momentos de la póliza</td><td>Importe</td><td><span class="st no">desconocido</span></td><td>Prima cobrada: para el loss ratio, no como objetivo</td></tr>
+      <tr><td><code>NUMSINIESTROS_TOTAL</code></td><td>Siniestros desde que nació la póliza</td><td>Conteo</td><td><span class="st ok">confirmado</span></td><td>Histórico; vigilar fuga</td></tr>
+      <tr><td><code>SS_ACC_CORPORALES</code></td><td>Siniestros de accidentes corporales</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Histórico por garantía; vigilar fuga</td></tr>
+      <tr><td><code>SS_D_AGUA</code></td><td>Siniestros de daños por agua</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_DGENERALES</code></td><td>Siniestros de daños generales</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_DEFENSA</code></td><td>Siniestros de defensa jurídica</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_INCENDIO</code></td><td>Siniestros de incendio</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_LUNAS</code></td><td>Siniestros de rotura de lunas y cristales</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_RESP_CIVIL</code></td><td>Siniestros de responsabilidad civil</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_ROBO</code></td><td>Siniestros de robo</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>SS_D_ELECTRICOS</code></td><td>Siniestros de daños eléctricos</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Ídem</td></tr>
+      <tr><td><code>REHUSADOS</code></td><td>Siniestros rehusados (no aceptados por la compañía)</td><td>Conteo</td><td><span class="st inf">inferido</span></td><td>Histórico; vigilar fuga</td></tr>
+      <tr><td><code>mes</code></td><td>Mes. Pensamos que es el mes de alta o de renovación de la póliza</td><td>1 a 12</td><td><span class="st inf">inferido</span></td><td>Posible efecto estacional</td></tr>
+      <tr><td><code>anti_poliza</code></td><td>Antigüedad de la póliza en años</td><td>Numérico</td><td><span class="st inf">inferido</span></td><td>Numérica; contrastar con <code>FECHAALTA</code></td></tr>
+      <tr><td><code>CAP_ENSERES</code></td><td>Capital asegurado de contenido (enseres)</td><td>Importe</td><td><span class="st ok">confirmado</span></td><td>Numérica; revisar ceros</td></tr>
+      <tr><td><code>CAP_RCGENERAL</code></td><td>Capital de responsabilidad civil general</td><td>Importe</td><td><span class="st ok">confirmado</span></td><td>Numérica; revisar ceros</td></tr>
+      <tr><td><code>CAP_VIVIENDA</code></td><td>Capital asegurado de continente (vivienda)</td><td>Importe</td><td><span class="st ok">confirmado</span></td><td>Numérica; revisar ceros</td></tr>
+      <tr><td><code>COSTE</code></td><td>Coste de los siniestros del periodo (0 si no hay)</td><td>Importe</td><td><span class="st ok">confirmado</span></td><td><b>Respuesta</b> de severidad</td></tr>
+      <tr><td><code>SINIESTRO</code></td><td>Número de siniestros desde la última renovación</td><td>Conteo</td><td><span class="st ok">confirmado</span></td><td><b>Respuesta</b> de frecuencia</td></tr>
+      <tr><td><code>HPOL_MOT_FIN</code></td><td>Motivo de anulación de la póliza</td><td>91 voluntaria · 92 falta de pago · BS siniestralidad · BR cambio de producto · BX deuda · BP baja · vacío = no anulada</td><td><span class="st ok">confirmado</span></td><td>Factor; el vacío es una categoría, no un nulo</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="p0">
+  <div class="sec-head"><div class="eyebrow">Paso 0 · hecho</div><h2>Cargar la base en R</h2></div>
+  <div class="code"><div class="code-head">R · Preprocess.R</div><pre><code>library(tidyverse)
+library(readxl)
+
+readxl::excel_sheets("Datos//base de datos de hogar.xlsx")   # hojas del Excel
+mi_base &lt;- read_excel("Datos//base de datos de hogar.xlsx")  # lee la primera hoja
+head(mi_base); tail(mi_base); dim(mi_base)
+df_hogar &lt;- mi_base   # copia de trabajo: mi_base queda intacta</code></pre></div>
+  <ol class="why">
+    <li><code>excel_sheets</code> lista las hojas para saber cuál leer; los datos están en la primera.</li>
+    <li><code>read_excel</code> deduce el tipo de cada columna mirando sus valores. Si una sola celda no encaja, toda la columna se lee como texto: por eso el paso 1 revisa los tipos.</li>
+    <li><code>head</code>, <code>tail</code> y <code>dim</code> comprueban que se ha leído entera y sin filas basura al principio o al final.</li>
+    <li>Se trabaja sobre <code>df_hogar</code> para poder comparar siempre con el original.</li>
+  </ol>
+</section>
+
+<section id="p1">
+  <div class="sec-head"><div class="eyebrow">Paso 1 · hecho</div><h2>Revisar el tipo de cada variable</h2></div>
+  <div class="code"><div class="code-head">R</div><pre><code>str(mi_base)   # tipo de cada columna y primeros valores</code></pre></div>
+  <div class="found"><p><b>Qué se encontró.</b> Varios importes (primas y capitales) se leen como texto, las categóricas como texto y <code>CANAL</code> como número aunque es un código. <code>FECHAALTA</code> se lee como fecha-hora.</p></div>
+  <p>La decisión de este paso es la lista de tareas del paso 2: cada variable con un tipo que no corresponde a su significado se revisa por separado.</p>
+</section>
+
+<section id="p2">
+  <div class="sec-head"><div class="eyebrow">Paso 2</div><h2>Variable a variable</h2></div>
+  <p>Para cada variable se sigue el mismo patrón: <b>mirar</b> (tipo, valores crudos, nulos), <b>comprobar</b> qué se perdería al transformar, <b>transformar</b> y <b>verificar</b> que no ha aparecido ningún nulo nuevo.</p>
+
+  <div class="step" id="p2-fecha">
+    <h3>2.1 <code>FECHAALTA</code> <span class="st ok">hecho</span></h3>
+    <div class="code"><div class="code-head">R</div><pre><code>class(df_hogar$FECHAALTA)        # qué tipo ha leído readxl
+head(df_hogar$FECHAALTA)         # valores crudos
+sum(is.na(df_hogar$FECHAALTA))   # nulos antes de convertir
+
+df_hogar &lt;- df_hogar %&gt;%
+  mutate(FECHAALTA = as.Date(FECHAALTA))
+
+class(df_hogar$FECHAALTA)        # ahora "Date"
+sum(is.na(df_hogar$FECHAALTA))   # no debe subir
+range(df_hogar$FECHAALTA, na.rm = TRUE)</code></pre></div>
+    <ol class="why">
+      <li><code>class</code> y <code>head</code>: antes de convertir hay que saber cómo viene. Se esperaba un número de serie de Excel, pero <code>readxl</code> ya la había leído como fecha-hora (<code>POSIXct</code>).</li>
+      <li>Por eso <b>no</b> se usa <code>as.Date(x, origin = "1899-12-30")</code>: sobre una fecha-hora, <code>as.numeric</code> da segundos desde 1970 y el resultado serían fechas absurdas.</li>
+      <li><code>sum(is.na(...))</code> antes y después: si el número de nulos sube, la conversión ha perdido datos.</li>
+      <li><code>mutate(... = as.Date(...))</code> quita la hora y la zona horaria; para una póliza basta el día.</li>
+      <li><code>range</code> comprueba que las fechas tienen sentido para la cartera.</li>
+    </ol>
+    <div class="found"><p><b>Resultado.</b> Tipo fecha, sin nulos antes ni después, y un rango de altas coherente. La variable queda lista; servirá para derivar la exposición y el corte temporal.</p></div>
+  </div>
+
+  <div class="step" id="p2-prima">
+    <h3>2.2 <code>PRNETA11</code> <span class="st cur">en curso</span></h3>
+    <p><b>a) Tipo.</b> Se lee como texto, así que <code>summary</code> no da cuartiles y <code>ggplot</code> no puede dibujar un histograma. Antes de convertir hay que saber <b>por qué</b> es texto.</p>
+    <div class="code"><div class="code-head">R</div><pre><code>head(df_hogar$PRNETA11, 20)      # ¿coma decimal?, ¿símbolos?
+sum(is.na(df_hogar$PRNETA11))
+
+num_prueba &lt;- suppressWarnings(as.numeric(df_hogar$PRNETA11))
+no_convertibles &lt;- df_hogar$PRNETA11[is.na(num_prueba) &amp; !is.na(df_hogar$PRNETA11)]
+length(no_convertibles)
+head(sort(table(no_convertibles), decreasing = TRUE), 20)</code></pre></div>
+    <ol class="why">
+      <li><code>num_prueba</code> intenta la conversión <b>sin tocar</b> <code>df_hogar</code>.</li>
+      <li><code>no_convertibles</code> son los valores que fallarían (dan nulo) sin ser nulos de origen: exactamente lo que un <code>as.numeric</code> directo convertiría en nulo sin avisar.</li>
+      <li><code>table</code> ordenada enseña qué textos raros hay y cuántas veces, si los hubiera.</li>
+    </ol>
+    <div class="found"><p><b>Resultado.</b> Formato numérico normal con punto decimal, sin nulos y sin ningún valor no convertible. La conversión es segura.</p></div>
+
+    <p><b>b) Conversión y distribución.</b></p>
+    <div class="code"><div class="code-head">R</div><pre><code>df_hogar &lt;- df_hogar %&gt;%
+  mutate(PRNETA11 = as.numeric(PRNETA11))
+
+summary(df_hogar$PRNETA11)
+sum(df_hogar$PRNETA11 &lt;= 0)                                    # primas a 0 o negativas
+ggplot(df_hogar, aes(PRNETA11)) + geom_histogram(bins = 50)
+ggplot(df_hogar, aes(y = PRNETA11)) + geom_boxplot()</code></pre></div>
+    <div class="found"><p><b>Resultado.</b> Sin nulos ni primas nulas o negativas. El cuerpo de la distribución es estrecho, pero hay una <b>cola derecha muy larga</b>: el máximo es decenas de veces la mediana y el histograma apenas deja ver nada fuera del primer tramo.</p></div>
+
+    <p><b>c) Análisis de la cola (pendiente de ejecutar).</b> Una prima alta no es un error por sí misma: una vivienda grande o con capitales altos paga más. Antes de recortar o excluir se mira si la cola se explica por otras variables.</p>
+    <div class="code"><div class="code-head">R</div><pre><code>quantile(df_hogar$PRNETA11, c(.90, .99, .999, .9999, 1))   # dónde se dispara la cola
+sum(df_hogar$PRNETA11 &gt; 500)
+sum(df_hogar$PRNETA11 &gt; 1000)
+df_hogar %&gt;%
+  arrange(desc(PRNETA11)) %&gt;%
+  select(PRNETA11, TVIVIENDA, M2, CAP_VIVIENDA, CAP_ENSERES, EDAD, NUMSINIESTROS_TOTAL) %&gt;%
+  head(10)</code></pre></div>
+    <p>Opciones según lo que salga: dejarla como está (prima legítima), poner un tope (capping) o excluir solo los casos con error evidente. Como <code>PRNETA11</code> es la prima cobrada, sirve para el loss ratio y no es el objetivo del modelo, lo que reduce el impacto de los extremos.</p>
+  </div>
+
+  <div class="step" id="pendientes">
+    <h3>2.3 y siguientes <span class="st inf">pendiente</span></h3>
+    <p>Mismo patrón, en este orden:</p>
+    <ol class="tight">
+      <li><code>PRNETA12</code>: igual que <code>PRNETA11</code>; además, comparar ambas para aclarar qué representa cada una.</li>
+      <li><code>CAP_VIVIENDA</code>, <code>CAP_ENSERES</code>, <code>CAP_RCGENERAL</code>: tipo, ceros (¿cobertura no contratada o dato ausente?) y extremos.</li>
+      <li><code>COSTE</code> y <code>SINIESTRO</code>: coherencia entre ambas (coste positivo solo si hay siniestro) y cola de la severidad.</li>
+      <li><code>ULT_REFORMA</code>: unificar las marcas de "sin informar" y decidir si se usa.</li>
+      <li><code>HPOL_MOT_FIN</code>: el vacío pasa a la categoría "sin baja".</li>
+      <li>Categóricas (<code>TVIVIENDA</code>, <code>INQPRO</code>, <code>HABSE</code>, <code>FPAGO</code>, <code>cliente descuento</code>, <code>CANAL</code>): a factor con nivel de referencia para el GLM.</li>
+      <li>Numéricas (<code>EDAD</code>, <code>M2</code>, <code>ANO_CONSTR</code>, <code>anti_poliza</code>, <code>mes</code>): nulos, rangos imposibles y extremos.</li>
+      <li>Históricos de siniestros (<code>NUMSINIESTROS_TOTAL</code>, <code>SS_*</code>, <code>REHUSADOS</code>): comprobar si la suma por garantías cuadra con el total y decidir su uso tras fijar el corte temporal.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="nulos">
+  <div class="sec-head"><div class="eyebrow">Datos nulos</div><h2>Qué significa cada nulo</h2></div>
+  <p>Un nulo no siempre es un dato perdido. Antes de imputar hay que saber qué quiere decir en cada variable.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Variable</th><th>Nulo significa</th><th>Tratamiento</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><code>FECHAALTA</code></td><td>No tiene nulos</td><td>Ninguno</td><td><span class="st ok">revisado</span></td></tr>
+      <tr><td><code>PRNETA11</code></td><td>No tiene nulos</td><td>Ninguno</td><td><span class="st ok">revisado</span></td></tr>
+      <tr><td><code>HPOL_MOT_FIN</code></td><td>La póliza <b>no</b> se ha anulado</td><td>Categoría propia "sin baja"; no se imputa</td><td><span class="st inf">pendiente</span></td></tr>
+      <tr><td><code>ULT_REFORMA</code></td><td>Sin informar (también <code>*</code> y <code>.</code>)</td><td>Categoría "sin informar" e indicador</td><td><span class="st inf">pendiente</span></td></tr>
+      <tr><td><code>CANAL</code></td><td>Sin informar (el 0 es "sin modalidad")</td><td>Categoría propia</td><td><span class="st inf">pendiente</span></td></tr>
+      <tr><td>Numéricas (<code>EDAD</code>, <code>M2</code>, capitales…)</td><td>Dato perdido</td><td>Indicador de nulo; imputación (mediana o moda) según el porcentaje</td><td><span class="st inf">pendiente</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="registro">
+  <div class="sec-head"><div class="eyebrow">Registro</div><h2>Transformaciones aplicadas</h2></div>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Variable</th><th>Transformación</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>FECHAALTA</code></td><td>Fecha-hora → <code>Date</code> con <code>as.Date()</code></td><td>Quitar hora y zona horaria; preparar la exposición</td></tr>
+      <tr><td>2</td><td><code>PRNETA11</code></td><td>Texto → numérico con <code>as.numeric()</code></td><td>Era texto sin motivo: todos los valores eran números válidos</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="avisos">
+  <div class="sec-head"><div class="eyebrow">Antes de modelar</div><h2>Avisos abiertos</h2></div>
+  <div class="callout warn"><h4>Fuga de información</h4><p><code>SINIESTRO</code> y <code>COSTE</code> son del periodo que se quiere predecir; <code>NUMSINIESTROS_TOTAL</code> y los <code>SS_*</code> son históricos y pueden incluir ese mismo periodo. No se usan como predictores hasta fijar el corte temporal.</p></div>
+  <div class="callout warn"><h4>Sin exposición explícita</h4><p>No hay columna de exposición. Se derivará de <code>FECHAALTA</code>, <code>mes</code> y <code>anti_poliza</code> para el offset <code>log(exposición)</code> del GLM de frecuencia.</p></div>
+  <div class="callout warn"><h4>Sin código postal</h4><p>Entre las 33 columnas no aparece el código postal, que es la clave para unir las variables de contexto. Hay que confirmar si existe en otra fuente.</p></div>
+  <div class="callout"><h4>Variables sin descriptivo</h4><p><code>PRNETA11</code>, <code>PRNETA12</code> y <code>ULT_REFORMA</code> no tienen descripción; los significados de <code>SS_*</code>, <code>REHUSADOS</code>, <code>mes</code> y <code>anti_poliza</code> se deducen del nombre. Conviene confirmarlos con el autor de la base.</p></div>
+</section>
+
+<footer class="foot">
+  <p>Código completo: <a href="tfm_hogar/Preprocess.R">Preprocess.R</a>. Esta página se actualiza a medida que avanza el preprocesamiento.</p>
+  <p>La base de datos de Hogar no forma parte de este repositorio.</p>
+</footer>
+</div>
+</body>
+</html>
