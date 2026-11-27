@@ -2560,12 +2560,73 @@ const EXAMENES = [
 }
 },
 {
+"t": "Línea temporal (clase del 27/11)",
+"p": "Como se hizo en clase: primero el valor en la emisión, porque es el que fija el instrumento de capital. Pasivo en la emisión = 10.000.000 × 1,015⁻² = 9.706.617,49 €; IK = 10.000.000 − 9.706.617,49 = 293.382,51 €, que ya no cambia. Después, el coste amortizado de cada cierre descontando el reembolso por el tiempo que falta. Como no hay cupones, el gasto financiero de cada periodo es la diferencia entre dos costes amortizados.",
+"tabla": {
+"cap": "Pasivo del bono convertible (€)",
+"head": [
+"Fecha",
+"Años hasta el 1.7.20",
+"Coste amortizado",
+"Gasto financiero del periodo"
+],
+"rows": [
+[
+"1.7.18 (emisión)",
+"2",
+"9.706.617,49",
+"—"
+],
+[
+"31.12.18",
+"1,5",
+"9.779.146,15",
+"72.528,66 (1.7 a 31.12.18)"
+],
+[
+"31.12.19",
+"0,5",
+"9.925.833,34",
+"146.687,19 (año 2019)"
+],
+[
+"1.7.20 (vencimiento)",
+"0",
+"10.000.000,00",
+"74.166,66 (1.1 a 1.7.20)"
+]
+]
+},
+"a": [
+{
+"f": "31.12.19",
+"t": "Gasto financiero de 2019",
+"l": [
+[
+"Gastos financieros",
+"R",
+146687.19,
+0
+],
+[
+"Pasivo financiero (coste amortizado)",
+"P",
+0,
+146687.19
+]
+],
+"n": ""
+}
+]
+},
+{
 "t": "Comentario",
 "p": "Es un instrumento compuesto porque la conversión es «fijo por fijo»: 10.000 € de reembolso a cambio de 500 acciones, siempre las mismas. Si el número de acciones dependiera de la cotización, la opción sería un derivado a valor razonable y no patrimonio. El componente de patrimonio (293.382,51 €) no se vuelve a valorar aunque cambie la cotización; solo el pasivo devenga intereses al 1,5 %."
 }
 ],
 "claves": [
-"Convertible a precio fijo en un número fijo de acciones: parte pasivo (coste amortizado) y parte patrimonio."
+"Convertible a precio fijo en un número fijo de acciones: parte pasivo (coste amortizado) y parte patrimonio.",
+"Primero el valor del pasivo en la emisión (fija el IK); después, coste amortizado en cada cierre y gasto = diferencia entre costes amortizados."
 ]
 }
 ],
@@ -4759,6 +4820,10 @@ const EXAMENES = [
 "t": "Derivado: sube de 100.000 a 125.000 €"
 }
 ]
+},
+{
+"t": "Por qué segregar (clase del 27/11)",
+"p": "¿Qué se ahorra la sociedad al segregar? Las oscilaciones de mercado del bono: la deuda queda a coste amortizado, así que los cambios de tipos no le llegan a la cuenta de resultados; solo el derivado va a valor razonable. El enunciado le da los tipos de mercado de cada cierre precisamente para calcular qué habría pasado sin segregar. Del derivado no se puede hacer un cálculo propio: se dan sus valores en cada fecha."
 },
 {
 "t": "Comentario",
