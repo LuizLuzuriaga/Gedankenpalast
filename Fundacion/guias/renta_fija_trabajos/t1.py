@@ -199,6 +199,15 @@ for k, c in enumerate(cont):
         wc.write_formula(row, 5, f"='Datos y calculos'!D{src+2}", t3, c["real6"]); wc.write_formula(row, 6, f"=E{row+1}-F{row+1}", t4, c["f612s"] - c["real6"])
 wc.write(11, 0, "Media"); wc.write_formula(11, 3, "=AVERAGE(D2:D9)", t4, res["prima3_media"]); wc.write_formula(11, 6, "=AVERAGE(G2:G8)", t4, res["prima6_media"])
 wc.write(12, 0, "Nº diferencias > 0"); wc.write_formula(12, 3, '=COUNTIF(D2:D9,">0")', n0, res["prima3_pos"]); wc.write_formula(12, 6, '=COUNTIF(G2:G8,">0")', n0, res["prima6_pos"])
+# Figuras 5 y 6 del trabajo: cada Euríbor observado está en la fila de la fecha en que se calculó su forward,
+# así que la distancia vertical entre las dos series es la columna «Diferencia»
+for col_f, col_r, nombre_f, nombre_r, ancla, tit in ((1, 2, "Forward F3/12;6/12", "Euríbor 3m observado tres meses después", "I2", "d) Forward a tres meses frente al Euríbor observado"),
+                                                     (4, 5, "Forward F6/12;12/12", "Euríbor 6m observado seis meses después", "I20", "d) Forward a seis meses frente al Euríbor observado")):
+    chd = wb.add_chart({"type": "line"})
+    chd.add_series({"name": nombre_f, "categories": ["Contraste d)", 1, 0, 9, 0], "values": ["Contraste d)", 1, col_f, 9, col_f], "marker": {"type": "circle"}})
+    chd.add_series({"name": nombre_r, "categories": ["Contraste d)", 1, 0, 9, 0], "values": ["Contraste d)", 1, col_r, 9, col_r], "marker": {"type": "circle"}, "line": {"dash_type": "dash"}})
+    chd.set_title({"name": tit}); chd.set_y_axis({"name": "%"}); chd.set_x_axis({"name": "fecha en que se calcula el forward", "num_format": "dd/mm/yy"})
+    chd.set_size({"width": 640, "height": 330}); wc.insert_chart(ancla, chd)
 wb.close()
 print(json.dumps({k: res[k] for k in res if k.startswith("prima")}, indent=1))
 for r in res["filas"]: print(r["fecha"], r["n"], [round(x, 3) for x in r["R"]], round(r["f36c"], 3), round(r["f612c"], 3), round(r["f36s"], 3), round(r["f612s"], 3))
