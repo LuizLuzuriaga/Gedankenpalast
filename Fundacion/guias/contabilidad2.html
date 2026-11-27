@@ -201,6 +201,8 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .claves { background: var(--accent-soft); border: 1px solid #2a4f85; border-radius: 10px; padding: 10px 14px; font-size: 15px; }
 .claves ul { margin: 4px 0 0; padding-left: 20px; display: grid; gap: 2px; }
 .ex-vacio { color: var(--muted); font-style: italic; }
+.ej.resp { border-color: #2a4f85; }
+.ej.resp > summary .ej-n { color: var(--ok); }
 @media (max-width: 520px) {
   .as-t td, .as-t th { padding: 5px 8px; }
   .as-t tr.hab td.cta { padding-left: 18px; }
@@ -499,6 +501,10 @@ function pintaEjercicio(x) {
       ${x.pasos.map(pintaPaso).join('')}
       <div class="claves" hidden><b>Para recordar</b><ul>${(x.claves || []).map((c) => `<li>${esc(c)}</li>`).join('')}</ul></div></div></details>`;
 }
+function pintaRespuesta(r) {
+  return `<details class="ej resp"><summary><span class="ej-t"><span class="ej-n">Resumen</span>Respuesta completa al enunciado</span></summary>
+    <div class="ej-body"><p>${esc(r.intro)}</p>${r.tablas.map(pintaTabla).join('')}${r.nota ? `<p class="fuentes">${esc(r.nota)}</p>` : ''}</div></details>`;
+}
 let catSel = '';
 function pintaExamenes() {
   const cont = $('exLista');
@@ -508,7 +514,7 @@ function pintaExamenes() {
     return `<details class="exam"${catSel ? ' open' : ''}><summary><span class="ex-fecha">${esc(e.fechaTxt)}</span>
       <span class="ex-meta"><span>${esc(e.tipo)}</span><span>${esc(e.titulo)}</span><span>${ejs.length} ${ejs.length === 1 ? 'ejercicio' : 'ejercicios'}</span></span></summary>
       <div class="exam-body"><ul class="archivos">${e.archivos.map(([n, r]) => `<li><span class="rol">${esc(r)}</span><span>${esc(n)}</span></li>`).join('')}</ul>
-      ${e.aviso ? `<div class="supu">${esc(e.aviso)}</div>` : ''}${ejs.map(pintaEjercicio).join('')}</div></details>`;
+      ${e.aviso ? `<div class="supu">${esc(e.aviso)}</div>` : ''}${ejs.map(pintaEjercicio).join('')}${e.respuesta && !catSel ? pintaRespuesta(e.respuesta) : ''}</div></details>`;
   }).join('');
   cont.innerHTML = lista || '<p class="ex-vacio">Ningún ejercicio con ese tema.</p>';
 }
@@ -542,7 +548,7 @@ if (typeof EXAMENES !== 'undefined') {
     if (b.dataset.act === 'reset') pasos.forEach((q) => { q.hidden = true; });
     actualizaEj(ej);
   });
-  document.querySelectorAll('#exLista .ej').forEach(actualizaEj);
+  document.querySelectorAll('#exLista .ej:not(.resp)').forEach(actualizaEj);
 } else {
   $('exLista').innerHTML = '<p class="ex-vacio">No se han podido cargar los exámenes.</p>';
 }

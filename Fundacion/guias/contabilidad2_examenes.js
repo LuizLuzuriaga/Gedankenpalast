@@ -2123,6 +2123,10 @@ const EXAMENES = [
 [
 "Examen 20190620.xlsx",
 "Hoja de cálculo con la solución"
+],
+[
+"Examen 20190620 (resuelto).xlsx",
+"Excel resuelto (en tu carpeta)"
 ]
 ],
 "ejercicios": [
@@ -2288,10 +2292,15 @@ const EXAMENES = [
 ]
 ]
 }
+},
+{
+"t": "Comentario",
+"p": "Tres cosas que conviene ver. Primera: la cobertura empieza el 1.7.18, así que la bajada de valor del primer semestre (−24.143,21 €) se queda en patrimonio y no se compensa con nada; solo la del segundo semestre pasa por resultados frente al swap. Segunda: a 31.12.18 siguen en patrimonio 48.716,29 € de ajuste del bono, los acumulados hasta la cobertura. Tercera: la hoja del profesor valora también el swap con sus propios flujos (pata fija al 1,25 % contra pata variable) y le salen 9.823,43 €, no 19.353,36 €. En balance usa 19.353,36 €, que es suponer una cobertura perfecta: el swap vale justo lo que se ha movido el bono desde el 1.7.18."
 }
 ],
 "claves": [
-"Antes de la cobertura el bono va por ORG; después, por resultados junto al derivado."
+"Antes de la cobertura el bono va por ORG; después, por resultados junto al derivado.",
+"Con cobertura de valor razonable de un activo a VR con cambios en ORG, lo anterior a la cobertura se queda en patrimonio y lo posterior va a resultados."
 ]
 },
 {
@@ -2451,10 +2460,15 @@ const EXAMENES = [
 ]
 ]
 }
+},
+{
+"t": "Comentario",
+"p": "El examen sigue la norma anterior: al vender, el ajuste acumulado de las acciones vendidas pasa de patrimonio a resultados (beneficio de 12.500 €). Con NIIF 9, si se eligió de forma irrevocable llevar unas acciones a ORG, ese ajuste no se recicla nunca a resultados: al vender se traspasa a reservas. El dividendo sí va siempre a resultados."
 }
 ],
 "claves": [
-"Dividendos y beneficio realizado en la venta, a resultados; las variaciones de valor intermedias, a patrimonio."
+"Dividendos y beneficio realizado en la venta, a resultados; las variaciones de valor intermedias, a patrimonio.",
+"NIIF 9: acciones a ORG por elección irrevocable no reciclan a resultados al venderse; con la norma del examen, sí."
 ]
 },
 {
@@ -2544,13 +2558,131 @@ const EXAMENES = [
 ]
 ]
 }
+},
+{
+"t": "Comentario",
+"p": "Es un instrumento compuesto porque la conversión es «fijo por fijo»: 10.000 € de reembolso a cambio de 500 acciones, siempre las mismas. Si el número de acciones dependiera de la cotización, la opción sería un derivado a valor razonable y no patrimonio. El componente de patrimonio (293.382,51 €) no se vuelve a valorar aunque cambie la cotización; solo el pasivo devenga intereses al 1,5 %."
 }
 ],
 "claves": [
 "Convertible a precio fijo en un número fijo de acciones: parte pasivo (coste amortizado) y parte patrimonio."
 ]
 }
+],
+"respuesta": {
+"intro": "Lo que pide el enunciado, junto: valoraciones en balance a 31.12.17 y 31.12.18, y rendimientos de 2018 en PyG y en el estado de cambios en el patrimonio neto. Son las cifras de la hoja «Respuesta» del Excel resuelto, que cuadran con la solución del profesor.",
+"tablas": [
+{
+"cap": "1. Valoraciones contables en balance (€)",
+"head": [
+"Partida",
+"Criterio",
+"31.12.17",
+"31.12.18"
+],
+"rows": [
+[
+"Bonos 1.000 × 10.000 (activo)",
+"VR con cambios en ORG",
+"10.000.882,30",
+"10.005.558,87"
+],
+[
+"Swap de cobertura (activo)",
+"VR con cambios en PyG",
+"—",
+"19.353,36"
+],
+[
+"Acciones del Banco de Torrejón (activo)",
+"VR con cambios en ORG",
+"262.500,00",
+"135.000,00"
+],
+[
+"Bono convertible: pasivo financiero",
+"Coste amortizado",
+"—",
+"9.779.146,15"
+],
+[
+"Bono convertible: instrumento de capital",
+"Coste (no se revalúa)",
+"—",
+"293.382,51"
+],
+[
+"Ajuste ORG de los bonos (PN)",
+"",
+"72.859,49",
+"48.716,29"
+],
+[
+"Ajuste ORG de las acciones (PN)",
+"",
+"37.500,00",
+"22.500,00"
 ]
+]
+},
+{
+"cap": "2. Rendimientos registrados en 2018 (€)",
+"head": [
+"Partida",
+"PyG",
+"ECPN (ORG)"
+],
+"rows": [
+[
+"Bonos: ingresos por intereses",
+"148.173,13",
+"—"
+],
+[
+"Bonos: variación dif. VR−CA antes de la cobertura",
+"—",
+"−24.143,21"
+],
+[
+"Bonos: variación dif. VR−CA cubierta",
+"−19.353,36",
+"—"
+],
+[
+"Swap: variación de valor razonable",
+"19.353,36",
+"—"
+],
+[
+"Acciones: dividendos",
+"10.000,00",
+"—"
+],
+[
+"Acciones: beneficio en la venta",
+"12.500,00",
+"—"
+],
+[
+"Acciones: variación del ajuste por valoración",
+"—",
+"−15.000,00"
+],
+[
+"Bono convertible: gastos financieros",
+"−72.528,66",
+"—"
+],
+[
+"Total",
+"98.144,47",
+"−39.143,21"
+]
+]
+}
+],
+"nota": "En el ECPN de 2018 aparece además la emisión del componente de patrimonio del bono convertible: +293.382,51 €."
+}
 },
 {
 "id": "e20200519",
