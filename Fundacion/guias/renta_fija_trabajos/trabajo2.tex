@@ -27,7 +27,8 @@
 \addto\captionsspanish{\renewcommand{\figurename}{Figura}}
 \captionsetup{font=small,labelfont=bf}
 \lstset{basicstyle=\ttfamily\scriptsize,breaklines=true,keywordstyle=\color{blue!60!black},commentstyle=\color{gray},frame=single,numbers=left,numberstyle=\tiny\color{gray}}
-\newcommand{\Fw}[2]{F_{#1;#2}}
+% Enunciado: recuadro y cursiva, como en el Trabajo 1
+\newcommand{\enunciado}[1]{\par\medskip\noindent\fbox{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}\itshape #1\end{minipage}}\par\medskip}
 
 % Configuración de márgenes
 \geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
@@ -70,7 +71,9 @@
 \vspace{0.1cm}
 \noindent
 \begin{justify}
-A partir de las cotizaciones de bonos y obligaciones del Estado del 11 de septiembre de 2026 (fecha valor 14 de septiembre) se estima la ETTI cupón cero con el modelo de Svensson y, como contraste, con splines cúbicas sobre la función de descuento. Se utilizan 57 títulos (precio ex-cupón medio compra/venta) y se minimizan los errores de precio ponderados por el inverso de la duración. El modelo de Svensson ajusta con un error cuadrático medio de 3{,}9 puntos básicos en TIR y la spline con 2{,}8. La curva es creciente, del 2{,}62\,\% a 0,1 años al 4{,}70\,\% a 45 años.
+En este trabajo se estima la estructura temporal de los tipos de interés (ETTI) cupón cero a partir de las cotizaciones de bonos y obligaciones del Estado del 11 de septiembre de 2026, con fecha valor del 14 de septiembre. Para ello se aplica el modelo de Svensson y se comparan sus resultados con los obtenidos mediante splines cúbicas sobre la función de descuento.
+
+El análisis utiliza 57 títulos y toma como precio ex cupón la media de las cotizaciones de compra y venta. Para equilibrar el ajuste entre vencimientos, se minimiza la suma de los cuadrados de los errores de precio divididos por la duración de Macaulay de cada bono. El error de ajuste en TIR, medido mediante la raíz del error cuadrático medio (RMSE), es de 3{,}9 puntos básicos con Svensson y de 2{,}8 con las splines. La curva estimada con Svensson presenta una trayectoria creciente: los tipos cupón cero, expresados en capitalización continua, pasan del 2{,}62\,\% a 0,1 años al 4{,}70\,\% a 45 años.
 \\\\
 \vspace{0.1cm}
 \noindent
@@ -82,7 +85,7 @@ A partir de las cotizaciones de bonos y obligaciones del Estado del 11 de septie
 \vspace{0.1cm}
 \noindent
 \begin{justify}
-Using the Spanish Treasury bond quotes of 11 September 2026 (value date 14 September), the zero-coupon term structure is estimated with the Svensson model and, as a robustness check, with cubic splines on the discount function. 57 bonds are used (mean bid/ask clean price) and duration-weighted price errors are minimised. The Svensson model fits with a root mean squared error of 3{,}9 basis points in yield and the spline with 2{,}8. The curve is upward sloping, from 2{,}62\,\% at 0.1 years to 4{,}70\,\% at 45 years.\\\\
+This paper estimates the zero-coupon term structure of interest rates from the Spanish Treasury bond quotes of 11 September 2026, with value date 14 September, using the Svensson model and comparing it with cubic splines on the discount function. 57 bonds are used, with the mean bid/ask clean price, and the sum of squared price errors divided by each bond's Macaulay duration is minimised. The yield root mean squared error is 3{,}9 basis points with Svensson and 2{,}8 with the splines. The Svensson curve is upward sloping, from 2{,}62\,\% at 0.1 years to 4{,}70\,\% at 45 years (continuous compounding).\\\\
 \vspace{0.1cm}
 \noindent
 \textbf{Keywords}: term structure of interest rates, Svensson model, cubic splines, zero-coupon rates, government bonds.
@@ -101,60 +104,76 @@ Using the Spanish Treasury bond quotes of 11 September 2026 (value date 14 Septe
 \numberwithin{equation}{section}
 \pagenumbering{arabic}
 \setcounter{page}{1}
+\enunciado{A partir del fichero con las cotizaciones de los bonos y obligaciones del Estado correspondientes al día 11 de septiembre de 2026 (fecha de contratación), estime la estructura temporal de tipos de interés cupón cero aplicando uno de los siguientes modelos: a) Svensson; b) splines cúbicas. Una vez estimados los parámetros, represente en un único gráfico la curva de tipo cupón cero y la TIR de los bonos y obligaciones utilizados para su estimación. Comente los resultados.}
+
 \section{Datos y tratamiento}
-\paragraph{Muestra.} El fichero de cotizaciones contiene 58 bonos y obligaciones; la Obligación 4,000\,\% 10/2064 no tiene cotización y se excluye, por lo que quedan 57 títulos (2 son cupón cero: el Bono 0,000\,\% 01/2027 y la Obligación 0,000\,\% 01/2028). Se usa el \textbf{precio ex-cupón medio} $P^*=\frac12(P^{compra}+P^{venta})$ en porcentaje del nominal. La fecha de contratación es el 11/09/2026 y la fecha valor el 14/09/2026 (dato del propio fichero, D+1 hábil).
-\paragraph{Fechas de pago.} El fichero indica solo mes y año de vencimiento. Se ha tomado el día habitual de las emisiones del Tesoro según el mes (31/01, 30/03, 30/04, 31/05, 30/07, 31/10) y cupones anuales en el aniversario del vencimiento. Como comprobación, con estas fechas, el precio bruto y la convención del Tema~1 la TIR calculada coincide con la TIR publicada (media compra/venta) con una diferencia media absoluta de 0,3 puntos básicos; la única diferencia relevante (8,4\,pb) es la Obligación 1,300\,\% 10/2026, a mes y medio del vencimiento, donde el redondeo del precio se amplifica en el tipo anual.
+\paragraph{Muestra.} El fichero de cotizaciones contiene 58 bonos y obligaciones. La Obligación 4,000\,\% 10/2064 no tiene cotización y se excluye del ajuste, por lo que quedan 57 títulos (dos de ellos cupón cero: el Bono 0,000\,\% 01/2027 y la Obligación 0,000\,\% 01/2028); su valoración teórica con la curva estimada se presenta en la Sección~\ref{sec:o64}. Se usa el \textbf{precio ex cupón medio} $P^*=\frac12(P^{compra}+P^{venta})$ en porcentaje del nominal.
+\paragraph{Fecha valor.} La operación se contrata el viernes 11 de septiembre de 2026 y se liquida el siguiente día hábil, el lunes 14 de septiembre de 2026, que es la fecha valor que figura en el propio fichero. Todos los plazos y el cupón corrido se cuentan desde esa fecha.
+\paragraph{Fechas de pago.} Como la descripción de los títulos solo indica el mes y el año de vencimiento, se ha tomado el día habitual de las emisiones del Tesoro según el mes (31/01, 31/03, 30/04, 31/05, 30/07, 31/10) y cupones anuales en el aniversario del vencimiento. Como comprobación de los cálculos, se compara la TIR obtenida a partir del precio bruto y los flujos de cada bono con la media de las TIR de compra y venta publicadas: la diferencia media absoluta es de aproximadamente 0{,}3 puntos básicos. La mayor discrepancia, de unos 8{,}4 puntos básicos, corresponde a la obligación al 1,30\,\% con vencimiento en 10/2026; su proximidad al vencimiento hace que pequeñas diferencias en el precio o en las convenciones de cálculo tengan un efecto mayor sobre la rentabilidad anualizada. En el bono al 2,35\,\% con vencimiento en marzo de 2029 se ha tomado el 31 de marzo como fecha de vencimiento; con ella su TIR difiere 0{,}6 puntos básicos de la publicada (0,7 con el 30 de marzo), y el cambio apenas afecta a la estimación: los tipos de la curva a 1, 5, 10 y 30 años varían menos de 0,1 puntos básicos.
 \paragraph{Plazos y precio bruto.} Según el Tema~1 el cupón corrido es $CC=C\cdot\frac{d}{b}$, con $d$ los días desde el último cupón hasta la fecha valor y $b$ los días entre cupones (ACT/ACT), y el precio bruto es $P=P^*+CC$. Los flujos futuros se sitúan en $t_k=\tau+k$ años, con $\tau=\frac{\text{días hasta el próximo cupón}}{b}$ y $k=0,1,\dots$. La TIR $y$ de cada título es la raíz de $P=\sum_k CF_k(1+y)^{-t_k}$ y su duración de Macaulay $D=\sum_k t_kCF_k(1+y)^{-t_k}/P$.
 
 \section{Metodología}
 \subsection{Modelo de Svensson}
 Los tipos al contado con capitalización continua son
 \begin{equation}r_T=\beta_0+(\beta_1+\beta_2)\frac{1-e^{-\kappa_1T}}{\kappa_1T}-\beta_2e^{-\kappa_1T}+\beta_3\frac{1-e^{-\kappa_2T}}{\kappa_2T}-\beta_3e^{-\kappa_2T},\end{equation}
-con función de descuento $D(0,T)=e^{-r_TT}$ y forward instantáneo $f(T)=\beta_0+\beta_1e^{-\kappa_1T}+\beta_2\kappa_1Te^{-\kappa_1T}+\beta_3\kappa_2Te^{-\kappa_2T}$. $\beta_0$ es el tipo a plazo infinito, $\beta_0+\beta_1$ el tipo a plazo cero, y $\beta_2,\beta_3$ con $\kappa_1,\kappa_2$ gobiernan dos jorobas.
-El precio teórico del título $j$ es $\hat P_j=\sum_kCF_{jk}\,e^{-r(t_{jk})t_{jk}}$. Siguiendo el Anexo~I, que advierte de que mínimos cuadrados ordinarios sobre precios penaliza demasiado los errores de los títulos largos (un mismo error de TIR produce un error de precio proporcional a la duración), se estiman los parámetros minimizando
+con función de descuento $D(0,T)=e^{-r_TT}$ y forward instantáneo $f(T)=\beta_0+\beta_1e^{-\kappa_1T}+\beta_2\kappa_1Te^{-\kappa_1T}+\beta_3\kappa_2Te^{-\kappa_2T}$. El precio teórico del título $j$ es $\hat P_j=\sum_kCF_{jk}\,e^{-r(t_{jk})t_{jk}}$. Como señala el Anexo~I sobre estimación de la ETTI, los mínimos cuadrados sobre precios pueden dar demasiado peso a los bonos de mayor duración. Para equilibrar el ajuste, se divide cada error de precio por la duración de Macaulay del bono y se minimiza la suma de los cuadrados de estos errores normalizados:
 \begin{equation}\min_{\beta,\kappa}\ \sum_{j=1}^{n}\Bigl(\frac{\hat P_j-P_j}{D_j}\Bigr)^2.\end{equation}
 La optimización (mínimos cuadrados no lineales, algoritmo de región de confianza) parte de los valores del enunciado $(\beta_0,\beta_1,\beta_2,\beta_3,\kappa_1,\kappa_2)=(0{,}05;-0{,}025;0{,}01;-0{,}04;1{,}2;0{,}5)$ y se repite desde otros cinco arranques, con las cotas $\kappa\in[0{,}05;10]$, $|\beta_{1,2,3}|\le0{,}1$ y $\beta_0\in[0;0{,}2]$. Se queda el óptimo de menor coste.
 
+\subsection{Elección y efecto de la función objetivo}
+\label{sec:objetivo}
+Un error en la TIR de $\Delta y$ produce un error de precio aproximadamente igual a $D_{mod}\cdot P\cdot\Delta y$. Por eso, si se minimizan los errores de precio sin ponderar, un bono largo, de duración alta, pesa mucho más que uno corto, y el ajuste sacrifica el tramo corto de la curva. Dividir cada error de precio por la duración lo convierte, aproximadamente, en un error de rentabilidad, de modo que todos los plazos cuentan parecido. Es la solución que propone el Anexo~I (mínimos cuadrados generalizados con ponderaciones inversas a la duración). La Tabla~\ref{tab:objetivo} compara esta elección con otras dos: sin ponderar y dividiendo por $D_{mod}\cdot P$, que es la conversión exacta a error de TIR.
+\begin{table}[H]\centering\caption{Efecto de la función objetivo sobre los parámetros y el ajuste de Svensson. RMSE en TIR en puntos básicos (total, bonos de menos de 3 años y de 15 años o más) y tipos al contado $r_T$ en \%.}\label{tab:objetivo}
+\scriptsize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.6cm}cccccccccc}\toprule Función objetivo & $\beta_1$ & $\kappa_1$ & RMSE & $<3$ años & $\ge15$ años & $r_1$ & $r_5$ & $r_{10}$ & $r_{30}$\\\midrule
+Base: error de precio dividido por la duración (1/D) & -0{,}0232 & 3{,}05 & 3{,}91 & 2{,}01 & 7{,}64 & 3{,}019 & 3{,}431 & 3{,}928 & 4{,}579 \\
+MCO sobre precios (sin ponderar) & -0{,}0088 & 6{,}40 & 5{,}35 & 7{,}60 & 6{,}54 & 3{,}099 & 3{,}425 & 3{,}946 & 4{,}542 \\
+Error de precio dividido por $D_{mod}\cdot P$ ($\approx$ error en TIR) & -0{,}0222 & 3{,}40 & 3{,}60 & 2{,}08 & 6{,}63 & 3{,}025 & 3{,}435 & 3{,}928 & 4{,}537 \\
+\bottomrule\end{tabular}\end{table}
+Sin ponderar, el error en TIR de los bonos cortos se dispara (de 2{,}0 a 7{,}6 puntos básicos) y el tipo a un año sube unos 8 puntos básicos: el ajuste se tuerce hacia los bonos largos, justo lo que advierte el Anexo~I. Los parámetros también cambian mucho ($\beta_1$ pasa de -0{,}0232 a -0{,}0088 y $\kappa_1$ de 3{,}05 a 6{,}40), mientras que los tipos a 5 y 10 años apenas se mueven. Dividir por $D_{mod}\cdot P$ da resultados muy parecidos a la ponderación elegida, porque las dos crecen con la duración: los tipos a 1, 5 y 10 años difieren menos de un punto básico y la mayor diferencia, de unos 4 puntos básicos, aparece a 30 años, donde hay obligaciones con precios muy por debajo de la par. Por tanto, la elección de $1/D$ equilibra el ajuste entre plazos, y el resultado es robusto a la forma exacta de la ponderación.
+
 \subsection{Splines cúbicas}
-Se aproxima $D(0,T)=1+a_1T+a_2T^2+a_3T^3+\sum_{p}b_p(T-\xi_p)_+^3$ (con $D(0,0)=1$ impuesto). Es una función de clase $C^2$ y el precio de cada título es lineal en $(a_1,a_2,a_3,b_1,\dots)$, de modo que la estimación es un mínimo cuadrado ponderado (con el mismo peso $1/D_j$) resuelto con álgebra lineal. Nudos internos: $\xi=(1{,}5, 4{,}0, 8{,}0, 15{,}0)$ años, es decir 7 parámetros. Se comprueba que $D$ es positiva y decreciente en $[0;45{,}1]$ (se cumple).
+Se aproxima $D(0,T)=1+a_1T+a_2T^2+a_3T^3+\sum_{p}b_p(T-\xi_p)_+^3$ (con $D(0,0)=1$ impuesto). Es una función de clase $C^2$ y el precio de cada título es lineal en $(a_1,a_2,a_3,b_1,\dots)$, de modo que la estimación es un mínimo cuadrado ponderado (con el mismo peso $1/D_j$) resuelto con álgebra lineal. Nudos internos: $\xi=(1{,}5, 4{,}0, 8{,}0, 15{,}0)$ años, es decir, 7 parámetros. Se comprueba que $D$ es positiva y decreciente en $[0;45{,}1]$ (se cumple).
 
 \section{Resultados}
 \subsection{Svensson}
-\begin{table}[H]\centering\caption{Parámetros estimados (Svensson).}
-\begin{tabular}{lc}\toprule Parámetro & Valor\\\midrule
-$\beta_0$ & 0{,}04930 \\
-$\beta_1$ & -0{,}02321 \\
-$\beta_2$ & -0{,}01750 \\
-$\beta_3$ & -0{,}04232 \\
-$\kappa_1$ & 3{,}04691 \\
-$\kappa_2$ & 0{,}46020 \\
+\begin{table}[H]\centering\caption{Parámetros de Svensson: valor inicial del enunciado, valor estimado e interpretación.}\label{tab:param}
+\small\begin{tabular}{lccp{6.3cm}}\toprule Parámetro & Inicial & Estimado & Interpretación\\\midrule
+$\beta_0$ & 0{,}050 & 0{,}04930 & Nivel a muy largo plazo: tipo al que tiende la curva \\
+$\beta_1$ & -0{,}025 & -0{,}02321 & Pendiente: $\beta_0+\beta_1$ es el tipo a plazo cero \\
+$\beta_2$ & 0{,}010 & -0{,}01750 & Primera curvatura (joroba a plazo corto y medio) \\
+$\beta_3$ & -0{,}040 & -0{,}04233 & Segunda curvatura (tramo largo) \\
+$\kappa_1$ & 1{,}200 & 3{,}04729 & Velocidad de decaimiento de la primera joroba \\
+$\kappa_2$ & 0{,}500 & 0{,}46029 & Velocidad de decaimiento de la segunda joroba \\
 \bottomrule\end{tabular}\end{table}
-\begin{figure}[H]\centering\includegraphics[width=.95\textwidth]{fig_svensson.pdf}\caption{Curva cupón cero de Svensson (línea punteada: tipo $r_T$ con capitalización continua; línea continua: tipo anual equivalente $e^{r_T}-1$, comparable con la TIR) y TIR de los 57 bonos y obligaciones.}\label{fig:sv}\end{figure}
-El ajuste (Tabla~\ref{tab:met}) deja un error medio absoluto de 2{,}3 pb en TIR; el mayor error es de 23{,}2 pb (OBL 1,450 10/2071, plazo 45{,}1 años).
+Partiendo de los valores iniciales del enunciado, se ajustan conjuntamente los seis parámetros para aproximar los precios teóricos de los bonos a sus precios de mercado. Se conserva la solución con menor suma de errores de precio normalizados por la duración de Macaulay y elevados al cuadrado, entre las ejecuciones realizadas. Las mayores diferencias con los valores iniciales están en $\beta_2$ y $\kappa_1$: la primera joroba se hace negativa y más rápida, mientras que el nivel a largo plazo ($\beta_0=4{,}93$\,\%) y el tipo a plazo cero ($\beta_0+\beta_1=2{,}61$\,\%) son razonables para la deuda española de septiembre de 2026.
+\begin{figure}[H]\centering\includegraphics[width=.95\textwidth]{fig_svensson.pdf}\caption{Curva cupón cero estimada mediante Svensson, expresada en capitalización continua (línea punteada) y anual equivalente (línea continua), junto con las TIR de los 57 títulos utilizados.}\label{fig:sv}\end{figure}
+La curva estimada es creciente, con una pendiente que se modera en los vencimientos largos. En este tramo, las TIR observadas se sitúan por debajo de los tipos cupón cero anuales, una diferencia que recoge tanto el efecto de los cupones como las desviaciones del ajuste. Al comparar la TIR implícita en el precio estimado de cada bono con su TIR observada, el error absoluto medio es de 2{,}3 puntos básicos. La mayor desviación, de 23{,}2 puntos básicos, corresponde a la obligación al 1,45\,\% con vencimiento en octubre de 2071.
 
 \subsection{Splines cúbicas y comparación}
+Las splines llegan a un ajuste algo mejor dentro de la muestra (Tabla~\ref{tab:met}), con un parámetro más: un RMSE en TIR de 2{,}8 puntos básicos frente a 3{,}9. Hasta unos 30 años las dos curvas son prácticamente iguales (Figura~\ref{fig:comp}); a partir de ahí la spline se curva hacia abajo y su forward cae del 5\,\% a unos 3{,}7\,\% a 45 años, algo poco creíble que se debe a que un polinomio no está acotado.
 \begin{table}[H]\centering\caption{Calidad del ajuste (en la muestra).}\label{tab:met}
 \begin{tabular}{lcc}\toprule & Svensson & Splines\\\midrule
 Nº de parámetros & 6 & 7 \\
-RMSE precio (€ por 100 nominal) & 0{,}380 & 0{,}254 \\
-RMSE TIR (pb) & 3{,}92 & 2{,}81 \\
+RMSE precio (\texteuro{} por 100 nominal) & 0{,}380 & 0{,}254 \\
+RMSE TIR (pb) & 3{,}91 & 2{,}80 \\
 Error absoluto medio TIR (pb) & 2{,}31 & 2{,}05 \\
-Error máximo TIR (pb) & 23{,}20 & 10{,}58 \\
-Función objetivo $\sum((\hat P-P)/D)^2$ & 0{,}03082 & 0{,}02493 \\
-Criterio BIC (sobre residuos ponderados) & -404{,}5 & -412{,}6 \\
+Error máximo TIR (pb) & 23{,}19 & 10{,}58 \\
+Función objetivo $\sum((\hat P-P)/D)^2$ & 0{,}03074 & 0{,}02486 \\
+Criterio BIC (sobre residuos ponderados) & -404{,}7 & -412{,}7 \\
 \bottomrule\end{tabular}\end{table}
-\begin{figure}[H]\centering\includegraphics[width=.95\textwidth]{fig_comparacion.pdf}\caption{Curvas cupón cero (tipo anual equivalente) de Svensson y de splines (líneas verticales: nudos) y TIR.}\end{figure}
+\begin{figure}[H]\centering\includegraphics[width=.95\textwidth]{fig_comparacion.pdf}\caption{Curvas cupón cero (tipo anual equivalente) de Svensson y de splines (líneas verticales: nudos) y TIR.}\label{fig:comp}\end{figure}
 \begin{table}[H]\centering\caption{Tipos al contado y forward instantáneos estimados (\%). $r$: capitalización continua; $R=e^r-1$: anual equivalente.}
 \begin{tabular}{rcccccc}\toprule & \multicolumn{3}{c}{Svensson} & \multicolumn{3}{c}{Splines}\\\cmidrule(lr){2-4}\cmidrule(lr){5-7}$T$ (años) & $r_T$ & $R_T$ & $f(T)$ & $r_T$ & $R_T$ & $f(T)$\\\midrule
 0{,}25 & 2{,}672 & 2{,}708 & 2{,}790 & 2{,}690 & 2{,}726 & 2{,}820 \\
 0{,}50 & 2{,}803 & 2{,}843 & 3{,}069 & 2{,}811 & 2{,}851 & 3{,}038 \\
-1 & 3{,}020 & 3{,}066 & 3{,}337 & 3{,}005 & 3{,}050 & 3{,}323 \\
+1 & 3{,}019 & 3{,}066 & 3{,}337 & 3{,}005 & 3{,}050 & 3{,}323 \\
 2 & 3{,}187 & 3{,}238 & 3{,}349 & 3{,}192 & 3{,}244 & 3{,}373 \\
-3 & 3{,}254 & 3{,}308 & 3{,}459 & 3{,}259 & 3{,}313 & 3{,}437 \\
-5 & 3{,}431 & 3{,}491 & 3{,}954 & 3{,}425 & 3{,}485 & 3{,}959 \\
+3 & 3{,}254 & 3{,}307 & 3{,}459 & 3{,}259 & 3{,}312 & 3{,}437 \\
+5 & 3{,}431 & 3{,}491 & 3{,}955 & 3{,}425 & 3{,}485 & 3{,}959 \\
 7 & 3{,}646 & 3{,}714 & 4{,}386 & 3{,}646 & 3{,}714 & 4{,}403 \\
 10 & 3{,}928 & 4{,}006 & 4{,}735 & 3{,}924 & 4{,}002 & 4{,}707 \\
-15 & 4{,}233 & 4{,}323 & 4{,}901 & 4{,}239 & 4{,}330 & 4{,}974 \\
+15 & 4{,}233 & 4{,}323 & 4{,}900 & 4{,}239 & 4{,}330 & 4{,}974 \\
 20 & 4{,}404 & 4{,}502 & 4{,}926 & 4{,}428 & 4{,}527 & 4{,}998 \\
 30 & 4{,}579 & 4{,}685 & 4{,}930 & 4{,}576 & 4{,}682 & 4{,}650 \\
 45 & 4{,}696 & 4{,}808 & 4{,}930 & 4{,}420 & 4{,}519 & 3{,}698 \\
@@ -163,110 +182,130 @@ Criterio BIC (sobre residuos ponderados) & -404{,}5 & -412{,}6 \\
 \begin{figure}[H]\centering\includegraphics[width=\textwidth]{fig_residuos.pdf}\caption{Error del modelo en TIR (modelo menos mercado) según el plazo del bono.}\end{figure}
 
 \section{Comentario de los resultados}
-\paragraph{Forma de la curva.} La ETTI es \emph{creciente} y cóncava: parte del 2{,}62\,\% a 0,1 años, alcanza el 3,02\,\% al año y se acerca al 4\,\% a los 10 años y se aproxima al $\beta_0=4{,}93$\,\% (cap. continua) en el tramo largo; en tipo anual equivalente la asíntota es $e^{\beta_0}-1=5{,}05$\,\%. $\beta_0+\beta_1=2{,}61$\,\% es el tipo a plazo cero. La pendiente positiva implica, bajo la Teoría Pura de las Expectativas, que se esperan subidas de tipos (forward a 1 año $\approx3{,}34$\,\%, a 5 años $\approx3{,}95$\,\%); bajo la Preferencia por la Liquidez parte de esa pendiente es prima de plazo y la subida esperada de los tipos sería menor. Es coherente con la subida del Euribor de 2026 observada en el Trabajo~1 (el 12 meses pasa del 2,73\,\% al 3,30\,\% entre julio y octubre).
-\paragraph{TIR frente a tipo cupón cero.} La curva cupón cero y las TIR no coinciden porque la TIR es una media de los tipos al contado ponderada por los flujos del bono (sesgo del cupón): en una curva creciente, los bonos con cupón elevado tienen TIR inferior al cupón cero del mismo vencimiento. En la muestra los puntos se distribuyen en torno a la curva (error absoluto medio de 2{,}3 pb) con una ligera dispersión por la diferente duración de los cupones y por la liquidez de cada referencia.
-\paragraph{Calidad del ajuste.} Los errores son pequeños (menos de 4 pb en media cuadrática) pero no nulos: pueden deberse a diferencias de liquidez, a asincronías entre las cotizaciones, a que se trabaja con la media de las posiciones de compra y venta y a la restricción de forma de la función elegida (el Anexo~I recuerda que los tipos de la ETTI no son observables). El mayor residuo de Svensson está en el tramo más largo (Obl.\ 1,450\,\% 10/2071, 45 años, la TIR del modelo queda por encima de la de mercado), donde hay pocos títulos, poco líquidos.
-\paragraph{Svensson frente a splines.} La spline ajusta mejor en la muestra (RMSE en TIR de 2{,}8 frente a 3{,}9 pb, y también menor BIC con un parámetro más), pero su tramo largo no es fiable: el forward instantáneo baja de más del 5\,\% a 20 años hasta 3{,}7\,\% a 45 años, y el polinomio no está acotado, de modo que extrapolar más allá del último vencimiento carece de sentido (limitación señalada en el Anexo~I). Svensson impone una forma suave con forward asintótico constante ($\approx4{,}93$\,\%), más estable en el extremo largo y coherente con la teoría, a costa de un ajuste algo peor en el tramo corto y medio.
-\paragraph{Robustez e identificación.} Los parámetros de Svensson están débilmente identificados: $(\beta_2,\kappa_1)$ y $(\beta_3,\kappa_2)$ describen formas parecidas y la función objetivo tiene un valle casi plano. La Tabla~\ref{tab:arr} muestra que seis arranques distintos convergen a tres combinaciones de parámetros muy diferentes con costes casi idénticos (diferencias del orden del 0,3\,\%), y la Tabla~\ref{tab:rob} que las curvas resultantes difieren menos de 4 pb en todos los plazos salvo en el de un año con mínimos cuadrados sin ponderar (unos 8 pb). Por tanto, la interpretación económica de cada $\beta$ debe hacerse con cautela, y solo la curva (no cada parámetro) es robusta.
+\paragraph{Forma de la curva.} La ETTI es creciente y cóncava. Parte del 2{,}62\,\% a 0,1 años, llega al 3{,}02\,\% a un año, se acerca al 4\,\% a los 10 años y se aproxima a $\beta_0=4{,}93$\,\% (capitalización continua) en el tramo largo; en tipo anual equivalente, la asíntota es $e^{\beta_0}-1=5{,}05$\,\%. Según la Teoría Pura de las Expectativas, esta pendiente positiva indica que el mercado espera subidas de tipos (el forward a un año es del 3{,}34\,\% y el forward a cinco años del 3{,}95\,\%). Según la Preferencia por la Liquidez, parte de la pendiente es prima de plazo, así que la subida esperada sería menor. Encaja con lo visto en el Trabajo~1, donde el Euríbor a doce meses pasa del 2,73\,\% al 3,30\,\% entre julio y octubre de 2026.
+\paragraph{TIR frente a tipo cupón cero.} La curva cupón cero y las TIR no coinciden porque la TIR es una media de los tipos al contado ponderada por los flujos de cada bono (sesgo del cupón). Con una curva creciente, cuanto mayor es el cupón, más pesan los flujos cercanos y menor queda la TIR frente al cupón cero del mismo vencimiento. Los puntos de la muestra se reparten alrededor de la curva, con un error absoluto medio de 2{,}3 puntos básicos.
+\paragraph{Calidad del ajuste.} Los errores son pequeños, menos de 4 puntos básicos en media cuadrática, pero no nulos. Pueden deberse a diferencias de liquidez, a asincronías entre las cotizaciones, a que se usa la media de las posiciones de compra y venta y a la forma impuesta por la función elegida (el Anexo~I recuerda que los tipos de la ETTI no son observables). El mayor residuo de Svensson está en el tramo más largo: en la Obligación 1,450\,\% 10/2071, de 45 años, la TIR del modelo queda por encima de la de mercado, en una zona con pocos títulos y poco líquidos.
+\paragraph{Svensson frente a splines.} La spline ajusta mejor dentro de la muestra (RMSE de 2{,}8 frente a 3{,}9 puntos básicos, y menor BIC aun con un parámetro más), pero su tramo largo no es fiable: su forward cae hasta el 3{,}7\,\% a 45 años y el polinomio no permite extrapolar más allá del último vencimiento. Svensson impone una forma suave, con un forward que se estabiliza en torno al 4{,}93\,\%, más estable en el tramo largo y coherente con la teoría, a cambio de un ajuste algo peor en los plazos cortos y medios.
+\paragraph{Robustez e identificación.} Los parámetros de Svensson están poco identificados: $(\beta_2,\kappa_1)$ y $(\beta_3,\kappa_2)$ describen formas parecidas y la función objetivo tiene un valle casi plano. Seis arranques distintos llevan a tres combinaciones de parámetros muy diferentes con costes casi idénticos (Tabla~\ref{tab:arr}), y la Tabla~\ref{tab:objetivo} muestra que los parámetros dependen de la ponderación mientras que la curva cambia poco. Por eso, la lectura económica de cada $\beta$ debe hacerse con cautela: lo robusto es la curva, no cada parámetro.
 \begin{table}[H]\centering\caption{Multiarranque de Svensson: valores iniciales y finales $(\beta_0,\beta_1,\beta_2,\beta_3,\kappa_1,\kappa_2)$ y coste $\tfrac12\sum e^2$.}\label{tab:arr}\scriptsize\setlength{\tabcolsep}{2pt}
 \begin{tabular}{c cccccc cccccc c}\toprule \# & \multicolumn{6}{c}{inicio} & \multicolumn{6}{c}{final} & coste\\\midrule
-1 & 0{,}0500 & -0{,}0250 & 0{,}0100 & -0{,}0400 & 1{,}2000 & 0{,}5000 & 0{,}0492 & -0{,}0243 & 0{,}0788 & -0{,}1000 & 0{,}7162 & 0{,}5599 & 0{,}015451 \\
-2 & 0{,}0400 & 0{,}0000 & 0{,}0000 & 0{,}0000 & 1{,}0000 & 0{,}3000 & 0{,}0492 & -0{,}0243 & 0{,}0788 & -0{,}1000 & 0{,}7162 & 0{,}5599 & 0{,}015451 \\
-3 & 0{,}0450 & -0{,}0200 & 0{,}0200 & -0{,}0200 & 2{,}0000 & 0{,}2000 & 0{,}0493 & -0{,}0232 & -0{,}0175 & -0{,}0423 & 3{,}0469 & 0{,}4602 & 0{,}015411 \\
-4 & 0{,}0500 & -0{,}0300 & 0{,}0300 & 0{,}0300 & 0{,}5000 & 3{,}0000 & 0{,}0492 & -0{,}0243 & -0{,}1000 & 0{,}0847 & 0{,}5613 & 0{,}7121 & 0{,}015442 \\
-5 & 0{,}0600 & -0{,}0400 & -0{,}0200 & 0{,}0200 & 0{,}8000 & 0{,}1000 & 0{,}0492 & -0{,}0243 & 0{,}0788 & -0{,}1000 & 0{,}7162 & 0{,}5599 & 0{,}015451 \\
-6 & 0{,}0500 & -0{,}0200 & 0{,}0000 & 0{,}0000 & 2{,}5000 & 0{,}5000 & 0{,}0493 & -0{,}0232 & -0{,}0175 & -0{,}0423 & 3{,}0469 & 0{,}4602 & 0{,}015411 \\
-\bottomrule\end{tabular}\end{table}
-\begin{table}[H]\centering\caption{Tipo al contado $r_T$ (\%, cap. continua) con distintas especificaciones de la estimación.}\label{tab:rob}\footnotesize
-\begin{tabular}{lcccc}\toprule Especificación & $T=1$ & $T=5$ & $T=10$ & $T=30$\\\midrule
-Base: ponderación $1/D$, cotas $|\beta|\le0{,}1$ & 3{,}020 & 3{,}431 & 3{,}928 & 4{,}579 \\
-MCO sobre precios (sin ponderar) & 3{,}099 & 3{,}425 & 3{,}946 & 4{,}542 \\
-Ponderando por 1/(D\_mod·P) ($\approx$ error en TIR) & 3{,}025 & 3{,}435 & 3{,}928 & 4{,}537 \\
-Sin cotas en $\beta$ (solo $\kappa$>0) & 3{,}015 & 3{,}431 & 3{,}929 & 4{,}574 \\
+1 & 0{,}0500 & -0{,}0250 & 0{,}0100 & -0{,}0400 & 1{,}2000 & 0{,}5000 & 0{,}0492 & -0{,}0243 & 0{,}0788 & -0{,}1000 & 0{,}7163 & 0{,}5600 & 0{,}015411 \\
+2 & 0{,}0400 & 0{,}0000 & 0{,}0000 & 0{,}0000 & 1{,}0000 & 0{,}3000 & 0{,}0492 & -0{,}0243 & 0{,}0788 & -0{,}1000 & 0{,}7163 & 0{,}5600 & 0{,}015411 \\
+3 & 0{,}0450 & -0{,}0200 & 0{,}0200 & -0{,}0200 & 2{,}0000 & 0{,}2000 & 0{,}0493 & -0{,}0232 & -0{,}0175 & -0{,}0423 & 3{,}0473 & 0{,}4603 & 0{,}015369 \\
+4 & 0{,}0500 & -0{,}0300 & 0{,}0300 & 0{,}0300 & 0{,}5000 & 3{,}0000 & 0{,}0492 & -0{,}0243 & -0{,}1000 & 0{,}0847 & 0{,}5613 & 0{,}7122 & 0{,}015402 \\
+5 & 0{,}0600 & -0{,}0400 & -0{,}0200 & 0{,}0200 & 0{,}8000 & 0{,}1000 & 0{,}0492 & -0{,}0243 & 0{,}0788 & -0{,}1000 & 0{,}7163 & 0{,}5600 & 0{,}015411 \\
+6 & 0{,}0500 & -0{,}0200 & 0{,}0000 & 0{,}0000 & 2{,}5000 & 0{,}5000 & 0{,}0493 & -0{,}0232 & -0{,}0175 & -0{,}0423 & 3{,}0473 & 0{,}4603 & 0{,}015369 \\
 \bottomrule\end{tabular}\end{table}
 \begin{table}[H]\centering\caption{Sensibilidad de la spline a los nudos.}\footnotesize
 \begin{tabular}{lccc}\toprule Nudos (años) & Parámetros & $\sum((\hat P-P)/D)^2$ & RMSE TIR (pb)\\\midrule
-2, 5, 10 & 6 & 0{,}03367 & 3{,}08 \\
-1{,}5, 4, 8, 15 & 7 & 0{,}02493 & 2{,}81 \\
-2, 5, 10, 20 & 7 & 0{,}03120 & 2{,}84 \\
-1, 3, 6, 10, 20 & 8 & 0{,}02144 & 2{,}51 \\
-2, 5, 10, 20, 30 & 8 & 0{,}03067 & 2{,}79 \\
+2, 5, 10 & 6 & 0{,}03364 & 3{,}08 \\
+1{,}5, 4, 8, 15 & 7 & 0{,}02486 & 2{,}80 \\
+2, 5, 10, 20 & 7 & 0{,}03117 & 2{,}84 \\
+1, 3, 6, 10, 20 & 8 & 0{,}02136 & 2{,}51 \\
+2, 5, 10, 20, 30 & 8 & 0{,}03063 & 2{,}79 \\
 \bottomrule\end{tabular}\end{table}
+
+\section{Aplicación: valoración de la Obligación 4\,\% 10/2064}
+\label{sec:o64}
+La Obligación 4,000\,\% con vencimiento el 31 de octubre de 2064 figura en el fichero pero no se negoció ese día, así que no tiene precio ni TIR de mercado. Por eso se excluye del ajuste: no hay ningún precio observado que la curva tenga que reproducir. Lo que sí se puede hacer es valorarla con la curva estimada, que es justo para lo que sirve la ETTI: dar el precio teórico de cualquier flujo sin arbitraje. Con fecha valor 14/09/2026 le quedan 39 cupones anuales de 4 \texteuro{} y el nominal, con el último flujo a 38{,}13 años, dentro del rango de vencimientos de la muestra (hasta 45,1 años). Su cupón corrido es $4\cdot\frac{318}{365}=3{,}4849$ (318 días desde el cupón del 31/10/2025).
+\begin{gather}P^{bruto}=\sum_{k}CF_k\,e^{-r(t_k)\,t_k},\qquad P^{limpio}=P^{bruto}-CC,\\ P^{bruto}=\sum_kCF_k(1+y)^{-t_k},\qquad \text{sesgo del cupón}=y-R_T.\end{gather}
+\begin{table}[H]\centering\caption{Valoración teórica de la Obligación 4\,\% 10/2064 (por 100 de nominal; tipos en \%).}\label{tab:o64}
+\begin{tabular}{lcc}\toprule & Svensson & Splines\\\midrule
+Precio bruto & 93{,}668 & 94{,}560 \\
+Cupón corrido & 3{,}485 & 3{,}485 \\
+Precio limpio (ex cupón) & 90{,}183 & 91{,}075 \\
+TIR & 4{,}546 & 4{,}493 \\
+Tipo cupón cero a 38{,}1 años ($R_T$, anual equivalente) & 4{,}764 & 4{,}632 \\
+Sesgo del cupón (pb) & -21{,}7 & -13{,}9 \\
+Duración de Macaulay (años) & 18{,}54 & 18{,}63 \\
+\bottomrule\end{tabular}\end{table}
+Con la curva de Svensson, la obligación valdría 90{,}18 ex cupón (93{,}67 con el cupón corrido) y su TIR sería del 4{,}55\,\%. El precio queda bajo la par porque el cupón (4\,\%) es inferior a la rentabilidad que pide el mercado a ese plazo. El sesgo del cupón es negativo, de -21{,}7 puntos básicos: con una curva creciente, el bono cobra cupones antes del vencimiento a tipos más bajos, así que su TIR queda por debajo del tipo cupón cero a 38 años (4{,}76\,\%). Con las splines el precio sale algo más alto (91{,}07) y la TIR algo más baja (4{,}49\,\%), porque su curva se dobla hacia abajo en el tramo largo; la diferencia, de 0{,}89 puntos de precio, da una idea del margen de error de la valoración a tan largo plazo.
+
+El resultado es coherente con las obligaciones de vencimiento cercano que sí cotizaron ese día:
+\begin{table}[H]\centering\caption{Obligaciones cotizadas de vencimiento cercano.}\label{tab:vecinos}
+\begin{tabular}{lccc}\toprule Título & Plazo (años) & Precio ex cupón medio & TIR (\%)\\\midrule
+Obl. 4,000 10/2054 & 28{,}1 & 92{,}105 & 4{,}500 \\
+Obl. 3,950 10/2056 & 30{,}1 & 90{,}500 & 4{,}534 \\
+Obl. 1,450 10/2071 & 45{,}1 & 42{,}305 & 4{,}424 \\
+\bottomrule\end{tabular}\end{table}
+La TIR teórica del 4{,}55\,\% queda por encima de la TIR de la Obligación 4\,\% 10/2054 (4{,}50\,\%) y de la 3,95\,\% 10/2056 (4{,}53\,\%), como corresponde a un plazo mayor en una curva creciente, y su precio (90{,}18) está algo por debajo del de esos dos títulos de cupón parecido. La Obligación 1,45\,\% 10/2071 tiene una TIR menor (4{,}42\,\%) pese a ser más larga, por su cupón mucho más bajo y por ser el título con mayor error del ajuste. Este precio no es una cotización: es una referencia de valor razonable a partir de la curva del día.
 
 \section{Conclusiones}
 \begin{enumerate}
-\item La ETTI cupón cero del Tesoro el 11/09/2026 es creciente y cóncava, del 2{,}6\,\% a plazos cortos al 4{,}7\,\% a 45 años (cap. continua).
-\item El modelo de Svensson reproduce las TIR de los 57 títulos con un error cuadrático medio de 3{,}9 pb, con un tramo largo estable; las splines ajustan algo mejor (2{,}8 pb) pero extrapolan mal.
-\item Los parámetros individuales de Svensson no están bien identificados (valle plano), aunque la curva sí lo está.
-\item La diferencia entre TIR y tipos cupón cero refleja el sesgo del cupón y la distinta liquidez de los títulos.
+\item La ETTI cupón cero del Tesoro el 11/09/2026 es creciente y cóncava, del 2{,}6\,\% a plazos cortos al 4{,}7\,\% a 45 años (capitalización continua).
+\item El modelo de Svensson reproduce las TIR de los 57 títulos con un error cuadrático medio de 3{,}9 puntos básicos y un tramo largo estable; las splines ajustan algo mejor (2{,}8 puntos básicos) pero no sirven para extrapolar.
+\item Ponderar los errores de precio por la inversa de la duración equilibra el ajuste entre plazos; sin ponderar, el tramo corto empeora claramente. La curva es robusta a esta elección, aunque los parámetros individuales de Svensson no están bien identificados.
+\item La diferencia entre las TIR y los tipos cupón cero refleja el sesgo del cupón y la distinta liquidez de los títulos.
+\item Con la curva estimada, la Obligación 4\,\% 10/2064, que no cotizó, valdría unos 90{,}18 ex cupón, con una TIR del 4{,}55\,\% y un sesgo del cupón de -22 puntos básicos.
 \end{enumerate}
 
-\appendix
-\section{Datos y ajuste por título}
+\section*{Anexo I. Datos y ajuste por título}
+\addcontentsline{toc}{section}{Anexo I. Datos y ajuste por título}
 \scriptsize\setlength{\tabcolsep}{2.5pt}
 \begin{longtable}{lcccccccccc}
 \toprule Título & Cupón & Vencim. & $P^*$ & $P$ bruto & $T$ & $D$ & TIR (\%) & TIR Sv. & TIR Spl.\\\midrule\endhead
-BON 0,000 01/2027 & 0{,}00 & 31/01/2027 & 98{,}972 & 98{,}972 & 0{,}38 & 0{,}38 & 2{,}749 & 2{,}777 & 2{,}794 \\
-BON 2,350 03/2029 & 2{,}35 & 30/03/2029 & 97{,}683 & 98{,}764 & 2{,}54 & 2{,}47 & 3{,}312 & 3{,}273 & 3{,}281 \\
-BON 2,400 05/2028 & 2{,}40 & 31/05/2028 & 98{,}672 & 99{,}369 & 1{,}71 & 1{,}69 & 3{,}206 & 3{,}207 & 3{,}209 \\
-BON 2,500 05/2027 & 2{,}50 & 31/05/2027 & 99{,}653 & 100{,}379 & 0{,}71 & 0{,}71 & 2{,}991 & 2{,}950 & 2{,}943 \\
-BON 2,600 05/2031 & 2{,}60 & 31/05/2031 & 96{,}240 & 96{,}995 & 4{,}71 & 4{,}46 & 3{,}477 & 3{,}451 & 3{,}445 \\
-BON 2,700 01/2030 & 2{,}70 & 31/01/2030 & 97{,}915 & 99{,}587 & 3{,}38 & 3{,}22 & 3{,}359 & 3{,}331 & 3{,}332 \\
-BON 3,500 05/2029 & 3{,}50 & 31/05/2029 & 100{,}507 & 101{,}524 & 2{,}71 & 2{,}61 & 3{,}297 & 3{,}283 & 3{,}290 \\
-OBL 0,000 01/2028 & 0{,}00 & 31/01/2028 & 95{,}833 & 95{,}833 & 1{,}38 & 1{,}38 & 3{,}131 & 3{,}161 & 3{,}155 \\
-OBL 0,100 04/2031 & 0{,}10 & 30/04/2031 & 85{,}928 & 85{,}965 & 4{,}62 & 4{,}61 & 3{,}444 & 3{,}451 & 3{,}444 \\
-OBL 0,500 04/2030 & 0{,}50 & 30/04/2030 & 90{,}438 & 90{,}625 & 3{,}62 & 3{,}59 & 3{,}345 & 3{,}355 & 3{,}353 \\
-OBL 0,500 10/2031 & 0{,}50 & 31/10/2031 & 86{,}213 & 86{,}648 & 5{,}13 & 5{,}05 & 3{,}482 & 3{,}503 & 3{,}497 \\
-OBL 0,600 10/2029 & 0{,}60 & 31/10/2029 & 92{,}075 & 92{,}598 & 3{,}13 & 3{,}09 & 3{,}308 & 3{,}316 & 3{,}320 \\
-OBL 0,700 04/2032 & 0{,}70 & 30/04/2032 & 85{,}750 & 86{,}013 & 5{,}62 & 5{,}51 & 3{,}538 & 3{,}556 & 3{,}552 \\
-OBL 0,800 07/2027 & 0{,}80 & 30/07/2027 & 98{,}115 & 98{,}216 & 0{,}87 & 0{,}87 & 3{,}016 & 3{,}021 & 3{,}007 \\
-OBL 0,800 07/2029 & 0{,}80 & 30/07/2029 & 93{,}195 & 93{,}296 & 2{,}87 & 2{,}85 & 3{,}321 & 3{,}298 & 3{,}304 \\
-OBL 0,850 07/2037 & 0{,}85 & 30/07/2037 & 72{,}347 & 72{,}455 & 10{,}87 & 10{,}32 & 4{,}043 & 4{,}057 & 4{,}052 \\
-OBL 1,000 07/2042 & 1{,}00 & 30/07/2042 & 62{,}710 & 62{,}836 & 15{,}87 & 14{,}34 & 4{,}286 & 4{,}324 & 4{,}333 \\
-OBL 1,000 10/2050 & 1{,}00 & 31/10/2050 & 49{,}550 & 50{,}421 & 24{,}13 & 19{,}76 & 4{,}454 & 4{,}534 & 4{,}560 \\
-OBL 1,200 10/2040 & 1{,}20 & 31/10/2040 & 68{,}495 & 69{,}540 & 14{,}13 & 12{,}61 & 4{,}202 & 4{,}242 & 4{,}244 \\
-OBL 1,250 10/2030 & 1{,}25 & 31/10/2030 & 91{,}893 & 92{,}982 & 4{,}13 & 4{,}00 & 3{,}387 & 3{,}398 & 3{,}392 \\
-OBL 1,300 10/2026 & 1{,}30 & 31/10/2026 & 99{,}825 & 100{,}958 & 0{,}13 & 0{,}13 & 2{,}664 & 2{,}659 & 2{,}660 \\
-OBL 1,400 04/2028 & 1{,}40 & 30/04/2028 & 97{,}190 & 97{,}715 & 1{,}62 & 1{,}61 & 3{,}199 & 3{,}198 & 3{,}198 \\
-OBL 1,400 07/2028 & 1{,}40 & 30/07/2028 & 96{,}727 & 96{,}904 & 1{,}87 & 1{,}86 & 3{,}226 & 3{,}225 & 3{,}230 \\
-OBL 1,450 04/2029 & 1{,}45 & 30/04/2029 & 95{,}505 & 96{,}049 & 2{,}62 & 2{,}58 & 3{,}263 & 3{,}280 & 3{,}287 \\
-OBL 1,450 10/2027 & 1{,}45 & 31/10/2027 & 98{,}210 & 99{,}473 & 1{,}13 & 1{,}11 & 3{,}086 & 3{,}103 & 3{,}090 \\
-OBL 1,450 10/2071 & 1{,}45 & 31/10/2071 & 42{,}305 & 43{,}568 & 45{,}13 & 25{,}12 & 4{,}424 & 4{,}656 & 4{,}478 \\
-OBL 1,500 04/2027 & 1{,}50 & 30/04/2027 & 99{,}130 & 99{,}693 & 0{,}62 & 0{,}62 & 2{,}917 & 2{,}909 & 2{,}907 \\
-OBL 1,850 07/2035 & 1{,}85 & 30/07/2035 & 85{,}285 & 85{,}518 & 8{,}87 & 8{,}18 & 3{,}837 & 3{,}879 & 3{,}878 \\
-OBL 1,900 10/2052 & 1{,}90 & 31/10/2052 & 60{,}745 & 62{,}400 & 26{,}13 & 18{,}49 & 4{,}479 & 4{,}521 & 4{,}541 \\
-OBL 2,350 07/2033 & 2{,}35 & 30/07/2033 & 92{,}150 & 92{,}446 & 6{,}87 & 6{,}39 & 3{,}662 & 3{,}680 & 3{,}679 \\
-OBL 2,550 10/2032 & 2{,}55 & 31/10/2032 & 94{,}395 & 96{,}617 & 6{,}13 & 5{,}61 & 3{,}584 & 3{,}600 & 3{,}597 \\
-OBL 2,700 10/2048 & 2{,}70 & 31/10/2048 & 76{,}120 & 78{,}472 & 22{,}13 & 15{,}57 & 4{,}412 & 4{,}433 & 4{,}455 \\
-OBL 2,900 10/2046 & 2{,}90 & 31/10/2046 & 80{,}595 & 83{,}122 & 20{,}13 & 14{,}46 & 4{,}368 & 4{,}388 & 4{,}407 \\
-OBL 3,000 01/2033 & 3{,}00 & 31/01/2033 & 96{,}430 & 98{,}288 & 6{,}38 & 5{,}78 & 3{,}635 & 3{,}624 & 3{,}622 \\
-OBL 3,100 07/2031 & 3{,}10 & 30/07/2031 & 98{,}328 & 98{,}718 & 4{,}87 & 4{,}58 & 3{,}478 & 3{,}466 & 3{,}460 \\
-OBL 3,150 04/2033 & 3{,}15 & 30/04/2033 & 97{,}115 & 98{,}297 & 6{,}62 & 6{,}00 & 3{,}646 & 3{,}648 & 3{,}647 \\
-OBL 3,150 04/2035 & 3{,}15 & 30/04/2035 & 95{,}047 & 96{,}230 & 8{,}62 & 7{,}57 & 3{,}833 & 3{,}841 & 3{,}840 \\
-OBL 3,200 10/2035 & 3{,}20 & 31/10/2035 & 94{,}885 & 97{,}673 & 9{,}13 & 7{,}80 & 3{,}875 & 3{,}883 & 3{,}882 \\
-OBL 3,250 04/2034 & 3{,}25 & 30/04/2034 & 96{,}722 & 97{,}942 & 7{,}62 & 6{,}78 & 3{,}750 & 3{,}747 & 3{,}748 \\
-OBL 3,300 04/2036 & 3{,}30 & 30/04/2036 & 95{,}118 & 96{,}356 & 9{,}62 & 8{,}26 & 3{,}917 & 3{,}922 & 3{,}919 \\
-OBL 3,400 10/2036 & 3{,}40 & 31/10/2036 & 95{,}412 & 98{,}375 & 10{,}13 & 8{,}44 & 3{,}958 & 3{,}959 & 3{,}955 \\
-OBL 3,450 07/2043 & 3{,}45 & 30/07/2043 & 89{,}713 & 90{,}147 & 16{,}87 & 12{,}76 & 4{,}321 & 4{,}289 & 4{,}299 \\
-OBL 3,450 07/2066 & 3{,}45 & 30/07/2066 & 80{,}295 & 80{,}730 & 39{,}87 & 20{,}09 & 4{,}526 & 4{,}566 & 4{,}492 \\
-OBL 3,450 10/2034 & 3{,}45 & 31/10/2034 & 97{,}670 & 100{,}676 & 8{,}13 & 7{,}00 & 3{,}787 & 3{,}793 & 3{,}794 \\
-OBL 3,500 01/2041 & 3{,}50 & 31/01/2041 & 92{,}188 & 94{,}355 & 14{,}38 & 11{,}15 & 4{,}235 & 4{,}197 & 4{,}199 \\
-OBL 3,550 10/2033 & 3{,}55 & 31/10/2033 & 99{,}083 & 102{,}175 & 7{,}13 & 6{,}23 & 3{,}698 & 3{,}697 & 3{,}697 \\
-OBL 3,900 07/2039 & 3{,}90 & 30/07/2039 & 97{,}620 & 98{,}112 & 12{,}87 & 10{,}28 & 4{,}141 & 4{,}120 & 4{,}117 \\
-OBL 3,950 10/2056 & 3{,}95 & 31/10/2056 & 90{,}500 & 93{,}941 & 30{,}13 & 16{,}85 & 4{,}534 & 4{,}497 & 4{,}501 \\
-OBL 4,000 10/2054 & 4{,}00 & 31/10/2054 & 92{,}105 & 95{,}590 & 28{,}13 & 16{,}29 & 4{,}500 & 4{,}478 & 4{,}490 \\
-OBL 4,200 01/2037 & 4{,}20 & 31/01/2037 & 101{,}843 & 104{,}443 & 10{,}38 & 8{,}43 & 3{,}978 & 3{,}965 & 3{,}961 \\
-OBL 4,250 07/2047 & 4{,}25 & 30/07/2047 & 98{,}165 & 98{,}701 & 20{,}87 & 14{,}10 & 4{,}385 & 4{,}370 & 4{,}388 \\
-OBL 4,700 07/2041 & 4{,}70 & 30/07/2041 & 105{,}227 & 105{,}820 & 14{,}87 & 11{,}08 & 4{,}219 & 4{,}194 & 4{,}198 \\
-OBL 4,900 07/2040 & 4{,}90 & 30/07/2040 & 107{,}567 & 108{,}185 & 13{,}87 & 10{,}47 & 4{,}170 & 4{,}150 & 4{,}150 \\
-OBL 5,150 10/2028 & 5{,}15 & 31/10/2028 & 103{,}868 & 108{,}354 & 2{,}13 & 1{,}99 & 3{,}236 & 3{,}243 & 3{,}249 \\
-OBL 5,150 10/2044 & 5{,}15 & 31/10/2044 & 110{,}280 & 114{,}767 & 18{,}13 & 12{,}02 & 4{,}320 & 4{,}289 & 4{,}302 \\
-OBL 5,750 07/2032 & 5{,}75 & 30/07/2032 & 111{,}560 & 112{,}285 & 5{,}87 & 5{,}16 & 3{,}534 & 3{,}558 & 3{,}554 \\
-OBL 6,000 01/2029 & 6{,}00 & 31/01/2029 & 106{,}185 & 109{,}900 & 2{,}38 & 2{,}22 & 3{,}248 & 3{,}258 & 3{,}265 \\
+Bono 0,000 01/2027 & 0{,}00 & 31/01/2027 & 98{,}972 & 98{,}972 & 0{,}38 & 0{,}38 & 2{,}749 & 2{,}777 & 2{,}794 \\
+Bono 2,350 03/2029 & 2{,}35 & 31/03/2029 & 97{,}683 & 98{,}758 & 2{,}54 & 2{,}47 & 3{,}311 & 3{,}273 & 3{,}281 \\
+Bono 2,400 05/2028 & 2{,}40 & 31/05/2028 & 98{,}672 & 99{,}369 & 1{,}71 & 1{,}69 & 3{,}206 & 3{,}207 & 3{,}209 \\
+Bono 2,500 05/2027 & 2{,}50 & 31/05/2027 & 99{,}653 & 100{,}379 & 0{,}71 & 0{,}71 & 2{,}991 & 2{,}950 & 2{,}943 \\
+Bono 2,600 05/2031 & 2{,}60 & 31/05/2031 & 96{,}240 & 96{,}995 & 4{,}71 & 4{,}46 & 3{,}477 & 3{,}451 & 3{,}445 \\
+Bono 2,700 01/2030 & 2{,}70 & 31/01/2030 & 97{,}915 & 99{,}587 & 3{,}38 & 3{,}22 & 3{,}359 & 3{,}331 & 3{,}332 \\
+Bono 3,500 05/2029 & 3{,}50 & 31/05/2029 & 100{,}507 & 101{,}524 & 2{,}71 & 2{,}61 & 3{,}297 & 3{,}283 & 3{,}290 \\
+Obl. 0,000 01/2028 & 0{,}00 & 31/01/2028 & 95{,}833 & 95{,}833 & 1{,}38 & 1{,}38 & 3{,}131 & 3{,}161 & 3{,}155 \\
+Obl. 0,100 04/2031 & 0{,}10 & 30/04/2031 & 85{,}928 & 85{,}965 & 4{,}62 & 4{,}61 & 3{,}444 & 3{,}451 & 3{,}444 \\
+Obl. 0,500 04/2030 & 0{,}50 & 30/04/2030 & 90{,}438 & 90{,}625 & 3{,}62 & 3{,}59 & 3{,}345 & 3{,}355 & 3{,}353 \\
+Obl. 0,500 10/2031 & 0{,}50 & 31/10/2031 & 86{,}213 & 86{,}648 & 5{,}13 & 5{,}05 & 3{,}482 & 3{,}503 & 3{,}497 \\
+Obl. 0,600 10/2029 & 0{,}60 & 31/10/2029 & 92{,}075 & 92{,}598 & 3{,}13 & 3{,}09 & 3{,}308 & 3{,}316 & 3{,}319 \\
+Obl. 0,700 04/2032 & 0{,}70 & 30/04/2032 & 85{,}750 & 86{,}013 & 5{,}62 & 5{,}51 & 3{,}538 & 3{,}556 & 3{,}552 \\
+Obl. 0,800 07/2027 & 0{,}80 & 30/07/2027 & 98{,}115 & 98{,}216 & 0{,}87 & 0{,}87 & 3{,}016 & 3{,}021 & 3{,}007 \\
+Obl. 0,800 07/2029 & 0{,}80 & 30/07/2029 & 93{,}195 & 93{,}296 & 2{,}87 & 2{,}85 & 3{,}321 & 3{,}298 & 3{,}304 \\
+Obl. 0,850 07/2037 & 0{,}85 & 30/07/2037 & 72{,}347 & 72{,}455 & 10{,}87 & 10{,}32 & 4{,}043 & 4{,}057 & 4{,}052 \\
+Obl. 1,000 07/2042 & 1{,}00 & 30/07/2042 & 62{,}710 & 62{,}836 & 15{,}87 & 14{,}34 & 4{,}286 & 4{,}324 & 4{,}333 \\
+Obl. 1,000 10/2050 & 1{,}00 & 31/10/2050 & 49{,}550 & 50{,}421 & 24{,}13 & 19{,}76 & 4{,}454 & 4{,}534 & 4{,}560 \\
+Obl. 1,200 10/2040 & 1{,}20 & 31/10/2040 & 68{,}495 & 69{,}540 & 14{,}13 & 12{,}61 & 4{,}202 & 4{,}242 & 4{,}244 \\
+Obl. 1,250 10/2030 & 1{,}25 & 31/10/2030 & 91{,}893 & 92{,}982 & 4{,}13 & 4{,}00 & 3{,}387 & 3{,}398 & 3{,}392 \\
+Obl. 1,300 10/2026 & 1{,}30 & 31/10/2026 & 99{,}825 & 100{,}958 & 0{,}13 & 0{,}13 & 2{,}664 & 2{,}659 & 2{,}660 \\
+Obl. 1,400 04/2028 & 1{,}40 & 30/04/2028 & 97{,}190 & 97{,}715 & 1{,}62 & 1{,}61 & 3{,}199 & 3{,}197 & 3{,}198 \\
+Obl. 1,400 07/2028 & 1{,}40 & 30/07/2028 & 96{,}727 & 96{,}904 & 1{,}87 & 1{,}86 & 3{,}226 & 3{,}225 & 3{,}229 \\
+Obl. 1,450 04/2029 & 1{,}45 & 30/04/2029 & 95{,}505 & 96{,}049 & 2{,}62 & 2{,}58 & 3{,}263 & 3{,}280 & 3{,}287 \\
+Obl. 1,450 10/2027 & 1{,}45 & 31/10/2027 & 98{,}210 & 99{,}473 & 1{,}13 & 1{,}11 & 3{,}086 & 3{,}103 & 3{,}089 \\
+Obl. 1,450 10/2071 & 1{,}45 & 31/10/2071 & 42{,}305 & 43{,}568 & 45{,}13 & 25{,}12 & 4{,}424 & 4{,}656 & 4{,}478 \\
+Obl. 1,500 04/2027 & 1{,}50 & 30/04/2027 & 99{,}130 & 99{,}693 & 0{,}62 & 0{,}62 & 2{,}917 & 2{,}909 & 2{,}907 \\
+Obl. 1,850 07/2035 & 1{,}85 & 30/07/2035 & 85{,}285 & 85{,}518 & 8{,}87 & 8{,}18 & 3{,}837 & 3{,}879 & 3{,}878 \\
+Obl. 1,900 10/2052 & 1{,}90 & 31/10/2052 & 60{,}745 & 62{,}400 & 26{,}13 & 18{,}49 & 4{,}479 & 4{,}521 & 4{,}541 \\
+Obl. 2,350 07/2033 & 2{,}35 & 30/07/2033 & 92{,}150 & 92{,}446 & 6{,}87 & 6{,}39 & 3{,}662 & 3{,}680 & 3{,}679 \\
+Obl. 2,550 10/2032 & 2{,}55 & 31/10/2032 & 94{,}395 & 96{,}617 & 6{,}13 & 5{,}61 & 3{,}584 & 3{,}600 & 3{,}597 \\
+Obl. 2,700 10/2048 & 2{,}70 & 31/10/2048 & 76{,}120 & 78{,}472 & 22{,}13 & 15{,}57 & 4{,}412 & 4{,}433 & 4{,}455 \\
+Obl. 2,900 10/2046 & 2{,}90 & 31/10/2046 & 80{,}595 & 83{,}122 & 20{,}13 & 14{,}46 & 4{,}368 & 4{,}388 & 4{,}407 \\
+Obl. 3,000 01/2033 & 3{,}00 & 31/01/2033 & 96{,}430 & 98{,}288 & 6{,}38 & 5{,}78 & 3{,}635 & 3{,}624 & 3{,}622 \\
+Obl. 3,100 07/2031 & 3{,}10 & 30/07/2031 & 98{,}328 & 98{,}718 & 4{,}87 & 4{,}58 & 3{,}478 & 3{,}466 & 3{,}460 \\
+Obl. 3,150 04/2033 & 3{,}15 & 30/04/2033 & 97{,}115 & 98{,}297 & 6{,}62 & 6{,}00 & 3{,}646 & 3{,}648 & 3{,}647 \\
+Obl. 3,150 04/2035 & 3{,}15 & 30/04/2035 & 95{,}047 & 96{,}230 & 8{,}62 & 7{,}57 & 3{,}833 & 3{,}841 & 3{,}840 \\
+Obl. 3,200 10/2035 & 3{,}20 & 31/10/2035 & 94{,}885 & 97{,}673 & 9{,}13 & 7{,}80 & 3{,}875 & 3{,}883 & 3{,}882 \\
+Obl. 3,250 04/2034 & 3{,}25 & 30/04/2034 & 96{,}722 & 97{,}942 & 7{,}62 & 6{,}78 & 3{,}750 & 3{,}747 & 3{,}748 \\
+Obl. 3,300 04/2036 & 3{,}30 & 30/04/2036 & 95{,}118 & 96{,}356 & 9{,}62 & 8{,}26 & 3{,}917 & 3{,}922 & 3{,}919 \\
+Obl. 3,400 10/2036 & 3{,}40 & 31/10/2036 & 95{,}412 & 98{,}375 & 10{,}13 & 8{,}44 & 3{,}958 & 3{,}959 & 3{,}955 \\
+Obl. 3,450 07/2043 & 3{,}45 & 30/07/2043 & 89{,}713 & 90{,}147 & 16{,}87 & 12{,}76 & 4{,}321 & 4{,}289 & 4{,}299 \\
+Obl. 3,450 07/2066 & 3{,}45 & 30/07/2066 & 80{,}295 & 80{,}730 & 39{,}87 & 20{,}09 & 4{,}526 & 4{,}566 & 4{,}492 \\
+Obl. 3,450 10/2034 & 3{,}45 & 31/10/2034 & 97{,}670 & 100{,}676 & 8{,}13 & 7{,}00 & 3{,}787 & 3{,}793 & 3{,}794 \\
+Obl. 3,500 01/2041 & 3{,}50 & 31/01/2041 & 92{,}188 & 94{,}355 & 14{,}38 & 11{,}15 & 4{,}235 & 4{,}197 & 4{,}199 \\
+Obl. 3,550 10/2033 & 3{,}55 & 31/10/2033 & 99{,}083 & 102{,}175 & 7{,}13 & 6{,}23 & 3{,}698 & 3{,}697 & 3{,}697 \\
+Obl. 3,900 07/2039 & 3{,}90 & 30/07/2039 & 97{,}620 & 98{,}112 & 12{,}87 & 10{,}28 & 4{,}141 & 4{,}120 & 4{,}117 \\
+Obl. 3,950 10/2056 & 3{,}95 & 31/10/2056 & 90{,}500 & 93{,}941 & 30{,}13 & 16{,}85 & 4{,}534 & 4{,}497 & 4{,}501 \\
+Obl. 4,000 10/2054 & 4{,}00 & 31/10/2054 & 92{,}105 & 95{,}590 & 28{,}13 & 16{,}29 & 4{,}500 & 4{,}478 & 4{,}490 \\
+Obl. 4,200 01/2037 & 4{,}20 & 31/01/2037 & 101{,}843 & 104{,}443 & 10{,}38 & 8{,}43 & 3{,}978 & 3{,}965 & 3{,}961 \\
+Obl. 4,250 07/2047 & 4{,}25 & 30/07/2047 & 98{,}165 & 98{,}701 & 20{,}87 & 14{,}10 & 4{,}385 & 4{,}370 & 4{,}388 \\
+Obl. 4,700 07/2041 & 4{,}70 & 30/07/2041 & 105{,}227 & 105{,}820 & 14{,}87 & 11{,}08 & 4{,}219 & 4{,}194 & 4{,}198 \\
+Obl. 4,900 07/2040 & 4{,}90 & 30/07/2040 & 107{,}567 & 108{,}185 & 13{,}87 & 10{,}47 & 4{,}170 & 4{,}150 & 4{,}150 \\
+Obl. 5,150 10/2028 & 5{,}15 & 31/10/2028 & 103{,}868 & 108{,}354 & 2{,}13 & 1{,}99 & 3{,}236 & 3{,}243 & 3{,}249 \\
+Obl. 5,150 10/2044 & 5{,}15 & 31/10/2044 & 110{,}280 & 114{,}767 & 18{,}13 & 12{,}02 & 4{,}320 & 4{,}289 & 4{,}302 \\
+Obl. 5,750 07/2032 & 5{,}75 & 30/07/2032 & 111{,}560 & 112{,}285 & 5{,}87 & 5{,}16 & 3{,}534 & 3{,}558 & 3{,}554 \\
+Obl. 6,000 01/2029 & 6{,}00 & 31/01/2029 & 106{,}185 & 109{,}900 & 2{,}38 & 2{,}22 & 3{,}248 & 3{,}258 & 3{,}265 \\
 \bottomrule\end{longtable}
 \normalsize
-\section{Archivos y código}
-El libro \texttt{Trabajo2\_ETTI\_RentaFija.xlsx} reproduce todo el cálculo con fórmulas (hojas \emph{Parametros}, \emph{Bonos}, \emph{Flujos}, \emph{Splines}, \emph{Curva}); en \emph{Parametros} está preparada la función objetivo de Svensson para Solver y los coeficientes de las splines se obtienen con \texttt{LINEST}.
+\section*{Anexo II. Archivos y código}
+\addcontentsline{toc}{section}{Anexo II. Archivos y código}
+El libro \texttt{Trabajo2\_ETTI\_RentaFija.xlsx} reproduce todo el cálculo con fórmulas (hojas \emph{Parametros}, \emph{Bonos}, \emph{Flujos}, \emph{Splines}, \emph{Curva} y \emph{Obligacion\_2064}); en \emph{Parametros} está preparada la función objetivo de Svensson para Solver y los coeficientes de las splines se obtienen con \texttt{LINEST}.
 \subsection*{t2core.py}
 \lstinputlisting[language=Python]{listing_t2core.py}
 \subsection*{t2.py}

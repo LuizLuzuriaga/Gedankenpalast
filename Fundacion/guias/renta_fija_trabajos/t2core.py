@@ -6,9 +6,9 @@ import openpyxl
 from scipy.optimize import brentq, least_squares
 
 LIQ = dt.date(2026, 9, 14)          # fecha valor (celda R4 del Excel); contratación 11/09/2026
-RAIZ = r"C:\Users\luzur\OneDrive - Universidad de Alcala\Documentos\UNIVERSIDAD\MUCAF\SEGUNDO AÑO\Renta Fija\Tema 3"
-# Día de vencimiento del Tesoro según el mes (calendario de emisiones del Tesoro): 31/01, 30/03, 30/04, 31/05, 30/07, 31/10, 30/11
-DIA = {1: 31, 3: 30, 4: 30, 5: 31, 7: 30, 10: 31, 11: 30}
+RAIZ = r"C:\Users\luzur\OneDrive - Universidad de Alcala\Documentos\UNIVERSIDAD\MUCAF\SEGUNDO AÑO\primer_cuatri\Renta Fija\Tema 3"
+# Día de vencimiento del Tesoro según el mes (calendario de emisiones del Tesoro): 31/01, 31/03, 30/04, 31/05, 30/07, 31/10, 30/11
+DIA = {1: 31, 3: 31, 4: 30, 5: 31, 7: 30, 10: 31, 11: 30}
 
 def leer():
     f = glob.glob(RAIZ + r"\COTIZ*.xlsx")[0]

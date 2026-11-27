@@ -60,7 +60,39 @@ r_sp = -np.log(D_spline(grid, beta, NUDOS)) / grid
 def dD(t): t = np.asarray(t, float); return beta[0] + 2 * beta[1] * t + 3 * beta[2] * t ** 2 + sum(3 * beta[3 + j] * np.maximum(t - x, 0) ** 2 for j, x in enumerate(NUDOS))
 f_sp = -dD(grid) / D_spline(grid, beta, NUDOS)
 Dt = D_spline(tg, beta, NUDOS)
-res = dict(
+
+# ---------------------------------- efecto de la función objetivo ---------------------------
+def resumen_alt(p):
+    Pm = precio_modelo(B, p); y = tir_modelo(B, Pm)
+    return dict(params=list(map(float, p)), rmse_tir_bp=float(1e4 * np.sqrt(np.mean((y - yM) ** 2))),
+                rmse_tir_corto_bp=float(1e4 * np.sqrt(np.mean(((y - yM)[Tm < 3]) ** 2))),
+                rmse_tir_largo_bp=float(1e4 * np.sqrt(np.mean(((y - yM)[Tm >= 15]) ** 2))),
+                r=[float(svensson(t, p) * 100) for t in (1, 5, 10, 30)])
+objetivo = {"Base: error de precio dividido por la duración (1/D)": resumen_alt(psv),
+            "MCO sobre precios (sin ponderar)": resumen_alt(alt["MCO sobre precios (sin ponderar)"]),
+            "Error de precio dividido por D_mod·P (≈ error en TIR)": resumen_alt(alt["Ponderando por 1/(D_mod·P) (≈ error en TIR)"])}
+
+# ---------------------------------- comprobación de la TIR con la publicada -----------------
+dif_pub = np.array([(b["y"] - b["y_pub"]) * 1e4 for b in B])
+peor_pub = B[int(np.argmax(abs(dif_pub)))]
+control = dict(mae_bp=float(np.mean(abs(dif_pub))), max_bp=float(np.max(abs(dif_pub))), max_nombre=peor_pub["nombre"],
+               marzo=[dict(nombre=b["nombre"], dif_bp=float((b["y"] - b["y_pub"]) * 1e4)) for b in B if b["venc"].month == 3])
+
+# ---------------------------------- valoración de la Obligación 4 % 10/2064 (no cotiza) ----
+o64 = dict(nombre="OBL TESORO- 4,000 10/2064", cupon=4.0, venc=dt.date(2064, 10, DIA[10]))
+o64.update(flujos(o64))
+def valora(D_of_t):
+    Pb = float(np.sum(o64["cf"] * D_of_t(o64["t"])))
+    y = tir(o64["cf"], o64["t"], Pb)
+    T = float(o64["t"][-1]); dfT = float(D_of_t(np.array([T]))[0])
+    R_T = dfT ** (-1 / T) - 1                                  # cupón cero anual equivalente al vencimiento
+    return dict(P_bruto=Pb, P_limpio=Pb - o64["cc"], tir=y * 100, R_T=R_T * 100, sesgo_bp=(y - R_T) * 1e4,
+                D=duracion(o64["cf"], o64["t"], y))
+val64 = dict(venc=o64["venc"].isoformat(), T=float(o64["t"][-1]), cc=float(o64["cc"]), n_flujos=len(o64["cf"]),
+             svensson=valora(lambda t: np.exp(-svensson(t, psv) * t)), splines=valora(lambda t: D_spline(t, beta, NUDOS)),
+             vecinos=[dict(nombre=b["nombre"], T=b["T"], P_m=b["P_m"], y=b["y"] * 100) for b in B if b["nombre"].split()[-1] in ("10/2054", "10/2056", "10/2071")])
+
+res = dict(objetivo=objetivo, control=control, val64=val64,
     liq=LIQ.isoformat(), n=len(B), sv=dict(params=dict(zip(["beta0", "beta1", "beta2", "beta3", "kappa1", "kappa2"], psv.tolist())), cost=float(best.cost), metr=m_sv,
                                          arranques=[dict(inicio=list(map(float, s)), final=list(map(float, r.x)), coste=float(r.cost)) for s, r in zip(starts, runs)]),
     sp=dict(nudos=list(NUDOS), beta=beta.tolist(), metr=m_sp, monotona=bool(np.all(np.diff(Dt) <= 1e-12)), positiva=bool(Dt.min() > 0), config=cfg),
