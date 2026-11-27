@@ -211,6 +211,22 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
   .exam > summary, .exam-body { padding-left: 12px; padding-right: 12px; }
   .ej-body { padding-left: 10px; padding-right: 10px; }
 }
+
+/* Temario: pizarra, esquema y asientos de teoría */
+.pizarra { margin: 0; display: grid; gap: 6px; }
+.pizarra img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--rule); }
+.pizarra figcaption { font-size: 13px; color: var(--muted); }
+.esquema { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; display: grid; gap: 12px; }
+.esq-raiz { font-family: var(--font-display); font-size: 18px; color: var(--title); }
+.esq-ramas { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.esq-rama { border-left: 3px solid var(--accent); padding-left: 12px; display: grid; gap: 8px; font-size: 15px; }
+.esq-t { font-weight: 600; color: var(--accent); } .esq-t span { color: var(--muted); font-weight: 400; }
+.esq-rama ul { margin: 0; padding-left: 20px; }
+.esq-tab { font-size: 14px; } .esq-tab th, .esq-tab td { padding: 5px 8px; }
+.esq-nota { font-size: 13px; color: var(--muted); }
+.h-as { margin: 0 0 6px; font-size: 14px; color: var(--accent); }
+.sec .asiento + .asiento { margin-top: 8px; }
+.dos > div { display: grid; gap: 8px; align-content: start; }
 </style>
 </head>
 <body>
@@ -219,12 +235,12 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
   <header class="hero">
     <div class="eyebrow">MUCAF · Contabilidad 2</div>
     <h1>Instrumentos financieros (NIIF 9)</h1>
-    <p class="lede">Cómo se clasifica un activo o un pasivo financiero, cómo se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG). Teoría por apartados, un clasificador interactivo, un test con explicación y los exámenes resueltos con sus asientos.</p>
-    <div class="stats"><span><b>10</b> apartados</span><span><b>1</b> clasificador</span><span><b>12</b> preguntas de test</span><span><b>9</b> exámenes resueltos</span></div>
+    <p class="lede">Cómo se clasifica un activo o un pasivo financiero, cómo se mide al entrar y después, y qué parte del cambio de valor llega a la cuenta de pérdidas y ganancias (PyG) o al otro resultado global (ORG). Teoría por apartados (clasificación, reclasificación, pasivos, instrumentos combinados, baja de activos, coberturas y deterioro), un clasificador interactivo, un test con explicación y los exámenes resueltos con sus asientos.</p>
+    <div class="stats"><span><b>12</b> apartados</span><span><b>1</b> clasificador</span><span><b>12</b> preguntas de test</span><span><b>10</b> exámenes resueltos</span></div>
   </header>
 
   <nav class="toc" aria-label="Índice">
-    <a href="#clasificacion">1 · Clasificación</a><a href="#clasificador">2 · Clasificador</a><a href="#carteras">3 · Carteras y medición</a><a href="#coste">4 · Coste amortizado</a><a href="#reclas">5 · Reclasificaciones</a><a href="#pasivos">6 · Pasivos</a><a href="#derivados">7 · Derivados</a><a href="#deterioro">8 · Deterioro</a><a href="#test">9 · Test</a><a href="#examenes">10 · Exámenes</a>
+    <a href="#clasificacion">1 · Clasificación</a><a href="#clasificador">2 · Clasificador</a><a href="#carteras">3 · Carteras y medición</a><a href="#coste">4 · Coste amortizado</a><a href="#reclas">5 · Reclasificaciones</a><a href="#pasivos">6 · Pasivos</a><a href="#combinados">7 · Combinados</a><a href="#baja">8 · Baja de activos</a><a href="#derivados">9 · Derivados y coberturas</a><a href="#deterioro">10 · Deterioro</a><a href="#test">11 · Test</a><a href="#examenes">12 · Exámenes</a>
   </nav>
 
   <section class="sec" id="clasificacion">
@@ -297,18 +313,22 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
 
   <section class="sec" id="reclas">
     <h2>5 · Reclasificaciones</h2>
-    <div class="tabla"><table>
-      <thead><tr><th>De</th><th>A</th><th>Efecto</th></tr></thead>
-      <tbody>
-        <tr><td>Coste amortizado</td><td>VR con cambios en PyG</td><td>La diferencia va a PyG y cambia el TIE</td></tr>
-        <tr><td>VR con cambios en PyG</td><td>Coste amortizado</td><td>Cambia el TIE: el último VR pasa a ser el primer valor a coste amortizado</td></tr>
-        <tr><td>Coste amortizado</td><td>VR con cambios en ORG</td><td>La diferencia va a ORG y no cambia el TIE</td></tr>
-        <tr><td>VR con cambios en ORG</td><td>Coste amortizado</td><td>No cambia el TIE: el ORG acumulado se cancela contra el importe en libros</td></tr>
-        <tr><td>VR con cambios en ORG</td><td>VR con cambios en PyG</td><td>Los cambios acumulados en ORG pasan a PyG</td></tr>
-        <tr><td>VR con cambios en PyG</td><td>VR con cambios en ORG</td><td>Los cambios de PyG no pasan a ORG</td></tr>
-      </tbody>
-    </table></div>
-    <p class="aviso">Solo se reclasifica cuando <b>cambia el modelo de negocio</b>. En un examen, comprobar si una decisión de vender los bonos (por ejemplo, tomada a 31.12.24) cambia el modelo de negocio es el paso clave.</p>
+    <p>Una cartera de deuda solo cambia de categoría cuando <b>cambia el modelo de negocio</b>: compramos los bonos con una intención y ahora la intención es otra. Los instrumentos de patrimonio no se reclasifican.</p>
+    <div class="tabla"><table><caption>Qué pasa al cambiar de cartera (clase del 13/11)</caption><thead><tr><th>De ↓ / A →</th><th>Coste amortizado</th><th>VR con cambios en ORG</th><th>VR con cambios en PyG</th></tr></thead><tbody><tr><th>Coste amortizado</th><td>—</td><td>La diferencia VR−CA va a ORG. No cambia el CA ni el TIE</td><td>Como una venta: la diferencia va a PyG y cambia el TIE</td></tr><tr><th>VR con cambios en ORG</th><td>Se cancela el ORG acumulado contra el activo. No cambia el TIE</td><td>—</td><td>Como una venta: el ORG acumulado pasa a PyG</td></tr><tr><th>VR con cambios en PyG</th><td>Como una compra: el último VR es el nuevo coste y se calcula un TIE nuevo</td><td>Como una compra: el VR de ese día es la base y se calcula un TIE nuevo</td><td>—</td></tr></tbody></table></div>
+    <p class="aviso">Regla para recordar: entre <b>coste amortizado y ORG</b> no se altera el coste amortizado ni el TIE; todo lo que entra o sale de <b>VR con cambios en PyG</b> se contabiliza como una venta y una compra, con un TIE nuevo a partir de ese momento.</p>
+    <h3>Ejercicio de clase: de coste amortizado a ORG o a PyG</h3>
+    <p>Bonos de 10.000.000 € de nominal comprados el 1.7.15 al 99 % para mantenerlos hasta el vencimiento (cupón del 1,5 % el 30.6, vencimiento a tres años). TIE de compra: 1,8457 %. A 31.12.16 el mercado descuenta al 1,15 % y cambia el modelo de negocio. Coste amortizado: <b>10.023.971,30 €</b>; valor razonable: <b>10.126.540,91 €</b>; diferencia: 102.569,62 €.</p>
+    <div class="dos">
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;31.12.16&quot;, &quot;t&quot;: &quot;Pasa a cobrar y vender (VR con cambios en ORG)&quot;, &quot;l&quot;: [[&quot;Bonos (ajuste a valor razonable)&quot;, &quot;A&quot;, 102569.62, 0], [&quot;Ajustes por valoración (ORG)&quot;, &quot;O&quot;, 0, 102569.62]], &quot;n&quot;: &quot;El coste amortizado y el TIE (1,8457 %) siguen igual: los intereses se calculan como antes.&quot;}"></div></div>
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;31.12.16&quot;, &quot;t&quot;: &quot;Pasa a vender a corto plazo (VR con cambios en PyG)&quot;, &quot;l&quot;: [[&quot;Bonos (ajuste a valor razonable)&quot;, &quot;A&quot;, 102569.62, 0], [&quot;Resultado por reclasificación (PyG)&quot;, &quot;R&quot;, 0, 102569.62]], &quot;n&quot;: &quot;Es como vender y volver a comprar: desde aquí el bono va a valor razonable.&quot;}"></div></div>
+    </div>
+    <h3>Ejercicio de clase: de VR con cambios en PyG a coste amortizado</h3>
+    <p>Bonos de 1.000 € de nominal registrados por 1.010 € a VR con cambios en PyG el 1.1.X1, con cupón del 5 % el 31.12 y reembolso de 1.012 € el 31.12.X2. Se reclasifican a coste amortizado: es una compra a 1.010 €, con un TIE nuevo que iguala 1.010 a los flujos pendientes (50 y 1.062): <b>5,0471 %</b>.</p>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;31.12.X1&quot;, &quot;t&quot;: &quot;Cupón y devengo al TIE nuevo&quot;, &quot;l&quot;: [[&quot;Tesorería&quot;, &quot;A&quot;, 50, 0], [&quot;Bonos (coste amortizado)&quot;, &quot;A&quot;, 0.98, 0], [&quot;Ingresos por intereses&quot;, &quot;R&quot;, 0, 50.98]], &quot;n&quot;: &quot;Interés = 1.010 × 5,0471 % = 50,98 €. Coste amortizado al cierre: 1.010,98 €.&quot;}"></div>
+    <p>Si el valor de registro (1.010) es menor que el coste amortizado que tendría con el tipo antiguo, es que los tipos han subido y el precio ha caído: a partir de ahora se devenga un tipo más alto. Si es mayor, los tipos han bajado.</p>
+    <h3>Ejercicio de clase: de coste amortizado a VR con cambios en ORG</h3>
+    <p>Bono comprado en enero de X1 por 10.300 € (costes incluidos), reembolso de 12.000 € a dos años, a coste amortizado: TIE = (12.000 / 10.300)^½ − 1 = <b>7,9374 %</b>. Al año siguiente se reclasifica a VR con cambios en ORG con un valor razonable de 10.800 €. Coste amortizado a esa fecha: 10.300 × 1,079374 = 11.117,55 €. La diferencia (−317,55 €) aflora en patrimonio, en este caso como minusvalía; el TIE sigue siendo el mismo porque el coste amortizado no cambia.</p>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Año 2&quot;, &quot;t&quot;: &quot;Reclasificación a VR con cambios en ORG&quot;, &quot;l&quot;: [[&quot;Ajustes por valoración (ORG)&quot;, &quot;O&quot;, 317.55, 0], [&quot;Bonos (ajuste a valor razonable)&quot;, &quot;A&quot;, 0, 317.55]], &quot;n&quot;: &quot;&quot;}"></div>
   </section>
 
   <section class="sec" id="pasivos">
@@ -326,31 +346,161 @@ tbody th { font-weight: 600; color: var(--ink); white-space: nowrap; }
     <div class="formula">Debe: Bancos 2,2 M · Haber: Endesa (IFT) 2,2 M<br>Debe: Gastos financieros 100.000 · Haber: Acreedores por intereses 100.000</div>
   </section>
 
+  <section class="sec" id="combinados">
+    <h2>7 · Instrumentos combinados: compuestos e híbridos</h2>
+    <p>Un instrumento <b>combinado</b> reúne en un solo contrato dos o más componentes con reglas de valoración distintas. Hay dos familias. El mismo contrato es <b>compuesto</b> para quien lo emite y <b>híbrido</b> para quien lo compra: un bono convertible es, para el emisor, un pasivo más un instrumento de patrimonio; para el inversor, un activo de deuda con un derivado implícito.</p>
+    <div class="dos">
+      <div class="caja"><h4>Compuesto</h4><ul><li>Pasivo financiero + instrumento de patrimonio (PN)</li><li>Ejemplos: deuda convertible en acciones, acciones sin voto, acciones rescatables</li><li><b>Siempre se separa</b> (una sola opción), por el método residual</li></ul></div>
+      <div class="caja"><h4>Híbrido</h4><ul><li>Contrato principal + derivado implícito</li><li>Ejemplos: depósito que paga la subida del IBEX, bono ligado al oro</li><li>Se puede <b>segregar o no segregar</b>; no segregar siempre es posible (todo a VR con cambios en PyG)</li></ul></div>
+    </div>
+
+    <h3>Esquema de la pizarra (clase del 27/11/2026)</h3>
+    <figure class="pizarra"><img src="img/pizarra_combinados_27112026.jpg" alt="Pizarra de la clase del 27 de noviembre de 2026 con el esquema de instrumentos combinados: compuestos e híbridos y sus reglas de valoración" loading="lazy" width="1136" height="630"><figcaption>Foto de la pizarra. Debajo, la transcripción ordenada.</figcaption></figure>
+    <div class="esquema">
+      <div class="esq-raiz">① Definición → <b>Combinados</b> (dos o más componentes)</div>
+      <div class="esq-ramas">
+        <div class="esq-rama">
+          <div class="esq-t">Compuesto <span>· 1 opción</span></div>
+          <p><b>PF + IK (PN)</b>: pasivo financiero más instrumento de capital. Casos: deuda convertible en acciones, acciones sin voto, acciones rescatables.</p>
+          <table class="esq-tab"><thead><tr><th>Reglas</th><th>PF</th><th>IK</th></tr></thead><tbody>
+            <tr><th>VI (valoración inicial)</th><td>VR del PF</td><td>Valor residual</td></tr>
+            <tr><th>VP (valoración posterior)</th><td>CA</td><td>Coste (no se revalúa)</td></tr></tbody></table>
+        </div>
+        <div class="esq-rama">
+          <div class="esq-t">Híbrido</div>
+          <p><b>Contrato principal + derivado implícito</b>.</p>
+          <ul><li>Si el principal es un <b>AF</b> (activo financiero): no segrego y todo a VR con cambios en PyG.</li><li>Si el principal es un <b>PF</b> (pasivo financiero): dos opciones, segrego o no segrego.</li></ul>
+          <table class="esq-tab"><thead><tr><th>PF</th><th>VI</th><th>VP</th></tr></thead><tbody>
+            <tr><th>1) Segrego</th><td>PF a VR · derivado a VR</td><td>PF a CA · derivado a VR con cambios en PyG</td></tr>
+            <tr><th>2) No segrego</th><td>Todo a VR</td><td>Todo a VR</td></tr></tbody></table>
+        </div>
+      </div>
+      <p class="esq-nota">Abreviaturas: PF, pasivo financiero; AF, activo financiero; IK, instrumento de capital; PN, patrimonio neto; VR, valor razonable; CA, coste amortizado; VI y VP, valoración inicial y posterior. La palabra bajo «Combinados» se lee con dificultad en la foto; por el contexto es «2 o más».</p>
+    </div>
+
+    <h3>Compuestos: el método residual</h3>
+    <p>La norma vigente (NIC 32, Circular 4/2017 norma 19, PCEA NRV 8ª) exige valorar primero el <b>pasivo</b>: los flujos del bono descontados al tipo de un bono igual pero sin opción. El <b>patrimonio</b> recibe lo que sobra del importe cobrado. El reparto proporcional de valores razonables ya no se admite. Ninguno de los dos genera resultado al emitir.</p>
+    <p>Ejemplo de teoría: bono convertible de 500.000 € a la par, cupón del 2 %, dos años; un bono sin opción rentaría el 5 %. Pasivo = 10.000/1,05 + 510.000/1,05² = <b>472.108,84 €</b>; patrimonio = 500.000 − 472.108,84 = <b>27.891,16 €</b>. Convertible en 25.000 acciones de 10 €.</p>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Emisión&quot;, &quot;t&quot;: &quot;Separación por el método residual&quot;, &quot;l&quot;: [[&quot;Bancos&quot;, &quot;A&quot;, 500000, 0], [&quot;Pasivo financiero (coste amortizado)&quot;, &quot;P&quot;, 0, 472108.84], [&quot;Otros instrumentos de patrimonio neto&quot;, &quot;O&quot;, 0, 27891.16]], &quot;n&quot;: &quot;&quot;}"></div>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Año 1&quot;, &quot;t&quot;: &quot;Gasto al 5 % aunque el cupón sea del 2 %&quot;, &quot;l&quot;: [[&quot;Gastos financieros&quot;, &quot;R&quot;, 23605.44, 0], [&quot;Bancos&quot;, &quot;A&quot;, 0, 10000], [&quot;Pasivo financiero (coste amortizado)&quot;, &quot;P&quot;, 0, 13605.44]], &quot;n&quot;: &quot;La diferencia entre el 5 % y el cupón hace crecer el pasivo hasta 500.000 € al vencimiento.&quot;}"></div>
+    <div class="dos">
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;Vencimiento&quot;, &quot;t&quot;: &quot;Si convierten&quot;, &quot;l&quot;: [[&quot;Pasivo financiero (coste amortizado)&quot;, &quot;P&quot;, 500000, 0], [&quot;Otros instrumentos de patrimonio neto&quot;, &quot;O&quot;, 27891.16, 0], [&quot;Capital (25.000 × 10 €)&quot;, &quot;O&quot;, 0, 250000], [&quot;Prima de emisión&quot;, &quot;O&quot;, 0, 277891.16]], &quot;n&quot;: &quot;&quot;}"></div></div>
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;Vencimiento&quot;, &quot;t&quot;: &quot;Si no convierten&quot;, &quot;l&quot;: [[&quot;Pasivo financiero (coste amortizado)&quot;, &quot;P&quot;, 500000, 0], [&quot;Otros instrumentos de patrimonio neto&quot;, &quot;O&quot;, 27891.16, 0], [&quot;Bancos&quot;, &quot;A&quot;, 0, 500000], [&quot;Reservas&quot;, &quot;O&quot;, 0, 27891.16]], &quot;n&quot;: &quot;El patrimonio nunca pasa por PyG: si no convierten, va a reservas.&quot;}"></div></div>
+    </div>
+    <div class="tabla"><table><caption>Particularidades de los compuestos</caption><thead><tr><th>Caso</th><th>Cómo se trata</th></tr></thead><tbody><tr><th>Separación definitiva</th><td>Se hace al emitir y no se revisa después (salvo error), aunque cambien los tipos.</td></tr><tr><th>Costes de emisión</th><td>Se reparten en la misma proporción que el importe: la parte del pasivo entra en el TIE (sube el tipo) y la del patrimonio va contra PN, nunca por PyG.</td></tr><tr><th>Cancelación anticipada</th><td>El precio pagado se reparte: al pasivo, su VR de ese día (la diferencia con el CA va a PyG); el resto, contra patrimonio.</td></tr><tr><th>Remuneraciones</th><td>Los intereses del pasivo van a PyG; lo que retribuye al patrimonio (por ejemplo, un dividendo), contra reservas.</td></tr></tbody></table></div>
+    <p>Cancelación anticipada del ejemplo: al final del año 1 se recompran los bonos por 520.000 €, con el mercado al 4 % para un bono sin opción a un año. CA del pasivo: 485.714,29 €; VR del pasivo: 510.000 / 1,04 = 490.384,62 €.</p>
+    <div class="dos">
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;31.12 año 1&quot;, &quot;t&quot;: &quot;Cancelación del pasivo a su VR&quot;, &quot;l&quot;: [[&quot;Pasivo financiero (coste amortizado)&quot;, &quot;P&quot;, 485714.29, 0], [&quot;Pérdida por cancelación (PyG)&quot;, &quot;R&quot;, 4670.33, 0], [&quot;Bancos&quot;, &quot;A&quot;, 0, 490384.62]], &quot;n&quot;: &quot;&quot;}"></div></div>
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;31.12 año 1&quot;, &quot;t&quot;: &quot;Recompra del componente de patrimonio&quot;, &quot;l&quot;: [[&quot;Otros instrumentos de patrimonio neto&quot;, &quot;O&quot;, 27891.16, 0], [&quot;Reservas&quot;, &quot;O&quot;, 1724.22, 0], [&quot;Bancos&quot;, &quot;A&quot;, 0, 29615.38]], &quot;n&quot;: &quot;El resto del precio (520.000 − 490.384,62) recompra la opción.&quot;}"></div></div>
+    </div>
+    <div class="tabla"><table><caption>Acciones rescatables: ¿pasivo, patrimonio o compuesto?</caption><thead><tr><th>Rescate</th><th>Dividendo</th><th>Qué es</th></tr></thead><tbody><tr><th>A opción del emisor</th><td>Discrecional</td><td>Patrimonio neto: nada le obliga a pagar</td></tr><tr><th>A opción del tenedor</th><td>Discrecional</td><td>Compuesto: el rescate es pasivo y el dividendo, patrimonio</td></tr><tr><th>A opción del tenedor</th><td>Obligatorio</td><td>Todo pasivo: es un préstamo con forma de acción</td></tr></tbody></table></div>
+
+    <h3>Híbridos: ¿segrego o no segrego?</h3>
+    <p>No segregar siempre es posible: todo el híbrido se lleva a VR con cambios en PyG. Para segregar (derivado a VR con cambios en PyG y principal según su norma) se tienen que cumplir las cuatro condiciones; si falla una, no se separa. Me paro en la primera respuesta que lleva a «no segrego».</p>
+    <ol class="pasos">
+      <li><b>¿Llevo todo a VR con cambios en PyG?</b> Si sí, no segrego.</li>
+      <li><b>¿El derivado es separable?</b> Tiene que cumplir por sí solo la definición de derivado (una opción sobre el IBEX sí; un pago ligado a las ventas del propio emisor no).</li>
+      <li><b>¿No está estrechamente relacionado con el principal?</b> Si el derivado toca el precio del dinero del propio préstamo (tipo variable, techo o suelo no activado, amortización anticipada a coste amortizado, inflación, divisa), no segrego. Si trae un riesgo nuevo (Bolsa, materias primas, crédito de un tercero) o un tipo «disfrazado» (apalancado, suelo ya activado, prórroga sin ajustar al mercado), segrego.</li>
+      <li><b>¿No es un suceso de naturaleza extraña?</b> Si la variable es un hecho no financiero de una de las partes (un siniestro, la vida del asegurado), es un seguro (NIIF 17): no segrego.</li>
+      <li><b>¿Se puede valorar con fiabilidad?</b> Si no hay VR fiable ni del derivado ni del principal, no se puede separar: todo a VR con cambios en PyG.</li>
+    </ol>
+    <p>Ejemplo: un banco capta 10.000 € a un año y devuelve los 10.000 € más el 50 % de la subida del Euro Stoxx 50, sin interés fijo; un depósito normal paga el 3 %. El índice sube un 10 %. Principal = 10.000 / 1,03 = 9.708,74 €; derivado = 291,26 € (lo que el cliente renuncia a cobrar a cambio de la opción).</p>
+    <div class="dos">
+      <div>
+        <h4 class="h-as">Segrego</h4>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Captación&quot;, &quot;t&quot;: &quot;Principal a CA y derivado a VR&quot;, &quot;l&quot;: [[&quot;Bancos&quot;, &quot;A&quot;, 10000, 0], [&quot;Depósito (coste amortizado)&quot;, &quot;P&quot;, 0, 9708.74], [&quot;Derivado implícito (VR con cambios en PyG)&quot;, &quot;P&quot;, 0, 291.26]], &quot;n&quot;: &quot;&quot;}"></div>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Cierre&quot;, &quot;t&quot;: &quot;Interés del 3 % del depósito&quot;, &quot;l&quot;: [[&quot;Gastos financieros&quot;, &quot;R&quot;, 291.26, 0], [&quot;Depósito (coste amortizado)&quot;, &quot;P&quot;, 0, 291.26]], &quot;n&quot;: &quot;&quot;}"></div>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Cierre&quot;, &quot;t&quot;: &quot;El derivado vale 10.000 × 10 % × 50 % = 500&quot;, &quot;l&quot;: [[&quot;Resultado de operaciones financieras (ROF)&quot;, &quot;R&quot;, 208.74, 0], [&quot;Derivado implícito (VR con cambios en PyG)&quot;, &quot;P&quot;, 0, 208.74]], &quot;n&quot;: &quot;&quot;}"></div>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Vencimiento&quot;, &quot;t&quot;: &quot;Pago al cliente&quot;, &quot;l&quot;: [[&quot;Depósito (coste amortizado)&quot;, &quot;P&quot;, 10000, 0], [&quot;Derivado implícito (VR con cambios en PyG)&quot;, &quot;P&quot;, 500, 0], [&quot;Bancos&quot;, &quot;A&quot;, 0, 10500]], &quot;n&quot;: &quot;&quot;}"></div>
+      </div>
+      <div>
+        <h4 class="h-as">No segrego</h4>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Captación&quot;, &quot;t&quot;: &quot;Todo el depósito a VR&quot;, &quot;l&quot;: [[&quot;Bancos&quot;, &quot;A&quot;, 10000, 0], [&quot;Depósito (VR con cambios en PyG)&quot;, &quot;P&quot;, 0, 10000]], &quot;n&quot;: &quot;&quot;}"></div>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Cierre&quot;, &quot;t&quot;: &quot;El depósito vale 10.500&quot;, &quot;l&quot;: [[&quot;Resultado de operaciones financieras (ROF)&quot;, &quot;R&quot;, 500, 0], [&quot;Depósito (VR con cambios en PyG)&quot;, &quot;P&quot;, 0, 500]], &quot;n&quot;: &quot;&quot;}"></div>
+        <div class="as-js" data-as="{&quot;f&quot;: &quot;Vencimiento&quot;, &quot;t&quot;: &quot;Pago al cliente&quot;, &quot;l&quot;: [[&quot;Depósito (VR con cambios en PyG)&quot;, &quot;P&quot;, 10500, 0], [&quot;Bancos&quot;, &quot;A&quot;, 0, 10500]], &quot;n&quot;: &quot;&quot;}"></div>
+      </div>
+    </div>
+    <p class="aviso">El resultado total es el mismo (500 €); cambia cómo se presenta: 291,26 € de gasto financiero más 208,74 € de ROF si segrego, frente a 500 € de ROF si no segrego.</p>
+    <div class="tabla"><table><caption>Particularidades de los híbridos</caption><thead><tr><th>Caso</th><th>Cómo se trata</th></tr></thead><tbody><tr><th>El principal es un activo financiero</th><td>NIIF 9 y Circular 4/2017: no se segrega nunca; el instrumento entero se clasifica según sus flujos (un bono ligado al IBEX no pasa el SPPI: todo a VR con cambios en PyG). PCEA: mismo esquema que los pasivos.</td></tr><tr><th>No hay forma de valorarlo</th><td>Si no se puede valorar ni el derivado ni el principal: todo a VR con cambios en PyG.</td></tr><tr><th>Se decide al contratar</th><td>La evaluación no se repite cada año, salvo que se modifique el contrato y cambien mucho los flujos.</td></tr><tr><th>Pasivo sin segregar</th><td>En NIIF 9, la parte de la variación de VR debida al riesgo de crédito propio va a ORG, no a PyG.</td></tr></tbody></table></div>
+  </section>
+
+  <section class="sec" id="baja">
+    <h2>8 · Baja de activos financieros</h2>
+    <p>Tres formas de obtener liquidez con activos financieros: la <b>cesión temporal</b> (venta con pacto de recompra), el <b>descuento</b> (anticipo de cobros, con o sin recurso) y la <b>titulización</b> (venta de una cartera a un fondo). En todas la pregunta es la misma: ¿siguen afectando a la entidad los riesgos y beneficios del activo?</p>
+    <ol class="pasos">
+      <li><b>¿Han expirado los derechos sobre los flujos?</b> (venta, prescripción, fallido). Si sí, baja del activo.</li>
+      <li><b>¿Se transfieren sustancialmente los riesgos y beneficios?</b> Si sí, baja. Si no, se mantiene el activo y se reconoce un pasivo por la liquidez recibida.</li>
+      <li><b>Si no está claro, ¿retiene el control?</b> Control es la capacidad práctica del cesionario de vender el activo entero. Si no lo retiene, baja; si lo retiene, sigue reconociéndolo en la medida de su implicación continuada.</li>
+    </ol>
+    <h3>Cesión temporal: el activo se queda y nace un pasivo</h3>
+    <p>Se cede un activo de 100 con compromiso de recomprarlo por 105 a un año. No se transfieren los riesgos: es un préstamo garantizado con el propio activo, que sigue en balance y sigue generando sus rendimientos y su deterioro.</p>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Cesión&quot;, &quot;t&quot;: &quot;Liquidez recibida&quot;, &quot;l&quot;: [[&quot;Tesorería&quot;, &quot;A&quot;, 100, 0], [&quot;Pasivo por cesión temporal de activos&quot;, &quot;P&quot;, 0, 100]], &quot;n&quot;: &quot;&quot;}"></div>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Durante el plazo&quot;, &quot;t&quot;: &quot;Devengo al TIE (5 %)&quot;, &quot;l&quot;: [[&quot;Gastos financieros&quot;, &quot;R&quot;, 5, 0], [&quot;Pasivo por cesión temporal de activos&quot;, &quot;P&quot;, 0, 5]], &quot;n&quot;: &quot;&quot;}"></div>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Vencimiento&quot;, &quot;t&quot;: &quot;Recompra&quot;, &quot;l&quot;: [[&quot;Pasivo por cesión temporal de activos&quot;, &quot;P&quot;, 105, 0], [&quot;Tesorería&quot;, &quot;A&quot;, 0, 105]], &quot;n&quot;: &quot;&quot;}"></div>
+    <h3>Descuento: el recurso decide quién soporta el impago</h3>
+    <div class="dos">
+      <div><h4 class="h-as">Sin recurso: baja</h4><div class="as-js" data-as="{&quot;f&quot;: &quot;Descuento&quot;, &quot;t&quot;: &quot;Se transfiere el riesgo de impago&quot;, &quot;l&quot;: [[&quot;Tesorería&quot;, &quot;A&quot;, 95, 0], [&quot;Pérdida por baja (descuento)&quot;, &quot;R&quot;, 5, 0], [&quot;Clientes&quot;, &quot;A&quot;, 0, 100]], &quot;n&quot;: &quot;&quot;}"></div></div>
+      <div><h4 class="h-as">Con recurso: no hay baja</h4><div class="as-js" data-as="{&quot;f&quot;: &quot;Descuento&quot;, &quot;t&quot;: &quot;El cliente sigue en balance&quot;, &quot;l&quot;: [[&quot;Tesorería&quot;, &quot;A&quot;, 95, 0], [&quot;Pasivo por descuento&quot;, &quot;P&quot;, 0, 95]], &quot;n&quot;: &quot;&quot;}"></div><div class="as-js" data-as="{&quot;f&quot;: &quot;Hasta el vencimiento&quot;, &quot;t&quot;: &quot;Devengo del coste&quot;, &quot;l&quot;: [[&quot;Gastos financieros&quot;, &quot;R&quot;, 5, 0], [&quot;Pasivo por descuento&quot;, &quot;P&quot;, 0, 5]], &quot;n&quot;: &quot;&quot;}"></div><div class="as-js" data-as="{&quot;f&quot;: &quot;Vencimiento&quot;, &quot;t&quot;: &quot;Si el deudor paga&quot;, &quot;l&quot;: [[&quot;Pasivo por descuento&quot;, &quot;P&quot;, 100, 0], [&quot;Clientes&quot;, &quot;A&quot;, 0, 100]], &quot;n&quot;: &quot;Si no paga, la entidad devuelve el anticipo: Pasivo por descuento a Tesorería, 100.&quot;}"></div></div>
+    </div>
+    <h3>Titulización</h3>
+    <p>La entidad vende una cartera (970) a un fondo, que emite un tramo senior (873) y un tramo equity de primeras pérdidas (97). Si la entidad <b>garantiza la emisión</b> o <b>compra el tramo equity</b>, retiene sustancialmente los riesgos: la cartera sigue en su balance y reconoce un pasivo por lo colocado a terceros, que coincide con la liquidez obtenida (970 si garantiza, 873 si se queda el equity).</p>
+  </section>
+
   <section class="sec" id="derivados">
-    <h2>7 · Derivados, híbridos y coberturas</h2>
+    <h2>9 · Derivados y coberturas</h2>
     <ul>
-      <li><b>Depósito estructurado</b>: un bono cupón cero con una prima ligada a un índice (S&amp;P 500, IBEX 35) es un contrato anfitrión más una <b>opción implícita</b>. Se segrega el derivado, o el conjunto se valora a VR si no se segrega.</li>
-      <li>La opción implícita se valora a mercado en cada cierre. El anfitrión devenga al tipo de pasivos de igual plazo en la fecha de emisión.</li>
-      <li><b>Swap de cobertura</b>: un bono a tipo fijo cubierto con un <i>swap</i> que cede fijo y recibe variable. El derivado se registra a VR y hay que ver qué parte del bono queda cubierta, desde la fecha de cobertura.</li>
       <li><b>Derivado simétrico</b> (futuro, <i>swap</i>): valor inicial cero. <b>Asimétrico</b> (opción): la prima es un activo o un pasivo según el derecho o la obligación.</li>
+      <li><b>Swap de cobertura del valor razonable</b>: un bono a tipo fijo cubierto con un <i>swap</i> que cede fijo y recibe variable. El derivado se registra a VR con cambios en PyG y, desde la fecha de cobertura, las variaciones de valor del bono cubierto también van a PyG, compensándose. Lo anterior a la cobertura se queda donde estaba (por ejemplo, en ORG).</li>
+      <li><b>Depósito estructurado</b>: un bono cupón cero con una prima ligada a un índice es un híbrido (apartado 7). La opción implícita se valora a mercado en cada cierre; el principal devenga al tipo de pasivos de igual plazo en la emisión.</li>
     </ul>
   </section>
 
   <section class="sec" id="deterioro">
-    <h2>8 · Deterioro por pérdida esperada</h2>
-    <p>La NIIF 9 sustituye la pérdida incurrida por la <b>pérdida esperada</b>. Se aplica a los activos a coste amortizado y a VR con cambios en ORG; no a los de VR con cambios en PyG ni a los instrumentos de patrimonio.</p>
-    <div class="formula">PE = PD × LGD × EAD<br><span class="nota-f">probabilidad de impago · pérdida en caso de impago · exposición</span></div>
-    <p>El bloque de la clase del 6/11/2026 queda así: <b>clasificación, coberturas contables y deterioro</b>, con IFRS 9 e IFRS 17 como marco.</p>
+    <h2>10 · Deterioro de activos financieros</h2>
+    <p>El deterioro es la <b>pérdida esperada por riesgo de crédito</b>: la diferencia entre el valor actual de los flujos del contrato y el de los flujos que se espera cobrar (garantías incluidas), ambos descontados al <b>TIE original</b>, nunca a un tipo de mercado. NIIF 9 y la Circular 4/2017 cubren la pérdida esperada desde el primer día; el PCEA (aseguradoras) solo la incurrida.</p>
+    <div class="tabla"><table><caption>Dónde se registra</caption><thead><tr><th>Cartera</th><th>Deterioro</th></tr></thead><tbody><tr><th>Coste amortizado</th><td>Cuenta correctora del activo; dotación y reversión, en PyG</td></tr><tr><th>VR con cambios en ORG</th><td>La pérdida va a PyG contra ORG; el activo sigue a su valor razonable</td></tr><tr><th>VR con cambios en PyG e instrumentos de patrimonio</th><td>No se deterioran: su valor razonable ya recoge el riesgo</td></tr></tbody></table></div>
+    <div class="formula">PE = PD × LGD × EAD<br><span class="nota-f">probabilidad de llegar a 90 días de impago · severidad (lo que se pierde tras recobrar) · exposición en el impago</span></div>
+    <p>Ejemplo: préstamo de 50.000 € a diez años, TIE del 2,5 %, cuota de 5.712,94 €. Al final del año 1 se espera cobrar solo 3.000 € al año. Valor actual de lo que dice el contrato: 45.537,06 €; de lo que se espera cobrar: 23.912,60 €; deterioro: <b>21.624,47 €</b>.</p>
+
+    <h3>Fases</h3>
+    <div class="tabla"><table><thead><tr><th></th><th>Stage 1</th><th>Stage 2</th><th>Stage 3</th><th>Fallido</th></tr></thead><tbody><tr><th>Nombre en la Circular</th><td>Riesgo normal</td><td>Normal en vigilancia especial</td><td>Dudoso</td><td>Fallido</td></tr><tr><th>Señal típica</th><td>Al corriente</td><td>Más de 30 días de impago o aumento significativo del riesgo</td><td>Más de 90 días de impago (o concurso, ejecución…)</td><td>Recuperación remota (p. ej., más de 4 años dudoso)</td></tr><tr><th>Pérdida que se cubre</th><td>12 meses</td><td>Toda la vida</td><td>Toda la vida (PD = 100 %)</td><td>Todo el saldo</td></tr><tr><th>Intereses (TIE sobre…)</th><td>Importe bruto</td><td>Importe bruto</td><td>Importe neto de cobertura</td><td>—</td></tr><tr><th>En balance</th><td>Sí</td><td>Sí</td><td>Sí</td><td>Baja del activo</td></tr></tbody></table></div>
+    <p class="aviso">El salto de stage 1 a stage 2 es el que más pesa: la cobertura pasa de 12 meses a toda la vida. En una hipoteca con 100.000 € sujetos a cobertura: stage 1 (0,7 %) 700 €, stage 2 (18 %) 18.000 €, stage 3 (45 %) 45.000 €.</p>
+
+    <h3>Cálculo con las tablas del Banco de España</h3>
+    <ol class="pasos">
+      <li><b>Importe bruto</b>: lo que debe el cliente.</li>
+      <li><b>Menos garantía personal</b> de un garante sin riesgo apreciable (Estado, ICO, bancos centrales, entidades de crédito de la UE…): esa parte va al 0 %. Si el garante es otro, se le aplica su propio porcentaje.</li>
+      <li><b>Menos garantía real ajustada</b>: valor de referencia × (1 − descuento de la tabla).</li>
+      <li><b>= Importe sujeto a cobertura</b> (si sale negativo, es cero), <b>× % de la tabla</b> según segmento y fase o meses de impago.</li>
+    </ol>
+    <div class="tabla"><table><caption>Descuentos sobre el valor de referencia de la garantía</caption><thead><tr><th>Garantía real</th><th class="num">Descuento</th></tr></thead><tbody><tr><th>Viviendas terminadas</th><td class="num">30 %</td></tr><tr><th>Oficinas, locales comerciales y naves polivalentes</th><td class="num">40 %</td></tr><tr><th>Resto de edificios terminados</th><td class="num">45 %</td></tr><tr><th>Suelo urbano y urbanizable ordenado</th><td class="num">40 %</td></tr><tr><th>Resto de bienes inmuebles</th><td class="num">45 %</td></tr><tr><th>Depósitos dinerarios</th><td class="num">0 %</td></tr><tr><th>Instrumentos financieros con mercado activo</th><td class="num">10 %</td></tr><tr><th>Instrumentos financieros sin mercado activo</th><td class="num">20 %</td></tr><tr><th>Segundas y sucesivas hipotecas, bienes muebles</th><td class="num">50 %</td></tr></tbody></table></div>
+    <div class="tabla"><table><caption>Porcentajes de cobertura (Circular 6/2021, desde el 30.6.2022)</caption><thead><tr><th>Segmento</th><th class="num">Stage 1</th><th class="num">Stage 2</th><th class="num">3-6 m</th><th class="num">6-9 m</th><th class="num">9-12 m</th><th class="num">12-15 m</th><th class="num">15-18 m</th><th class="num">18-21 m</th><th class="num">> 21 m</th></tr></thead><tbody><tr><th>Promoción y construcción inmobiliaria</th><td class="num">1,9</td><td class="num">30,0</td><td class="num">70</td><td class="num">75</td><td class="num">85</td><td class="num">90</td><td class="num">95</td><td class="num">100</td><td class="num">100</td></tr><tr><th>Construcción de obra civil</th><td class="num">2,0</td><td class="num">18,8</td><td class="num">55</td><td class="num">65</td><td class="num">70</td><td class="num">80</td><td class="num">95</td><td class="num">100</td><td class="num">100</td></tr><tr><th>Financiación especializada</th><td class="num">0,6</td><td class="num">9,6</td><td class="num">55</td><td class="num">65</td><td class="num">75</td><td class="num">90</td><td class="num">95</td><td class="num">100</td><td class="num">100</td></tr><tr><th>Grandes empresas</th><td class="num">0,6</td><td class="num">9,6</td><td class="num">55</td><td class="num">65</td><td class="num">75</td><td class="num">90</td><td class="num">95</td><td class="num">100</td><td class="num">100</td></tr><tr><th>Pymes</th><td class="num">1,1</td><td class="num">17,8</td><td class="num">65</td><td class="num">70</td><td class="num">75</td><td class="num">85</td><td class="num">90</td><td class="num">95</td><td class="num">100</td></tr><tr><th>Empresarios individuales</th><td class="num">1,4</td><td class="num">13,9</td><td class="num">35</td><td class="num">45</td><td class="num">60</td><td class="num">65</td><td class="num">80</td><td class="num">95</td><td class="num">100</td></tr><tr><th>Consumo y otros fines</th><td class="num">1,8</td><td class="num">20,2</td><td class="num">55</td><td class="num">65</td><td class="num">80</td><td class="num">85</td><td class="num">95</td><td class="num">100</td><td class="num">100</td></tr><tr><th>Tarjetas de crédito</th><td class="num">1,0</td><td class="num">11,6</td><td class="num">55</td><td class="num">65</td><td class="num">80</td><td class="num">85</td><td class="num">95</td><td class="num">100</td><td class="num">100</td></tr><tr><th>Hipotecas de familias</th><td class="num">0,7</td><td class="num">18,0</td><td class="num">45</td><td class="num">50</td><td class="num">65</td><td class="num">70</td><td class="num">85</td><td class="num">95</td><td class="num">100</td></tr></tbody></table></div>
+    <div class="tabla"><table><caption>Ejemplos de cobertura</caption><thead><tr><th>Operación</th><th>Importe sujeto a cobertura</th><th>%</th><th class="num">Cobertura</th></tr></thead><tbody><tr><th>Pyme de 10.000 € con aval del ICO al 80 %, 120 días de impago</th><td>2.000</td><td>65 %</td><td class="num">1.300</td></tr><tr><th>Tarjeta de 1.000 €, 7 meses de impago</th><td>1.000</td><td>65 %</td><td class="num">650</td></tr><tr><th>Hipoteca de 80.000 €, tasación 100.000 €, 13 meses de impago</th><td>80.000 − 70.000 = 10.000</td><td>70 %</td><td class="num">7.000</td></tr><tr><th>Gran empresa, 100.000 € con prenda de deuda pública de 50.000 €, 7 meses</th><td>100.000 − 45.000 = 55.000</td><td>65 %</td><td class="num">35.750</td></tr></tbody></table></div>
+
+    <h3>Registro contable</h3>
+    <p>Solo se registra la <b>variación</b> de la cobertura en cada cierre. Préstamo al consumo de 10.000 € sin garantías:</p>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Concesión&quot;, &quot;t&quot;: &quot;Stage 1: 1,8 %&quot;, &quot;l&quot;: [[&quot;Pérdidas por deterioro (PyG)&quot;, &quot;R&quot;, 180, 0], [&quot;Correcciones de valor (activo, signo negativo)&quot;, &quot;A&quot;, 0, 180]], &quot;n&quot;: &quot;&quot;}"></div>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;45 días de impago&quot;, &quot;t&quot;: &quot;Stage 2: 20,2 % → 2.020&quot;, &quot;l&quot;: [[&quot;Pérdidas por deterioro (PyG)&quot;, &quot;R&quot;, 1840, 0], [&quot;Correcciones de valor (activo, signo negativo)&quot;, &quot;A&quot;, 0, 1840]], &quot;n&quot;: &quot;&quot;}"></div>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;4 meses de impago&quot;, &quot;t&quot;: &quot;Stage 3: 55 % → 5.500&quot;, &quot;l&quot;: [[&quot;Pérdidas por deterioro (PyG)&quot;, &quot;R&quot;, 3480, 0], [&quot;Correcciones de valor (activo, signo negativo)&quot;, &quot;A&quot;, 0, 3480]], &quot;n&quot;: &quot;&quot;}"></div>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Fallido&quot;, &quot;t&quot;: &quot;Baja del activo&quot;, &quot;l&quot;: [[&quot;Correcciones de valor&quot;, &quot;A&quot;, 5500, 0], [&quot;Pérdidas por deterioro (PyG)&quot;, &quot;R&quot;, 4500, 0], [&quot;Préstamos&quot;, &quot;A&quot;, 0, 10000]], &quot;n&quot;: &quot;Si años después se recobran 1.000 €: Tesorería a Recuperación de fallidos (PyG), 1.000.&quot;}"></div>
+    <p>En <b>stage 3</b> los intereses se calculan sobre el importe neto: con un TIE del 6 % y 5.500 € de cobertura, el ingreso es 6 % × 4.500 = 270 €, no 600 €.</p>
+    <div class="as-js" data-as="{&quot;f&quot;: &quot;Stage 3&quot;, &quot;t&quot;: &quot;Intereses sobre el neto&quot;, &quot;l&quot;: [[&quot;Préstamos (intereses devengados)&quot;, &quot;A&quot;, 600, 0], [&quot;Ingresos por intereses&quot;, &quot;R&quot;, 0, 270], [&quot;Correcciones de valor&quot;, &quot;A&quot;, 0, 330]], &quot;n&quot;: &quot;&quot;}"></div>
+    <p>En la cartera de <b>VR con cambios en ORG</b> la pérdida va igualmente a PyG, pero la contrapartida es ORG y el activo sigue a su valor razonable.</p>
+    <div class="dos">
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;Cierre&quot;, &quot;t&quot;: &quot;Bono a coste amortizado: PE 100&quot;, &quot;l&quot;: [[&quot;Pérdidas por deterioro (PyG)&quot;, &quot;R&quot;, 100, 0], [&quot;Correcciones de valor (activo, signo negativo)&quot;, &quot;A&quot;, 0, 100]], &quot;n&quot;: &quot;&quot;}"></div></div>
+      <div><div class="as-js" data-as="{&quot;f&quot;: &quot;Cierre&quot;, &quot;t&quot;: &quot;Bono a VR con cambios en ORG: PE 100&quot;, &quot;l&quot;: [[&quot;Pérdidas por deterioro (PyG)&quot;, &quot;R&quot;, 100, 0], [&quot;Otro resultado global acumulado&quot;, &quot;O&quot;, 0, 100]], &quot;n&quot;: &quot;&quot;}"></div></div>
+    </div>
+    <p>La clase del 6/11/2026 ya situaba este bloque en el programa: <b>clasificación, coberturas contables y deterioro</b>, con IFRS 9 e IFRS 17 como marco.</p>
   </section>
 
   <section class="sec" id="test">
-    <h2>9 · Test</h2>
+    <h2>11 · Test</h2>
     <p>Doce preguntas sobre clasificación y medición. Cada respuesta se corrige al momento con su explicación.</p>
     <div id="quiz"></div>
   </section>
 
   <section class="sec" id="examenes">
-    <h2>10 · Exámenes resueltos</h2>
+    <h2>12 · Exámenes resueltos</h2>
     <p>Todas las convocatorias de tu carpeta de Contabilidad, ejercicio por ejercicio. Cada uno se puede resolver <b>paso a paso</b>: primero el enunciado, después cada paso con sus cálculos y con los <b>asientos contables</b> que dicen qué se mueve y hacia dónde (activo, pasivo, patrimonio neto o cuenta de resultados).</p>
     <div class="marco">
       <p><b>Cómo leer los asientos.</b> Cada línea lleva una etiqueta: <span class="tag tA">Activo</span> <span class="tag tP">Pasivo</span> <span class="tag tO">ORG / PN</span> <span class="tag tR">PyG</span>. Las cuentas del Debe van a la izquierda y las del Haber, con una «a» delante, a la derecha. Debajo de cada asiento verás el efecto neto en balance, en patrimonio y en resultados.</p>
@@ -552,6 +702,9 @@ if (typeof EXAMENES !== 'undefined') {
 } else {
   $('exLista').innerHTML = '<p class="ex-vacio">No se han podido cargar los exámenes.</p>';
 }
+
+/* Asientos de los apartados de teoría */
+document.querySelectorAll('.as-js').forEach((d) => { try { d.outerHTML = pintaAsiento(JSON.parse(d.dataset.as)); } catch (e) { d.remove(); } });
 </script>
 </body>
 </html>

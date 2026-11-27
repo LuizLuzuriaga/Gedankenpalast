@@ -3806,7 +3806,7 @@ const EXAMENES = [
 "origen": "oficial",
 "enunciado": "Préstamo hipotecario a una familia (primera vivienda) concedido el 31.12.23, con carencia de principal los dos primeros ejercicios, al 2,5 %. Importe bruto 200.000 €, tasación 205.000 €. El 31.12.24 hay un incremento significativo del riesgo. Registrar los efectos en balance, cuenta de resultados, estado de cambios del patrimonio neto (ECPN) y estado de flujos de efectivo (EFE) en 2023 y 2024 con el modelo de deterioro del Banco de España. Este ejercicio aparece en la hoja «Soluciones», no en el enunciado en Word.",
 "avisos": [
-"La tabla de la hoja da un 1 % de cobertura para «normal» en hipotecas de familias, pero la fórmula de la solución aplica un 0,7 %: usa 0,7 % para el stage 1 (395,50 €). Es lo que sale de la hoja."
+"La tabla de la hoja de soluciones pone un 1 % para «normal» en hipotecas de familias, pero la fórmula aplica un 0,7 %. El 0,7 % es el correcto: es el de las tablas vigentes del Banco de España (Circular 6/2021) que dan las diapositivas de deterioro."
 ],
 "pasos": [
 {
@@ -3976,6 +3976,617 @@ const EXAMENES = [
 ]
 },
 {
+"id": "e20260707",
+"fecha": "2026-07-07",
+"fechaTxt": "7 de julio de 2026",
+"tipo": "Examen extraordinario",
+"titulo": "Contabilidad de las operaciones financieras y del seguro",
+"archivos": [
+[
+"Examen_extraordinario_COFS_enunciado_1.docx",
+"Enunciado"
+],
+[
+"Examen_extraordinario_COFS_solucion.docx",
+"Solución"
+]
+],
+"aviso": "Estos dos archivos están en tu carpeta de Descargas, no en la de Exámenes.",
+"ejercicios": [
+{
+"n": 1,
+"titulo": "IFRS 17: valoración inicial, ¿oneroso o no?, margen de servicio",
+"tema": "IFRS 17 · seguros",
+"origen": "oficial",
+"enunciado": "Prima única de 3.300 € por un contrato que cubre cuatro años. Flujos de pago estimados de 900 € al año. Coste financiero para pasivos a cuatro años: 4 %. Ajuste por riesgo no financiero: 2 % de los flujos. Se pide la valoración inicial, si es oneroso y el margen de servicio contractual (CSM) o la pérdida.",
+"pasos": [
+{
+"t": "Valor del contrato",
+"p": "Cada flujo se toma neto del ajuste por riesgo y se descuenta al 4 %: 900 × (1 − 2 %) / 1,04ⁿ. Es el mismo modelo simplificado que la hoja de soluciones de 2025.",
+"tabla": {
+"cap": "Flujos (€)",
+"head": [
+"",
+"Año 1",
+"Año 2",
+"Año 3",
+"Año 4",
+"Total"
+],
+"rows": [
+[
+"Suma de flujos",
+"900,00",
+"900,00",
+"900,00",
+"900,00",
+"3.600,00"
+],
+[
+"Ajuste por valor temporal",
+"−33,92",
+"−66,54",
+"−97,91",
+"−128,06",
+"−326,43"
+],
+[
+"Ajuste por riesgo no financiero",
+"−18,00",
+"−18,00",
+"−18,00",
+"−18,00",
+"−72,00"
+],
+[
+"Valor del contrato",
+"848,08",
+"815,46",
+"784,09",
+"753,94",
+"3.201,57"
+]
+]
+}
+},
+{
+"t": "¿Oneroso?",
+"p": "La prima (3.300 €) supera el valor del contrato (3.201,57 €): no es oneroso. La diferencia, 98,43 €, es el margen de servicio contractual, un pasivo que se libera a resultados durante los cuatro años de cobertura. Si la prima no llegara, la diferencia sería una pérdida inmediata en PyG.",
+"a": [
+{
+"f": "Inicio",
+"t": "Reconocimiento inicial del contrato",
+"l": [
+[
+"Tesorería (prima cobrada)",
+"A",
+3300,
+0
+],
+[
+"Pasivo por contrato de seguro (flujos de cumplimiento)",
+"P",
+0,
+3201.57
+],
+[
+"Margen de servicio contractual (CSM)",
+"P",
+0,
+98.43
+]
+],
+"n": ""
+}
+]
+}
+],
+"claves": [
+"Prima mayor que el valor del contrato: CSM (se difiere). Prima menor: contrato oneroso y pérdida inmediata."
+]
+},
+{
+"n": 2,
+"titulo": "Bonos a VR con cambios en ORG cubiertos con un swap",
+"tema": "Coberturas · ORG",
+"origen": "oficial",
+"enunciado": "Bonos de 2.000.000 € comprados en emisión el 1.4.24 por su nominal, cupón del 1,4 % el 31.3 y vencimiento a cuatro años; modelo de cobrar flujos y vender. El 30.9.25 se contrata un swap (cede fijo 1,55 %, recibe variable) que cubre el bono desde el 1.10.25. Descuento: 1,65 % (31.12.24), 1,45 % (30.9.25) y 1,30 % (31.12.25). El swap vale 8.450 € a 31.12.25. Se pide la ficha contable.",
+"avisos": [
+"La solución solo pone en la ficha la línea del bono (ROF +6.861,02 €). El asiento del swap lo añado yo, suponiendo, como en el examen de 2016, que es un pasivo (paga fijo y los tipos han bajado). Entonces la cobertura no es perfecta y deja una ineficacia de −1.588,98 € en resultados."
+],
+"pasos": [
+{
+"t": "Ficha oficial",
+"p": "Emitido a la par con TIR igual al cupón (1,4 %): el coste amortizado es siempre nominal más intereses devengados no vencidos (IDNV). El valor razonable descuenta los flujos pendientes al tipo de cada fecha.",
+"tabla": {
+"cap": "Ficha contable (€)",
+"head": [
+"Fecha",
+"TIR",
+"VR",
+"IDNV",
+"VR−CA",
+"Intereses",
+"ROF",
+"PN"
+],
+"rows": [
+[
+"01/04/24",
+"1,40 %",
+"2.000.000,00",
+"0,00",
+"0,00",
+"—",
+"—",
+"—"
+],
+[
+"31/12/24",
+"1,65 %",
+"2.005.260,71",
+"21.000,00",
+"−15.739,29",
+"21.000,00",
+"—",
+"−15.739,29"
+],
+[
+"30/09/25",
+"1,45 %",
+"2.011.511,70",
+"14.000,00",
+"−2.488,30",
+"21.000,00",
+"—",
+"13.250,99"
+],
+[
+"31/12/25",
+"1,30 %",
+"2.025.372,72",
+"21.000,00",
+"4.372,72",
+"7.000,00",
+"6.861,02",
+"—"
+]
+]
+}
+},
+{
+"t": "2024 y hasta la cobertura",
+"p": "Hasta el 30.9.25, la variación de la diferencia VR−CA va a patrimonio.",
+"a": [
+{
+"f": "1.4.24",
+"t": "Compra",
+"l": [
+[
+"Bonos (VR con cambios en ORG)",
+"A",
+2000000,
+0
+],
+[
+"Tesorería",
+"A",
+0,
+2000000
+]
+],
+"n": ""
+},
+{
+"f": "31.12.24",
+"t": "Devengo de nueve meses de cupón",
+"l": [
+[
+"Intereses devengados no vencidos",
+"A",
+21000,
+0
+],
+[
+"Ingresos por intereses",
+"R",
+0,
+21000
+]
+],
+"n": ""
+},
+{
+"f": "31.12.24",
+"t": "Valoración: el tipo sube y el bono baja",
+"l": [
+[
+"Ajustes por valoración (ORG)",
+"O",
+15739.29,
+0
+],
+[
+"Bonos (ajuste a valor razonable)",
+"A",
+0,
+15739.29
+]
+],
+"n": ""
+},
+{
+"f": "31.3.25",
+"t": "Cobro del cupón",
+"l": [
+[
+"Tesorería",
+"A",
+28000,
+0
+],
+[
+"Intereses devengados no vencidos",
+"A",
+0,
+21000
+],
+[
+"Ingresos por intereses",
+"R",
+0,
+7000
+]
+],
+"n": ""
+},
+{
+"f": "30.9.25",
+"t": "Devengo de seis meses de cupón",
+"l": [
+[
+"Intereses devengados no vencidos",
+"A",
+14000,
+0
+],
+[
+"Ingresos por intereses",
+"R",
+0,
+14000
+]
+],
+"n": ""
+},
+{
+"f": "30.9.25",
+"t": "Valoración antes de la cobertura",
+"l": [
+[
+"Bonos (ajuste a valor razonable)",
+"A",
+13250.99,
+0
+],
+[
+"Ajustes por valoración (ORG)",
+"O",
+0,
+13250.99
+]
+],
+"n": ""
+}
+]
+},
+{
+"t": "Con la cobertura (31.12.25)",
+"p": "Desde el 1.10.25 la variación del bono cubierto va a resultados (ROF): +6.861,02 €. El swap compensa en sentido contrario.",
+"a": [
+{
+"f": "31.12.25",
+"t": "Devengo de tres meses de cupón",
+"l": [
+[
+"Intereses devengados no vencidos",
+"A",
+7000,
+0
+],
+[
+"Ingresos por intereses",
+"R",
+0,
+7000
+]
+],
+"n": ""
+},
+{
+"f": "31.12.25",
+"t": "Bono cubierto: variación a resultados",
+"l": [
+[
+"Bonos (ajuste a valor razonable)",
+"A",
+6861.02,
+0
+],
+[
+"Resultado de operaciones financieras (ROF)",
+"R",
+0,
+6861.02
+]
+],
+"n": ""
+},
+{
+"f": "31.12.25",
+"t": "Swap de cobertura (supuesto: pasivo)",
+"l": [
+[
+"Resultado de operaciones financieras (ROF)",
+"R",
+8450,
+0
+],
+[
+"Swap de cobertura (pasivo)",
+"P",
+0,
+8450
+]
+],
+"n": "Ineficacia de la cobertura: 6.861,02 − 8.450 = −1.588,98 €."
+}
+]
+}
+],
+"claves": [
+"Lo anterior a la cobertura se queda en ORG; lo posterior va a ROF junto al swap.",
+"Bono emitido a la par con TIR igual al cupón: el coste amortizado es nominal + IDNV."
+]
+},
+{
+"n": 3,
+"titulo": "Bono convertible: instrumento compuesto",
+"tema": "Instrumento compuesto",
+"origen": "oficial",
+"enunciado": "15.000 bonos emitidos el 1.1.24 con reembolso de 1.000 € cada uno el 1.1.27, sin remuneración. Al vencimiento el inversor elige el reembolso o 400 acciones de la sociedad por bono. Pasivos puros a tres años: 3,5 %. Acciones a 3 € al emitir, 3,40 € (31.12.24) y 3,60 € (31.12.25).",
+"pasos": [
+{
+"t": "Separación",
+"p": "Es un compuesto: la conversión es fijo por fijo (1.000 € por 400 acciones propias), así que la opción es patrimonio. Pasivo = 15.000.000 / 1,035³ = 13.529.140,59 €; patrimonio = 1.470.859,41 €, que no se revalúa. Las cotizaciones no afectan al emisor: solo condicionan lo que decida el inversor al vencimiento.",
+"a": [
+{
+"f": "1.1.24",
+"t": "Emisión del bono convertible",
+"l": [
+[
+"Tesorería",
+"A",
+15000000,
+0
+],
+[
+"Pasivo financiero (coste amortizado)",
+"P",
+0,
+13529140.59
+],
+[
+"Otros instrumentos de patrimonio neto",
+"O",
+0,
+1470859.41
+]
+],
+"n": ""
+}
+]
+},
+{
+"t": "Coste amortizado",
+"p": "Todo el coste es implícito, al 3,5 % sobre el valor del pasivo al inicio de cada año: 473.519,92 € en 2024 y 490.093,12 € en 2025.",
+"tabla": {
+"cap": "Balance y resultados (€)",
+"head": [
+"",
+"31.12.24",
+"31.12.25"
+],
+"rows": [
+[
+"Pasivo financiero",
+"14.002.660,51",
+"14.492.753,62"
+],
+[
+"Instrumento de capital",
+"1.470.859,41",
+"1.470.859,41"
+],
+[
+"Gastos financieros del año (PyG)",
+"473.519,92",
+"490.093,12"
+]
+]
+},
+"a": [
+{
+"f": "31.12.25",
+"t": "Gasto financiero de 2025",
+"l": [
+[
+"Gastos financieros",
+"R",
+490093.12,
+0
+],
+[
+"Pasivo financiero (coste amortizado)",
+"P",
+0,
+490093.12
+]
+],
+"n": ""
+}
+]
+}
+],
+"claves": [
+"Compuesto: pasivo a coste amortizado y patrimonio fijo; las cotizaciones posteriores no se registran."
+]
+},
+{
+"n": 4,
+"titulo": "Deterioro de un préstamo al consumo (modelo del Banco de España)",
+"tema": "Deterioro",
+"origen": "oficial",
+"enunciado": "Préstamo al consumo concedido el 30.6.24, con carencia de principal los dos primeros ejercicios, al 5 %. Importe bruto 50.000 €, sin garantía real. El 31.12.25 hay un incremento significativo del riesgo. Registrar los efectos en balance, PyG, ECPN y EFE en 2024 y 2025.",
+"avisos": [
+"La solución no da los intereses de 2024. Con la concesión el 30.6.24 serían seis meses: 50.000 × 5 % × 6/12 = 1.250 €."
+],
+"pasos": [
+{
+"t": "Cobertura",
+"p": "Sin garantía, el importe sujeto a cobertura es el bruto (50.000 €). Stage 1 en consumo: 1,8 % → 900 € a 31.12.24. Stage 2 a 31.12.25: 20,2 % → 10.100 €. Se registra solo la diferencia: 9.200 €.",
+"a": [
+{
+"f": "30.6.24",
+"t": "Concesión",
+"l": [
+[
+"Préstamos al consumo",
+"A",
+50000,
+0
+],
+[
+"Tesorería",
+"A",
+0,
+50000
+]
+],
+"n": ""
+},
+{
+"f": "31.12.24",
+"t": "Deterioro stage 1 (1,8 %)",
+"l": [
+[
+"Pérdidas por deterioro (PyG)",
+"R",
+900,
+0
+],
+[
+"Deterioro acumulado (activo, signo negativo)",
+"A",
+0,
+900
+]
+],
+"n": ""
+},
+{
+"f": "31.12.25",
+"t": "Intereses cobrados (5 %)",
+"l": [
+[
+"Tesorería",
+"A",
+2500,
+0
+],
+[
+"Ingresos financieros",
+"R",
+0,
+2500
+]
+],
+"n": ""
+},
+{
+"f": "31.12.25",
+"t": "Paso a stage 2 (20,2 %)",
+"l": [
+[
+"Pérdidas por deterioro (PyG)",
+"R",
+9200,
+0
+],
+[
+"Deterioro acumulado (activo, signo negativo)",
+"A",
+0,
+9200
+]
+],
+"n": ""
+}
+]
+},
+{
+"t": "Estados de 2025",
+"p": "",
+"tabla": {
+"cap": "Cifras (€)",
+"head": [
+"Estado",
+"Partida",
+"Importe"
+],
+"rows": [
+[
+"Balance 31.12.24",
+"Préstamos / deterioro acumulado",
+"50.000,00 / 900,00"
+],
+[
+"Balance 31.12.25",
+"Préstamos / deterioro acumulado",
+"50.000,00 / 10.100,00"
+],
+[
+"PyG 2025",
+"Ingreso financiero",
+"2.500,00"
+],
+[
+"PyG 2025",
+"Pérdidas por deterioro",
+"−9.200,00"
+],
+[
+"ECPN 2025",
+"Saldo de PyG",
+"−6.700,00"
+],
+[
+"EFE 2025",
+"Intereses cobrados",
+"2.500,00"
+]
+]
+}
+}
+],
+"claves": [
+"El paso de stage 1 a stage 2 cambia la cobertura de 12 meses a toda la vida: de 900 a 10.100 €.",
+"La carencia de principal no impide reconocer y cobrar los intereses."
+]
+}
+]
+},
+{
 "id": "esuper",
 "fecha": "",
 "fechaTxt": "Fecha no indicada",
@@ -3989,6 +4600,10 @@ const EXAMENES = [
 [
 "Examen superextraordinario (solución).docx",
 "Solución"
+],
+[
+"Examen superextraordinario (resuelto).xlsx",
+"Excel resuelto (en tu carpeta)"
 ]
 ],
 "aviso": "El documento no lleva fecha. Por los datos (cierres hasta 31.12.16) es posterior a esa fecha. El tipo «superextraordinario» sale del nombre del archivo.",
@@ -4144,10 +4759,15 @@ const EXAMENES = [
 "t": "Derivado: sube de 100.000 a 125.000 €"
 }
 ]
+},
+{
+"t": "Comentario",
+"p": "Por qué es un híbrido y no un compuesto: el inversor puede cobrar en acciones de OTRA compañía. Para el emisor eso es un derivado (no entrega patrimonio propio), así que el bono es un contrato principal pasivo con un derivado implícito, y la norma le deja segregar o no segregar (es el caso «PF → dos opciones» de la pizarra del 27/11). Signos: la sociedad es la emisora. La hoja del profesor llama «ingresos financieros» al crecimiento del coste amortizado y la solución dice que sin segregar se reconocería «como ingreso» la variación VR−CA; para el emisor ambas cosas son gastos, porque crece su pasivo. Un detalle más: al emitir, el derivado vale 5.000.000 − 4.528.654,05 = 471.345,95 € y a 31.12.14 vale 100.000 €, una ganancia de 371.345,95 € en 2014 que el enunciado no pide."
 }
 ],
 "claves": [
-"Segregar: deuda a coste amortizado y derivado a valor razonable; sin segregar: todo a valor razonable, con una partida más en resultados."
+"Segregar: deuda a coste amortizado y derivado a valor razonable; sin segregar: todo a valor razonable, con una partida más en resultados.",
+"Opción sobre acciones propias, fijo por fijo: compuesto (patrimonio). Opción sobre acciones de otra compañía: híbrido (derivado)."
 ]
 },
 {
@@ -4207,8 +4827,8 @@ const EXAMENES = [
 }
 },
 {
-"t": "Una discrepancia en la hoja",
-"p": "La hoja de cálculo da 800.675,98 €, pero su «valor contable de la deuda» (782.052,26 €) suma solo el capital y los intereses ordinarios: deja fuera los 5.343,36 € de demora que ella misma contabiliza. La solución escrita dice «el importe contable de la deuda más los intereses de la quinta cuota más la demora de las cuotas tercera y cuarta desde el 30.9.16»; incluyendo la demora contabilizada el total es 806.019,34 €. Es la cifra coherente con el texto."
+"t": "Una discrepancia que viene del enunciado",
+"p": "La «situación contable» la da el propio enunciado y ya trae el fallo: lista 5.343,36 € de intereses de demora contabilizados, pero su total (782.052,26 €) solo suma capital e intereses ordinarios. La hoja arrastra ese total y da 800.675,98 € a pagar. Sumando toda la demora, el deudor debe 806.019,34 € = capital 761.053,19 + intereses ordinarios de las cuotas 3, 4 y 5 (28.722,33) + demora total 16.243,82. En el examen conviene dar 806.019,34 € y explicar la diferencia de 5.343,36 €."
 },
 {
 "t": "Cobro y efecto",
@@ -4258,6 +4878,109 @@ const EXAMENES = [
 "Los intereses de demora se capitalizan: el saldo vencido más su demora devenga más demora."
 ]
 }
+],
+"respuesta": {
+"intro": "Lo que pide el enunciado, junto. Ejercicio 1: valores en balance al cierre de los tres ejercicios y resultados de los dos últimos con la opción elegida (segregar) y con la otra (no segregar), vistos por el emisor. Ejercicio 2: importe para cancelar la deuda. Cifras de la hoja «Respuesta» del Excel resuelto.",
+"tablas": [
+{
+"cap": "Ejercicio 1 · Valores en balance (€)",
+"head": [
+"",
+"31.12.14",
+"31.12.15",
+"31.12.16"
+],
+"rows": [
+[
+"Segregando: deuda a coste amortizado",
+"4.573.716,39",
+"4.665.190,72",
+"4.758.494,54"
+],
+[
+"Segregando: derivado implícito a VR",
+"100.000,00",
+"125.000,00",
+"75.000,00"
+],
+[
+"Total en balance si segrega",
+"4.673.716,39",
+"4.790.190,72",
+"4.833.494,54"
+],
+[
+"Sin segregar: bono estructurado a VR",
+"4.724.503,62",
+"4.871.121,55",
+"4.922.104,97"
+],
+[
+"Diferencia (dif. VR−CA de la deuda)",
+"50.787,23",
+"80.930,83",
+"88.610,43"
 ]
+]
+},
+{
+"cap": "Ejercicio 1 · Resultados del emisor (€; negativo = gasto)",
+"head": [
+"",
+"2015",
+"2016"
+],
+"rows": [
+[
+"Gastos financieros de la deuda",
+"−91.474,33",
+"−93.303,81"
+],
+[
+"Variación del derivado implícito",
+"−25.000,00",
+"50.000,00"
+],
+[
+"Resultado si segrega",
+"−116.474,33",
+"−43.303,81"
+],
+[
+"Variación de la dif. VR−CA de la deuda (solo sin segregar)",
+"−30.143,60",
+"−7.679,60"
+],
+[
+"Resultado si no segrega",
+"−146.617,93",
+"−50.983,42"
+]
+]
+},
+{
+"cap": "Ejercicio 2 · Importe para cancelar la deuda el 31.12.16 (€)",
+"head": [
+"",
+"Importe"
+],
+"rows": [
+[
+"Importe a pagar (con toda la demora)",
+"806.019,34"
+],
+[
+"Importe que da la hoja del profesor",
+"800.675,98"
+],
+[
+"Diferencia: demora contabilizada que no se sumaba",
+"5.343,36"
+]
+]
+}
+],
+"nota": "Comprobación: sin segregar, el resultado coincide con la variación del valor razonable del bono estructurado (146.617,93 € en 2015 y 50.983,42 € en 2016)."
+}
 }
 ];

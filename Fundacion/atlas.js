@@ -60,7 +60,7 @@ const TOPICS = [
     },
     {
         id: 'act_contabilidad2', cluster: 'act', name: 'Contabilidad 2: instrumentos financieros',
-        desc: 'Instrumentos financieros bajo la NIIF 9: test SPPI y modelo de negocio, carteras (coste amortizado, valor razonable con cambios en PyG u ORG), reclasificaciones, pasivos financieros, derivados y coberturas, y deterioro por pérdida esperada.',
+        desc: 'Instrumentos financieros bajo la NIIF 9: test SPPI y modelo de negocio, carteras y reclasificaciones, pasivos financieros, instrumentos combinados (compuestos e híbridos), baja de activos financieros, coberturas y deterioro por pérdida esperada con el modelo del Banco de España.',
         related: ['act_contabilidad', 'act_ifrs17', 'eco_renta_fija', 'eco_derivados'],
         knowledge: 'contabilidad2'
     },
